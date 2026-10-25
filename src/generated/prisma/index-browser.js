@@ -133,6 +133,23 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.AccountAcquisitionScalarFieldEnum = {
+  stakeholderId: 'stakeholderId',
+  verifiedAt: 'verifiedAt',
+  recordedAt: 'recordedAt',
+  source: 'source',
+  medium: 'medium',
+  campaign: 'campaign',
+  landing: 'landing',
+  entryPoint: 'entryPoint',
+  excluded: 'excluded',
+  firstCompletedReportAt: 'firstCompletedReportAt',
+  firstPaidAt: 'firstPaidAt',
+  firstPaidInvoiceId: 'firstPaidInvoiceId',
+  firstPaidAmount: 'firstPaidAmount',
+  firstPaidCurrency: 'firstPaidCurrency'
+};
+
 exports.Prisma.TeamScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -1046,6 +1063,7 @@ exports.StatementAnswer = exports.$Enums.StatementAnswer = {
 
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
+  AccountAcquisition: 'AccountAcquisition',
   Team: 'Team',
   Agency: 'Agency',
   AgencyBranding: 'AgencyBranding',

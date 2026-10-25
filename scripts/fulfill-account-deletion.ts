@@ -147,6 +147,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       db.notification.deleteMany({ where: { recipientId: person.id } }),
       db.errorEvent.deleteMany({ where: { stakeholderId: person.id } }),
       db.productEvent.deleteMany({ where: { stakeholderId: person.id } }),
+      db.accountAcquisition.deleteMany({ where: { stakeholderId: person.id } }),
       db.tenancyCollaborator.deleteMany({ where: { stakeholderId: person.id } }),
       db.inspectionAccessGrant.deleteMany({ where: { stakeholderId: person.id } }),
     ])
@@ -303,6 +304,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
       // The notification cascade also removes queued push deliveries and emailTo.
       await tx.deviceInstallation.deleteMany({ where: { stakeholderId: person.id } })
       await tx.notification.deleteMany({ where: { recipientId: person.id } })
+      await tx.accountAcquisition.deleteMany({ where: { stakeholderId: person.id } })
       await tx.tenancyCollaborator.deleteMany({ where: { stakeholderId: person.id } })
       await tx.inspectionAccessGrant.deleteMany({ where: { stakeholderId: person.id } })
       // The logo object went before this transaction; see above.

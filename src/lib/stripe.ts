@@ -15,8 +15,10 @@ export function stripe() {
   return new Stripe(key)
 }
 
-/// Whether Pro can be bought here. A sandbox key in production would hand Pro to anyone
-/// who pays with Stripe's public test card, so production sells only on a live key.
+/// Subscriptions need signed webhooks even when the customer never returns from Checkout.
+/// A sandbox key in production would hand Pro to anyone with Stripe's public test card.
 export function checkoutOpen() {
-  return process.env.VERCEL_ENV !== 'production' || /^(sk|rk)_live_/.test(process.env.STRIPE_SECRET_KEY ?? '')
+  const key = process.env.STRIPE_SECRET_KEY ?? ''
+  if (!/^(sk|rk)_(test|live)_/.test(key) || !/^whsec_/.test(process.env.STRIPE_WEBHOOK_SECRET ?? '')) return false
+  return process.env.VERCEL_ENV !== 'production' || /^(sk|rk)_live_/.test(key)
 }

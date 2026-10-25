@@ -879,7 +879,7 @@ async function recordSignature(
     // check-out signature must also serialize with a landlord answering a notice.
     const tenancy = await tx.tenancy.findUniqueOrThrow({
       where: { id: tenancyId },
-      select: { landlordId: true, tenantId: true },
+      select: { landlordId: true, tenantId: true, agentId: true },
     })
     const required = [tenancy.landlordId, tenancy.tenantId]
     if (!required.includes(stakeholderId)) throw new Error('Signature party not found')
@@ -913,7 +913,24 @@ async function recordSignature(
     })
     const signed = new Set(signatures.map((signature) => signature.stakeholderId))
     if (required.every((id) => signed.has(id)) && current.status !== 'COMPLETED') {
-      await tx.inspection.update({ where: { id: inspectionId }, data: { status: 'COMPLETED' } })
+      const completed = await tx.inspection.update({
+        where: { id: inspectionId }, data: { status: 'COMPLETED' },
+        select: { reportAgentFrozen: true, reportAgentId: true, conductedById: true },
+      })
+      // Credit the report's responsible agent, never the party who signs last or a
+      // later tenancy lead. Frozen null is intentional; only legacy reports fall
+      // back to their conductor/lead. This conditional write also serializes two
+      // different reports completing for the same new account at once.
+      const responsibleAgentId = completed.reportAgentFrozen
+        ? completed.reportAgentId
+        : completed.conductedById ?? tenancy.agentId
+      if (responsibleAgentId) {
+        const completedAt = new Date()
+        await tx.accountAcquisition.updateMany({
+          where: { stakeholderId: responsibleAgentId, verifiedAt: { lte: completedAt }, firstCompletedReportAt: null },
+          data: { firstCompletedReportAt: completedAt },
+        })
+      }
       await queueSignedCopies(tx, inspectionId)
     }
   })

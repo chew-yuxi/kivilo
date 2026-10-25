@@ -17,12 +17,14 @@ config({ path: ['.env.local', '.env'], quiet: true })
 
 const UNIT_AMOUNT = 3900 // S$39.00
 const CURRENCY = 'sgd'
-/// Every event the webhook acts on, and nothing else. All of them end in `syncSubscription`.
+/// Every event the webhook acts on, and nothing else.
 const EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
   'checkout.session.completed',
+  'checkout.session.async_payment_succeeded',
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
+  'invoice.payment_succeeded',
 ]
 
 async function product(client: Stripe) {
@@ -102,7 +104,7 @@ async function webhook(client: Stripe, base: string) {
     url,
     enabled_events: EVENTS,
     api_version: Stripe.API_VERSION,
-    description: 'Kivilo: keeps Subscription rows in step with Stripe',
+    description: 'Kivilo: subscription state and verified paid conversions',
   })
   console.log(`Created webhook ${created.id} for ${url}`)
   console.log(`Store this as STRIPE_WEBHOOK_SECRET; it is not shown again:\n${created.secret}`)

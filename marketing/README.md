@@ -16,11 +16,22 @@ pnpm marketing:build
 wrangler deploy --config marketing/wrangler.jsonc
 pnpm marketing:indexnow
 pnpm marketing:indexnow --submit
+pnpm marketing:visibility
+pnpm marketing:visibility:test
 ```
 
 Build and deploy from an isolated checkout when other tasks are building in this
 workspace: both `prepare-marketing.mjs` and Next overwrite generated marketing files.
 Deploy the exact export that passed review.
+
+Search performance is tracked separately from URL submission. The read-only
+`marketing:visibility` command saves private dated checks of the live public pages,
+discovery files and local IndexNow receipts. Import real dashboard observations with
+`--observations /absolute/private/path/observations.json`; public HTTP success never
+becomes an inferred index, traffic or AI citation count. The collector carries old
+observations with their original timestamps. See [the tracking runbook](../docs/seo-tracking.md)
+for metric definitions and the fixed query panel, and [the 26 October baseline](../plans/seo-geo-baseline-20261026.md)
+for sourced starting values and the active Wednesday 09:00 Singapore review schedule.
 
 The build exports HTML, CSS and browser JavaScript to `marketing/out`. It needs no
 backend environment variables. `prepare-marketing.mjs` copies only the existing
@@ -169,8 +180,12 @@ this confirms sitemap processing, not that all pages are indexed. The reviewed e
 was published as Cloudflare version `dc3af825-b675-477b-8214-3b65356207f0`; the
 later verification-file release is recorded below.
 Monitor search impressions, landing-page visits and actual crawler access in Cloudflare.
-Cloudflare injects its existing web analytics beacon; this change adds no app signup
-event instrumentation, so signup attribution needs separate measurement.
+Cloudflare injects its existing web analytics beacon. Acquisition capture now keeps
+the first recognized public source and landing page for 30 days in a first-party
+cookie shared with the app. Verified signups, first completed reports and first live
+payments are separate server milestones in `/admin`; they are not Cloudflare visits.
+See [the acquisition boundary](../docs/seo-tracking.md#acquisition-boundary-and-follow-up)
+for exclusions, privacy limits and cohort interpretation.
 
 ### Cloudflare access for automated readers
 

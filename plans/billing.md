@@ -65,17 +65,110 @@ Stripe is the truth about what a workspace paid for; the `Subscription` row is a
 - `/account` syncs on the way back from Checkout (`?checkout={CHECKOUT_SESSION_ID}`) and
   from the portal (`?billing=returned`), so the plan is current before the webhook lands.
 - `src/app/api/stripe/webhook/route.ts`: verifies the signature on the raw body, then
-  `checkout.session.completed` and `customer.subscription.{created,updated,deleted}` all
-  go through `syncSubscription`. A failure is a 500 that Stripe retries.
+  `checkout.session.{completed,async_payment_succeeded}` re-reads the session and syncs
+  only once payment is paid or no payment is required. Subscription created, updated and
+  deleted events also go through `syncSubscription`. `invoice.payment_succeeded` records
+  the paid conversion described below. A failure is a 500 that Stripe retries.
 - `pnpm team:set` refuses to put an agent paying on their own onto a team while that
   subscription is live. Fulfilling an account deletion cancels, immediately, any live
   subscription the person manages and clears them as manager, so a teammate can
   subscribe again on a customer of their own.
 
-Local: `stripe listen --api-key <sandbox key> --forward-to localhost:3000/api/stripe/webhook`
-and put the secret it prints in `.env.local` as `STRIPE_WEBHOOK_SECRET`. Checkout works
-without it, because the return page syncs. `e2e/billing.spec.ts` pays with a test card.
+Local: authenticate the Stripe CLI to the development sandbox, run
+`stripe listen --forward-to localhost:3000/api/stripe/webhook`, and store its signing
+secret in the uncommitted `.env.local` as `STRIPE_WEBHOOK_SECRET`. Use that sandbox's
+server key as `STRIPE_SECRET_KEY`. Checkout requires both. Webhooks are required even
+when the return page can refresh the plan. `e2e/billing.spec.ts` uses a sandbox test card;
+the billing integration suite uses a Stripe stand-in and real signature verification.
 
-Not handled: GST (no `automatic_tax`; needs a registration first), disputes, refunds and
-early fraud warnings (watch them in the Stripe dashboard), and a manager who leaves a team
-while still paying for it.
+## Paid acquisition milestone (2026-10-26)
+
+`recordPaidInvoice` re-fetches the invoice, including `amount_paid_off_stripe`, and requires
+live mode, paid status, a subscription parent and a positive amount collected through
+Stripe (`amount_paid - amount_paid_off_stripe`). It follows the invoice's subscription,
+syncs it, and verifies the exact current subscription and customer. The local row's
+`managedById` is the payer; a stale subscription or cleared manager earns no conversion.
+The acquisition write rechecks ownership in its condition.
+
+Only an existing `AccountAcquisition` row verified by the invoice's `paid_at` can receive
+`firstPaidAt`, invoice id, amount in the currency's smallest unit, and currency. The earliest
+verified payment wins, even when invoices arrive out of order; retries and later
+payments cannot overwrite it. Legacy accounts
+get no invented signup row. Active/trial/comped access, checkout redirects, zero-value
+invoices, test payments and payments made outside Stripe do not count. Refunds do not
+erase this historical first-payment milestone; it is not a net revenue ledger.
+
+`invoice.payment_succeeded` is deliberate: `invoice.paid` can also be emitted when an
+invoice is marked paid outside Stripe. The fresh invoice checks remain mandatory.
+See Stripe's [event definitions](https://docs.stripe.com/api/events/types) and
+[invoice fields](https://docs.stripe.com/api/invoices/object).
+
+## Live readiness (checked 2026-10-26)
+
+**Production payments remain blocked.** The operator confirmed there is no activated
+Singapore Stripe account yet. A read-only Vercel production check found a test server
+key and no `STRIPE_WEBHOOK_SECRET`. The accessible sandbox has the SGD 39 monthly price
+and portal configuration, but no registered webhook endpoint. These are sandbox
+observations, not evidence of a configured live account. No account, live resources,
+live charges or production settings were created or changed during this work. The
+browser suite completed a sandbox Checkout payment with a temporary CLI webhook
+listener; the listener and its isolated credentials were removed afterward. That pass
+does not verify live payment readiness.
+
+`checkoutOpen()` requires a server key plus a `whsec_` signing secret everywhere, and
+a live server key in Vercel production. This checks configuration presence and mode;
+it cannot prove account activation, key permissions, webhook delivery or catalog health.
+
+Operator setup order:
+
+1. Create and activate the business's Singapore Stripe account in the Dashboard. Complete
+   Stripe's requested business/identity information, payout account and customer-facing
+   details. Confirm the live account can accept charges and receive payouts.
+2. Validate the deployed billing flow in a separate sandbox, including signed webhook
+   delivery, retries, a delayed payment, failed renewal, cancellation and account deletion.
+   Complete the remaining lifecycle/risk handling below before declaring live readiness.
+3. Use a separate restricted setup key in a secure operator environment to run
+   `pnpm billing:setup https://my.kivilo.app` against the live account. This creates live
+   catalog/portal/webhook resources; it must be an intentional operator action. Match
+   the webhook API version to the installed SDK (`2026-09-30.endive` at this check).
+   The script prints a new endpoint's secret once; store it directly in the secret store,
+   never in chat, source control or shared logs. For an existing endpoint, retrieve its
+   signing secret from the Stripe Dashboard and verify its API version there.
+4. After catalog, webhook and permission checks, configure Vercel **production sensitive
+   environment variables**: the runtime restricted live key in `STRIPE_SECRET_KEY` and
+   that live endpoint's `whsec_` in `STRIPE_WEBHOOK_SECRET`. Keep local/preview keys and
+   webhook secrets in their sandbox. Deploy only when ready to open paid checkout.
+5. Confirm the live endpoint is enabled and deliveries return 2xx, then reconcile the
+   first authorized real customer payment with its invoice, local subscription and paid
+   acquisition milestone. A test-card transaction cannot verify a live payment.
+
+Live and sandbox resources are separate; the existing sandbox price cannot be used in
+live mode. Follow Stripe's [go-live checklist](https://docs.stripe.com/get-started/checklist/go-live)
+and [key separation guidance](https://docs.stripe.com/keys).
+
+Restricted key permissions follow the actual SDK calls in this repo:
+
+| Key | Required resource access |
+|---|---|
+| Runtime | Checkout Sessions write; Subscriptions write (includes cancellation on account deletion); Invoices read; Prices read; Customer Portal sessions write and configurations read |
+| Temporary setup | Products write; Prices write; Customer Portal configurations write; Webhook Endpoints write |
+
+Write includes read. Start with these mapped permissions, validate every path with a
+sandbox restricted key, and inspect Stripe's permission errors for any dependent
+permissions before issuing the live equivalent. The runtime has no need to create
+products, prices or webhook endpoints. Retire the separate setup key after use. See
+[restricted key setup](https://docs.stripe.com/keys/restricted-api-keys).
+
+Remaining launch work: explicit `invoice.paid` / `invoice.payment_failed` lifecycle
+handling, and actions/alerting for `charge.dispute.created`, `charge.refunded` and
+`radar.early_fraud_warning.created`. They are not subscribed merely to acknowledge and
+discard them. Resolve each through Stripe's current invoice/subscription graph and
+decide the response before enabling live sales. Concurrent duplicate checkouts still
+need the documented manual refund/cancellation resolution.
+See [subscription webhook guidance](https://docs.stripe.com/billing/subscriptions/webhooks).
+
+GST/Stripe Tax remains unconfigured: no `automatic_tax` is enabled. Confirm applicable
+registrations with the business's tax adviser, then configure the confirmed live tax
+settings, product tax code and price tax behavior before enabling automatic tax. A
+sandbox registration does not establish live collection. See
+[recurring payment tax setup](https://docs.stripe.com/billing/taxes/collect-taxes?tax-calculation=stripe-tax).

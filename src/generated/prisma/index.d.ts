@@ -19,6 +19,13 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Stakeholder = $Result.DefaultSelection<Prisma.$StakeholderPayload>
 /**
+ * Model AccountAcquisition
+ * One verified account's first observed acquisition and conversion milestones.
+ * Created only when a verified Auth user first claims/creates its stakeholder;
+ * existing linked accounts are never assigned a guessed signup date or source.
+ */
+export type AccountAcquisition = $Result.DefaultSelection<Prisma.$AccountAcquisitionPayload>
+/**
  * Model Team
  * A billing workspace set up with `pnpm team:set`. Membership does not grant or revoke
  * property access; the lead agent shares each tenancy explicitly.
@@ -961,6 +968,16 @@ export class PrismaClient<
   get stakeholder(): Prisma.StakeholderDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.accountAcquisition`: Exposes CRUD operations for the **AccountAcquisition** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AccountAcquisitions
+    * const accountAcquisitions = await prisma.accountAcquisition.findMany()
+    * ```
+    */
+  get accountAcquisition(): Prisma.AccountAcquisitionDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.team`: Exposes CRUD operations for the **Team** model.
     * Example usage:
     * ```ts
@@ -1887,6 +1904,7 @@ export namespace Prisma {
 
   export const ModelName: {
     Stakeholder: 'Stakeholder',
+    AccountAcquisition: 'AccountAcquisition',
     Team: 'Team',
     Agency: 'Agency',
     AgencyBranding: 'AgencyBranding',
@@ -1950,7 +1968,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2025,6 +2043,80 @@ export namespace Prisma {
           count: {
             args: Prisma.StakeholderCountArgs<ExtArgs>
             result: $Utils.Optional<StakeholderCountAggregateOutputType> | number
+          }
+        }
+      }
+      AccountAcquisition: {
+        payload: Prisma.$AccountAcquisitionPayload<ExtArgs>
+        fields: Prisma.AccountAcquisitionFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AccountAcquisitionFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AccountAcquisitionFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          findFirst: {
+            args: Prisma.AccountAcquisitionFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AccountAcquisitionFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          findMany: {
+            args: Prisma.AccountAcquisitionFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>[]
+          }
+          create: {
+            args: Prisma.AccountAcquisitionCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          createMany: {
+            args: Prisma.AccountAcquisitionCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AccountAcquisitionCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>[]
+          }
+          delete: {
+            args: Prisma.AccountAcquisitionDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          update: {
+            args: Prisma.AccountAcquisitionUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          deleteMany: {
+            args: Prisma.AccountAcquisitionDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AccountAcquisitionUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AccountAcquisitionUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>[]
+          }
+          upsert: {
+            args: Prisma.AccountAcquisitionUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AccountAcquisitionPayload>
+          }
+          aggregate: {
+            args: Prisma.AccountAcquisitionAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAccountAcquisition>
+          }
+          groupBy: {
+            args: Prisma.AccountAcquisitionGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AccountAcquisitionGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AccountAcquisitionCountArgs<ExtArgs>
+            result: $Utils.Optional<AccountAcquisitionCountAggregateOutputType> | number
           }
         }
       }
@@ -5704,6 +5796,7 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     stakeholder?: StakeholderOmit
+    accountAcquisition?: AccountAcquisitionOmit
     team?: TeamOmit
     agency?: AgencyOmit
     agencyBranding?: AgencyBrandingOmit
@@ -7360,6 +7453,7 @@ export namespace Prisma {
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     productEvents?: boolean | Stakeholder$productEventsArgs<ExtArgs>
+    acquisition?: boolean | Stakeholder$acquisitionArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
@@ -7440,6 +7534,7 @@ export namespace Prisma {
     branding?: boolean | Stakeholder$brandingArgs<ExtArgs>
     errorEvents?: boolean | Stakeholder$errorEventsArgs<ExtArgs>
     productEvents?: boolean | Stakeholder$productEventsArgs<ExtArgs>
+    acquisition?: boolean | Stakeholder$acquisitionArgs<ExtArgs>
     reportEmails?: boolean | Stakeholder$reportEmailsArgs<ExtArgs>
     addendaCreated?: boolean | Stakeholder$addendaCreatedArgs<ExtArgs>
     addendaPublished?: boolean | Stakeholder$addendaPublishedArgs<ExtArgs>
@@ -7486,6 +7581,7 @@ export namespace Prisma {
       branding: Prisma.$AgentBrandingPayload<ExtArgs> | null
       errorEvents: Prisma.$ErrorEventPayload<ExtArgs>[]
       productEvents: Prisma.$ProductEventPayload<ExtArgs>[]
+      acquisition: Prisma.$AccountAcquisitionPayload<ExtArgs> | null
       reportEmails: Prisma.$ReportEmailPayload<ExtArgs>[]
       addendaCreated: Prisma.$ReportAddendumPayload<ExtArgs>[]
       addendaPublished: Prisma.$ReportAddendumPayload<ExtArgs>[]
@@ -7941,6 +8037,7 @@ export namespace Prisma {
     branding<T extends Stakeholder$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$brandingArgs<ExtArgs>>): Prisma__AgentBrandingClient<$Result.GetResult<Prisma.$AgentBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     errorEvents<T extends Stakeholder$errorEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$errorEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ErrorEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     productEvents<T extends Stakeholder$productEventsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$productEventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    acquisition<T extends Stakeholder$acquisitionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$acquisitionArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     reportEmails<T extends Stakeholder$reportEmailsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$reportEmailsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportEmailPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaCreated<T extends Stakeholder$addendaCreatedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     addendaPublished<T extends Stakeholder$addendaPublishedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$addendaPublishedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ReportAddendumPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8934,6 +9031,25 @@ export namespace Prisma {
   }
 
   /**
+   * Stakeholder.acquisition
+   */
+  export type Stakeholder$acquisitionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    where?: AccountAcquisitionWhereInput
+  }
+
+  /**
    * Stakeholder.reportEmails
    */
   export type Stakeholder$reportEmailsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9208,6 +9324,1229 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: StakeholderInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AccountAcquisition
+   */
+
+  export type AggregateAccountAcquisition = {
+    _count: AccountAcquisitionCountAggregateOutputType | null
+    _avg: AccountAcquisitionAvgAggregateOutputType | null
+    _sum: AccountAcquisitionSumAggregateOutputType | null
+    _min: AccountAcquisitionMinAggregateOutputType | null
+    _max: AccountAcquisitionMaxAggregateOutputType | null
+  }
+
+  export type AccountAcquisitionAvgAggregateOutputType = {
+    firstPaidAmount: number | null
+  }
+
+  export type AccountAcquisitionSumAggregateOutputType = {
+    firstPaidAmount: number | null
+  }
+
+  export type AccountAcquisitionMinAggregateOutputType = {
+    stakeholderId: string | null
+    verifiedAt: Date | null
+    recordedAt: Date | null
+    source: string | null
+    medium: string | null
+    campaign: string | null
+    landing: string | null
+    entryPoint: string | null
+    excluded: boolean | null
+    firstCompletedReportAt: Date | null
+    firstPaidAt: Date | null
+    firstPaidInvoiceId: string | null
+    firstPaidAmount: number | null
+    firstPaidCurrency: string | null
+  }
+
+  export type AccountAcquisitionMaxAggregateOutputType = {
+    stakeholderId: string | null
+    verifiedAt: Date | null
+    recordedAt: Date | null
+    source: string | null
+    medium: string | null
+    campaign: string | null
+    landing: string | null
+    entryPoint: string | null
+    excluded: boolean | null
+    firstCompletedReportAt: Date | null
+    firstPaidAt: Date | null
+    firstPaidInvoiceId: string | null
+    firstPaidAmount: number | null
+    firstPaidCurrency: string | null
+  }
+
+  export type AccountAcquisitionCountAggregateOutputType = {
+    stakeholderId: number
+    verifiedAt: number
+    recordedAt: number
+    source: number
+    medium: number
+    campaign: number
+    landing: number
+    entryPoint: number
+    excluded: number
+    firstCompletedReportAt: number
+    firstPaidAt: number
+    firstPaidInvoiceId: number
+    firstPaidAmount: number
+    firstPaidCurrency: number
+    _all: number
+  }
+
+
+  export type AccountAcquisitionAvgAggregateInputType = {
+    firstPaidAmount?: true
+  }
+
+  export type AccountAcquisitionSumAggregateInputType = {
+    firstPaidAmount?: true
+  }
+
+  export type AccountAcquisitionMinAggregateInputType = {
+    stakeholderId?: true
+    verifiedAt?: true
+    recordedAt?: true
+    source?: true
+    medium?: true
+    campaign?: true
+    landing?: true
+    entryPoint?: true
+    excluded?: true
+    firstCompletedReportAt?: true
+    firstPaidAt?: true
+    firstPaidInvoiceId?: true
+    firstPaidAmount?: true
+    firstPaidCurrency?: true
+  }
+
+  export type AccountAcquisitionMaxAggregateInputType = {
+    stakeholderId?: true
+    verifiedAt?: true
+    recordedAt?: true
+    source?: true
+    medium?: true
+    campaign?: true
+    landing?: true
+    entryPoint?: true
+    excluded?: true
+    firstCompletedReportAt?: true
+    firstPaidAt?: true
+    firstPaidInvoiceId?: true
+    firstPaidAmount?: true
+    firstPaidCurrency?: true
+  }
+
+  export type AccountAcquisitionCountAggregateInputType = {
+    stakeholderId?: true
+    verifiedAt?: true
+    recordedAt?: true
+    source?: true
+    medium?: true
+    campaign?: true
+    landing?: true
+    entryPoint?: true
+    excluded?: true
+    firstCompletedReportAt?: true
+    firstPaidAt?: true
+    firstPaidInvoiceId?: true
+    firstPaidAmount?: true
+    firstPaidCurrency?: true
+    _all?: true
+  }
+
+  export type AccountAcquisitionAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountAcquisition to aggregate.
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountAcquisitions to fetch.
+     */
+    orderBy?: AccountAcquisitionOrderByWithRelationInput | AccountAcquisitionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AccountAcquisitionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountAcquisitions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountAcquisitions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AccountAcquisitions
+    **/
+    _count?: true | AccountAcquisitionCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AccountAcquisitionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AccountAcquisitionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AccountAcquisitionMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AccountAcquisitionMaxAggregateInputType
+  }
+
+  export type GetAccountAcquisitionAggregateType<T extends AccountAcquisitionAggregateArgs> = {
+        [P in keyof T & keyof AggregateAccountAcquisition]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAccountAcquisition[P]>
+      : GetScalarType<T[P], AggregateAccountAcquisition[P]>
+  }
+
+
+
+
+  export type AccountAcquisitionGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AccountAcquisitionWhereInput
+    orderBy?: AccountAcquisitionOrderByWithAggregationInput | AccountAcquisitionOrderByWithAggregationInput[]
+    by: AccountAcquisitionScalarFieldEnum[] | AccountAcquisitionScalarFieldEnum
+    having?: AccountAcquisitionScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AccountAcquisitionCountAggregateInputType | true
+    _avg?: AccountAcquisitionAvgAggregateInputType
+    _sum?: AccountAcquisitionSumAggregateInputType
+    _min?: AccountAcquisitionMinAggregateInputType
+    _max?: AccountAcquisitionMaxAggregateInputType
+  }
+
+  export type AccountAcquisitionGroupByOutputType = {
+    stakeholderId: string
+    verifiedAt: Date
+    recordedAt: Date
+    source: string
+    medium: string | null
+    campaign: string | null
+    landing: string | null
+    entryPoint: string
+    excluded: boolean
+    firstCompletedReportAt: Date | null
+    firstPaidAt: Date | null
+    firstPaidInvoiceId: string | null
+    firstPaidAmount: number | null
+    firstPaidCurrency: string | null
+    _count: AccountAcquisitionCountAggregateOutputType | null
+    _avg: AccountAcquisitionAvgAggregateOutputType | null
+    _sum: AccountAcquisitionSumAggregateOutputType | null
+    _min: AccountAcquisitionMinAggregateOutputType | null
+    _max: AccountAcquisitionMaxAggregateOutputType | null
+  }
+
+  type GetAccountAcquisitionGroupByPayload<T extends AccountAcquisitionGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AccountAcquisitionGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AccountAcquisitionGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AccountAcquisitionGroupByOutputType[P]>
+            : GetScalarType<T[P], AccountAcquisitionGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AccountAcquisitionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    verifiedAt?: boolean
+    recordedAt?: boolean
+    source?: boolean
+    medium?: boolean
+    campaign?: boolean
+    landing?: boolean
+    entryPoint?: boolean
+    excluded?: boolean
+    firstCompletedReportAt?: boolean
+    firstPaidAt?: boolean
+    firstPaidInvoiceId?: boolean
+    firstPaidAmount?: boolean
+    firstPaidCurrency?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountAcquisition"]>
+
+  export type AccountAcquisitionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    verifiedAt?: boolean
+    recordedAt?: boolean
+    source?: boolean
+    medium?: boolean
+    campaign?: boolean
+    landing?: boolean
+    entryPoint?: boolean
+    excluded?: boolean
+    firstCompletedReportAt?: boolean
+    firstPaidAt?: boolean
+    firstPaidInvoiceId?: boolean
+    firstPaidAmount?: boolean
+    firstPaidCurrency?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountAcquisition"]>
+
+  export type AccountAcquisitionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    stakeholderId?: boolean
+    verifiedAt?: boolean
+    recordedAt?: boolean
+    source?: boolean
+    medium?: boolean
+    campaign?: boolean
+    landing?: boolean
+    entryPoint?: boolean
+    excluded?: boolean
+    firstCompletedReportAt?: boolean
+    firstPaidAt?: boolean
+    firstPaidInvoiceId?: boolean
+    firstPaidAmount?: boolean
+    firstPaidCurrency?: boolean
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["accountAcquisition"]>
+
+  export type AccountAcquisitionSelectScalar = {
+    stakeholderId?: boolean
+    verifiedAt?: boolean
+    recordedAt?: boolean
+    source?: boolean
+    medium?: boolean
+    campaign?: boolean
+    landing?: boolean
+    entryPoint?: boolean
+    excluded?: boolean
+    firstCompletedReportAt?: boolean
+    firstPaidAt?: boolean
+    firstPaidInvoiceId?: boolean
+    firstPaidAmount?: boolean
+    firstPaidCurrency?: boolean
+  }
+
+  export type AccountAcquisitionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"stakeholderId" | "verifiedAt" | "recordedAt" | "source" | "medium" | "campaign" | "landing" | "entryPoint" | "excluded" | "firstCompletedReportAt" | "firstPaidAt" | "firstPaidInvoiceId" | "firstPaidAmount" | "firstPaidCurrency", ExtArgs["result"]["accountAcquisition"]>
+  export type AccountAcquisitionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AccountAcquisitionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+  export type AccountAcquisitionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | StakeholderDefaultArgs<ExtArgs>
+  }
+
+  export type $AccountAcquisitionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AccountAcquisition"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      stakeholderId: string
+      verifiedAt: Date
+      recordedAt: Date
+      /**
+       * Finite, validated client observations; absent attribution is "unattributed".
+       */
+      source: string
+      medium: string | null
+      campaign: string | null
+      landing: string | null
+      entryPoint: string
+      excluded: boolean
+      /**
+       * Stamped by the countersignature transaction, never client analytics.
+       */
+      firstCompletedReportAt: Date | null
+      /**
+       * A successful positive live Stripe invoice; not a trial, comp or entitlement.
+       */
+      firstPaidAt: Date | null
+      firstPaidInvoiceId: string | null
+      firstPaidAmount: number | null
+      firstPaidCurrency: string | null
+    }, ExtArgs["result"]["accountAcquisition"]>
+    composites: {}
+  }
+
+  type AccountAcquisitionGetPayload<S extends boolean | null | undefined | AccountAcquisitionDefaultArgs> = $Result.GetResult<Prisma.$AccountAcquisitionPayload, S>
+
+  type AccountAcquisitionCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AccountAcquisitionFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AccountAcquisitionCountAggregateInputType | true
+    }
+
+  export interface AccountAcquisitionDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AccountAcquisition'], meta: { name: 'AccountAcquisition' } }
+    /**
+     * Find zero or one AccountAcquisition that matches the filter.
+     * @param {AccountAcquisitionFindUniqueArgs} args - Arguments to find a AccountAcquisition
+     * @example
+     * // Get one AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AccountAcquisitionFindUniqueArgs>(args: SelectSubset<T, AccountAcquisitionFindUniqueArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AccountAcquisition that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AccountAcquisitionFindUniqueOrThrowArgs} args - Arguments to find a AccountAcquisition
+     * @example
+     * // Get one AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AccountAcquisitionFindUniqueOrThrowArgs>(args: SelectSubset<T, AccountAcquisitionFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountAcquisition that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionFindFirstArgs} args - Arguments to find a AccountAcquisition
+     * @example
+     * // Get one AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AccountAcquisitionFindFirstArgs>(args?: SelectSubset<T, AccountAcquisitionFindFirstArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AccountAcquisition that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionFindFirstOrThrowArgs} args - Arguments to find a AccountAcquisition
+     * @example
+     * // Get one AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AccountAcquisitionFindFirstOrThrowArgs>(args?: SelectSubset<T, AccountAcquisitionFindFirstOrThrowArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AccountAcquisitions that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AccountAcquisitions
+     * const accountAcquisitions = await prisma.accountAcquisition.findMany()
+     * 
+     * // Get first 10 AccountAcquisitions
+     * const accountAcquisitions = await prisma.accountAcquisition.findMany({ take: 10 })
+     * 
+     * // Only select the `stakeholderId`
+     * const accountAcquisitionWithStakeholderIdOnly = await prisma.accountAcquisition.findMany({ select: { stakeholderId: true } })
+     * 
+     */
+    findMany<T extends AccountAcquisitionFindManyArgs>(args?: SelectSubset<T, AccountAcquisitionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AccountAcquisition.
+     * @param {AccountAcquisitionCreateArgs} args - Arguments to create a AccountAcquisition.
+     * @example
+     * // Create one AccountAcquisition
+     * const AccountAcquisition = await prisma.accountAcquisition.create({
+     *   data: {
+     *     // ... data to create a AccountAcquisition
+     *   }
+     * })
+     * 
+     */
+    create<T extends AccountAcquisitionCreateArgs>(args: SelectSubset<T, AccountAcquisitionCreateArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AccountAcquisitions.
+     * @param {AccountAcquisitionCreateManyArgs} args - Arguments to create many AccountAcquisitions.
+     * @example
+     * // Create many AccountAcquisitions
+     * const accountAcquisition = await prisma.accountAcquisition.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AccountAcquisitionCreateManyArgs>(args?: SelectSubset<T, AccountAcquisitionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AccountAcquisitions and returns the data saved in the database.
+     * @param {AccountAcquisitionCreateManyAndReturnArgs} args - Arguments to create many AccountAcquisitions.
+     * @example
+     * // Create many AccountAcquisitions
+     * const accountAcquisition = await prisma.accountAcquisition.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AccountAcquisitions and only return the `stakeholderId`
+     * const accountAcquisitionWithStakeholderIdOnly = await prisma.accountAcquisition.createManyAndReturn({
+     *   select: { stakeholderId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AccountAcquisitionCreateManyAndReturnArgs>(args?: SelectSubset<T, AccountAcquisitionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AccountAcquisition.
+     * @param {AccountAcquisitionDeleteArgs} args - Arguments to delete one AccountAcquisition.
+     * @example
+     * // Delete one AccountAcquisition
+     * const AccountAcquisition = await prisma.accountAcquisition.delete({
+     *   where: {
+     *     // ... filter to delete one AccountAcquisition
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AccountAcquisitionDeleteArgs>(args: SelectSubset<T, AccountAcquisitionDeleteArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AccountAcquisition.
+     * @param {AccountAcquisitionUpdateArgs} args - Arguments to update one AccountAcquisition.
+     * @example
+     * // Update one AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AccountAcquisitionUpdateArgs>(args: SelectSubset<T, AccountAcquisitionUpdateArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AccountAcquisitions.
+     * @param {AccountAcquisitionDeleteManyArgs} args - Arguments to filter AccountAcquisitions to delete.
+     * @example
+     * // Delete a few AccountAcquisitions
+     * const { count } = await prisma.accountAcquisition.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AccountAcquisitionDeleteManyArgs>(args?: SelectSubset<T, AccountAcquisitionDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountAcquisitions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AccountAcquisitions
+     * const accountAcquisition = await prisma.accountAcquisition.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AccountAcquisitionUpdateManyArgs>(args: SelectSubset<T, AccountAcquisitionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AccountAcquisitions and returns the data updated in the database.
+     * @param {AccountAcquisitionUpdateManyAndReturnArgs} args - Arguments to update many AccountAcquisitions.
+     * @example
+     * // Update many AccountAcquisitions
+     * const accountAcquisition = await prisma.accountAcquisition.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AccountAcquisitions and only return the `stakeholderId`
+     * const accountAcquisitionWithStakeholderIdOnly = await prisma.accountAcquisition.updateManyAndReturn({
+     *   select: { stakeholderId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AccountAcquisitionUpdateManyAndReturnArgs>(args: SelectSubset<T, AccountAcquisitionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AccountAcquisition.
+     * @param {AccountAcquisitionUpsertArgs} args - Arguments to update or create a AccountAcquisition.
+     * @example
+     * // Update or create a AccountAcquisition
+     * const accountAcquisition = await prisma.accountAcquisition.upsert({
+     *   create: {
+     *     // ... data to create a AccountAcquisition
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AccountAcquisition we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AccountAcquisitionUpsertArgs>(args: SelectSubset<T, AccountAcquisitionUpsertArgs<ExtArgs>>): Prisma__AccountAcquisitionClient<$Result.GetResult<Prisma.$AccountAcquisitionPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AccountAcquisitions.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionCountArgs} args - Arguments to filter AccountAcquisitions to count.
+     * @example
+     * // Count the number of AccountAcquisitions
+     * const count = await prisma.accountAcquisition.count({
+     *   where: {
+     *     // ... the filter for the AccountAcquisitions we want to count
+     *   }
+     * })
+    **/
+    count<T extends AccountAcquisitionCountArgs>(
+      args?: Subset<T, AccountAcquisitionCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AccountAcquisitionCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AccountAcquisition.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AccountAcquisitionAggregateArgs>(args: Subset<T, AccountAcquisitionAggregateArgs>): Prisma.PrismaPromise<GetAccountAcquisitionAggregateType<T>>
+
+    /**
+     * Group by AccountAcquisition.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AccountAcquisitionGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AccountAcquisitionGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AccountAcquisitionGroupByArgs['orderBy'] }
+        : { orderBy?: AccountAcquisitionGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AccountAcquisitionGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAccountAcquisitionGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AccountAcquisition model
+   */
+  readonly fields: AccountAcquisitionFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AccountAcquisition.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AccountAcquisitionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AccountAcquisition model
+   */
+  interface AccountAcquisitionFieldRefs {
+    readonly stakeholderId: FieldRef<"AccountAcquisition", 'String'>
+    readonly verifiedAt: FieldRef<"AccountAcquisition", 'DateTime'>
+    readonly recordedAt: FieldRef<"AccountAcquisition", 'DateTime'>
+    readonly source: FieldRef<"AccountAcquisition", 'String'>
+    readonly medium: FieldRef<"AccountAcquisition", 'String'>
+    readonly campaign: FieldRef<"AccountAcquisition", 'String'>
+    readonly landing: FieldRef<"AccountAcquisition", 'String'>
+    readonly entryPoint: FieldRef<"AccountAcquisition", 'String'>
+    readonly excluded: FieldRef<"AccountAcquisition", 'Boolean'>
+    readonly firstCompletedReportAt: FieldRef<"AccountAcquisition", 'DateTime'>
+    readonly firstPaidAt: FieldRef<"AccountAcquisition", 'DateTime'>
+    readonly firstPaidInvoiceId: FieldRef<"AccountAcquisition", 'String'>
+    readonly firstPaidAmount: FieldRef<"AccountAcquisition", 'Int'>
+    readonly firstPaidCurrency: FieldRef<"AccountAcquisition", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AccountAcquisition findUnique
+   */
+  export type AccountAcquisitionFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountAcquisition to fetch.
+     */
+    where: AccountAcquisitionWhereUniqueInput
+  }
+
+  /**
+   * AccountAcquisition findUniqueOrThrow
+   */
+  export type AccountAcquisitionFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountAcquisition to fetch.
+     */
+    where: AccountAcquisitionWhereUniqueInput
+  }
+
+  /**
+   * AccountAcquisition findFirst
+   */
+  export type AccountAcquisitionFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountAcquisition to fetch.
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountAcquisitions to fetch.
+     */
+    orderBy?: AccountAcquisitionOrderByWithRelationInput | AccountAcquisitionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountAcquisitions.
+     */
+    cursor?: AccountAcquisitionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountAcquisitions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountAcquisitions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountAcquisitions.
+     */
+    distinct?: AccountAcquisitionScalarFieldEnum | AccountAcquisitionScalarFieldEnum[]
+  }
+
+  /**
+   * AccountAcquisition findFirstOrThrow
+   */
+  export type AccountAcquisitionFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountAcquisition to fetch.
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountAcquisitions to fetch.
+     */
+    orderBy?: AccountAcquisitionOrderByWithRelationInput | AccountAcquisitionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AccountAcquisitions.
+     */
+    cursor?: AccountAcquisitionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountAcquisitions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountAcquisitions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountAcquisitions.
+     */
+    distinct?: AccountAcquisitionScalarFieldEnum | AccountAcquisitionScalarFieldEnum[]
+  }
+
+  /**
+   * AccountAcquisition findMany
+   */
+  export type AccountAcquisitionFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter, which AccountAcquisitions to fetch.
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AccountAcquisitions to fetch.
+     */
+    orderBy?: AccountAcquisitionOrderByWithRelationInput | AccountAcquisitionOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AccountAcquisitions.
+     */
+    cursor?: AccountAcquisitionWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AccountAcquisitions from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AccountAcquisitions.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AccountAcquisitions.
+     */
+    distinct?: AccountAcquisitionScalarFieldEnum | AccountAcquisitionScalarFieldEnum[]
+  }
+
+  /**
+   * AccountAcquisition create
+   */
+  export type AccountAcquisitionCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AccountAcquisition.
+     */
+    data: XOR<AccountAcquisitionCreateInput, AccountAcquisitionUncheckedCreateInput>
+  }
+
+  /**
+   * AccountAcquisition createMany
+   */
+  export type AccountAcquisitionCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AccountAcquisitions.
+     */
+    data: AccountAcquisitionCreateManyInput | AccountAcquisitionCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AccountAcquisition createManyAndReturn
+   */
+  export type AccountAcquisitionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * The data used to create many AccountAcquisitions.
+     */
+    data: AccountAcquisitionCreateManyInput | AccountAcquisitionCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountAcquisition update
+   */
+  export type AccountAcquisitionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AccountAcquisition.
+     */
+    data: XOR<AccountAcquisitionUpdateInput, AccountAcquisitionUncheckedUpdateInput>
+    /**
+     * Choose, which AccountAcquisition to update.
+     */
+    where: AccountAcquisitionWhereUniqueInput
+  }
+
+  /**
+   * AccountAcquisition updateMany
+   */
+  export type AccountAcquisitionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AccountAcquisitions.
+     */
+    data: XOR<AccountAcquisitionUpdateManyMutationInput, AccountAcquisitionUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountAcquisitions to update
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * Limit how many AccountAcquisitions to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountAcquisition updateManyAndReturn
+   */
+  export type AccountAcquisitionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * The data used to update AccountAcquisitions.
+     */
+    data: XOR<AccountAcquisitionUpdateManyMutationInput, AccountAcquisitionUncheckedUpdateManyInput>
+    /**
+     * Filter which AccountAcquisitions to update
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * Limit how many AccountAcquisitions to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AccountAcquisition upsert
+   */
+  export type AccountAcquisitionUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AccountAcquisition to update in case it exists.
+     */
+    where: AccountAcquisitionWhereUniqueInput
+    /**
+     * In case the AccountAcquisition found by the `where` argument doesn't exist, create a new AccountAcquisition with this data.
+     */
+    create: XOR<AccountAcquisitionCreateInput, AccountAcquisitionUncheckedCreateInput>
+    /**
+     * In case the AccountAcquisition was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AccountAcquisitionUpdateInput, AccountAcquisitionUncheckedUpdateInput>
+  }
+
+  /**
+   * AccountAcquisition delete
+   */
+  export type AccountAcquisitionDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
+    /**
+     * Filter which AccountAcquisition to delete.
+     */
+    where: AccountAcquisitionWhereUniqueInput
+  }
+
+  /**
+   * AccountAcquisition deleteMany
+   */
+  export type AccountAcquisitionDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AccountAcquisitions to delete
+     */
+    where?: AccountAcquisitionWhereInput
+    /**
+     * Limit how many AccountAcquisitions to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AccountAcquisition without action
+   */
+  export type AccountAcquisitionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AccountAcquisition
+     */
+    select?: AccountAcquisitionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AccountAcquisition
+     */
+    omit?: AccountAcquisitionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AccountAcquisitionInclude<ExtArgs> | null
   }
 
 
@@ -66837,6 +68176,26 @@ export namespace Prisma {
   export type StakeholderScalarFieldEnum = (typeof StakeholderScalarFieldEnum)[keyof typeof StakeholderScalarFieldEnum]
 
 
+  export const AccountAcquisitionScalarFieldEnum: {
+    stakeholderId: 'stakeholderId',
+    verifiedAt: 'verifiedAt',
+    recordedAt: 'recordedAt',
+    source: 'source',
+    medium: 'medium',
+    campaign: 'campaign',
+    landing: 'landing',
+    entryPoint: 'entryPoint',
+    excluded: 'excluded',
+    firstCompletedReportAt: 'firstCompletedReportAt',
+    firstPaidAt: 'firstPaidAt',
+    firstPaidInvoiceId: 'firstPaidInvoiceId',
+    firstPaidAmount: 'firstPaidAmount',
+    firstPaidCurrency: 'firstPaidCurrency'
+  };
+
+  export type AccountAcquisitionScalarFieldEnum = (typeof AccountAcquisitionScalarFieldEnum)[keyof typeof AccountAcquisitionScalarFieldEnum]
+
+
   export const TeamScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -67703,6 +69062,27 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int'
+   */
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Int[]'
+   */
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
    * Reference to a field of type 'AgencyRole'
    */
   export type EnumAgencyRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgencyRole'>
@@ -67741,27 +69121,6 @@ export namespace Prisma {
    * Reference to a field of type 'Plan[]'
    */
   export type ListEnumPlanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Plan[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int'
-   */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-  /**
-   * Reference to a field of type 'Int[]'
-   */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Boolean'
-   */
-  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -68309,6 +69668,7 @@ export namespace Prisma {
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
     productEvents?: ProductEventListRelationFilter
+    acquisition?: XOR<AccountAcquisitionNullableScalarRelationFilter, AccountAcquisitionWhereInput> | null
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
@@ -68356,6 +69716,7 @@ export namespace Prisma {
     branding?: AgentBrandingOrderByWithRelationInput
     errorEvents?: ErrorEventOrderByRelationAggregateInput
     productEvents?: ProductEventOrderByRelationAggregateInput
+    acquisition?: AccountAcquisitionOrderByWithRelationInput
     reportEmails?: ReportEmailOrderByRelationAggregateInput
     addendaCreated?: ReportAddendumOrderByRelationAggregateInput
     addendaPublished?: ReportAddendumOrderByRelationAggregateInput
@@ -68406,6 +69767,7 @@ export namespace Prisma {
     branding?: XOR<AgentBrandingNullableScalarRelationFilter, AgentBrandingWhereInput> | null
     errorEvents?: ErrorEventListRelationFilter
     productEvents?: ProductEventListRelationFilter
+    acquisition?: XOR<AccountAcquisitionNullableScalarRelationFilter, AccountAcquisitionWhereInput> | null
     reportEmails?: ReportEmailListRelationFilter
     addendaCreated?: ReportAddendumListRelationFilter
     addendaPublished?: ReportAddendumListRelationFilter
@@ -68449,6 +69811,108 @@ export namespace Prisma {
     teamId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
+  }
+
+  export type AccountAcquisitionWhereInput = {
+    AND?: AccountAcquisitionWhereInput | AccountAcquisitionWhereInput[]
+    OR?: AccountAcquisitionWhereInput[]
+    NOT?: AccountAcquisitionWhereInput | AccountAcquisitionWhereInput[]
+    stakeholderId?: StringFilter<"AccountAcquisition"> | string
+    verifiedAt?: DateTimeFilter<"AccountAcquisition"> | Date | string
+    recordedAt?: DateTimeFilter<"AccountAcquisition"> | Date | string
+    source?: StringFilter<"AccountAcquisition"> | string
+    medium?: StringNullableFilter<"AccountAcquisition"> | string | null
+    campaign?: StringNullableFilter<"AccountAcquisition"> | string | null
+    landing?: StringNullableFilter<"AccountAcquisition"> | string | null
+    entryPoint?: StringFilter<"AccountAcquisition"> | string
+    excluded?: BoolFilter<"AccountAcquisition"> | boolean
+    firstCompletedReportAt?: DateTimeNullableFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidAt?: DateTimeNullableFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidInvoiceId?: StringNullableFilter<"AccountAcquisition"> | string | null
+    firstPaidAmount?: IntNullableFilter<"AccountAcquisition"> | number | null
+    firstPaidCurrency?: StringNullableFilter<"AccountAcquisition"> | string | null
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }
+
+  export type AccountAcquisitionOrderByWithRelationInput = {
+    stakeholderId?: SortOrder
+    verifiedAt?: SortOrder
+    recordedAt?: SortOrder
+    source?: SortOrder
+    medium?: SortOrderInput | SortOrder
+    campaign?: SortOrderInput | SortOrder
+    landing?: SortOrderInput | SortOrder
+    entryPoint?: SortOrder
+    excluded?: SortOrder
+    firstCompletedReportAt?: SortOrderInput | SortOrder
+    firstPaidAt?: SortOrderInput | SortOrder
+    firstPaidInvoiceId?: SortOrderInput | SortOrder
+    firstPaidAmount?: SortOrderInput | SortOrder
+    firstPaidCurrency?: SortOrderInput | SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+  }
+
+  export type AccountAcquisitionWhereUniqueInput = Prisma.AtLeast<{
+    stakeholderId?: string
+    firstPaidInvoiceId?: string
+    AND?: AccountAcquisitionWhereInput | AccountAcquisitionWhereInput[]
+    OR?: AccountAcquisitionWhereInput[]
+    NOT?: AccountAcquisitionWhereInput | AccountAcquisitionWhereInput[]
+    verifiedAt?: DateTimeFilter<"AccountAcquisition"> | Date | string
+    recordedAt?: DateTimeFilter<"AccountAcquisition"> | Date | string
+    source?: StringFilter<"AccountAcquisition"> | string
+    medium?: StringNullableFilter<"AccountAcquisition"> | string | null
+    campaign?: StringNullableFilter<"AccountAcquisition"> | string | null
+    landing?: StringNullableFilter<"AccountAcquisition"> | string | null
+    entryPoint?: StringFilter<"AccountAcquisition"> | string
+    excluded?: BoolFilter<"AccountAcquisition"> | boolean
+    firstCompletedReportAt?: DateTimeNullableFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidAt?: DateTimeNullableFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidAmount?: IntNullableFilter<"AccountAcquisition"> | number | null
+    firstPaidCurrency?: StringNullableFilter<"AccountAcquisition"> | string | null
+    stakeholder?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+  }, "stakeholderId" | "firstPaidInvoiceId">
+
+  export type AccountAcquisitionOrderByWithAggregationInput = {
+    stakeholderId?: SortOrder
+    verifiedAt?: SortOrder
+    recordedAt?: SortOrder
+    source?: SortOrder
+    medium?: SortOrderInput | SortOrder
+    campaign?: SortOrderInput | SortOrder
+    landing?: SortOrderInput | SortOrder
+    entryPoint?: SortOrder
+    excluded?: SortOrder
+    firstCompletedReportAt?: SortOrderInput | SortOrder
+    firstPaidAt?: SortOrderInput | SortOrder
+    firstPaidInvoiceId?: SortOrderInput | SortOrder
+    firstPaidAmount?: SortOrderInput | SortOrder
+    firstPaidCurrency?: SortOrderInput | SortOrder
+    _count?: AccountAcquisitionCountOrderByAggregateInput
+    _avg?: AccountAcquisitionAvgOrderByAggregateInput
+    _max?: AccountAcquisitionMaxOrderByAggregateInput
+    _min?: AccountAcquisitionMinOrderByAggregateInput
+    _sum?: AccountAcquisitionSumOrderByAggregateInput
+  }
+
+  export type AccountAcquisitionScalarWhereWithAggregatesInput = {
+    AND?: AccountAcquisitionScalarWhereWithAggregatesInput | AccountAcquisitionScalarWhereWithAggregatesInput[]
+    OR?: AccountAcquisitionScalarWhereWithAggregatesInput[]
+    NOT?: AccountAcquisitionScalarWhereWithAggregatesInput | AccountAcquisitionScalarWhereWithAggregatesInput[]
+    stakeholderId?: StringWithAggregatesFilter<"AccountAcquisition"> | string
+    verifiedAt?: DateTimeWithAggregatesFilter<"AccountAcquisition"> | Date | string
+    recordedAt?: DateTimeWithAggregatesFilter<"AccountAcquisition"> | Date | string
+    source?: StringWithAggregatesFilter<"AccountAcquisition"> | string
+    medium?: StringNullableWithAggregatesFilter<"AccountAcquisition"> | string | null
+    campaign?: StringNullableWithAggregatesFilter<"AccountAcquisition"> | string | null
+    landing?: StringNullableWithAggregatesFilter<"AccountAcquisition"> | string | null
+    entryPoint?: StringWithAggregatesFilter<"AccountAcquisition"> | string
+    excluded?: BoolWithAggregatesFilter<"AccountAcquisition"> | boolean
+    firstCompletedReportAt?: DateTimeNullableWithAggregatesFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidAt?: DateTimeNullableWithAggregatesFilter<"AccountAcquisition"> | Date | string | null
+    firstPaidInvoiceId?: StringNullableWithAggregatesFilter<"AccountAcquisition"> | string | null
+    firstPaidAmount?: IntNullableWithAggregatesFilter<"AccountAcquisition"> | number | null
+    firstPaidCurrency?: StringNullableWithAggregatesFilter<"AccountAcquisition"> | string | null
   }
 
   export type TeamWhereInput = {
@@ -72700,6 +74164,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -72746,6 +74211,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -72792,6 +74258,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -72838,6 +74305,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -72887,6 +74355,124 @@ export namespace Prisma {
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AccountAcquisitionCreateInput = {
+    verifiedAt: Date | string
+    recordedAt?: Date | string
+    source: string
+    medium?: string | null
+    campaign?: string | null
+    landing?: string | null
+    entryPoint: string
+    excluded?: boolean
+    firstCompletedReportAt?: Date | string | null
+    firstPaidAt?: Date | string | null
+    firstPaidInvoiceId?: string | null
+    firstPaidAmount?: number | null
+    firstPaidCurrency?: string | null
+    stakeholder: StakeholderCreateNestedOneWithoutAcquisitionInput
+  }
+
+  export type AccountAcquisitionUncheckedCreateInput = {
+    stakeholderId: string
+    verifiedAt: Date | string
+    recordedAt?: Date | string
+    source: string
+    medium?: string | null
+    campaign?: string | null
+    landing?: string | null
+    entryPoint: string
+    excluded?: boolean
+    firstCompletedReportAt?: Date | string | null
+    firstPaidAt?: Date | string | null
+    firstPaidInvoiceId?: string | null
+    firstPaidAmount?: number | null
+    firstPaidCurrency?: string | null
+  }
+
+  export type AccountAcquisitionUpdateInput = {
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholder?: StakeholderUpdateOneRequiredWithoutAcquisitionNestedInput
+  }
+
+  export type AccountAcquisitionUncheckedUpdateInput = {
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AccountAcquisitionCreateManyInput = {
+    stakeholderId: string
+    verifiedAt: Date | string
+    recordedAt?: Date | string
+    source: string
+    medium?: string | null
+    campaign?: string | null
+    landing?: string | null
+    entryPoint: string
+    excluded?: boolean
+    firstCompletedReportAt?: Date | string | null
+    firstPaidAt?: Date | string | null
+    firstPaidInvoiceId?: string | null
+    firstPaidAmount?: number | null
+    firstPaidCurrency?: string | null
+  }
+
+  export type AccountAcquisitionUpdateManyMutationInput = {
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AccountAcquisitionUncheckedUpdateManyInput = {
+    stakeholderId?: StringFieldUpdateOperationsInput | string
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type TeamCreateInput = {
@@ -77576,6 +79162,11 @@ export namespace Prisma {
     none?: ProductEventWhereInput
   }
 
+  export type AccountAcquisitionNullableScalarRelationFilter = {
+    is?: AccountAcquisitionWhereInput | null
+    isNot?: AccountAcquisitionWhereInput | null
+  }
+
   export type ReportEmailListRelationFilter = {
     every?: ReportEmailWhereInput
     some?: ReportEmailWhereInput
@@ -77829,6 +79420,135 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type StakeholderScalarRelationFilter = {
+    is?: StakeholderWhereInput
+    isNot?: StakeholderWhereInput
+  }
+
+  export type AccountAcquisitionCountOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    verifiedAt?: SortOrder
+    recordedAt?: SortOrder
+    source?: SortOrder
+    medium?: SortOrder
+    campaign?: SortOrder
+    landing?: SortOrder
+    entryPoint?: SortOrder
+    excluded?: SortOrder
+    firstCompletedReportAt?: SortOrder
+    firstPaidAt?: SortOrder
+    firstPaidInvoiceId?: SortOrder
+    firstPaidAmount?: SortOrder
+    firstPaidCurrency?: SortOrder
+  }
+
+  export type AccountAcquisitionAvgOrderByAggregateInput = {
+    firstPaidAmount?: SortOrder
+  }
+
+  export type AccountAcquisitionMaxOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    verifiedAt?: SortOrder
+    recordedAt?: SortOrder
+    source?: SortOrder
+    medium?: SortOrder
+    campaign?: SortOrder
+    landing?: SortOrder
+    entryPoint?: SortOrder
+    excluded?: SortOrder
+    firstCompletedReportAt?: SortOrder
+    firstPaidAt?: SortOrder
+    firstPaidInvoiceId?: SortOrder
+    firstPaidAmount?: SortOrder
+    firstPaidCurrency?: SortOrder
+  }
+
+  export type AccountAcquisitionMinOrderByAggregateInput = {
+    stakeholderId?: SortOrder
+    verifiedAt?: SortOrder
+    recordedAt?: SortOrder
+    source?: SortOrder
+    medium?: SortOrder
+    campaign?: SortOrder
+    landing?: SortOrder
+    entryPoint?: SortOrder
+    excluded?: SortOrder
+    firstCompletedReportAt?: SortOrder
+    firstPaidAt?: SortOrder
+    firstPaidInvoiceId?: SortOrder
+    firstPaidAmount?: SortOrder
+    firstPaidCurrency?: SortOrder
+  }
+
+  export type AccountAcquisitionSumOrderByAggregateInput = {
+    firstPaidAmount?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type StakeholderListRelationFilter = {
     every?: StakeholderWhereInput
     some?: StakeholderWhereInput
@@ -77939,22 +79659,6 @@ export namespace Prisma {
     not?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
   }
 
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type StakeholderScalarRelationFilter = {
-    is?: StakeholderWhereInput
-    isNot?: StakeholderWhereInput
-  }
-
   export type AgencyMembershipAgencyIdStakeholderIdCompoundUniqueInput = {
     agencyId: string
     stakeholderId: string
@@ -78022,20 +79726,6 @@ export namespace Prisma {
     _max?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type AgencyActivityCountOrderByAggregateInput = {
     id?: SortOrder
     agencyId?: SortOrder
@@ -78085,11 +79775,6 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
-  }
-
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type StakeholderNullableScalarRelationFilter = {
@@ -78177,14 +79862,6 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type AgentBrandingCountOrderByAggregateInput = {
@@ -78899,17 +80576,6 @@ export namespace Prisma {
     not?: NestedEnumCaptureKindFilter<$PrismaModel> | $Enums.CaptureKind
   }
 
-  export type IntNullableFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableFilter<$PrismaModel> | number | null
-  }
-
   export type RoomScalarRelationFilter = {
     is?: RoomWhereInput
     isNot?: RoomWhereInput
@@ -79007,22 +80673,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumCaptureKindFilter<$PrismaModel>
     _max?: NestedEnumCaptureKindFilter<$PrismaModel>
-  }
-
-  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type EnumRoomStatusFilter<$PrismaModel = never> = {
@@ -81354,6 +83004,12 @@ export namespace Prisma {
     connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
   }
 
+  export type AccountAcquisitionCreateNestedOneWithoutStakeholderInput = {
+    create?: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AccountAcquisitionCreateOrConnectWithoutStakeholderInput
+    connect?: AccountAcquisitionWhereUniqueInput
+  }
+
   export type ReportEmailCreateNestedManyWithoutRecipientInput = {
     create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
     connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
@@ -81581,6 +83237,12 @@ export namespace Prisma {
     connectOrCreate?: ProductEventCreateOrConnectWithoutStakeholderInput | ProductEventCreateOrConnectWithoutStakeholderInput[]
     createMany?: ProductEventCreateManyStakeholderInputEnvelope
     connect?: ProductEventWhereUniqueInput | ProductEventWhereUniqueInput[]
+  }
+
+  export type AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput = {
+    create?: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AccountAcquisitionCreateOrConnectWithoutStakeholderInput
+    connect?: AccountAcquisitionWhereUniqueInput
   }
 
   export type ReportEmailUncheckedCreateNestedManyWithoutRecipientInput = {
@@ -81987,6 +83649,16 @@ export namespace Prisma {
     update?: ProductEventUpdateWithWhereUniqueWithoutStakeholderInput | ProductEventUpdateWithWhereUniqueWithoutStakeholderInput[]
     updateMany?: ProductEventUpdateManyWithWhereWithoutStakeholderInput | ProductEventUpdateManyWithWhereWithoutStakeholderInput[]
     deleteMany?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
+  }
+
+  export type AccountAcquisitionUpdateOneWithoutStakeholderNestedInput = {
+    create?: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AccountAcquisitionCreateOrConnectWithoutStakeholderInput
+    upsert?: AccountAcquisitionUpsertWithoutStakeholderInput
+    disconnect?: AccountAcquisitionWhereInput | boolean
+    delete?: AccountAcquisitionWhereInput | boolean
+    connect?: AccountAcquisitionWhereUniqueInput
+    update?: XOR<XOR<AccountAcquisitionUpdateToOneWithWhereWithoutStakeholderInput, AccountAcquisitionUpdateWithoutStakeholderInput>, AccountAcquisitionUncheckedUpdateWithoutStakeholderInput>
   }
 
   export type ReportEmailUpdateManyWithoutRecipientNestedInput = {
@@ -82443,6 +84115,16 @@ export namespace Prisma {
     deleteMany?: ProductEventScalarWhereInput | ProductEventScalarWhereInput[]
   }
 
+  export type AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput = {
+    create?: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+    connectOrCreate?: AccountAcquisitionCreateOrConnectWithoutStakeholderInput
+    upsert?: AccountAcquisitionUpsertWithoutStakeholderInput
+    disconnect?: AccountAcquisitionWhereInput | boolean
+    delete?: AccountAcquisitionWhereInput | boolean
+    connect?: AccountAcquisitionWhereUniqueInput
+    update?: XOR<XOR<AccountAcquisitionUpdateToOneWithWhereWithoutStakeholderInput, AccountAcquisitionUpdateWithoutStakeholderInput>, AccountAcquisitionUncheckedUpdateWithoutStakeholderInput>
+  }
+
   export type ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput = {
     create?: XOR<ReportEmailCreateWithoutRecipientInput, ReportEmailUncheckedCreateWithoutRecipientInput> | ReportEmailCreateWithoutRecipientInput[] | ReportEmailUncheckedCreateWithoutRecipientInput[]
     connectOrCreate?: ReportEmailCreateOrConnectWithoutRecipientInput | ReportEmailCreateOrConnectWithoutRecipientInput[]
@@ -82591,6 +84273,36 @@ export namespace Prisma {
     update?: SubscriptionUpdateWithWhereUniqueWithoutManagedByInput | SubscriptionUpdateWithWhereUniqueWithoutManagedByInput[]
     updateMany?: SubscriptionUpdateManyWithWhereWithoutManagedByInput | SubscriptionUpdateManyWithWhereWithoutManagedByInput[]
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
+  }
+
+  export type StakeholderCreateNestedOneWithoutAcquisitionInput = {
+    create?: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAcquisitionInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutAcquisitionNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAcquisitionInput
+    upsert?: StakeholderUpsertWithoutAcquisitionInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAcquisitionInput, StakeholderUpdateWithoutAcquisitionInput>, StakeholderUncheckedUpdateWithoutAcquisitionInput>
   }
 
   export type StakeholderCreateNestedManyWithoutTeamInput = {
@@ -82915,10 +84627,6 @@ export namespace Prisma {
     set?: $Enums.AgencyMembershipStatus
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type AgencyUpdateOneRequiredWithoutMembersNestedInput = {
     create?: XOR<AgencyCreateWithoutMembersInput, AgencyUncheckedCreateWithoutMembersInput>
     connectOrCreate?: AgencyCreateOrConnectWithoutMembersInput
@@ -83005,10 +84713,6 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type TeamUpdateOneWithoutSubscriptionNestedInput = {
@@ -84315,14 +86019,6 @@ export namespace Prisma {
 
   export type EnumCaptureKindFieldUpdateOperationsInput = {
     set?: $Enums.CaptureKind
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type RoomUpdateOneRequiredWithoutCapturesNestedInput = {
@@ -86811,6 +88507,71 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type NestedEnumAgencyRoleFilter<$PrismaModel = never> = {
     equals?: $Enums.AgencyRole | EnumAgencyRoleFieldRefInput<$PrismaModel>
     in?: $Enums.AgencyRole[] | ListEnumAgencyRoleFieldRefInput<$PrismaModel>
@@ -86823,17 +88584,6 @@ export namespace Prisma {
     in?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.AgencyMembershipStatus[] | ListEnumAgencyMembershipStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel> | $Enums.AgencyMembershipStatus
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedEnumAgencyRoleWithAggregatesFilter<$PrismaModel = never> = {
@@ -86856,30 +88606,11 @@ export namespace Prisma {
     _max?: NestedEnumAgencyMembershipStatusFilter<$PrismaModel>
   }
 
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
-  }
-
   export type NestedEnumPlanFilter<$PrismaModel = never> = {
     equals?: $Enums.Plan | EnumPlanFieldRefInput<$PrismaModel>
     in?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
     notIn?: $Enums.Plan[] | ListEnumPlanFieldRefInput<$PrismaModel>
     not?: NestedEnumPlanFilter<$PrismaModel> | $Enums.Plan
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedEnumPlanWithAggregatesFilter<$PrismaModel = never> = {
@@ -86917,14 +88648,6 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedEnumPropertyTypeFilter<$PrismaModel = never> = {
@@ -87127,33 +88850,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumCaptureKindFilter<$PrismaModel>
     _max?: NestedEnumCaptureKindFilter<$PrismaModel>
-  }
-
-  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _avg?: NestedFloatNullableFilter<$PrismaModel>
-    _sum?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedIntNullableFilter<$PrismaModel>
-    _max?: NestedIntNullableFilter<$PrismaModel>
-  }
-
-  export type NestedFloatNullableFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel> | null
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumRoomStatusFilter<$PrismaModel = never> = {
@@ -88632,6 +90328,43 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AccountAcquisitionCreateWithoutStakeholderInput = {
+    verifiedAt: Date | string
+    recordedAt?: Date | string
+    source: string
+    medium?: string | null
+    campaign?: string | null
+    landing?: string | null
+    entryPoint: string
+    excluded?: boolean
+    firstCompletedReportAt?: Date | string | null
+    firstPaidAt?: Date | string | null
+    firstPaidInvoiceId?: string | null
+    firstPaidAmount?: number | null
+    firstPaidCurrency?: string | null
+  }
+
+  export type AccountAcquisitionUncheckedCreateWithoutStakeholderInput = {
+    verifiedAt: Date | string
+    recordedAt?: Date | string
+    source: string
+    medium?: string | null
+    campaign?: string | null
+    landing?: string | null
+    entryPoint: string
+    excluded?: boolean
+    firstCompletedReportAt?: Date | string | null
+    firstPaidAt?: Date | string | null
+    firstPaidInvoiceId?: string | null
+    firstPaidAmount?: number | null
+    firstPaidCurrency?: string | null
+  }
+
+  export type AccountAcquisitionCreateOrConnectWithoutStakeholderInput = {
+    where: AccountAcquisitionWhereUniqueInput
+    create: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+  }
+
   export type ReportEmailCreateWithoutRecipientInput = {
     id?: string
     kind: $Enums.ReportEmailKind
@@ -89727,6 +91460,49 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"ProductEvent"> | Date | string
   }
 
+  export type AccountAcquisitionUpsertWithoutStakeholderInput = {
+    update: XOR<AccountAcquisitionUpdateWithoutStakeholderInput, AccountAcquisitionUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AccountAcquisitionCreateWithoutStakeholderInput, AccountAcquisitionUncheckedCreateWithoutStakeholderInput>
+    where?: AccountAcquisitionWhereInput
+  }
+
+  export type AccountAcquisitionUpdateToOneWithWhereWithoutStakeholderInput = {
+    where?: AccountAcquisitionWhereInput
+    data: XOR<AccountAcquisitionUpdateWithoutStakeholderInput, AccountAcquisitionUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AccountAcquisitionUpdateWithoutStakeholderInput = {
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type AccountAcquisitionUncheckedUpdateWithoutStakeholderInput = {
+    verifiedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    recordedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    source?: StringFieldUpdateOperationsInput | string
+    medium?: NullableStringFieldUpdateOperationsInput | string | null
+    campaign?: NullableStringFieldUpdateOperationsInput | string | null
+    landing?: NullableStringFieldUpdateOperationsInput | string | null
+    entryPoint?: StringFieldUpdateOperationsInput | string
+    excluded?: BoolFieldUpdateOperationsInput | boolean
+    firstCompletedReportAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    firstPaidInvoiceId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstPaidAmount?: NullableIntFieldUpdateOperationsInput | number | null
+    firstPaidCurrency?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type ReportEmailUpsertWithWhereUniqueWithoutRecipientInput = {
     where: ReportEmailWhereUniqueInput
     update: XOR<ReportEmailUpdateWithoutRecipientInput, ReportEmailUncheckedUpdateWithoutRecipientInput>
@@ -90059,6 +91835,206 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
   }
 
+  export type StakeholderCreateWithoutAcquisitionInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAcquisitionInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAcquisitionInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
+  }
+
+  export type StakeholderUpsertWithoutAcquisitionInput = {
+    update: XOR<StakeholderUpdateWithoutAcquisitionInput, StakeholderUncheckedUpdateWithoutAcquisitionInput>
+    create: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAcquisitionInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAcquisitionInput, StakeholderUncheckedUpdateWithoutAcquisitionInput>
+  }
+
+  export type StakeholderUpdateWithoutAcquisitionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAcquisitionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
   export type StakeholderCreateWithoutTeamInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -90091,6 +92067,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -90136,6 +92113,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -90716,6 +92694,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -90761,6 +92740,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -90903,6 +92883,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -90948,6 +92929,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -91091,6 +93073,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -91136,6 +93119,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -91186,6 +93170,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -91231,6 +93216,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -91319,6 +93305,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -91364,6 +93351,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -91420,6 +93408,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -91465,6 +93454,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -91509,6 +93499,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -91554,6 +93545,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -91615,6 +93607,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -91660,6 +93653,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -92342,6 +94336,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -92387,6 +94382,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -92437,6 +94433,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -92482,6 +94479,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -92532,6 +94530,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -92577,6 +94576,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -93068,6 +95068,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -93113,6 +95114,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -93169,6 +95171,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -93214,6 +95217,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -93270,6 +95274,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -93315,6 +95320,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -93662,6 +95668,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -93707,6 +95714,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -93757,6 +95765,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -93802,6 +95811,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -93928,6 +95938,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -93973,6 +95984,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -94029,6 +96041,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -94074,6 +96087,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -94178,6 +96192,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -94223,6 +96238,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -94273,6 +96289,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -94318,6 +96335,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -94985,6 +97003,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -95030,6 +97049,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -95086,6 +97106,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -95131,6 +97152,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -95654,6 +97676,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -95699,6 +97722,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -95837,6 +97861,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -95882,6 +97907,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -97447,6 +99473,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -97492,6 +99519,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -98011,6 +100039,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -98056,6 +100085,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -98401,6 +100431,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -98446,6 +100477,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -98570,6 +100602,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -98615,6 +100648,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -99040,6 +101074,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -99085,6 +101120,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -99246,6 +101282,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -99291,6 +101328,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -99367,6 +101405,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -99412,6 +101451,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -99510,6 +101550,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -99555,6 +101596,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -99657,6 +101699,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -99702,6 +101745,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -99752,6 +101796,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -99797,6 +101842,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -99921,6 +101967,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -99966,6 +102013,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -100022,6 +102070,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -100067,6 +102116,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -100224,6 +102274,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -100269,6 +102320,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -100429,6 +102481,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -100474,6 +102527,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -100560,6 +102614,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -100605,6 +102660,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -100697,6 +102753,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -100742,6 +102799,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -100786,6 +102844,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -100831,6 +102890,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -100924,6 +102984,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -100969,6 +103030,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -101045,6 +103107,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -101090,6 +103153,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -101275,6 +103339,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -101320,6 +103385,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -102308,6 +104374,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -102353,6 +104420,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -102572,6 +104640,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -102617,6 +104686,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -102943,6 +105013,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -102988,6 +105059,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -103126,6 +105198,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -103171,6 +105244,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -103288,6 +105362,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
@@ -103333,6 +105408,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
@@ -103471,6 +105547,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
@@ -103516,6 +105593,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
@@ -103828,6 +105906,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
@@ -103873,6 +105952,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
@@ -103923,6 +106003,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
@@ -103968,6 +106049,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
@@ -104149,6 +106231,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -104194,6 +106277,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -104332,6 +106416,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
@@ -104377,6 +106462,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
@@ -104433,6 +106519,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
@@ -104478,6 +106565,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
@@ -104629,6 +106717,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -104674,6 +106763,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -105215,6 +107305,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -105260,6 +107351,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -105376,6 +107468,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -105421,6 +107514,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -105465,6 +107559,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -105510,6 +107605,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -105595,6 +107691,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -105640,6 +107737,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -105780,6 +107878,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -105825,6 +107924,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -105886,6 +107986,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -105931,6 +108032,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -105976,6 +108078,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -106021,6 +108124,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -106082,6 +108186,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -106127,6 +108232,7 @@ export namespace Prisma {
     deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -106346,6 +108452,7 @@ export namespace Prisma {
     branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
@@ -106391,6 +108498,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
     errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
     productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
     reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
     addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
     addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
@@ -106483,6 +108591,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -106528,6 +108637,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
@@ -108446,6 +110556,7 @@ export namespace Prisma {
     branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
@@ -108491,6 +110602,7 @@ export namespace Prisma {
     branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
     errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
     productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
     reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
     addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
     addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput

@@ -1,10 +1,12 @@
 import { cache } from 'react'
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
-import { createClient } from '@supabase/supabase-js'
+import { cookies, headers } from 'next/headers'
+import { createClient, type User } from '@supabase/supabase-js'
 import { db } from '@/lib/db'
 import { supabaseServer } from '@/lib/supabase/server'
 import { Prisma, type Stakeholder } from '@/generated/prisma'
+import { acquisitionForVerifiedUser } from '@/lib/acquisition'
+import { ACQUISITION_COOKIE } from '@/lib/acquisition-keys'
 
 /// This module is the authorization boundary. The proxy does an optimistic redirect so
 /// signed-out visitors are not shown a loading shell, but it is not a security control:
@@ -32,7 +34,7 @@ export const currentStakeholder = cache(async (): Promise<Stakeholder | null> =>
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) return null
-  return resolveAgent(user)
+  return resolveAgent(user, 'WEB')
 })
 
 /// The same boundary reached by a different transport. A native client holds an access
@@ -54,47 +56,54 @@ export async function agentFromBearer(authorization: string | null): Promise<Sta
     error,
   } = await supabase.auth.getUser(token)
   if (error || !user) return null
-  return resolveAgent(user)
+  return resolveAgent(user, 'NATIVE')
 }
 
 /// Turns a verified Supabase user into the Stakeholder row the rest of the app scopes
 /// by. Shared by both transports so a Flutter sign-in and a browser sign-in land on the
 /// same person rather than creating two.
-async function resolveAgent(user: { id: string; email?: string | null }): Promise<Stakeholder> {
+async function resolveAgent(user: User, entryPoint: 'WEB' | 'NATIVE'): Promise<Stakeholder> {
   const linked = await db.stakeholder.findUnique({ where: { authUserId: user.id } })
   if (linked) return linked
 
-  // First sign-in. Claim an existing stakeholder with this address if one is waiting,
-  // so an agent already named on a deal keeps their identity and their tenancies
-  // rather than becoming a duplicate. Supabase has verified the address by OTP, so
-  // holding the mailbox is what proves the claim.
-  if (user.email) {
-    const unclaimed = await db.stakeholder.findFirst({
-      where: { email: user.email, authUserId: null },
-    })
-    if (unclaimed) {
-      return db.stakeholder.update({
-        where: { id: unclaimed.id },
-        data: { authUserId: user.id },
-      })
-    }
-  }
+  const email = user.email?.trim().toLowerCase() ?? null
+  const attribution = entryPoint === 'WEB' ? (await cookies()).get(ACQUISITION_COOKIE)?.value : undefined
+  const acquisition = acquisitionForVerifiedUser(user, entryPoint, attribution)
 
-  // The layout and the page both resolve the agent, in parallel, on the same first
-  // request, so two of these can race to insert. Prisma's upsert is not atomic under
-  // the driver adapter, so the loser is caught on the unique index and reads the
-  // winner's row instead.
+  // Linking and its signup record commit together. A conditional claim prevents a
+  // concurrent request from relinking a person, and every retry keeps first-touch
+  // attribution unchanged. The verified Auth timestamp, not this mapping time or
+  // Stakeholder.createdAt, determines the signup cohort.
   try {
-    return await db.stakeholder.create({
-      data: {
-        name: user.email?.split('@')[0] ?? 'Agent',
-        email: user.email ?? null,
-        authUserId: user.id,
-      },
+    return await db.$transaction(async (tx) => {
+      const winner = await tx.stakeholder.findUnique({ where: { authUserId: user.id } })
+      if (winner) return winner
+
+      if (email) {
+        const claimed = await tx.stakeholder.updateMany({
+          where: { email, authUserId: null },
+          data: { authUserId: user.id },
+        })
+        if (claimed.count) {
+          const person = await tx.stakeholder.findUniqueOrThrow({ where: { authUserId: user.id } })
+          if (acquisition) await tx.accountAcquisition.create({ data: { stakeholderId: person.id, ...acquisition } })
+          return person
+        }
+      }
+
+      return tx.stakeholder.create({
+        data: {
+          name: email?.split('@')[0] ?? 'Agent',
+          email,
+          authUserId: user.id,
+          ...(acquisition ? { acquisition: { create: acquisition } } : {}),
+        },
+      })
     })
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-      return db.stakeholder.findUniqueOrThrow({ where: { authUserId: user.id } })
+      const winner = await db.stakeholder.findUnique({ where: { authUserId: user.id } })
+      if (winner) return winner
     }
     throw error
   }

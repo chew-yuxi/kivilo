@@ -22,6 +22,31 @@ function assertLocalSupabase() {
 afterAll(async () => db.$disconnect())
 
 describe('operator account deletion fulfillment', () => {
+  it('removes acquisition records immediately while media cleanup keeps the account PROCESSING', async () => {
+    assertLocalSupabase()
+    vi.stubEnv('KIVILO_RETAIN_SIGNED_RECORDS', '1')
+    vi.stubEnv('KIVILO_DELETE_SOLE_UNSIGNED_RECORDS', '1')
+    vi.stubEnv('KIVILO_RETAIN_SHARED_UNSIGNED_RECORDS', '1')
+    const person = await db.stakeholder.create({ data: { name: `Acquisition deletion ${randomUUID()}` } })
+    const request = await db.accountDeletionRequest.create({ data: {
+      stakeholderId: person.id, dueAt: new Date('2099-01-01'),
+      storagePurges: { create: { roomId: `acquisition-deletion-${randomUUID()}`, readyAt: new Date('2099-01-01') } },
+    } })
+    try {
+      await db.accountAcquisition.create({ data: {
+        stakeholderId: person.id, verifiedAt: new Date(), source: 'unattributed', entryPoint: 'WEB',
+      } })
+      await expect(fulfillAccountDeletion(request.id, policyVersion)).rejects.toThrow('Deletion remains PROCESSING')
+      expect(await db.accountAcquisition.count({ where: { stakeholderId: person.id } })).toBe(0)
+      expect(await db.stakeholder.findUnique({ where: { id: person.id } })).not.toBeNull()
+      expect((await db.accountDeletionRequest.findUniqueOrThrow({ where: { id: request.id } })).status).toBe('PROCESSING')
+    } finally {
+      vi.unstubAllEnvs()
+      await db.accountDeletionRequest.delete({ where: { id: request.id } })
+      await db.stakeholder.delete({ where: { id: person.id } })
+    }
+  })
+
   it.each(['tenancy', 'inspection'] as const)('retains drafts shared through %s access and removes only the deleted account\'s grants', async (access) => {
     assertLocalSupabase()
     vi.stubEnv('KIVILO_RETAIN_SIGNED_RECORDS', '1')
@@ -120,6 +145,9 @@ describe('operator account deletion fulfillment', () => {
         idNumber: `QA-${tag}`, authUserId,
       } })
       stakeholderId = person.id
+      await db.accountAcquisition.create({ data: {
+        stakeholderId: person.id, verifiedAt: new Date(), source: 'unattributed', entryPoint: 'WEB',
+      } })
       await db.errorEvent.create({ data: {
         source: 'WEB', context: 'window', name: 'TypeError', message: `Deletion QA ${tag}`,
         fingerprint: 'deletion-qa', stakeholderId: person.id, occurredAt: new Date(),
@@ -134,6 +162,7 @@ describe('operator account deletion fulfillment', () => {
         .rejects.toThrow('Local synthetic mail outage')
       expect((await admin.getUserById(authUserId)).data.user).toBeNull()
       expect(await db.errorEvent.count({ where: { stakeholderId: person.id } })).toBe(0)
+      expect(await db.accountAcquisition.count({ where: { stakeholderId: person.id } })).toBe(0)
       expect(await db.stakeholder.findUniqueOrThrow({ where: { id: person.id } })).toMatchObject({
         name: 'Deleted user', authUserId: null, email: null, phone: null, idNumber: null,
       })

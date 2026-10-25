@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import { AcquisitionCapture } from '../components/acquisition-capture'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -15,5 +16,5 @@ export const viewport: Viewport = {
 }
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
-  return <html lang="en-SG"><head><link rel="describedby" href="/llms.txt" type="text/plain" /></head><body>{children}</body></html>
+  return <html lang="en-SG"><head><link rel="describedby" href="/llms.txt" type="text/plain" /></head><body><AcquisitionCapture />{children}</body></html>
 }

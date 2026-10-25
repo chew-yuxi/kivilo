@@ -59,6 +59,7 @@ model Stakeholder {
   branding                    AgentBranding?
   errorEvents                 ErrorEvent[]
   productEvents               ProductEvent[]
+  acquisition                 AccountAcquisition?
   reportEmails                ReportEmail[]
   addendaCreated              ReportAddendum[]            @relation("AddendumCreator")
   addendaPublished            ReportAddendum[]            @relation("AddendumPublisher")
@@ -74,6 +75,32 @@ model Stakeholder {
 
   @@index([name])
   @@index([teamId])
+}
+
+/// One verified account's first observed acquisition and conversion milestones.
+/// Created only when a verified Auth user first claims/creates its stakeholder;
+/// existing linked accounts are never assigned a guessed signup date or source.
+model AccountAcquisition {
+  stakeholderId          String      @id
+  verifiedAt             DateTime
+  recordedAt             DateTime    @default(now())
+  /// Finite, validated client observations; absent attribution is "unattributed".
+  source                 String
+  medium                 String?
+  campaign               String?
+  landing                String?
+  entryPoint             String
+  excluded               Boolean     @default(false)
+  /// Stamped by the countersignature transaction, never client analytics.
+  firstCompletedReportAt DateTime?
+  /// A successful positive live Stripe invoice; not a trial, comp or entitlement.
+  firstPaidAt            DateTime?
+  firstPaidInvoiceId     String?     @unique
+  firstPaidAmount        Int?
+  firstPaidCurrency      String?
+  stakeholder            Stakeholder @relation(fields: [stakeholderId], references: [id], onDelete: Cascade)
+
+  @@index([verifiedAt])
 }
 
 /// A billing workspace set up with `pnpm team:set`. Membership does not grant or revoke

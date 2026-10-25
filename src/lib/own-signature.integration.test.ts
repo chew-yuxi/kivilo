@@ -12,12 +12,12 @@ vi.mock('@/lib/storage', () => ({
 }))
 vi.mock('@/lib/auth', async (importActual) => {
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireStakeholder: vi.fn() }
+  return { ...actual, requireStakeholder: vi.fn(), requireAgent: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireStakeholder } from '@/lib/auth'
-import { signOwnReport } from '@/lib/actions'
+import { requireAgent, requireStakeholder } from '@/lib/auth'
+import { signInspection, signOwnReport } from '@/lib/actions'
 import { signedReport } from '@/lib/report'
 import { listTenancies } from '@/lib/maintenance'
 import type { InspectionStatus, Stakeholder } from '@/generated/prisma'
@@ -52,6 +52,12 @@ function signedInAs(person: Stakeholder) {
   vi.mocked(requireStakeholder).mockResolvedValueOnce(person)
 }
 
+async function track(person: Stakeholder) {
+  await db.accountAcquisition.create({ data: {
+    stakeholderId: person.id, verifiedAt: new Date('2026-01-01'), source: 'unattributed', entryPoint: 'WEB',
+  } })
+}
+
 describe('signing your own report', () => {
   afterAll(async () => {
     await db.property.deleteMany({ where: { postalCode } })
@@ -60,7 +66,9 @@ describe('signing your own report', () => {
   })
 
   it('lets the landlord sign from their own phone, completing a report the tenant signed at handover', async () => {
-    const { landlord, tenant, inspection } = await deal('AWAITING_SIGNATURE')
+    const { landlord, tenant, agent, inspection } = await deal('AWAITING_SIGNATURE')
+    await track(agent)
+    await track(landlord)
     await db.signature.create({ data: { inspectionId: inspection.id, stakeholderId: tenant.id, imageData: png } })
 
     expect((await signedReport(inspection.id, landlord.id)).signAs).toBe('LANDLORD')
@@ -74,16 +82,68 @@ describe('signing your own report', () => {
     expect(after.signAs).toBeNull()
     expect(after.signatures).toHaveLength(2)
     expect((await listTenancies(landlord.id))[0].latestReport).toMatchObject({ awaitingMySignature: false })
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: agent.id } })).firstCompletedReportAt).not.toBeNull()
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: landlord.id } })).firstCompletedReportAt).toBeNull()
   })
 
   it('waits for the other party when the first signature comes from a phone', async () => {
-    const { landlord, tenant, inspection } = await deal('AWAITING_SIGNATURE')
+    const { landlord, tenant, agent, inspection } = await deal('AWAITING_SIGNATURE')
+    await track(agent)
 
     signedInAs(landlord)
     await signOwnReport(inspection.id, png)
 
     expect((await signedReport(inspection.id, landlord.id)).status).toBe('AWAITING_SIGNATURE')
     expect((await signedReport(inspection.id, tenant.id)).signAs).toBe('TENANT')
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: agent.id } })).firstCompletedReportAt).toBeNull()
+  })
+
+  it('credits the frozen responsible agent for in-person signatures and keeps the first milestone on retry', async () => {
+    const current = await deal('AWAITING_SIGNATURE')
+    const original = await person('Original responsible agent')
+    await track(original)
+    await track(current.agent)
+    await db.inspection.update({ where: { id: current.inspection.id }, data: {
+      reportAgentFrozen: true, reportAgentId: original.id, conductedById: current.agent.id,
+    } })
+    vi.mocked(requireAgent).mockResolvedValue(current.agent)
+    await signInspection(current.inspection.id, current.tenant.id, png)
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: original.id } })).firstCompletedReportAt).toBeNull()
+    await signInspection(current.inspection.id, current.landlord.id, png)
+    const first = await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: original.id } })
+    expect(first.firstCompletedReportAt).not.toBeNull()
+    await signInspection(current.inspection.id, current.landlord.id, png)
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: original.id } })).firstCompletedReportAt).toEqual(first.firstCompletedReportAt)
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: current.agent.id } })).firstCompletedReportAt).toBeNull()
+  })
+
+  it('does not replace a deliberately absent frozen responsible agent with the current lead', async () => {
+    const current = await deal('AWAITING_SIGNATURE')
+    await track(current.agent)
+    await db.inspection.update({ where: { id: current.inspection.id }, data: {
+      reportAgentFrozen: true, reportAgentId: null, conductedById: current.agent.id,
+    } })
+    await db.signature.create({ data: { inspectionId: current.inspection.id, stakeholderId: current.tenant.id, imageData: png } })
+    signedInAs(current.landlord)
+    await signOwnReport(current.inspection.id, png)
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: current.agent.id } })).firstCompletedReportAt).toBeNull()
+  })
+
+  it('handles two reports completing concurrently for the same responsible account', async () => {
+    const first = await deal('AWAITING_SIGNATURE')
+    const second = await deal('AWAITING_SIGNATURE')
+    await track(first.agent)
+    for (const current of [first, second]) {
+      await db.inspection.update({ where: { id: current.inspection.id }, data: {
+        reportAgentFrozen: true, reportAgentId: first.agent.id,
+      } })
+      await db.signature.create({ data: { inspectionId: current.inspection.id, stakeholderId: current.tenant.id, imageData: png } })
+    }
+    signedInAs(first.landlord)
+    signedInAs(second.landlord)
+    await Promise.all([signOwnReport(first.inspection.id, png), signOwnReport(second.inspection.id, png)])
+    expect(await db.inspection.count({ where: { id: { in: [first.inspection.id, second.inspection.id] }, status: 'COMPLETED' } })).toBe(2)
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: first.agent.id } })).firstCompletedReportAt).not.toBeNull()
   })
 
   it("refuses a report still being written, one already complete, and someone else's", async () => {

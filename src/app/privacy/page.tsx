@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 23 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 26 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -54,6 +54,15 @@ export default function PrivacyPage() {
           categories, without property addresses, report links, page queries, photos,
           free text or IP addresses. Unsent screen events wait on your device until a
           connection is available.
+        </p>
+        <p>
+          On our public website, a first-party cookie remembers your first public landing page
+          and a recognized source, medium or registered campaign for up to 30 days. It contains
+          no account identifier, full referring URL, search terms or arbitrary query parameters.
+          If you create an account, we associate those limited categories with its verified
+          signup time and whether you later complete a report or make a live payment, to
+          understand which sources bring people who use Kivilo. We do not use this cookie
+          to read private reports or follow you across unrelated websites.
         </p>
       </section>
 
@@ -125,6 +134,13 @@ export default function PrivacyPage() {
           and screen usage events 90 days after they are recorded.
         </p>
         <p>
+          The acquisition cookie expires 30 days after the first recorded visit. You can
+          remove it in your browser settings. Account-linked acquisition categories and
+          first report and payment milestones are kept while your account remains open
+          and removed when we fulfill account deletion. Stripe retains its own payment
+          records separately.
+        </p>
+        <p>
           Some service-provider copies can remain after deletion from Kivilo&apos;s
           active records. Resend retains email
           and delivery logs for 30 days on its standard plans, with seven-day backups;
@@ -145,7 +161,7 @@ export default function PrivacyPage() {
           acknowledge requests and aim to complete them within 30 days. When we
           fulfill a request, we remove the sign-in account, contact and identity
           fields, our push-device registration, account-specific notification
-          history, error reports and screen usage events recorded while you were signed in. We remove
+          history, error reports, acquisition and conversion records, and screen usage events recorded while you were signed in. We remove
           unsigned drafts that belong solely to the requesting account and verify that
           their stored media is removed after outstanding upload links expire. We
           cancel a Pro plan you pay for; Stripe keeps its payment records as the law

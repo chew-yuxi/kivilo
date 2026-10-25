@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test'
+import { db } from '../src/lib/db'
+import { PRO_ACTIVE_PROPERTIES_PER_SEAT } from '../src/lib/plan-limits'
 import { freshEmail, signIn } from './helpers'
 
 /// Buying Pro, against the Stripe sandbox in `.env.local` (`pnpm billing:setup` once).
 /// The real path: Upgrade sends a Free agent to Stripe Checkout, a test card pays, and
-/// Stripe returns them to /account, which syncs the subscription itself. No webhook is
-/// needed for the plan to have flipped by the time the page renders, which is the point.
+/// Stripe returns them to /account, which refreshes the subscription. A sandbox webhook
+/// listener and its signing secret are required for checkout and later lifecycle events.
 test('a Free agent upgrades to Pro through Stripe Checkout and can then manage billing', async ({ page }) => {
   test.setTimeout(180_000)
   const email = freshEmail('billing')
@@ -24,8 +26,12 @@ test('a Free agent upgrades to Pro through Stripe Checkout and can then manage b
 
   await page.waitForURL(/\/account\?checkout=cs_test_/, { timeout: 60_000 })
   await expect(page.getByText('Pro', { exact: true })).toBeVisible()
-  await expect(page.getByTestId('plan-usage')).toHaveText('0 of 10 active properties')
+  await expect(page.getByTestId('plan-usage')).toHaveText(`0 of ${PRO_ACTIVE_PROPERTIES_PER_SEAT} active properties`)
   await expect(page.getByRole('button', { name: 'Upgrade to Pro' })).toHaveCount(0)
+
+  const payer = await db.stakeholder.findUniqueOrThrow({ where: { email } })
+  const acquisition = await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })
+  expect(acquisition.firstPaidAt).toBeNull() // A real sandbox checkout is still not real revenue.
 
   await page.getByRole('button', { name: 'Manage billing' }).click()
   await page.waitForURL(/^https:\/\/billing\.stripe\.com\//, { timeout: 30_000 })

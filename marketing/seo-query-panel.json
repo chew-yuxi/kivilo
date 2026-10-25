@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "panelId": "kivilo-en-sg-2026-10-26-v1",
+  "site": "https://kivilo.app/",
+  "locale": "en-SG",
+  "market": "SG",
+  "audience": "Singapore rental property agents and agencies",
+  "notes": "Fixed editorial query panel, not measured search volumes. Keep brand, nonbrand and comparison results separate. Record actual observation country; market SG does not imply a Singapore session. Changing query or assistantPrompt wording requires a new panelId.",
+  "queries": [
+    {
+      "id": "brand-kivilo",
+      "category": "brand",
+      "query": "Kivilo",
+      "assistantPrompt": "What is Kivilo at kivilo.app, and who is it for?",
+      "expectedLandingPages": ["https://kivilo.app/"]
+    },
+    {
+      "id": "brand-kivilo-features",
+      "category": "brand",
+      "query": "Kivilo rental inspection app",
+      "assistantPrompt": "What can Kivilo do for a rental property agent, and what are its limitations?",
+      "expectedLandingPages": ["https://kivilo.app/product"]
+    },
+    {
+      "id": "nonbrand-rental-inspection",
+      "category": "nonbrand",
+      "query": "rental inspection app Singapore",
+      "assistantPrompt": "Which rental inspection apps should a Singapore property agent compare for check-in and check-out reports?",
+      "expectedLandingPages": ["https://kivilo.app/guides/rental-inspection-app-singapore"]
+    },
+    {
+      "id": "nonbrand-inventory-evidence",
+      "category": "nonbrand",
+      "query": "property inventory app Singapore photos signatures",
+      "assistantPrompt": "What should I look for in a property inventory app for Singapore rentals that records photos and landlord and tenant signatures?",
+      "expectedLandingPages": ["https://kivilo.app/guides/rental-inspection-app-singapore", "https://kivilo.app/product"]
+    },
+    {
+      "id": "nonbrand-handover-checklist",
+      "category": "nonbrand",
+      "query": "rental handover checklist Singapore",
+      "assistantPrompt": "What should a Singapore property agent record during a rental handover? Give me a practical checklist.",
+      "expectedLandingPages": ["https://kivilo.app/guides/rental-handover-checklist-singapore"]
+    },
+    {
+      "id": "nonbrand-handover-meters-keys",
+      "category": "nonbrand",
+      "query": "Singapore rental handover keys meter readings inventory",
+      "assistantPrompt": "How should I record keys, meter readings and appliance serial numbers at a Singapore rental handover?",
+      "expectedLandingPages": ["https://kivilo.app/guides/rental-handover-checklist-singapore"]
+    },
+    {
+      "id": "comparison-report-and-run",
+      "category": "comparison",
+      "query": "Report and Run alternatives rental inspections",
+      "assistantPrompt": "What alternatives to Report and Run should I compare for rental check-in and check-out inspections?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-report-and-run"]
+    },
+    {
+      "id": "comparison-inventorybase",
+      "category": "comparison",
+      "query": "InventoryBase alternatives Singapore",
+      "assistantPrompt": "What alternatives to InventoryBase should a Singapore rental agency compare, and what are their trade-offs?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-inventorybase"]
+    },
+    {
+      "id": "comparison-inventory-hive",
+      "category": "comparison",
+      "query": "Inventory Hive alternatives rental inventory",
+      "assistantPrompt": "What alternatives to Inventory Hive should I compare for rental inventories and signed condition reports?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-inventory-hive"]
+    },
+    {
+      "id": "comparison-chapps",
+      "category": "comparison",
+      "query": "Chapps Rental Inspector alternatives",
+      "assistantPrompt": "What alternatives to Chapps Rental Inspector should I compare for an agent-led rental inspection workflow?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-chapps-rental-inspector"]
+    },
+    {
+      "id": "comparison-snapinspect",
+      "category": "comparison",
+      "query": "SnapInspect alternatives rental handover",
+      "assistantPrompt": "What alternatives to SnapInspect should I compare for rental handovers, and how do their workflows differ?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-snapinspect"]
+    },
+    {
+      "id": "comparison-rentcheck",
+      "category": "comparison",
+      "query": "RentCheck alternatives agent led inspections",
+      "assistantPrompt": "What alternatives to RentCheck should I compare if a property agent will conduct the rental inspection rather than the tenant?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-rentcheck"]
+    }
+  ]
+}

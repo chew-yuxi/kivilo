@@ -12,6 +12,59 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
+## Account acquisition and payment attribution — 26 October
+
+The implementation connects a finite, 30-day marketing first-touch cookie to verified
+Supabase signup, the responsible agent's first countersigned report, and the payer's
+first positive live Stripe payment. `/admin` shows a separate 30-day signup cohort by
+source, medium, landing page and registered campaign. Existing accounts are not
+backfilled; admins, reviewer accounts and configured QA addresses are excluded.
+Account deletion removes acquisition records. Privacy wording and the weekly review
+runbook describe these limits; the scheduled review now reads this cohort when an
+authorized admin session is available.
+
+The isolated release excludes the unfinished Home/context-switcher changes. Unit
+tests (198), Postgres integration tests (319), strict ESLint, typecheck, app production
+build and marketing export passed. Chromium/WebKit checks verified first-touch
+capture and cross-domain availability. All 25 E2E cases passed across the full run
+and a focused rerun of two corrected tests, including real sandbox Checkout and the
+new OTP acquisition case. The corrections update the current login heading and
+avoid a redundant page reload that allowed a click before hydration; authorization
+and checkout assertions remain intact. All 25 collector/IndexNow tests also passed.
+
+Production rollout is pending. The additive acquisition migration
+must precede the app release, which must precede the marketing cookie release.
+Production checkout remains closed: the operator confirmed the Singapore live Stripe
+account is not activated. The sandbox payment was verified without counting it as a
+live conversion. [Billing readiness](billing.md#live-readiness-checked-2026-10-26)
+records the remaining lifecycle/risk handling, live account/catalog/webhook setup,
+restricted credentials and tax decisions. No real payment was taken.
+
+## Search and AI visibility tracking — 26 October
+
+The previous session's final request, “lets track properly pls”, now has a dated
+[baseline](seo-geo-baseline-20261026.md), [measurement runbook](../docs/seo-tracking.md),
+12-query panel and read-only `pnpm marketing:visibility` collector. Private JSON/Markdown
+history lives under the shared git directory's `kivilo-seo/visibility`; imported
+observations keep their real timestamps and unknown values remain unknown.
+
+All 12 live sitemap URLs were inspected in Google: **2 indexed** (home and `/compare`),
+**9 discovered but not indexed**, **1 unknown** (handover-checklist guide). Aggregate
+Google and Bing search reports are still processing. Bing's existing sitemap is now
+**Success** with 12 discovered URLs; its scan completed with 0 errors and one homepage
+image-alt warning, manually triaged in the baseline. Cloudflare recorded 48 visits
+for 19–25 October GMT+7, all direct, with partial instrumentation coverage; this is
+not evidence of search acquisition. This baseline predates the acquisition release;
+its unknown signup/first-report values remain historical unknowns.
+
+Paseo schedule `9c0d5402` is active for Wednesdays at **09:00 Asia/Singapore**, first
+run **28 October**. It reads available dashboards, preserves private evidence and
+reports changes; public checks continue if authentication is unavailable. The local
+daemon must be running. The consumer answer panel is planned, not yet collected.
+Focused Node tests, strict ESLint and live public collection passed. No deployment
+or repeat URL submission was made. The distribution section below preserves the
+earlier submission-time states.
+
 ## Search engine distribution — 26 October
 
 Bing Webmaster Tools ownership of `https://kivilo.app/` is verified using

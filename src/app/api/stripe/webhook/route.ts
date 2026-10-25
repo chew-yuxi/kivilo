@@ -1,14 +1,14 @@
 import { stripe } from '@/lib/stripe'
-import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
+import { recordPaidInvoice, syncCheckoutSession, syncSubscription } from '@/lib/billing'
 
 /// Stripe's events about subscriptions. The signature is checked against the raw body
 /// before anything in it is read: the request carries no session, so the signing secret
 /// is the only thing separating Stripe from anyone who finds this URL. `src/proxy.ts`
 /// does not match `/api/**` and must not, or this would be redirected to /login.
 ///
-/// Every event ends in `syncSubscription`, which re-reads the subscription from Stripe,
-/// so a replayed or out-of-order delivery is harmless. A failure is a 500, which Stripe
-/// retries, and `onRequestError` records it.
+/// Handlers re-read Stripe's invoice/session/subscription and preserve the first paid
+/// conversion on retries. A failure is a 500, which Stripe retries, and `onRequestError`
+/// records it.
 export async function POST(request: Request) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET
   if (!secret) throw new Error('STRIPE_WEBHOOK_SECRET must be set')
@@ -28,7 +28,11 @@ export async function POST(request: Request) {
 
   switch (event.type) {
     case 'checkout.session.completed':
+    case 'checkout.session.async_payment_succeeded':
       if (event.data.object.mode === 'subscription') await syncCheckoutSession(event.data.object.id)
+      break
+    case 'invoice.payment_succeeded':
+      await recordPaidInvoice(event.data.object.id)
       break
     case 'customer.subscription.created':
     case 'customer.subscription.updated':

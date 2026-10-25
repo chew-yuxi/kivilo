@@ -237,7 +237,8 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   // End of tenancy. Walking the kitchen again, the inspector has its signed photos and
   // lines one tap away while capturing and while writing the inventory, where each
   // copied row also says what it was at check-in.
-  await page.goto(inspectionUrl)
+  // Sharing and PDF requests left the agent on this hydrated inspection page.
+  await expect(page).toHaveURL(inspectionUrl)
   await page.getByRole('button', { name: 'Start check-out' }).click()
   await expect(page.getByRole('heading', { name: 'Check-out', exact: true })).toBeVisible()
   await page.getByRole('link', { name: 'Start with Kitchen' }).click()

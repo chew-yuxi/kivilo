@@ -560,7 +560,9 @@ webhook secret. Comps (`pnpm plan:set`) never touch a Stripe-paid row.
 sandbox, and its test keys are in every environment, production included. A sandbox key
 in production would sell Pro to anyone holding Stripe's public test card, so
 `checkoutOpen()` in `src/lib/stripe.ts` hides Upgrade and refuses `startCheckout` there
-until `STRIPE_SECRET_KEY` is `sk_live_`/`rk_live_`; `/account` falls back to "email us".
+until `STRIPE_SECRET_KEY` is `sk_live_`/`rk_live_` and `STRIPE_WEBHOOK_SECRET` is
+configured; `/account` falls back to "email us". Test environments also require a
+server key and webhook secret before Checkout opens.
 Going live: a Singapore Stripe account, its live key in Vercel production, then
 `pnpm billing:setup <production URL>` with that key and its `whsec_` as
 `STRIPE_WEBHOOK_SECRET`.
@@ -593,6 +595,21 @@ Stakeholder through `/api/v1/me` before supplying `x-kivilo-owner`. It pins ever
 to that account, including requests delayed by an interceptor. Route visibility and
 selected tabs record visits; rebuilds and hidden tabs do not. `/admin` aggregates web,
 iOS and Android behind the data-layer admin allowlist.
+
+Acquisition is a separate account cohort in `/admin`, not a client event. The public
+marketing site stores finite first-touch categories in `kivilo_acquisition_v1`, a
+30-day first-party cookie shared with `my.kivilo.app`. `acquisition-keys.ts` admits
+only named sources/media, registered campaigns and exact public landing pages; no
+full URLs, query text or identifiers. `resolveAgent` records `AccountAcquisition`
+atomically with a first verified Auth claim/create, using Supabase's verified email
+timestamp. Existing linked accounts are not backfilled; native and missing-cookie
+signups are unattributed. Admin, trusted store-review and configured QA accounts are
+excluded. `recordSignature` stamps the responsible report agent's first observed
+completion after signup in its transaction. `invoice.payment_succeeded` re-reads a
+positive live Stripe invoice and the current subscription payer before recording
+payment; trials, comps, sandbox and off-Stripe payments never count. These records
+are removed during account-deletion fulfillment even when the Stakeholder survives.
+See `docs/seo-tracking.md` and `plans/billing.md` for measurement and activation.
 
 ## Dev scripts
 
