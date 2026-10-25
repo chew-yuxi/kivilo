@@ -259,7 +259,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
           ),
           actions: [
             PhotoMarkAction(
-              icon: Icons.edit_note,
+              icon: Icons.notes,
               label: 'Note',
               onPressed: () async {
                 await _note(draft.id);
@@ -652,7 +652,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                                             child: Icon(
                                               annotations != null
                                                   ? Icons.gesture
-                                                  : Icons.edit_note,
+                                                  : Icons.notes,
                                               size: 14,
                                               color: Colors.white,
                                             ),
