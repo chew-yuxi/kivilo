@@ -22,6 +22,10 @@ export default async function AdminPage() {
           Accounts verified in the last 30 days, with progress observed so far. Older linked accounts are not backfilled.
           {' '}{acquisition.excluded} admin, reviewer or test accounts excluded. Newer accounts have had less time to complete a report or pay.
         </p>
+        <p className="mb-4 text-xs text-gray-500">
+          Cohort: <time dateTime={acquisition.since.toISOString()}>{acquisition.since.toUTCString()}</time>
+          {' '}through <time dateTime={acquisition.until.toISOString()}>{acquisition.until.toUTCString()}</time>.
+        </p>
         <div className="grid gap-3 sm:grid-cols-3">
           {([
             ['Verified accounts', acquisition.accounts],
