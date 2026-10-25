@@ -47,8 +47,8 @@ Map<String, dynamic> reportJson({
           'url': 'https://storage.test/photo-1.jpg',
           'note': 'Fridge door',
           'annotations': {
-            'width': 1200,
-            'height': 1600,
+            'w': 1200,
+            'h': 1600,
             'marks': [
               {
                 'shape': 'ring',

@@ -151,7 +151,7 @@ class ReportPhoto {
   final String? note;
   final String? mimeType;
 
-  /// Marks drawn beside the photo, never into it: `{width, height, marks}`, with every
+  /// Marks drawn beside the photo, never into it: `{w, h, marks}`, with every
   /// coordinate normalized against that upright box.
   final Map<String, dynamic>? annotations;
 

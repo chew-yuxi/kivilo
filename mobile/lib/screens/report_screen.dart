@@ -12,7 +12,6 @@ import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import '../ui/page_context_title.dart';
 import '../ui/tenant_handover.dart';
-import 'photo_mark_screen.dart';
 import 'signature_screen.dart';
 
 /// The signed report, read-only: what the landlord and tenant agreed, laid out for a
@@ -701,7 +700,10 @@ class _ReportScreenState extends State<ReportScreen> {
             onTap: () => _view(photo),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: _MarkedPhoto(photo: photo),
+              child: MarkedNetworkPhoto(
+                url: photo.url,
+                annotations: photo.annotations,
+              ),
             ),
           ),
           _caption(photo),
@@ -762,7 +764,11 @@ class _ReportScreenState extends State<ReportScreen> {
             maxScale: 5,
             child: photo.marks.isEmpty
                 ? Image.network(photo.url, fit: BoxFit.contain)
-                : _MarkedPhoto(photo: photo),
+                : MarkedNetworkPhoto(
+                    url: photo.url,
+                    annotations: photo.annotations,
+                    fit: BoxFit.contain,
+                  ),
           ),
         ),
       ),
@@ -1146,34 +1152,6 @@ class _ReportScreenState extends State<ReportScreen> {
           ),
         ),
       );
-}
-
-/// The picture at its own aspect ratio with the marks painted over exactly its box, so
-/// a ring sits where the inspector drew it at any size.
-class _MarkedPhoto extends StatelessWidget {
-  const _MarkedPhoto({required this.photo});
-  final ReportPhoto photo;
-
-  @override
-  Widget build(BuildContext context) {
-    final width = (photo.annotations!['width'] as num).toDouble();
-    final height = (photo.annotations!['height'] as num).toDouble();
-    return AspectRatio(
-      aspectRatio: width / height,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Image.network(
-            photo.url,
-            fit: BoxFit.fill,
-            errorBuilder: (_, _, _) =>
-                const ColoredBox(color: KiviloColors.canvas),
-          ),
-          CustomPaint(painter: MarkPainter(photo.marks)),
-        ],
-      ),
-    );
-  }
 }
 
 String _count(int n, String noun) => '$n $noun${n == 1 ? '' : 's'}';
