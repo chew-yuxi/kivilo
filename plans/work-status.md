@@ -31,6 +31,12 @@ and a focused rerun of two corrected tests, including real sandbox Checkout and 
 new OTP acquisition case. The corrections update the current login heading and
 avoid a redundant page reload that allowed a click before hydration; authorization
 and checkout assertions remain intact. All 25 collector/IndexNow tests also passed.
+After the security migrations, all 327 integration tests and all 24 non-billing
+browser cases passed again. The browser repeat used two workers after an eight-worker
+run hit transaction timeouts; production timeout settings were not changed. The
+Stripe browser case was excluded from that repeat because its temporary webhook
+listener had been stopped; its earlier real sandbox payment passed. Full lint and
+typecheck passed after adding the security tests.
 
 App and marketing rollout is pending. The acquisition table is created and empty. A
 preflight found Supabase's inherited anonymous/authenticated public-table grants
