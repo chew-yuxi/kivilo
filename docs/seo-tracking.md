@@ -241,8 +241,10 @@ are distinct from the site's aggregate Google Generative AI report.
 
 The original 26 October baseline predates acquisition instrumentation; its missing
 values remain historical unknowns. The acquisition release adds `AccountAcquisition`
-and a separate cohort in `/admin`. Confirm deployment and table availability before
-reporting any counts. `Stakeholder.createdAt` still is not a signup: an agent can
+and a separate cohort in `/admin`. It was deployed on 26 October Singapore time;
+release evidence is in [the work tracker](../plans/work-status.md). Confirm current
+deployment and table availability before reporting counts. `Stakeholder.createdAt`
+still is not a signup: an agent can
 enter a party's details long before that person signs in.
 
 The marketing site keeps the earliest valid touch for 30 days in a first-party

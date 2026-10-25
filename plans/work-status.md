@@ -1,6 +1,6 @@
 # Kivilo work tracker
 
-Updated 24 October 2026 Singapore time. Tenancy details are now always viewable and the
+Updated 26 October 2026 Singapore time. Tenancy details are now always viewable and the
 Property page groups Continue check-in/check-out, Tenancy details and Documents in one
 action card (`c6792bd`). Editable details require confirmation; sent/signed values remain
 read-only because they are part of the signature fingerprint. Android25 patch **24** /
@@ -38,7 +38,19 @@ Stripe browser case was excluded from that repeat because its temporary webhook
 listener had been stopped; its earlier real sandbox payment passed. Full lint and
 typecheck passed after adding the security tests.
 
-App and marketing rollout is pending. The acquisition table is created and empty. A
+The app release is live from `25c27b1`, Vercel deployment
+`dpl_6WsPF3bbfH4bzrK8GofsWiDkThF3`, verified READY on the active alias at 21:37 UTC
+on 25 October (26 October Singapore). Marketing followed as Cloudflare version
+`89ad11c9-dcab-41b7-a52f-4d049eafe1c9`. A fresh Chromium context verified the finite
+cookie reaching the real app login request, unknown campaign removal and unchanged
+first touch/expiry after another visit; no signup or email was sent. Public app
+privacy/login checks passed, `/admin` redirects signed-out visitors and `/api/v1/me`
+returns 401. No signed-in production admin session was available; its access and
+cohort calculations are covered by integration tests. All 12 public pages passed the
+post-release collector with no regressions; IndexNow dry-run found no content changes
+and submitted nothing. The weekly schedule remains active for 28 October at 09:00 SGT.
+
+The acquisition table was created empty before the app rollout. A
 preflight found Supabase's inherited anonymous/authenticated public-table grants
 also bypassed the server boundary on existing tables. Separate immutable migrations
 close that access on all 50 Prisma tables and the migration ledger, enable RLS and
@@ -49,8 +61,13 @@ the exposure check. Production now has all 41 migrations, all 51 protected table
 zero effective client table/column privileges and zero unsafe future-table grants.
 The runtime database role retains access. Anonymous limit-zero HEAD probes for
 acquisition, people, inspections and captures return 401 without reading row data.
-The app release must precede the marketing cookie release. This closes the access
+The database, app and marketing releases followed that order. This closes the access
 path; it does not establish whether anyone used it previously.
+
+If rolling back application code, retain the additive acquisition table and access
+hardening; older server builds use the same trusted database role. Do not restore
+public client grants as part of a code rollback.
+
 Production checkout remains closed: the operator confirmed the Singapore live Stripe
 account is not activated. The sandbox payment was verified without counting it as a
 live conversion. [Billing readiness](billing.md#live-readiness-checked-2026-10-26)
