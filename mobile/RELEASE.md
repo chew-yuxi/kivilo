@@ -26,14 +26,21 @@ and cannot be replaced by a second Play subscription.
 
 Local verification: Flutter analysis passes and the full 424-test mobile suite passes
 (23 billing tests, including account-switch and independent-token retries); an Android
-debug APK builds with the new plugin. Signed Shorebird Android `1.0.0+28` was built
-from `4b6cbad` but not uploaded to Play; the reviewed retry corrections require a new
-internal build before upload. These are development
-checks, not evidence of a completed Play transaction. Before enabling production
-purchases, configure the Play catalog, API credentials and authenticated RTDN endpoint,
-upload the new signed Android build, and complete a Google Play license-tester purchase,
-restore, seat change, cancellation and expiry check. No live charge is needed for those
-license-tester checks. Store upload and licensed purchase verification remain pending.
+debug APK builds with the new plugin. Signed Shorebird Android `1.0.0+29` was built
+from `89a8534` with Flutter3.47.2 and released to Google Play’s internal track. Fresh
+API readback confirms internal29 completed, production27 and all other tracks unchanged.
+The bundle is 67,633,893 bytes, SHA-256
+`7c4884372d3ed75ddd37e54eabd34399163d18bacaaf564711682c0911d4cd75`.
+Build28 from `4b6cbad` remains unused in Play. No native overrides or global publish
+action were used. Google rejected `changesNotSentForReview` for this automatically
+published internal update; the successful commit retained `ERROR_IF_IN_REVIEW`.
+
+The dedicated credential, 21 active subscriptions, authenticated RTDN and production
+backend are configured. A genuine Google test notification returned HTTP200. The
+Kivilo internal tester list is enabled for no-charge license tests. These checks do not
+prove a completed Play purchase: licensed device purchase, restore, team seat change,
+cancellation and accelerated renewal/expiry remain NOT RUN. Complete them before
+public Android rollout. Use Google’s test payment instrument, not a real card.
 
 ## Dark multi-shot photo editor: 26 October 2026 Singapore time
 

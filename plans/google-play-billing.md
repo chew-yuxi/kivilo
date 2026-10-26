@@ -1,9 +1,10 @@
 # Android and team billing
 
-Implementation started 26 October 2026. Google Play sales remain disabled until the
-runtime identity, notification delivery, catalog activation and licensed store test
-are verified. This is a new native Android release, not a Shorebird patch. iOS keeps
-its existing consumption-only behavior.
+Implemented 26 October 2026. The backend, dedicated runtime identity, authenticated
+notification delivery and 21 active catalog products are configured. Android29 is
+on the internal track for licensed purchase verification; public Android rollout
+remains held until that device test passes. This is a new native release, not a
+Shorebird patch. iOS keeps its existing consumption-only behavior.
 
 ## Plans and workspace ownership
 
@@ -158,9 +159,28 @@ existing record counts unchanged and RLS/client privilege checks passing. Dedica
 production-only sensitive Vercel variables. The topic `kivilo-play-rtdn` permits
 Google Play notification publishing, and `kivilo-play-rtdn-push` uses authenticated
 HTTPS delivery, an exact audience, 60-second acknowledgement, 10–600 second retry
-backoff, seven-day retention and no inactivity expiry. Play app access, Console RTDN
-linkage and Google-origin delivery verification remain pending. Purchases remain
-disabled and all 21 catalog entries remain drafts.
+backoff, seven-day retention and no inactivity expiry. Google’s existing Pub/Sub
+service agent role provides the required signing permission; no additional project
+role was granted to either Kivilo identity. Play access is scoped to Kivilo, with the
+required basic app read, purchase/financial read and order/subscription management.
+Runtime reads passed for Kivilo and were denied for an unrelated known app.
+
+The backend was first deployed from `89a8534` as
+`dpl_DTF5UbZZptiTCTXZKLLm1skWnUze`. Invalid RTDN authentication returned 401; a genuine
+Play Console test reached the endpoint with HTTP 200 at 2026-10-26T14:45:13.339Z
+(request `9vx7x-1793025913339-d5d4c360e2a0`). All 21 reviewed products are now ACTIVE,
+and `GOOGLE_PLAY_BILLING_ENABLED=true` is configured for the following deployment
+to permit internal purchase testing. This Google-origin test verifies delivery and
+authentication, not a paid entitlement or its renewal.
+
+Signed Android `1.0.0+29`, pinned to `89a8534` with Flutter3.47.2, was uploaded,
+validated and committed only to the internal track. Fresh readback confirms internal29
+completed and production27 unchanged. Managed publishing still holds the same five
+existing production/listing/privacy/data-safety changes. The existing Kivilo internal
+tester list is enabled for no-charge license testing. A real licensed device purchase,
+restore, team seat replacement, cancellation and accelerated renewal/expiry remain
+NOT RUN; no Android device is attached. Payout bank setup is deferred by the owner
+until after testing and is required before receiving earnings and the paid launch.
 
 Final review adds five Agency Stripe race scenarios (56 targeted integration tests
 pass) and six native recovery scenarios (424 Flutter tests pass, analysis clean).

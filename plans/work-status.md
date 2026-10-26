@@ -12,27 +12,37 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
-## Android and team billing — 26 October (implementation verified, rollout pending)
+## Android and team billing — 26 October (internal release, device purchase pending)
 
-The isolated Google Play change adds native Android purchases for Personal and
-operational Agency teams, while web team checkout uses Stripe. Server verification,
-renewal notifications, restore, exact seat changes, provider-conflict protection and
-rejected Play purchase refunds share the existing data-layer authorization boundary.
-The new Android-only billing dependency requires a store build; iOS is unchanged.
+Native Google Play purchases now support Personal and operational Agency teams;
+web team checkout uses Stripe. Verification, restore, exact seat replacement and
+rejected-purchase refunds share the data-layer authorization boundary. Final review
+fixed Agency Stripe payer departure during Checkout and native account-switch/retry
+recovery. Team billing grants no sharing access. The unfinished Home changes remain
+preserved and unstaged after the billing commits were merged into main.
 
-The owner created Google's merchant payments profile. All 21 Singapore catalog
-products were created as drafts: Personal Pro and exact team seat counts 1–20,
-S$39 per seat monthly. No products were activated and no customer was charged.
-Dedicated runtime access and authenticated notification setup await browser security
-confirmation. The original Home/context-switcher working files remain untouched.
+All four production migrations applied (45 total), with existing counts and RLS
+checks verified. Dedicated Kivilo-only Play access and production-sensitive Vercel
+configuration are set. The backend from `89a8534` is READY at `my.kivilo.app`;
+authentication probes pass and a genuine Google Console RTDN test returned HTTP200
+at 14:45:13 UTC. All 21 Singapore products are ACTIVE (S$39/seat/month), and purchase
+contexts are being enabled for the internal device test. Payout bank setup is deferred
+by the owner until after testing; no customer has been charged by this setup.
 
-Combined typecheck, zero-warning lint, production build and 218 unit tests pass.
-The integration suite passes 385 cases and reproduces the same eight recorded local
-baseline failures (four storage-purge/account-erasure fixtures, four permission-error
-wording assertions). All 26 Play billing cases pass. Flutter analysis and the 416-test
-suite pass, plus two additional small-phone checks; the Android debug APK builds.
-Browser checks, signed store build, production migration/deployment and licensed Play
-purchase verification are still being finalized. Details: `plans/google-play-billing.md`.
+Android `1.0.0+29` is committed to the internal track, built from `89a8534` on approved
+Flutter3.47.2. Production27, other tracks and the five existing managed-publishing
+items are unchanged. The Kivilo tester list has no-charge license testing enabled.
+iOS has no new purchase plugin. Licensed Play purchase, restoration, team replacement,
+renewal/expiry and cancellation on a device remain NOT RUN; public Android rollout
+is held for those checks. Details: `plans/google-play-billing.md`, `mobile/RELEASE.md`.
+
+Final typecheck, zero-warning lint, production build and 218 unit tests pass. Full
+integration had 385 passes and the same eight recorded baseline failures; subsequent
+payer-race coverage passes 56 targeted integration cases. All 26 Play billing cases pass.
+Flutter analysis and 424 full tests pass, including 23 billing cases. Web E2E had 24
+initial passes plus successful focused reruns of both failures, including a genuine
+Stripe sandbox purchase and four successful webhooks. The document rerun passed after
+a development route-discovery 404, without code changes.
 
 ## Account acquisition and payment attribution — 26 October
 
