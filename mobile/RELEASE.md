@@ -5,6 +5,47 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Mobile UX cleanup and Android 29 fixes — 27 October 2026 Singapore time
+
+Source `77018422d7c406944fa88c1d5c05efb3ae0873e9`, pushed to `origin/main` before
+patching. Android `1.0.0+29` patch **1**, ID **752374**, is **stable**, active and
+latest; read back at 07:53 Singapore time. All three Android architectures are
+present. The patch was compiled with the release's Flutter3.47.2 from the pinned,
+isolated checkout `/tmp/kivilo-ux-release-20261027`, with production runtime defines.
+
+The app removes repeated billing/property/room actions, clarifies labels and report
+states, and gives buttons and section actions consistent spacing at narrow widths
+and larger text sizes. Repair-term review opens the actual agreement terms, and
+own-account tenant signing no longer opens the in-person handover flow. The released
+Home retains its existing loading/navigation structure; the unfinished task inbox
+and context switcher are excluded and preserved in the main working directory.
+
+The Addenda crash came from rendering a retained draft before initializing its date.
+Fields now bind to the displayed draft without overwriting unsaved edits on refresh,
+and Publish waits for that draft's pending-photo check. Native upload HTTP408,429,
+500,502,503,504 results now show a temporary delay while retaining media and retrying
+with stable capture identity. Permanent failures remain reported. This handles the
+reported504 correctly; it does not prevent an upstream gateway timeout.
+
+The exact release passes Flutter analysis and all **454 mobile tests**. Nineteen
+focused checks also cover the ported Home, repair navigation and four rendered Home
+layouts. The other changed screens were rendered at phone widths and enlarged text.
+Native compatibility passes without a native override. The only bundled asset
+difference is the removed `info_outline` glyph: a binary cmap comparison proves
+119 patch glyphs are a subset of the installed120, with no added assets or glyphs.
+The documented removal-only `--allow-asset-diffs` allowance was used; every other
+Flutter asset matches the installed release. Proof and logs are in
+`build/release-20261027-ux/`.
+
+Vercel automatically deployed the same source as
+`dpl_GUEPHkpNVW3KXV9C5rNhicMJJvuZ`, READY in `sin1`. Both production domains return
+200 for `/login` and401 for unauthenticated `/api/v1/me`. No backend source, native
+dependencies, store tracks or minimum-build floor changed. No iOS patch was made.
+Physical-device installation and interaction are **NOT RUN**. Build29 checks at
+launch: close/reopen Kivilo, choose **Update**, then reopen from its notification.
+Rollback is to roll back Android29 patch1, returning to its original store code;
+never delete queued media. Play purchase lifecycle testing remains a separate gate.
+
 ## Google Play subscriptions: implementation, 26 October 2026
 
 Android Account opens **View personal & team plans**. The billing page selects

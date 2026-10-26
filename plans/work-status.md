@@ -12,6 +12,40 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
+## Mobile UX cleanup and build 29 errors — 27 October (released)
+
+Source `7701842` is pushed. Android `1.0.0+29` patch **1** / **752374** is stable,
+active and latest, read back at 07:53 Singapore time. The isolated release removes
+duplicate billing, property and room actions; improves English, report-state labels,
+button spacing and large-text layouts; and fixes repair-term navigation and the
+own-account signing handover. The existing released Home received only its audited
+party-card cleanup. The unfinished Home task inbox and context switcher remain local.
+
+The retained Addenda draft date crash is fixed at initialization, preserving unsaved
+edits and the pending-photo publication guard. Transient native upload HTTP results
+(408/429/500/502/503/504) show a temporary delay and retain their durable media,
+ownership and capture identity. Regression coverage verifies fresh credentials,
+successful uploads whose response was lost, registration retries and permanent403
+errors. It does not prevent storage gateway timeouts or execute Android's OS worker.
+
+The exact release passes Flutter analysis and all **454 mobile tests**. Focused
+navigation checks and actual phone renders pass at normal and enlarged text sizes.
+Native compatibility passes. Binary asset/glyph checks prove the only difference is
+one removed Material icon; the installed font covers every patch glyph. No native
+override was used. Vercel auto-deployed the source as
+`dpl_GUEPHkpNVW3KXV9C5rNhicMJJvuZ`, READY; both production aliases pass login and
+unauthenticated API smoke checks. Physical-device installation remains **NOT RUN**.
+Store tracks and iOS are unchanged. Details and rollback: `mobile/RELEASE.md`.
+
+Earlier checks of the combined local working tree passed web typecheck, zero-warning
+lint, production build and218 unit tests. Integration had397 passes and the same
+eight failures reproduced on clean `2a588d2` (schema-vs-table denial assertions and
+a pending general StoragePurge tombstone). Web E2E passed25 cases; sandbox billing
+could not begin without a local Stripe webhook secret. The combined unfinished Home
+tree has459 mobile passes and three failures (fresh-answer loading, party tablet
+navigation/layout and the old inspection cache on Home). Those changes and failures
+are excluded from this454-test release; Home shortcut deduplication remains local.
+
 ## Android and team billing — 26 October (internal release, device purchase pending)
 
 Native Google Play purchases now support Personal and operational Agency teams;
