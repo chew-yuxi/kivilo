@@ -1112,6 +1112,15 @@ class _CaptureScreenState extends State<CaptureScreen> {
             icon: const Icon(Icons.sync),
             tooltip: 'Retry uploads',
           ),
+          if (widget.itemId != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 12),
+              child: FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
+                onPressed: _busy || _leaving ? null : _leaveAfterSaving,
+                child: const Text('Done'),
+              ),
+            ),
         ],
       ),
       body: KiviloContent(
@@ -1158,7 +1167,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           const SizedBox(height: 8),
                           Text(item.notes!),
                         ],
-                        if (widget.onEditItem != null)
+                        if (widget.onEditItem != null) ...[
+                          const SizedBox(height: kiviloButtonGap),
                           SizedBox(
                             width: double.infinity,
                             child: TextButton.icon(
@@ -1188,24 +1198,25 @@ class _CaptureScreenState extends State<CaptureScreen> {
                               label: const Text('Edit details'),
                             ),
                           ),
+                        ],
                       ],
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
               ],
-              Text(
-                widget.itemId == null ? 'Room media' : 'Photos & video',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                widget.itemId == null
-                    ? 'Record a room walkthrough or manage existing room media.'
-                    : 'Take a photo, add any marks, then save. It is attached to this item automatically.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 20),
+              if (widget.itemId == null) ...[
+                Text(
+                  'Room media',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Record a room walkthrough or manage existing room media.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 20),
+              ],
               if (_offline)
                 _notice(
                   Icons.cloud_off_outlined,
@@ -1236,58 +1247,61 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   KiviloColors.amber,
                   onTap: () => unawaited(_drain()),
                 ),
-              KiviloSegmentedControl<bool>(
-                options: const [
-                  KiviloSegmentOption(
-                    value: false,
-                    label: 'Photos',
-                    icon: Icons.photo_camera,
-                  ),
-                  KiviloSegmentOption(
-                    value: true,
-                    label: 'Video',
-                    icon: Icons.videocam,
-                  ),
-                ],
-                value: _videoMode,
-                onChanged: (selected) => unawaited(_switchMode(selected!)),
-              ),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                onPressed:
-                    _busy ||
-                        _leaving ||
-                        _finishing ||
-                        _room == null ||
-                        (widget.itemId != null && item == null)
-                    ? null
-                    : _videoMode || widget.picker != null
-                    ? _openSystemCamera
-                    : _openMultiShotCamera,
-                icon: Icon(
-                  _videoMode ? Icons.videocam : Icons.camera_alt_outlined,
+              // An item's photo actions are the footer, so this screen is about the photos.
+              if (widget.itemId == null) ...[
+                KiviloSegmentedControl<bool>(
+                  options: const [
+                    KiviloSegmentOption(
+                      value: false,
+                      label: 'Photos',
+                      icon: Icons.photo_camera,
+                    ),
+                    KiviloSegmentOption(
+                      value: true,
+                      label: 'Video',
+                      icon: Icons.videocam,
+                    ),
+                  ],
+                  value: _videoMode,
+                  onChanged: (selected) => unawaited(_switchMode(selected!)),
                 ),
-                label: Text(
-                  _videoMode
-                      ? 'Record video'
-                      : widget.picker != null
-                      ? (hasMedia ? 'Take another photo' : 'Take a photo')
-                      : (hasMedia ? 'Take more photos' : 'Take photos'),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed:
+                      _busy ||
+                          _leaving ||
+                          _finishing ||
+                          _room == null ||
+                          (widget.itemId != null && item == null)
+                      ? null
+                      : _videoMode || widget.picker != null
+                      ? _openSystemCamera
+                      : _openMultiShotCamera,
+                  icon: Icon(
+                    _videoMode ? Icons.videocam : Icons.camera_alt_outlined,
+                  ),
+                  label: Text(
+                    _videoMode
+                        ? 'Record video'
+                        : widget.picker != null
+                        ? (hasMedia ? 'Take another photo' : 'Take a photo')
+                        : (hasMedia ? 'Take more photos' : 'Take photos'),
+                  ),
                 ),
-              ),
-              const SizedBox(height: kiviloButtonGap),
-              OutlinedButton.icon(
-                onPressed:
-                    _busy ||
-                        _leaving ||
-                        _finishing ||
-                        _room == null ||
-                        (widget.itemId != null && item == null)
-                    ? null
-                    : _chooseFromLibrary,
-                icon: const Icon(Icons.image),
-                label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
-              ),
+                const SizedBox(height: kiviloButtonGap),
+                OutlinedButton.icon(
+                  onPressed:
+                      _busy ||
+                          _leaving ||
+                          _finishing ||
+                          _room == null ||
+                          (widget.itemId != null && item == null)
+                      ? null
+                      : _chooseFromLibrary,
+                  icon: const Icon(Icons.image),
+                  label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
+                ),
+              ],
             ];
             final captures =
                 <String, ({PendingCapture? pending, EvidenceCapture? saved})>{
@@ -1328,10 +1342,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
 
             final media = <Widget>[
               KiviloSectionHeading(
-                title: widget.itemId == null ? 'Media' : 'Item media',
+                title: widget.itemId == null ? 'Media' : 'Photos',
                 subtitle: 'Saved on your phone first, then added to the report',
               ),
               const SizedBox(height: kiviloHeadingGap),
+              if (widget.itemId != null && keys.isEmpty)
+                Text(
+                  'No photos of this item yet.',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: KiviloColors.muted),
+                ),
               if (wide)
                 SizedBox(
                   height: (constraints.maxHeight - 100).clamp(360, 600),
@@ -1377,7 +1398,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   )
                 else ...[
                   ...controls,
-                  const SizedBox(height: 24),
+                  // The item card already ends in a 12 gap, so items match rooms' 24.
+                  SizedBox(height: widget.itemId == null ? 24 : 12),
                   ...media,
                 ],
               ],
@@ -1401,13 +1423,39 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   ),
                   const SizedBox(height: 8),
                 ],
-                if (widget.itemId != null)
+                if (widget.itemId != null) ...[
                   FilledButton.icon(
-                    onPressed: _busy || _leaving ? null : _leaveAfterSaving,
-                    icon: const Icon(Icons.check_rounded),
-                    label: const Text('Done'),
-                  )
-                else
+                    onPressed:
+                        _busy ||
+                            _leaving ||
+                            _finishing ||
+                            _room == null ||
+                            item == null
+                        ? null
+                        : widget.picker != null
+                        ? _openSystemCamera
+                        : _openMultiShotCamera,
+                    icon: const Icon(Icons.camera_alt_outlined),
+                    label: Text(
+                      widget.picker != null
+                          ? (hasMedia ? 'Take another photo' : 'Take a photo')
+                          : (hasMedia ? 'Take more photos' : 'Take photos'),
+                    ),
+                  ),
+                  TextButton.icon(
+                    style: kiviloTertiary,
+                    onPressed:
+                        _busy ||
+                            _leaving ||
+                            _finishing ||
+                            _room == null ||
+                            item == null
+                        ? null
+                        : _chooseFromLibrary,
+                    icon: const Icon(Icons.image),
+                    label: const Text('Choose photos'),
+                  ),
+                ] else
                   OutlinedButton.icon(
                     onPressed:
                         _room == null ||
