@@ -108,18 +108,45 @@ See Stripe's [event definitions](https://docs.stripe.com/api/events/types) and
 
 ## Live readiness (checked 2026-10-26)
 
-**Live setup is in progress; no real payment has been taken.** The operator saved the
-runtime restricted key through a masked prompt as a write-only Vercel Secret scoped to
-Production. Preview/Development kept their separate sandbox setting. The key remains
-unreadable to the operator tooling; permission checks run inside the deployment environment.
+**Live checkout is deployed; the first real payment remains unverified.** Both the
+runtime restricted key and webhook signing secret are write-only Vercel Secrets scoped
+to Production. Preview/Development retain separate sandbox credentials. The runtime
+key was never read back; permission checks ran inside the production build environment.
 
 Stripe's live Account status shows Payments and Payouts Active, with no active tasks
-(26 October). The separate temporary setup key created product `kivilo_pro`, live price
-`price_1UUfMoHP9VOWpFf0nNMpteAi` (SGD 3900/seat/month) and portal configuration
-`bpc_1UUfMpHP9VOWpFf03NISzUNe`. The setup key stays only in a private process's memory.
-Live webhook installation, runtime permission verification and deployment are pending. The first
-remote preflight was blocked before building because the previous session's Git author
-is not an authorized Vercel project author; no live API probe ran in that deployment.
+(26 October). Product `kivilo_pro`, live price `price_1UUfMoHP9VOWpFf0nNMpteAi`
+(SGD 3900/seat/month) and portal configuration `bpc_1UUfMpHP9VOWpFf03NISzUNe`
+are configured. The enabled live webhook targets
+`https://my.kivilo.app/api/stripe/webhook` with API version `2026-09-30.endive`.
+GST collection stays off: the operator confirmed the business is not registered.
+
+The operator approved **Charges and Refunds → Read** and completed Stripe's verification.
+The live runtime preflight passed price and portal configuration, subscription, invoice,
+InvoicePayments and Charges reads, then created, retrieved and expired one unpaid
+Checkout. No customer, subscription or payment was created. The linked `chew-yuxi`
+GitHub author resolved the initial Vercel author block.
+
+Billing commit `256f68f` was promoted as deployment
+`dpl_89rrSrt6Ehkjr3AmfFuVyn3vseou`; the `my.kivilo.app` alias was verified against that
+READY deployment. Public login returned 200, signed-out Account redirected to login,
+and the webhook rejected an invalid signature with 400. A separate remote operator
+probe (`dpl_CFc2jUR7JCmCsGXLWXR8Yy4hWL2b`) sent a correctly signed synthetic event naming
+only the expired unpaid verification Checkout. The public handler re-read Stripe and
+returned 200 without granting access. This verifies public routing and signing-secret
+alignment, **not delivery originating from Stripe or paid fulfillment**.
+
+Remaining operator checks:
+
+- Expire the temporary **Kivilo Setup** key; its private setup process has exited.
+  Keep **Kivilo Prod** active. Credential retirement is pending operator handoff.
+- Verify live Revenue recovery → Retries ends exhausted subscriptions in `canceled`
+  or `unpaid`. This setting remains unverified; leaving a subscription `past_due`
+  preserves Pro access under the current grace-period rule.
+- Reconcile the first authorized real purchase with Stripe's successful event deliveries,
+  invoice, local Pro entitlement and paid acquisition milestone. Open **Manage billing**
+  too: live portal-session creation and cancellation have not been exercised.
+- Monitor `/admin` billing incidents and Stripe disputes. Incidents deliberately send no
+  email; refunds and duplicate subscriptions require manual review and financial action.
 
 Verification of this change: full typecheck, zero-warning ESLint, 207 unit tests,
 production build and all 25 Playwright tests passed. Sandbox Checkout and portal passed;

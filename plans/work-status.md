@@ -68,16 +68,19 @@ If rolling back application code, retain the additive acquisition table and acce
 hardening; older server builds use the same trusted database role. Do not restore
 public client grants as part of a code rollback.
 
-Production checkout remains closed while live setup progresses. The runtime key is a
-Production-only Vercel Secret; Preview/Development retain sandbox credentials. Stripe
-shows Payments and Payouts Active, and the live SGD39/month catalog and portal are
-configured. Lifecycle/risk handling, concurrent subscription sync and mode/catalog
-checks are implemented in the isolated billing branch. Runtime permission checks,
-live webhook installation and deployment remain pending. Vercel blocked the first remote
-preflight before building because the prior session's Git author is not authorized for
-the project; the operator authorized using their linked `chew-yuxi` GitHub identity
-for this new billing commit. The operator confirmed they
-are not GST registered, so tax collection stays off. No real payment has been taken.
+Live checkout is deployed at `my.kivilo.app` from billing commit `256f68f`, promoted as
+READY deployment `dpl_89rrSrt6Ehkjr3AmfFuVyn3vseou`. Both Stripe credentials are
+Production-only Vercel Secrets; Preview/Development retain sandbox credentials.
+Payments and Payouts are Active. The live SGD39/seat/month catalog, portal and webhook
+are configured, and the runtime key passed all required permission checks after the
+operator approved Charges Read. One unpaid Checkout was created, retrieved and expired.
+Public login/auth checks passed. The webhook rejected an invalid signature and accepted
+an operator-generated signed event referencing only that expired unpaid Checkout.
+This verifies public routing and secret alignment, not a Stripe-origin live delivery.
+No real payment has been taken. GST collection stays off because the operator is not
+registered. The temporary Setup key's retirement, failed-payment retry terminal state,
+first real purchase reconciliation and live portal session remain operator checks.
+All 15 unrelated tracked Home/app edits were preserved byte for byte.
 See [Billing readiness](billing.md#live-readiness-checked-2026-10-26).
 
 ## Search and AI visibility tracking — 26 October
