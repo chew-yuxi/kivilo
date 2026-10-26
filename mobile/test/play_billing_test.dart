@@ -325,6 +325,170 @@ void main() {
   );
 
   test(
+    'new account resume queries its purchases after an old account restore finishes',
+    () async {
+      var queries = 0;
+      billing.dispose();
+      billing = PlayBilling(
+        api: api,
+        store: store,
+        ownedPurchases: () async {
+          queries++;
+          return owned;
+        },
+      );
+      billing.planChanges.listen((_) => changes++);
+      final aliceVerification = Completer<PlayVerification>();
+      api.verify = () => api.verified.last.$2 == 'alice'
+          ? aliceVerification.future
+          : Future.value(
+              const PlayVerification(acknowledged: true, pending: false),
+            );
+      owned = [purchase('alice-purchase')];
+      final alice = billing.resume();
+      await Future<void>.delayed(Duration.zero);
+      api.owner = 'bob';
+      owned = [purchase('bob-purchase')];
+      final bob = billing.resume();
+      expect(queries, 1);
+      aliceVerification.complete(
+        const PlayVerification(acknowledged: true, pending: false),
+      );
+      await Future.wait([alice, bob]);
+      await Future<void>.delayed(Duration.zero);
+      expect(queries, 2);
+      expect(api.verified, [
+        ('alice-purchase', 'alice'),
+        ('bob-purchase', 'bob'),
+      ]);
+      expect(changes, 1, reason: 'only Bob receives a plan refresh');
+    },
+  );
+
+  test(
+    'a late owned-purchase query is never submitted as the next signed-in account',
+    () async {
+      var queries = 0;
+      final aliceQuery = Completer<List<GooglePlayPurchaseDetails>>();
+      billing.dispose();
+      billing = PlayBilling(
+        api: api,
+        store: store,
+        ownedPurchases: () {
+          queries++;
+          return queries == 1
+              ? aliceQuery.future
+              : Future.value([purchase('bob-purchase')]);
+        },
+      );
+      final alice = billing.resume();
+      api.owner = 'bob';
+      final bob = billing.resume();
+      aliceQuery.complete([purchase('alice-purchase')]);
+      await Future.wait([alice, bob]);
+      expect(queries, 2);
+      expect(api.verified, [('bob-purchase', 'bob')]);
+    },
+  );
+
+  for (final transientFailure in [false, true]) {
+    testWidgets(
+      'an unrelated successful update preserves ${transientFailure ? 'failed verification' : 'pending payment'} retry',
+      (tester) async {
+        var queries = 0;
+        var settled = false;
+        billing.dispose();
+        billing = PlayBilling(
+          api: api,
+          store: store,
+          ownedPurchases: () async {
+            queries++;
+            return owned;
+          },
+        );
+        owned = [purchase('unresolved', pending: !transientFailure)];
+        api.verify = () async {
+          if (api.verified.last.$1 == 'unresolved' && !settled) {
+            if (transientFailure) {
+              throw const ApiFailure(
+                'Verification temporarily unavailable.',
+                503,
+              );
+            }
+            return const PlayVerification(acknowledged: false, pending: true);
+          }
+          return const PlayVerification(acknowledged: true, pending: false);
+        };
+        await billing.restore();
+        owned = [purchase('unresolved'), purchase('other-workspace')];
+        store.updates.add([purchase('other-workspace')]);
+        await tester.pump();
+        expect(api.verified.length, 2);
+        settled = true;
+        await tester.pump(const Duration(seconds: 30));
+        await tester.pump();
+        expect(queries, 2);
+        expect(
+          api.verified.where((entry) => entry.$1 == 'unresolved').length,
+          2,
+        );
+        await tester.pump(const Duration(seconds: 30));
+        expect(queries, 2, reason: 'all resolved tokens stop retrying');
+      },
+    );
+  }
+
+  testWidgets('an unrelated update cannot cancel a failed store query retry', (
+    tester,
+  ) async {
+    var queries = 0;
+    billing.dispose();
+    billing = PlayBilling(
+      api: api,
+      store: store,
+      ownedPurchases: () async {
+        queries++;
+        if (queries == 1) {
+          throw const ApiFailure('Google Play is unavailable.', null);
+        }
+        return [purchase('owned')];
+      },
+    );
+    await billing.restore();
+    store.updates.add([purchase('other-workspace')]);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 30));
+    await tester.pump();
+    expect(queries, 2);
+    expect(api.verified, [('other-workspace', 'alice'), ('owned', 'alice')]);
+  });
+
+  testWidgets('changing accounts clears the previous account pending retries', (
+    tester,
+  ) async {
+    var queries = 0;
+    billing.dispose();
+    billing = PlayBilling(
+      api: api,
+      store: store,
+      ownedPurchases: () async {
+        queries++;
+        return owned;
+      },
+    );
+    owned = [purchase('alice-pending', pending: true)];
+    api.verify = () async =>
+        const PlayVerification(acknowledged: false, pending: true);
+    await billing.resume();
+    api.owner = 'bob';
+    owned = [];
+    await billing.resume();
+    await tester.pump(const Duration(seconds: 30));
+    expect(queries, 2);
+    expect(api.verified, [('alice-pending', 'alice')]);
+  });
+
+  test(
     'team purchase passes a server-issued binding and selected offer to Play',
     () async {
       final selected = product(team.productId);

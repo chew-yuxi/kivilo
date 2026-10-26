@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { db } from '@/lib/db'
 import { isLive, subscriptionCanResume } from '@/lib/plan'
 import { assertStripeMode, PRO_PRODUCT_ID, stripe } from '@/lib/stripe'
@@ -26,7 +27,7 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     throw new Error(`Stripe subscription ${initial.id} must name exactly one workspace`)
   }
 
-  return db.$transaction(async (tx) => {
+  const result = await db.$transaction(async (tx) => {
     if (agencyId) await tx.$queryRaw`SELECT "id" FROM "Agency" WHERE "id" = ${agencyId} FOR SHARE`
     // Lock the workspace even before it has a Subscription row. Fetch again only after
     // acquiring the lock: an earlier network response must not overwrite a newer sync.
@@ -67,6 +68,31 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     }
     const { managedById } = subscription.metadata
     const existing = await tx.subscription.findUnique({ where })
+    if (agencyId && existing?.stripeSubscriptionId !== subscription.id) {
+      // Checkout can stay open after the payer is removed or demoted. Recheck while
+      // holding the Agency lock; membership changes cannot race this first grant.
+      const payer = managedById ? await tx.agencyMembership.findFirst({ where: {
+        agencyId, stakeholderId: managedById, status: 'ACTIVE', role: { in: ['OWNER', 'MANAGER'] },
+      }, select: { id: true } }) : null
+      if (!payer) {
+        // Once the operator cancels this unfulfilled purchase, its final/replayed
+        // events are harmless and must not create an unmanageable historical row.
+        if (!isLive(subscription.status)) return existing
+        const message = `Stripe subscription ${subscription.id} cannot be assigned to agency ${agencyId}: ` +
+          'its payer is no longer an active owner or manager. Cancel and refund this unfulfilled purchase in Stripe: ' +
+          `https://dashboard.stripe.com/${subscription.livemode ? '' : 'test/'}subscriptions/${subscription.id}`
+        const fingerprint = createHash('sha256').update(`stripe-agency-payer:${subscription.id}`).digest('hex')
+        // Commit a deduplicated operational record before rejecting the webhook.
+        // The existing error alert delivers its manual resolution instructions;
+        // throwing outside the transaction keeps Stripe's delivery retryable.
+        await tx.errorEvent.createMany({ data: [{
+          id: `stripe_agency_payer_${fingerprint}`, source: 'SERVER', context: 'stripe_agency_payer',
+          name: 'StripeAgencyPayerConflict', message, path: '/api/stripe/webhook',
+          fingerprint, occurredAt: new Date(),
+        }], skipDuplicates: true })
+        return { billingConflict: message }
+      }
+    }
     if (!existing) {
       return tx.subscription.create({ data: { ...where, ...state, managedById: managedById || null } })
     }
@@ -92,6 +118,8 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     // A new subscription over a comp or one that has ended: the payer now manages it.
     return tx.subscription.update({ where, data: { ...state, managedById: managedById || null } })
   }, { timeout: 15_000, maxWait: 10_000 })
+  if (result && 'billingConflict' in result) throw new Error(result.billingConflict)
+  return result
 }
 
 /// The checkout return page calls this, so the plan has flipped by the time the agent
@@ -142,7 +170,7 @@ export async function recordPaidInvoice(invoiceId: string) {
   const current = await syncSubscription(subscriptionId, customerId)
   // A canceled duplicate can resolve to a different current subscription. Its invoice
   // must never credit that subscription's payer, nor restore a cleared manager.
-  if (current.stripeSubscriptionId !== subscriptionId || current.stripeCustomerId !== customerId ||
+  if (!current || current.stripeSubscriptionId !== subscriptionId || current.stripeCustomerId !== customerId ||
       !current.managedById) return
   await db.accountAcquisition.updateMany({
     where: {

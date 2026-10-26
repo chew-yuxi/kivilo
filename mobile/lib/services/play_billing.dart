@@ -20,7 +20,10 @@ class PlayBilling extends ChangeNotifier {
   }) {
     _subscription = store.purchaseStream.listen(
       (purchases) {
-        _processing = _processing.then((_) => _process(purchases));
+        if (_disposed) return;
+        final owner = _syncOwner();
+        if (owner == null) return;
+        _processing = _processing.then((_) => _process(purchases, owner));
       },
       onError: (Object error) {
         _purchasing = false;
@@ -67,6 +70,9 @@ class PlayBilling extends ChangeNotifier {
   Stream<void> get planChanges => _changes.stream;
   Future<void> _processing = Future.value();
   Future<void>? _restoring;
+  String? _restoringOwner;
+  final _unresolvedTokens = <String>{};
+  bool _queryNeedsRetry = false;
   Timer? _retry;
   bool _purchasing = false;
   bool _verifying = false;
@@ -129,7 +135,7 @@ class PlayBilling extends ChangeNotifier {
     required GooglePlayProductDetails product,
   }) async {
     if (busy) return;
-    final owner = api.currentOwnerId;
+    final owner = _syncOwner();
     if (owner == null) {
       errorMessage = 'Sign in to your Kivilo account before subscribing.';
       notifyListeners();
@@ -218,6 +224,11 @@ class PlayBilling extends ChangeNotifier {
   /// sheet or subscription settings. No cached entitlement is used to grant access.
   Future<void> resume() async {
     _foreground = true;
+    if (_syncOwner() == null) return;
+    await restore(quiet: true);
+  }
+
+  String? _syncOwner() {
     final owner = api.currentOwnerId;
     if (_owner != owner) {
       _owner = owner;
@@ -226,10 +237,11 @@ class PlayBilling extends ChangeNotifier {
       message = null;
       _retry?.cancel();
       _retry = null;
+      _unresolvedTokens.clear();
+      _queryNeedsRetry = false;
       notifyListeners();
     }
-    if (owner == null) return;
-    await restore(quiet: true);
+    return owner;
   }
 
   void suspend() {
@@ -239,19 +251,36 @@ class PlayBilling extends ChangeNotifier {
   }
 
   Future<void> restore({bool quiet = false}) {
+    if (_disposed) return Future.value();
+    final owner = _syncOwner();
+    if (owner == null) return Future.value();
     final existing = _restoring;
-    if (existing != null) return existing;
-    final next = _restore(quiet: quiet);
-    _restoring = next;
-    notifyListeners();
-    return next.whenComplete(() {
-      _restoring = null;
+    if (existing != null) {
+      if (_restoringOwner == owner) return existing;
+      // A new sign-in must get its own owned-purchase query after the previous
+      // account's restore exits, rather than joining a result it cannot use.
+      return existing.then((_) {
+        if (!_disposed && api.currentOwnerId == owner) {
+          return restore(quiet: quiet);
+        }
+      });
+    }
+    late final Future<void> next;
+    next = _restore(quiet: quiet, owner: owner).whenComplete(() {
+      if (identical(_restoring, next)) {
+        _restoring = null;
+        _restoringOwner = null;
+      }
       if (!_disposed) notifyListeners();
     });
+    _restoringOwner = owner;
+    _restoring = next;
+    notifyListeners();
+    return next;
   }
 
-  Future<void> _restore({required bool quiet}) async {
-    if (api.currentOwnerId == null) return;
+  Future<void> _restore({required bool quiet, required String owner}) async {
+    if (api.currentOwnerId != owner || _disposed) return;
     if (!quiet) {
       errorMessage = null;
       message = 'Checking Google Play purchases…';
@@ -259,26 +288,43 @@ class PlayBilling extends ChangeNotifier {
     try {
       // queryPastPurchases preserves PENDING status; the generic restore method
       // labels every result RESTORED, including an unpaid pending purchase.
+      final previouslyUnresolved = Set<String>.of(_unresolvedTokens);
       final purchases = await ownedPurchases();
-      _processing = _processing.then((_) => _process(purchases));
+      if (api.currentOwnerId != owner || _disposed) return;
+      // Only a complete owned-purchase query can retire an absent token. A stream
+      // update is partial and says nothing about other unresolved purchases.
+      _queryNeedsRetry = false;
+      final ownedTokens = purchases
+          .map((purchase) => purchase.verificationData.serverVerificationData)
+          .toSet();
+      _unresolvedTokens.removeWhere(
+        (token) =>
+            previouslyUnresolved.contains(token) &&
+            !ownedTokens.contains(token),
+      );
+      _processing = _processing.then((_) => _process(purchases, owner));
       await _processing;
+      if (api.currentOwnerId != owner || _disposed) return;
       if (!quiet && purchases.isEmpty) {
         message = 'No purchases found for this Google Play account.';
       }
     } catch (error) {
+      if (api.currentOwnerId != owner || _disposed) return;
       errorMessage = _safeError(error);
+      _queryNeedsRetry = true;
       _scheduleRetry();
     }
   }
 
-  Future<void> _process(List<PurchaseDetails> purchases) async {
-    final owner = api.currentOwnerId;
-    if (owner == null || _disposed) return;
+  Future<void> _process(List<PurchaseDetails> purchases, String owner) async {
+    if (api.currentOwnerId != owner || _disposed) return;
     final seen = <String>{};
-    var retryNeeded = false;
     for (final purchase in purchases) {
       if (api.currentOwnerId != owner || _disposed) return;
       if (purchase.status == PurchaseStatus.canceled) {
+        _unresolvedTokens.remove(
+          purchase.verificationData.serverVerificationData,
+        );
         _purchasing = false;
         message = 'Purchase canceled. Your plan is unchanged.';
         notifyListeners();
@@ -310,23 +356,26 @@ class PlayBilling extends ChangeNotifier {
           message = verified.pending
               ? 'Payment is pending in Google Play. Your plan will update after payment is confirmed.'
               : 'Your purchase is still being confirmed. We will check again automatically.';
-          retryNeeded = true;
+          _unresolvedTokens.add(token);
         } else {
           // The server acknowledges only after committing the verified entitlement.
           // Android has no separate local completion; calling completePurchase here
           // would send a duplicate acknowledgement from this now-stale store result.
           errorMessage = null;
           message = 'Purchase restored. Your plan is up to date.';
+          _unresolvedTokens.remove(token);
           _changes.add(null);
         }
       } catch (error) {
         if (api.currentOwnerId == owner && !_disposed) {
           errorMessage = _safeError(error);
-          retryNeeded =
-              retryNeeded ||
-              error is! ApiFailure ||
+          if (error is! ApiFailure ||
               error.statusCode == null ||
-              error.statusCode! >= 500;
+              error.statusCode! >= 500) {
+            _unresolvedTokens.add(token);
+          } else {
+            _unresolvedTokens.remove(token);
+          }
         }
       } finally {
         _purchasing = false;
@@ -334,7 +383,7 @@ class PlayBilling extends ChangeNotifier {
         if (!_disposed) notifyListeners();
       }
     }
-    if (retryNeeded) {
+    if (_unresolvedTokens.isNotEmpty || _queryNeedsRetry) {
       _scheduleRetry();
     } else {
       _retry?.cancel();
@@ -344,9 +393,12 @@ class PlayBilling extends ChangeNotifier {
 
   void _scheduleRetry() {
     if (!_foreground || _retry != null || _disposed) return;
+    final owner = _owner;
     _retry = Timer(const Duration(seconds: 30), () {
       _retry = null;
-      unawaited(restore(quiet: true));
+      if (owner != null && api.currentOwnerId == owner) {
+        unawaited(restore(quiet: true));
+      }
     });
   }
 

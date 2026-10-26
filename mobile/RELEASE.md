@@ -24,8 +24,11 @@ foreground return and after a temporary verification failure. Account plan usage
 on foreground return and after verification. Existing Stripe subscriptions remain usable
 and cannot be replaced by a second Play subscription.
 
-Local verification: Flutter analysis passes, the full 416-test mobile suite passes, followed by two additional
-small-phone checks (17 billing tests in total); an Android debug APK builds with the new plugin. These are development
+Local verification: Flutter analysis passes and the full 424-test mobile suite passes
+(23 billing tests, including account-switch and independent-token retries); an Android
+debug APK builds with the new plugin. Signed Shorebird Android `1.0.0+28` was built
+from `4b6cbad` but not uploaded to Play; the reviewed retry corrections require a new
+internal build before upload. These are development
 checks, not evidence of a completed Play transaction. Before enabling production
 purchases, configure the Play catalog, API credentials and authenticated RTDN endpoint,
 upload the new signed Android build, and complete a Google Play license-tester purchase,

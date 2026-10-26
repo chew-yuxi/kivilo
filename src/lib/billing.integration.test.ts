@@ -58,6 +58,7 @@ vi.mock('@/lib/stripe', async (importActual) => {
 vi.mock('next/headers', () => ({
   headers: async () => new Headers({ origin: 'http://localhost:3000' }),
 }))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/navigation', () => ({
   redirect: (url: string) => {
     throw new Error(`REDIRECT ${url}`)
@@ -74,6 +75,7 @@ import { requireAgent } from '@/lib/auth'
 import { syncCheckoutSession, syncInvoice, syncSubscription } from '@/lib/billing'
 import { checkoutOpen } from '@/lib/stripe'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
+import { changeAgencyMember } from '@/lib/agency-actions'
 import { FREE_ACTIVE_PROPERTIES, workspacePlan } from '@/lib/plan'
 import { POST as webhook } from '@/app/api/stripe/webhook/route'
 import { setTeam } from '../../scripts/set-team'
@@ -132,6 +134,7 @@ beforeEach(() => {
 
 afterAll(async () => {
   vi.unstubAllEnvs()
+  await db.errorEvent.deleteMany({ where: { context: 'stripe_agency_payer', message: { contains: tag } } })
   await db.accountDeletionRequest.deleteMany({ where: { stakeholderId: { in: people } } })
   await db.subscription.deleteMany({ where: { OR: [{ stakeholderId: { in: people } }, { teamId: { in: teams } }] } })
   await db.agency.deleteMany({ where: { id: { in: agencies } } })
@@ -685,6 +688,122 @@ describe('leaving a paid plan behind', () => {
 
 
 describe('operational team billing', () => {
+  async function twoOwners(name: string) {
+    const payer = await agent(`${name} payer`)
+    const other = await agent(`${name} other`)
+    const agency = await db.agency.create({ data: { name: `${name} ${tag}`, members: { create: [
+      { stakeholderId: payer.id, status: 'ACTIVE', role: 'OWNER' },
+      { stakeholderId: other.id, status: 'ACTIVE', role: 'OWNER' },
+    ] } }, include: { members: true } })
+    agencies.push(agency.id)
+    return { payer, other, agency, membership: agency.members.find((member) => member.stakeholderId === payer.id)! }
+  }
+
+  function delivery(type: string, id: string) {
+    const body = JSON.stringify({ id: 'evt_agency_payer', object: 'event', type,
+      livemode: /_live_/.test(process.env.STRIPE_SECRET_KEY ?? ''), data: { object: { id } } })
+    const signature = (client.webhooks as Stripe['webhooks']).generateTestHeaderString({ payload: body, secret: 'whsec_test_kivilo' })
+    return webhook(new Request('http://localhost/api/stripe/webhook', {
+      method: 'POST', body, headers: { 'stripe-signature': signature },
+    }))
+  }
+
+  it.each(['removed', 'demoted'] as const)('refuses a Checkout paid after its payer is %s, retains one operational incident and accepts manual cancellation', async (change) => {
+    vi.stubEnv('STRIPE_SECRET_KEY', 'rk_live_unused')
+    const { payer, other, agency, membership } = await twoOwners(`Late ${change}`)
+    await db.accountAcquisition.create({ data: {
+      stakeholderId: payer.id, verifiedAt: new Date('2026-10-01'), source: 'direct', entryPoint: 'WEB',
+    } })
+    const form = new FormData()
+    form.set('agencyId', agency.id)
+    as(payer)
+    await expect(startCheckout(form)).rejects.toThrow('REDIRECT https://checkout.stripe.com/')
+    as(other)
+    await changeAgencyMember(agency.id, membership.id, change === 'removed' ? { action: 'remove' } : { role: 'AGENT' })
+    const id = `sub_agency_${change}_${tag}`
+    const resource = paid(id, { agencyId: agency.id }, payer.id, 2)
+    const invoiceId = `in_agency_${change}_${tag}`
+    invoices.set(invoiceId, { id: invoiceId, livemode: true, status: 'paid', currency: 'sgd',
+      amount_paid: 7800, amount_paid_off_stripe: 0, customer: `cus_${id}`,
+      parent: { type: 'subscription_details', subscription_details: { subscription: id } },
+      status_transitions: { paid_at: Math.floor(Date.now() / 1000) },
+    })
+
+    await expect(delivery('invoice.payment_succeeded', invoiceId)).rejects.toThrow('Cancel and refund')
+    const replay = await Promise.allSettled([syncSubscription(id), syncSubscription(id)])
+    expect(replay.every((result) => result.status === 'rejected')).toBe(true)
+    expect(await db.subscription.count({ where: { agencyId: agency.id } })).toBe(0)
+    expect(await workspacePlan(other, agency.id)).toMatchObject({ plan: 'FREE', isManager: true })
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })).firstPaidAt).toBeNull()
+    const incidents = await db.errorEvent.findMany({ where: { context: 'stripe_agency_payer', message: { contains: id } } })
+    expect(incidents).toHaveLength(1)
+    expect(incidents[0]).toMatchObject({ name: 'StripeAgencyPayerConflict', notifiedAt: null, stakeholderId: null })
+    expect(incidents[0].message).toContain(`https://dashboard.stripe.com/subscriptions/${id}`)
+    expect(client.subscriptions.cancel).not.toHaveBeenCalled()
+
+    resource.status = 'canceled' // Operator resolved the charge in Stripe.
+    expect((await delivery('customer.subscription.deleted', id)).status).toBe(200)
+    expect(await db.subscription.count({ where: { agencyId: agency.id } })).toBe(0)
+    expect(await db.errorEvent.count({ where: { context: 'stripe_agency_payer', message: { contains: id } } })).toBe(1)
+  })
+
+  it('rechecks the payer after waiting for an in-flight Agency membership change', async () => {
+    const { payer, agency, membership } = await twoOwners('Locked change')
+    const id = `sub_agency_lock_${tag}`
+    paid(id, { agencyId: agency.id }, payer.id, 2)
+    let acquired!: () => void
+    let release!: () => void
+    const locked = new Promise<void>((resolve) => { acquired = resolve })
+    const proceed = new Promise<void>((resolve) => { release = resolve })
+    const changing = db.$transaction(async (tx) => {
+      await tx.$queryRaw`SELECT "id" FROM "Agency" WHERE "id" = ${agency.id} FOR NO KEY UPDATE`
+      acquired()
+      await proceed
+      await tx.agencyMembership.update({ where: { id: membership.id }, data: { role: 'AGENT' } })
+    })
+    await locked
+    let fetched!: () => void
+    const read = new Promise<void>((resolve) => { fetched = resolve })
+    client.subscriptions.retrieve.mockImplementationOnce(async (subscriptionId: string) => {
+      fetched()
+      const found = subscriptions.get(subscriptionId)
+      if (!found) throw new Error('Subscription fixture missing')
+      return structuredClone(found)
+    })
+    const syncing = syncSubscription(id)
+    const refused = expect(syncing).rejects.toThrow('no longer an active owner or manager')
+    await read
+    release()
+    await changing
+    await refused
+    expect(await db.subscription.count({ where: { agencyId: agency.id } })).toBe(0)
+  })
+
+  it('preserves an existing plan when an ineligible payer’s newer subscription arrives', async () => {
+    const { payer, other, agency, membership } = await twoOwners('Current plan')
+    const currentId = `sub_agency_current_${tag}`
+    paid(currentId, { agencyId: agency.id }, other.id, 2)
+    const current = await syncSubscription(currentId)
+    as(other)
+    await changeAgencyMember(agency.id, membership.id, { role: 'AGENT' })
+    const lateId = `sub_agency_late_${tag}`
+    paid(lateId, { agencyId: agency.id }, payer.id, 2)
+    await expect(syncSubscription(lateId)).rejects.toThrow('Cancel and refund')
+    expect(await db.subscription.findUniqueOrThrow({ where: { agencyId: agency.id } })).toEqual(current)
+  })
+
+  it('continues syncing an associated subscription after its payer link has been cleared', async () => {
+    const { payer, agency, membership } = await twoOwners('Cleared payer')
+    const id = `sub_agency_cleared_${tag}`
+    const resource = paid(id, { agencyId: agency.id }, payer.id, 2)
+    await syncSubscription(id)
+    await db.subscription.update({ where: { agencyId: agency.id }, data: { managedById: null } })
+    await db.agencyMembership.update({ where: { id: membership.id }, data: { status: 'REMOVED' } })
+    resource.status = 'canceled'
+    await expect(syncSubscription(id)).resolves.toMatchObject({ status: 'canceled', managedById: null })
+    expect(await db.errorEvent.count({ where: { context: 'stripe_agency_payer', message: { contains: id } } })).toBe(0)
+  })
+
   it('checks out and reconciles the selected operational team independently of its payer', async () => {
     const owner = await agent('Agency payer')
     const teammate = await agent('Agency teammate')

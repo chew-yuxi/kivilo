@@ -27,6 +27,10 @@ its existing consumption-only behavior.
   A new rejected Play purchase is refunded; a Stripe purchase that completes second
   uses the existing operator alert/manual cancel-and-refund path. Do not describe
   this guard as a guarantee that concurrent checkouts cannot create two charges.
+- Stripe fulfillment rechecks that a new Agency payer is still an active owner or
+  manager under the Agency lock. A paid session completed after departure/demotion
+  leaves a deduplicated operational incident for cancellation/refund and no grant.
+  Existing subscriptions still synchronize cancellation after payer deletion.
 
 ## Catalog
 
@@ -80,7 +84,8 @@ Seat changes use Play replacement with time proration; the purchase sheet explai
 charge and renewal date. The server rejects fewer seats than the current active members.
 
 The app listens from startup, restores on sign-in/foreground return and retries failed
-verification. It never acknowledges or grants a subscription independently. Returning
+verification. Restores are scoped to the signed-in owner; a new account waits for its
+own query. Unresolved tokens keep their retries across unrelated purchase updates. It never acknowledges or grants a subscription independently. Returning
 from Play settings refreshes the selected workspace's plan.
 
 A known new purchase that cannot be fulfilled due to a conflicting subscription or a
@@ -143,3 +148,23 @@ Primary references: [Play integration](https://developer.android.com/google/play
 [subscription lifecycle](https://developer.android.com/google/play/billing/lifecycle/subscriptions),
 [subscription products](https://developers.google.com/android-publisher/api-ref/rest/v3/monetization.subscriptions),
 [authenticated Pub/Sub push](https://docs.cloud.google.com/pubsub/docs/authenticate-push-subscriptions).
+
+## Deployment progress, 26 October 2026
+
+The four additive billing migrations are applied in production (45 total), with
+existing record counts unchanged and RLS/client privilege checks passing. Dedicated
+`kivilo-play-billing` and keyless `kivilo-play-notifications` service accounts exist in
+`nottoosweetlabs`. The runtime credential, RTDN audience and expected identity are
+production-only sensitive Vercel variables. The topic `kivilo-play-rtdn` permits
+Google Play notification publishing, and `kivilo-play-rtdn-push` uses authenticated
+HTTPS delivery, an exact audience, 60-second acknowledgement, 10–600 second retry
+backoff, seven-day retention and no inactivity expiry. Play app access, Console RTDN
+linkage and Google-origin delivery verification remain pending. Purchases remain
+disabled and all 21 catalog entries remain drafts.
+
+Final review adds five Agency Stripe race scenarios (56 targeted integration tests
+pass) and six native recovery scenarios (424 Flutter tests pass, analysis clean).
+The full web E2E run had 24 initial passes and two failed scenarios; focused reruns
+passed both, including a real Stripe sandbox purchase and four HTTP 200 webhook
+deliveries. The PDF scenario initially received an intermittent Next development
+route 404, then passed with a fresh server without code changes.
