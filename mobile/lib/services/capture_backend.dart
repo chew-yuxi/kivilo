@@ -245,6 +245,21 @@ class HttpCaptureBackend implements CaptureBackend {
       if (result.exception is TaskConnectionException) {
         throw ApiFailure.noConnection;
       }
+      // Android puts failed HTTP response codes on TaskHttpException rather than
+      // responseStatusCode. Keep transient storage failures in the durable queue;
+      // the next drain checks whether the object landed before sending it again.
+      final statusCode = switch (result.exception) {
+        TaskHttpException(:final httpResponseCode) when httpResponseCode > 0 =>
+          httpResponseCode,
+        _ => result.responseStatusCode,
+      };
+      if (const [408, 429, 500, 502, 503, 504].contains(statusCode)) {
+        throw ApiFailure(
+          'The upload is temporarily delayed. Your photo or video is saved on '
+          'this phone and will retry while Kivilo is open. You can also retry now.',
+          statusCode,
+        );
+      }
       throw StateError(
         'Upload ${result.status.name}: ${result.exception ?? result.responseStatusCode ?? 'retry later'}',
       );

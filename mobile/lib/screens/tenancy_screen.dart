@@ -18,6 +18,7 @@ import 'property_settings_screen.dart';
 import 'service_directory_screen.dart';
 import 'tenancy_access_screen.dart';
 import 'supporting_documents_screen.dart';
+import 'agreement_terms_screen.dart';
 
 class TenancyScreen extends StatefulWidget {
   const TenancyScreen({
@@ -38,6 +39,7 @@ class TenancyScreen extends StatefulWidget {
 
 class _TenancyScreenState extends State<TenancyScreen> {
   late final _api = widget.api ?? Api();
+  bool _openingRepairTerms = false;
   late Loading<_TenancyData> _loading = _api.load(
     _load,
     retainKey: 'tenancy:${widget.tenancy.id}',
@@ -82,6 +84,43 @@ class _TenancyScreenState extends State<TenancyScreen> {
       ),
     );
     if (mounted) await _refresh();
+  }
+
+  Future<void> _reviewRepairTerms() async {
+    final ownerId = _api.currentOwnerId;
+    setState(() => _openingRepairTerms = true);
+    try {
+      final documents = await _api.supportingDocuments(
+        widget.tenancy.id,
+        ownerId: ownerId,
+      );
+      if (!mounted) return;
+      final agreement = documents.agreement;
+      await Navigator.of(context).push<Object?>(
+        MaterialPageRoute(
+          builder: (_) => agreement.canReview && agreement.currentFileId != null
+              ? AgreementTermsScreen(
+                  tenancyId: widget.tenancy.id,
+                  agreement: agreement,
+                  api: _api,
+                  ownerId: ownerId,
+                )
+              : SupportingDocumentsScreen(
+                  tenancyId: widget.tenancy.id,
+                  api: _api,
+                ),
+        ),
+      );
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(plainError(error))),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _openingRepairTerms = false);
+    }
   }
 
   Future<void> _editAsset([PropertyAssetSummary? asset]) async {
@@ -542,13 +581,13 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: kiviloButtonGap),
                 FilledButton.icon(
                   onPressed: () => _report(assets, terms),
                   icon: const Icon(Icons.add),
                   label: const Text('Report a problem'),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: kiviloButtonGap),
                 if (terms.moveInDefects case final window?) ...[
                   Card(
                     child: ListTile(
@@ -572,7 +611,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                 KiviloSectionHeading(
                   title: 'Maintenance',
                   subtitle: cases.isEmpty
-                      ? 'Requests for this property will appear here'
+                      ? null
                       : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
                 ),
                 const SizedBox(height: kiviloHeadingGap),
@@ -696,24 +735,23 @@ class _TenancyScreenState extends State<TenancyScreen> {
       children: [
         if (terms.maintenanceTerms case final agreementTerms?) ...[
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.fromLTRB(
+              16, 16, 16, terms.canEditMinorRepairCap ? 0 : 16,
+            ),
             child: AgreementTermsView(terms: agreementTerms),
           ),
-          if (terms.canEditMinorRepairCap)
-            TextButton(
-              onPressed: () async {
-                await Navigator.of(context).push<void>(
-                  MaterialPageRoute(
-                  builder: (_) => SupportingDocumentsScreen(
-                    tenancyId: widget.tenancy.id,
-                    api: _api,
-                  ),
-                  ),
-                );
-                if (mounted) await _refresh();
-              },
-              child: const Text('Review tenancy agreement'),
+          if (terms.canEditMinorRepairCap) ...[
+            const SizedBox(height: kiviloButtonGap),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              child: OutlinedButton(
+                onPressed: _openingRepairTerms ? null : _reviewRepairTerms,
+                child: Text(
+                  _openingRepairTerms ? 'Opening…' : 'Review repair terms',
+                ),
+              ),
             ),
+          ],
         ] else
           ListTile(
           contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
@@ -756,14 +794,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const Icon(Icons.task_alt, color: KiviloColors.green, size: 32),
           const SizedBox(height: 12),
           Text(
-            'No open requests',
+            'No maintenance reported',
             style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'This tenancy has no reported maintenance problems.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
       ),

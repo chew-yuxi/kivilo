@@ -287,7 +287,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Every property you work, and where each one is at.',
+                      'Your properties and their current status.',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(height: 16),

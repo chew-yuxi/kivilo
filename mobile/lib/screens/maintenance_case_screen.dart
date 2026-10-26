@@ -450,7 +450,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               const Text(
                 'Add photos, then record the move-in condition as a dated notice beside the signed check-in. The landlord can accept or dispute it. The signed report stays unchanged.',
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               if (claim.canSubmit) ...[
                 OutlinedButton.icon(
                 onPressed: _busy ? null : () => _addEvidence(item.id, 'BEFORE'),
@@ -464,10 +464,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       : () => _recordMoveInDefect(item),
                   child: const Text('Record move-in condition'),
                 ),
-                if (photos == 0)
+                if (photos == 0) ...[
+                  const SizedBox(height: kiviloButtonGap),
                   const Text(
                     'Add at least one uploaded before photo to continue.',
                   ),
+                ],
               ],
             ] else ...[
               const SizedBox(height: 8),
@@ -494,6 +496,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   label: const Text('View dated condition notice'),
                 ),
               if (claim.canRespond) ...[
+                const SizedBox(height: kiviloButtonGap),
                 FilledButton(
                   onPressed: _busy
                       ? null
@@ -538,6 +541,10 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
         }
         final item = snapshot.data!;
         final text = Theme.of(context).textTheme;
+        final hasMoveInPhotoAction =
+            item.moveInDefect?.wasPresentAtMoveIn == true &&
+            item.moveInDefect?.addendumId == null &&
+            item.moveInDefect?.canSubmit == true;
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(
@@ -610,13 +617,15 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               KiviloSectionHeading(
                 title: 'Photos',
                 subtitle: 'Before and after the repair',
-                action: TextButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _addEvidence(item.id, 'BEFORE'),
-                  icon: const Icon(Icons.add_a_photo_outlined, size: 18),
-                  label: const Text('Add'),
-                ),
+                action: hasMoveInPhotoAction
+                    ? null
+                    : TextButton.icon(
+                        onPressed: _busy
+                            ? null
+                            : () => _addEvidence(item.id, 'BEFORE'),
+                        icon: const Icon(Icons.add_a_photo_outlined, size: 18),
+                        label: const Text('Add before photos'),
+                      ),
               ),
               const SizedBox(height: kiviloHeadingGap),
               if (item.evidence.isEmpty)

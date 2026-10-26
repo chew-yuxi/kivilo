@@ -361,7 +361,7 @@ class _ReportScreenState extends State<ReportScreen> {
                       label: const Text('Agrees'),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: kiviloButtonGap),
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _answering
@@ -401,9 +401,6 @@ class _ReportScreenState extends State<ReportScreen> {
     );
     if (signed == true && mounted) {
       await _refresh();
-      if (mounted && !landlord && !report.isCheckOut) {
-        await showTenantHandover(context, inspectionId: report.id, api: _api);
-      }
     }
   }
 
@@ -949,7 +946,7 @@ class _ReportScreenState extends State<ReportScreen> {
               for (final ack in addendum.acknowledgements)
                 if (ack.acknowledgedAt == null && ack.stakeholderId != null)
                   Padding(
-                    padding: const EdgeInsets.only(top: 8),
+                    padding: const EdgeInsets.only(top: kiviloButtonGap),
                     child: OutlinedButton.icon(
                       onPressed: _acknowledging == null
                           ? () => _acknowledgeInPerson(addendum, ack)
@@ -959,7 +956,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     ),
                   ),
             if (addendum.acknowledgeAs != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               FilledButton(
                 onPressed: _acknowledging == null
                     ? () => _acknowledge(addendum)

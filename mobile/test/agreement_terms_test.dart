@@ -116,9 +116,15 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(api.bodies, isEmpty);
+      expect(find.byIcon(Icons.chevron_right), findsNothing);
+      expect(find.byIcon(Icons.circle_outlined), findsOneWidget);
       await tester.tap(find.text('Page 3'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('First amount'));
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('First amount'), 200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text('First amount'));
       await tester.pumpAndSettle();
@@ -141,6 +147,33 @@ void main() {
     },
   );
 
+  testWidgets('editing the source clears the matching clause selection', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: AgreementTermsScreen(
+          tenancyId: 'tenancy-1',
+          agreement: _agreement,
+          api: _Api(),
+          ownerId: 'owner-1',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Page 3'));
+    await tester.pump();
+    expect(find.byIcon(Icons.check_circle), findsOneWidget);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Source page'),
+      '4',
+    );
+    await tester.pump();
+    expect(find.byIcon(Icons.check_circle), findsNothing);
+    expect(find.byIcon(Icons.circle_outlined), findsOneWidget);
+  });
+
   testWidgets('another rule needs notes and never sends a first-amount cap', (
     tester,
   ) async {
@@ -159,7 +192,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Page 3'));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Another rule'));
+    await tester.scrollUntilVisible(
+      find.text('Another rule'), 200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Another rule'));
     await tester.pumpAndSettle();

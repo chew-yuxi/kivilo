@@ -300,7 +300,11 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 : KiviloColors.body,
           ),
           title: Text(
-            report.id == property.nextInspectionId
+            report.status == 'COMPLETED'
+                ? 'View ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'} report'
+                : report.status == 'AWAITING_SIGNATURE'
+                ? 'View ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'} signatures'
+                : report.id == property.nextInspectionId
                 ? 'Continue ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'}'
                 : report.kindLabel,
           ),
@@ -331,10 +335,13 @@ class _PropertyScreenState extends State<PropertyScreen> {
           title: const Text('Tenancy details'),
           subtitle: Text(
             [
-              if (term.landlordEmail == null) 'Landlord email not provided',
-              if (term.tenantEmail == null) 'Tenant email not provided',
-              if (term.landlordEmail != null && term.tenantEmail != null)
-                'Emails, dates, rent and deposit',
+              if (term.canEditDetails && term.landlordEmail == null)
+                'Landlord email not provided',
+              if (term.canEditDetails && term.tenantEmail == null)
+                'Tenant email not provided',
+              if (!term.canEditDetails ||
+                  (term.landlordEmail != null && term.tenantEmail != null))
+                'People, dates, rent and deposit',
             ].join(' · '),
           ),
           trailing: const Icon(Icons.chevron_right),

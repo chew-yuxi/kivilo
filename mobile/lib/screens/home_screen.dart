@@ -674,56 +674,46 @@ class _HomeScreenState extends State<HomeScreen> {
     final text = Theme.of(context).textTheme;
     final reportId = tenancy.latestReportId;
     return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => _openTenancy(tenancy),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              tenancy.property,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: text.titleMedium,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              tenancy.role == 'LANDLORD'
+                  ? 'You are the landlord'
+                  : 'You are the tenant',
+              style: text.bodySmall,
+            ),
+            if (reportId == null) ...[
+              const SizedBox(height: 12),
               Text(
-                tenancy.property,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: text.titleMedium,
-              ),
-              const SizedBox(height: 3),
-              Text(
-                tenancy.role == 'LANDLORD'
-                    ? 'You are the landlord'
-                    : 'You are the tenant',
+                'Your check-in report appears here once your agent sends it.',
                 style: text.bodySmall,
               ),
-              if (reportId == null) ...[
-                const SizedBox(height: 12),
-                Text(
-                  'Your check-in report appears here once your agent sends it.',
-                  style: text.bodySmall,
-                ),
-              ],
-              const SizedBox(height: 14),
-              // Stacked full width: half a card is too tight for "Review and sign" on a
-              // small phone.
-              if (reportId != null) ...[
-                FilledButton(
-                  onPressed: () => _openReport(reportId),
-                  child: Text(
-                    tenancy.awaitingMySignature
-                        ? 'Review and sign'
-                        : tenancy.latestReportKind == 'CHECK_OUT'
-                        ? 'Check-out report'
-                        : 'Check-in report',
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-              OutlinedButton(
-                onPressed: () => _openTenancy(tenancy),
-                child: const Text('Repairs'),
-              ),
             ],
-          ),
+            const SizedBox(height: 14),
+            if (reportId != null && tenancy.awaitingMySignature) ...[
+              FilledButton(
+                onPressed: () => _openReport(reportId),
+                child: const Text('Review and sign'),
+              ),
+              const SizedBox(height: kiviloButtonGap),
+            ],
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('View property'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _openTenancy(tenancy),
+            ),
+          ],
         ),
       ),
     );

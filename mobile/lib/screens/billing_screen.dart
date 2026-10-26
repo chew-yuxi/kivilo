@@ -155,7 +155,7 @@ class _BillingScreenState extends State<BillingScreen>
               onRefresh: _load,
               child: ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(20),
+                padding: kiviloScreenPadding,
                 children: [
                   KiviloSelectField<String>(
                     label: 'Workspace',
@@ -181,16 +181,21 @@ class _BillingScreenState extends State<BillingScreen>
                     },
                   ),
                   const SizedBox(height: 24),
-                  if (_loading) const LinearProgressIndicator(),
+                  if (_loading) ...[
+                    const LinearProgressIndicator(),
+                    const SizedBox(height: kiviloHeadingGap),
+                  ],
                   if (_error != null) ...[
                     Text(
                       _error!,
                       style: const TextStyle(color: KiviloColors.red),
                     ),
+                    const SizedBox(height: kiviloButtonGap),
                     TextButton(
                       onPressed: busy ? null : _initialize,
                       child: const Text('Try again'),
                     ),
+                    const SizedBox(height: kiviloSectionGap),
                   ],
                   if (status != null) ...[
                     Text(
@@ -222,7 +227,7 @@ class _BillingScreenState extends State<BillingScreen>
                     if (status.provider == 'stripe') ...[
                       const SizedBox(height: 16),
                       const Text(
-                        'This workspace already has a subscription purchased outside Google Play. Its access is available here.',
+                        'This plan was purchased on the Kivilo website. You can use it in the app.',
                       ),
                     ],
                     if (status.provider == 'google_play' &&
@@ -241,63 +246,77 @@ class _BillingScreenState extends State<BillingScreen>
                             : 'Pro for ${team.name}',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        team == null
-                            ? '25 active properties for your personal workspace.'
-                            : '25 active properties per seat, shared across this team. Choose at least ${status.seatsNeeded} ${status.seatsNeeded == 1 ? 'seat' : 'seats'} for its current members.',
-                      ),
+                      if (team != null) ...[
+                        const SizedBox(height: 8),
+                        Text(
+                          '25 active properties per seat, shared across this team. Choose at least ${status.seatsNeeded} ${status.seatsNeeded == 1 ? 'seat' : 'seats'} for its current members.',
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       if (_products.isEmpty && !_loading)
                         const Text(
                           'Google Play has no plans available for this account yet. Check your Play Store account and try again.',
                         ),
                       if (_products.isNotEmpty) ...[
-                        KiviloSelectField<String>(
-                          label: 'Monthly plan',
-                          sheetTitle: 'Choose seats',
-                          value: _selectedProduct!,
-                          enabled: !busy,
-                          options: [
-                            for (final product in _products)
-                              KiviloSelectOption(
-                                value: product.id,
-                                label:
-                                    '${_seats(product.id)} ${_seats(product.id) == 1 ? 'seat' : 'seats'} · ${product.price}/month',
-                                description:
-                                    '${_seats(product.id) * 25} active properties',
-                              ),
-                          ],
-                          onChanged: (value) =>
-                              setState(() => _selectedProduct = value),
-                        ),
-                        const SizedBox(height: 12),
-                        if (selected != null)
-                          Text(
-                            '${_seats(selected.id) * 25} active properties · ${selected.price} each month. Renews automatically until canceled in Google Play.',
+                        if (team != null) ...[
+                          KiviloSelectField<String>(
+                            label: 'Seats',
+                            sheetTitle: 'Choose seats',
+                            value: _selectedProduct!,
+                            enabled: !busy,
+                            options: [
+                              for (final product in _products)
+                                KiviloSelectOption(
+                                  value: product.id,
+                                  label:
+                                      '${_seats(product.id)} ${_seats(product.id) == 1 ? 'seat' : 'seats'}',
+                                  description:
+                                      '${_seats(product.id) * 25} active properties · ${product.price}/month',
+                                ),
+                            ],
+                            onChanged: (value) =>
+                                setState(() => _selectedProduct = value),
                           ),
-                        if (status.provider == 'google_play') ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: kiviloHeadingGap),
+                        ],
+                        if (selected != null) ...[
+                          Text(
+                            '${selected.price}/month',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${_seats(selected.id) * 25} active properties',
+                          ),
+                          const SizedBox(height: kiviloHeadingGap),
+                          const Text(
+                            'Renews automatically until canceled in Google Play.',
+                          ),
+                        ],
+                        if (team != null &&
+                            status.provider == 'google_play' &&
+                            !currentPlan) ...[
+                          const SizedBox(height: kiviloHeadingGap),
                           const Text(
                             'A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.',
                           ),
                         ],
-                        const SizedBox(height: 16),
-                        FilledButton(
-                          onPressed: busy || selected == null || currentPlan
-                              ? null
-                              : () => widget.billing.purchase(
-                                  agencyId: _workspace,
-                                  product: selected,
-                                ),
-                          child: Text(
-                            currentPlan
-                                ? 'Current plan'
-                                : status.provider == 'google_play'
-                                ? 'Change plan in Google Play'
-                                : 'Subscribe with Google Play',
+                        if (!currentPlan) ...[
+                          const SizedBox(height: kiviloButtonGap),
+                          FilledButton(
+                            onPressed: busy || selected == null
+                                ? null
+                                : () => widget.billing.purchase(
+                                    agencyId: _workspace,
+                                    product: selected,
+                                  ),
+                            child: Text(
+                              status.provider == 'google_play'
+                                  ? 'Change plan in Google Play'
+                                  : 'Subscribe with Google Play',
+                            ),
                           ),
-                        ),
+                        ],
                       ],
                     ] else if (status.canManageBilling &&
                         status.provider == null) ...[
@@ -307,23 +326,27 @@ class _BillingScreenState extends State<BillingScreen>
                       ),
                     ],
                   ],
-                  const SizedBox(height: 16),
-                  if (widget.billing.errorMessage != null)
+                  if (widget.billing.errorMessage != null) ...[
+                    const SizedBox(height: kiviloHeadingGap),
                     Text(
                       widget.billing.errorMessage!,
                       style: const TextStyle(color: KiviloColors.red),
                     ),
-                  if (widget.billing.message != null)
+                  ],
+                  if (widget.billing.message != null) ...[
+                    const SizedBox(height: kiviloHeadingGap),
                     Text(widget.billing.message!),
+                  ],
                   if (widget.billing.busy) ...[
                     const SizedBox(height: 12),
                     const LinearProgressIndicator(),
                   ],
-                  const SizedBox(height: 12),
+                  const SizedBox(height: kiviloSectionGap),
                   TextButton(
                     onPressed: busy ? null : () => widget.billing.restore(),
                     child: const Text('Restore purchases'),
                   ),
+                  const SizedBox(height: kiviloHeadingGap),
                   const Text(
                     'Use the Google Play and Kivilo accounts that made the purchase. Restoring does not charge you.',
                   ),

@@ -11,7 +11,6 @@ import '../services/capture_backend.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
-import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_layout.dart';
 
 class MaintenanceEvidenceScreen extends StatefulWidget {
@@ -182,36 +181,6 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     body: KiviloContent(maxWidth: 720, child: ListView(
       padding: kiviloScreenPadding,
       children: [
-        Container(
-          padding: const EdgeInsets.fromLTRB(24, 30, 24, 28),
-          decoration: BoxDecoration(
-            color: KiviloColors.canvas,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: KiviloColors.border),
-          ),
-          child: Column(
-            children: [
-              const Icon(
-                Icons.add_a_photo_outlined,
-                size: 44,
-                color: KiviloColors.pink,
-              ),
-              const SizedBox(height: 14),
-              Text(
-                'Add photos with your phone’s camera',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Use the full native camera experience, or choose a photo you already took.',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: KiviloColors.muted),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 20),
         FilledButton.icon(
           onPressed: _busy || _root == null
               ? null

@@ -104,13 +104,7 @@ void main() {
     await _open(tester, _FakeApi([]));
 
     expect(find.text(_explanation), findsOneWidget);
-    final review = tester.widget<ButtonStyleButton>(
-      find.ancestor(
-        of: find.text('I reviewed this room'),
-        matching: find.bySubtype<ButtonStyleButton>(),
-      ),
-    );
-    expect(review.onPressed, isNull);
+    expect(find.text('I reviewed this room'), findsNothing);
     expect(find.text('Nothing to record'), findsOneWidget);
   });
 

@@ -295,7 +295,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 ? Image.network(branding!.logoUrl!, fit: BoxFit.contain)
                 : const Icon(Icons.store_rounded, color: KiviloColors.pinkDark),
           ),
-          title: Text(branding?.agencyName ?? 'Add your agency'),
+          title: Text(branding?.agencyName ?? 'Set up report branding'),
           subtitle: Text(
             snapshot.hasError
                 ? 'Could not load: ${snapshot.error}'
@@ -506,12 +506,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(
               title: 'Plan',
-              subtitle: 'How many properties you can work at once.',
+              subtitle: 'Your active property allowance.',
             ),
             const SizedBox(height: kiviloHeadingGap),
             _planCard(),
-            if (PlayBilling.supported && PlayBilling.current != null)
-              TextButton(onPressed: _openBilling, child: const Text('View personal & team plans')),
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: kiviloHeadingGap),

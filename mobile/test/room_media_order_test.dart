@@ -5,6 +5,7 @@ import 'package:kivilo/screens/room_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:kivilo/ui/kivilo_components.dart';
 import 'package:kivilo/screens/photo_mark_screen.dart';
 
 class _FakeApi extends Api {
@@ -65,6 +66,39 @@ class _AttachedMediaApi extends Api {
 }
 
 void main() {
+  testWidgets('read-only room media opens directly without an actions drawer', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: RoomScreen(
+          inspectionId: 'inspection-1',
+          roomId: 'room-1',
+          editable: false,
+          api: _AttachedMediaApi('REVIEWED'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Photo 1'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    expect(find.byType(KiviloDrawer), findsNothing);
+    expect(find.text('Edit note'), findsNothing);
+    expect(find.text('Delete media'), findsNothing);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is CustomPaint && widget.painter is MarkPainter,
+      ),
+      findsOneWidget,
+    );
+  });
+
   testWidgets('media follows the inventory, newest first, and can be flipped', (
     tester,
   ) async {

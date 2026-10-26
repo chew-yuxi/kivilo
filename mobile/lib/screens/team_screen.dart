@@ -174,7 +174,7 @@ class _TeamScreenState extends State<TeamScreen> {
                       leading: const Icon(Icons.person_outline),
                       title: Text(agency.name),
                       subtitle: Text(
-                        '${agencyRoleLabel(agency.role)} · ${agency.memberCount} members',
+                        '${agencyRoleLabel(agency.role)} · ${agency.memberCount} ${agency.memberCount == 1 ? 'member' : 'members'}',
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: _busy
@@ -449,7 +449,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                                   ? 'Invitation pending'
                                   : member.status.toLowerCase()}',
                               if (member.active)
-                                '${member.assignedTenancies} assigned tenancies',
+                                '${member.assignedTenancies} assigned ${member.assignedTenancies == 1 ? 'tenancy' : 'tenancies'}',
                               if (!member.active && member.expiresAt != null)
                                 'Expires ${shortDate(member.expiresAt!)}',
                             ].join('\n'),
@@ -471,7 +471,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       const SizedBox(height: 10),
                     ],
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(title: 'Assigned work'),
+                    const KiviloSectionHeading(title: 'Property assignments'),
                     const SizedBox(height: kiviloHeadingGap),
                     if (agency.tenancies.isEmpty)
                       const Text(
@@ -482,7 +482,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                         child: ListTile(
                           title: Text(tenancy['property'] as String),
                           subtitle: Text(
-                            'Responsible agent: ${tenancy['leadAgentName']}',
+                            'Manage assignment · ${tenancy['leadAgentName']}',
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: _busy
@@ -700,6 +700,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                       'action': 'revoke',
                     })
                   : null,
+              style: kiviloDangerOutlined,
               child: const Text('Revoke invitation'),
             ),
           ] else if (_removing) ...[
@@ -709,7 +710,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
             if (member.assignedTenancies > 0) ...[
               const SizedBox(height: 16),
               Text(
-                'Reassign ${member.assignedTenancies} tenancies before removing this member.',
+                'Reassign ${member.assignedTenancies} ${member.assignedTenancies == 1 ? 'tenancy' : 'tenancies'} before removing this member.',
               ),
               const SizedBox(height: 12),
               KiviloSelectField<String?>(

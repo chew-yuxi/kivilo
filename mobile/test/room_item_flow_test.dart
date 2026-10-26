@@ -24,10 +24,13 @@ const _item = InventoryItem(
 );
 
 class _RoomApi extends Api {
-  _RoomApi({this.captures = const []})
+  _RoomApi({this.captures = const [], this.empty = false})
     : super(attachAuth: false, cache: ReadCache());
 
   final List<EvidenceCapture> captures;
+  final bool empty;
+  String status = 'REVIEW';
+  final reviewed = <({String roomId, bool nothingToRecord})>[];
   String? addedId;
   final updates = <String, Map<String, dynamic>>{};
   final deleted = <String>[];
@@ -37,7 +40,7 @@ class _RoomApi extends Api {
       RoomDetail(
         id: roomId,
         name: 'Dining room',
-        status: 'REVIEW',
+        status: status,
         items: [
           if (addedId != null)
             InventoryItem(
@@ -47,7 +50,7 @@ class _RoomApi extends Api {
               condition: 'GOOD',
               quantity: 1,
             ),
-          _item,
+          if (!empty) _item,
         ],
         captures: captures,
       );
@@ -66,6 +69,16 @@ class _RoomApi extends Api {
   @override
   Future<void> deleteItem(String inspectionId, String itemId) async =>
       deleted.add(itemId);
+
+  @override
+  Future<void> markRoomReviewed(
+    String inspectionId,
+    String roomId, {
+    bool nothingToRecord = false,
+  }) async {
+    reviewed.add((roomId: roomId, nothingToRecord: nothingToRecord));
+    status = 'REVIEWED';
+  }
 }
 
 /// The destination has separate capture/queue widget coverage. Record navigation
@@ -97,6 +110,52 @@ Future<void> _waitForLocalWork(
 }
 
 void main() {
+  testWidgets('empty room review still requires explicit confirmation', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final api = _RoomApi(empty: true);
+    final queue = CaptureQueue(NativeDatabase.memory());
+    final root = Directory.systemTemp.createTempSync('kivilo-empty-room-');
+    addTearDown(() async {
+      await queue.close();
+      root.deleteSync(recursive: true);
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: RoomScreen(
+          inspectionId: 'inspection',
+          roomId: 'room',
+          editable: true,
+          api: api,
+          queue: queue,
+          ownerId: 'owner-a',
+          supportDirectory: () async => root,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('I reviewed this room'), findsNothing);
+    await tester.tap(find.text('Nothing to record'));
+    await tester.pumpAndSettle();
+    expect(api.reviewed, isEmpty);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(api.reviewed, isEmpty);
+
+    await tester.tap(find.text('Nothing to record'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Confirm'));
+    await _waitForLocalWork(tester, () => api.reviewed.isNotEmpty);
+    await tester.pumpAndSettle();
+    expect(api.reviewed, [(roomId: 'room', nothingToRecord: true)]);
+    expect(find.text('Nothing to record'), findsNothing);
+  });
+
   testWidgets('room starts with inventory and opens the selected item', (
     tester,
   ) async {

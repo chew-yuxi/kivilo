@@ -480,18 +480,9 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               const SizedBox(height: kiviloButtonGap),
               FilledButton(
                 onPressed: _busy ? null : () => _openBrowser(agreement: true),
-                child: Text(
-                  agreement.files.isEmpty
-                      ? 'Upload tenancy agreement'
-                      : 'Upload a newer agreement',
-                ),
+                child: const Text('Upload PDF in browser'),
               ),
-              const SizedBox(height: 6),
-              const Text(
-                'Upload a PDF in your browser, or add a photo below.',
-                style: TextStyle(fontSize: 12, color: KiviloColors.subtle),
-              ),
-              const SizedBox(height: 8),
+              const SizedBox(height: kiviloButtonGap),
               _photoButtons(agreementQueueTarget),
             ],
             if (agreement.terms case final terms?) ...[
@@ -549,6 +540,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
       for (final error
           in pending.map((row) => row.lastError).whereType<String>().toSet())
         Text(error, style: Theme.of(context).textTheme.bodySmall),
+      const SizedBox(height: kiviloButtonGap),
       OutlinedButton(
         onPressed: _busy ? null : () => _run(_photos.retry, refresh: true),
         child: const Text('Retry upload'),
@@ -556,21 +548,24 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
     ],
   ];
 
-  Widget _photoButtons(String requestId) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _photoButtons(String requestId) => Row(
     children: [
-      OutlinedButton(
-        onPressed: _busy
-            ? null
-            : () => _addPhoto(requestId, ImageSource.camera),
-        child: const Text('Take photo'),
+      Expanded(
+        child: OutlinedButton(
+          onPressed: _busy
+              ? null
+              : () => _addPhoto(requestId, ImageSource.camera),
+          child: const Text('Take photo'),
+        ),
       ),
-      const SizedBox(height: kiviloButtonGap),
-      OutlinedButton(
-        onPressed: _busy
-            ? null
-            : () => _addPhoto(requestId, ImageSource.gallery),
-        child: const Text('Choose photo'),
+      const SizedBox(width: kiviloButtonGap),
+      Expanded(
+        child: OutlinedButton(
+          onPressed: _busy
+              ? null
+              : () => _addPhoto(requestId, ImageSource.gallery),
+          child: const Text('Choose photo'),
+        ),
       ),
     ],
   );
@@ -606,7 +601,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               onPressed: _busy
                   ? null
                   : () => _openBrowser(requestId: request.id),
-              child: const Text('Upload a PDF in browser'),
+              child: const Text('Upload PDF in browser'),
             ),
           ],
         ],

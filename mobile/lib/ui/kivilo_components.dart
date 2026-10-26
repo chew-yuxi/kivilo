@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'kivilo_layout.dart';
 import 'kivilo_theme.dart';
 
 class KiviloSegmentOption<T> {
@@ -399,24 +400,43 @@ class KiviloSectionHeading extends StatelessWidget {
   final Widget? action;
 
   @override
-  Widget build(BuildContext context) => Row(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleLarge),
-            if (subtitle != null) ...[
-              const SizedBox(height: 4),
-              Text(subtitle!, style: Theme.of(context).textTheme.bodyMedium),
+  Widget build(BuildContext context) {
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleLarge),
+        if (subtitle != null) ...[
+          const SizedBox(height: 4),
+          Text(subtitle!, style: Theme.of(context).textTheme.bodyMedium),
+        ],
+      ],
+    );
+    if (action == null) return heading;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked =
+            constraints.maxWidth < 320 ||
+            MediaQuery.textScalerOf(context).scale(16) > 20;
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              heading,
+              const SizedBox(height: kiviloButtonGap),
+              action!,
             ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: heading),
+            const SizedBox(width: kiviloButtonGap),
+            action!,
           ],
-        ),
-      ),
-      ?action,
-    ],
-  );
+        );
+      },
+    );
+  }
 }
 
 class KiviloSelectOption<T> {

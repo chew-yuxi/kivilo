@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -116,6 +117,7 @@ class _FakePhotos extends AddendumPhotos {
   final _FakeApi fake;
   final taken = <String>[];
   Map<String, int> waiting = const {};
+  Future<Map<String, int>>? pendingRead;
 
   @override
   Future<bool?> add({
@@ -138,7 +140,7 @@ class _FakePhotos extends AddendumPhotos {
   Future<Map<String, int>> pending(
     String addendumId,
     Iterable<String> entryIds,
-  ) async => waiting;
+  ) async => pendingRead == null ? waiting : await pendingRead!;
 }
 
 Future<void> _open(
@@ -171,6 +173,60 @@ Future<void> _tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets(
+    'a retained draft initializes its form before fresh photo checks finish',
+    (tester) async {
+      final api = _FakeApi();
+      await api.startAddendum('inspection-1');
+      api.draft!['title'] = 'Replacement hob';
+      api.draft!['reason'] = 'The original hob failed';
+      await api.addAddendumEntry('draft-1', {
+        'change': 'REMOVED',
+        'roomName': 'Kitchen',
+        'targetKey': 'item:hob',
+        'quantity': 1,
+      });
+      api.retainView('addenda:inspection-1', await api.addenda('inspection-1'));
+      final pending = Completer<Map<String, int>>();
+      final photos = _FakePhotos(api)..pendingRead = pending.future;
+      await _open(tester, api, photos);
+
+      expect(tester.takeException(), isNull);
+      expect(find.widgetWithText(TextField, 'Replacement hob'), findsOneWidget);
+      expect(find.text('Date of the change: 12 Oct 2026'), findsOneWidget);
+      await _tap(tester, find.text('Date of the change: 12 Oct 2026'));
+      expect(
+        tester.widget<DatePickerDialog>(find.byType(DatePickerDialog)).initialDate,
+        DateTime(2026, 10, 12),
+      );
+      await _tap(tester, find.text('Cancel'));
+      expect(
+        tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Publish update'),
+        ).onPressed,
+        isNull,
+      );
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Title'),
+        'Induction hob installed',
+      );
+      pending.complete({'entry-1': 1});
+      await tester.pumpAndSettle();
+
+      expect(
+        find.widgetWithText(TextField, 'Induction hob installed'),
+        findsOneWidget,
+      );
+      await _tap(tester, find.text('Publish update'));
+      expect(find.text('Publish this update?'), findsNothing);
+      expect(api.calls, isNot(contains('publish:draft-1')));
+      expect(
+        find.textContaining('Some photos are still on this phone.'),
+        findsOneWidget,
+      );
+    },
+  );
+
   testWidgets(
     'the agent writes an update on the phone: a replaced line, a photo, then publishes',
     (tester) async {

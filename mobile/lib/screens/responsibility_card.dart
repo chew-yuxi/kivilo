@@ -150,30 +150,44 @@ class ResponsibilityCard extends StatelessWidget {
                   onPressed: busy ? null : () => _accept(context, pending),
                   child: const Text('Accept'),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: busy
-                            ? null
-                            : () => _propose(context, from: pending),
-                        child: const Text('Suggest different'),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: busy
-                            ? null
-                            : () => _reject(context, pending),
-                        child: const Text('Reject'),
-                      ),
-                    ),
-                  ],
+                const SizedBox(height: kiviloButtonGap),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final suggest = OutlinedButton(
+                      onPressed: busy
+                          ? null
+                          : () => _propose(context, from: pending),
+                      child: const Text('Suggest a change'),
+                    );
+                    final reject = OutlinedButton(
+                      onPressed: busy
+                          ? null
+                          : () => _reject(context, pending),
+                      child: const Text('Reject'),
+                    );
+                    if (constraints.maxWidth < 280 ||
+                        MediaQuery.textScalerOf(context).scale(15) > 20) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          suggest,
+                          const SizedBox(height: kiviloButtonGap),
+                          reject,
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        Expanded(child: suggest),
+                        const SizedBox(width: kiviloButtonGap),
+                        Expanded(child: reject),
+                      ],
+                    );
+                  },
                 ),
               ],
-              if (responsibility.canWithdraw)
+              if (responsibility.canWithdraw) ...[
+                const SizedBox(height: kiviloButtonGap),
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
@@ -183,6 +197,7 @@ class ResponsibilityCard extends StatelessWidget {
                     child: const Text('Withdraw proposal'),
                   ),
                 ),
+              ],
             ],
             if (pending == null && rejection != null) ...[
               if (agreement != null) const SizedBox(height: 12),
@@ -290,12 +305,14 @@ class _ProposalPanel extends StatelessWidget {
             children: [
               Icon(icon, size: 18, color: color),
               const SizedBox(width: 6),
-              Text(
-                heading,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+              Expanded(
+                child: Text(
+                  heading,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],

@@ -163,7 +163,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Review maintenance clause')),
+      appBar: AppBar(title: const Text('Repair terms')),
       body: KiviloContent(
         child: _accessLost
             ? KiviloMessage(
@@ -193,26 +193,46 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                     if (_loading) const LinearProgressIndicator(),
                     if (_analysis case final analysis?) ...[
                       if (analysis.candidates.isNotEmpty) ...[
-                        const KiviloSectionHeading(title: 'Clauses to review'),
+                        const KiviloSectionHeading(
+                          title: 'Clauses to review',
+                          subtitle: 'Select a clause to fill in the details below',
+                        ),
                         const SizedBox(height: kiviloHeadingGap),
                         for (final clause in analysis.candidates)
-                          Card(
-                            child: ListTile(
-                              title: Text('Page ${clause.page}'),
-                              subtitle: Text(
-                                clause.text,
-                                maxLines: 4,
-                                overflow: TextOverflow.ellipsis,
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: kiviloButtonGap,
+                            ),
+                            child: Card(
+                              child: ListTile(
+                                selected: _page.text == '${clause.page}' &&
+                                    _quote.text == clause.text,
+                                title: Text('Page ${clause.page}'),
+                                subtitle: Text(
+                                  clause.text,
+                                  maxLines: 4,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Icon(
+                                  _page.text == '${clause.page}' &&
+                                          _quote.text == clause.text
+                                      ? Icons.check_circle
+                                      : Icons.circle_outlined,
+                                  semanticLabel:
+                                      _page.text == '${clause.page}' &&
+                                        _quote.text == clause.text
+                                      ? 'Selected clause'
+                                      : 'Use clause',
+                                ),
+                                onTap: _busy
+                                    ? null
+                                    : () => setState(() {
+                                        _page.text = '${clause.page}';
+                                        _quote.text = clause.text;
+                                        _cap.text =
+                                            clause.suggestedTenantCap ?? '';
+                                      }),
                               ),
-                              trailing: const Icon(Icons.chevron_right),
-                              onTap: _busy
-                                  ? null
-                                  : () => setState(() {
-                                      _page.text = '${clause.page}';
-                                      _quote.text = clause.text;
-                                      _cap.text =
-                                          clause.suggestedTenantCap ?? '';
-                                    }),
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -226,6 +246,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                     TextField(
                       controller: _page,
                       enabled: !_busy,
+                      onChanged: (_) => setState(() {}),
                       keyboardType: TextInputType.number,
                       decoration: const InputDecoration(
                         labelText: 'Source page',
@@ -235,11 +256,12 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                     TextField(
                       controller: _quote,
                       enabled: !_busy,
+                      onChanged: (_) => setState(() {}),
                       minLines: 4,
                       maxLines: 10,
                       maxLength: 12000,
                       decoration: const InputDecoration(
-                        labelText: 'Exact clause from the agreement',
+                        labelText: 'Clause text',
                       ),
                     ),
                     const SizedBox(height: kiviloSectionGap),

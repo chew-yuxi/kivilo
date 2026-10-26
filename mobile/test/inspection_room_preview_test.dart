@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/screens/inspection_screen.dart';
 import 'package:kivilo/screens/photo_mark_screen.dart';
+import 'package:kivilo/screens/room_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
@@ -72,7 +75,43 @@ class _PreviewApi extends Api {
       );
 }
 
+class _RoomNavigation extends NavigatorObserver {
+  RoomScreen? destination;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute == null || route is! MaterialPageRoute) return;
+    final screen = route.builder(navigator!.context);
+    if (screen is! RoomScreen) return;
+    destination = screen;
+    scheduleMicrotask(() => navigator!.removeRoute(route));
+  }
+}
+
 void main() {
+  testWidgets('next-room action opens the first room that still needs review', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final navigation = _RoomNavigation();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        navigatorObservers: [navigation],
+        home: InspectionScreen(id: 'inspection-1', api: _PreviewApi()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Open room'));
+    await tester.pumpAndSettle();
+
+    expect(navigation.destination?.roomId, 'unreviewed-room');
+    expect(navigation.destination?.inspectionId, 'inspection-1');
+    expect(navigation.destination?.editable, isTrue);
+  });
+
   testWidgets('reviewed and unreviewed room cards show photo strips', (
     tester,
   ) async {

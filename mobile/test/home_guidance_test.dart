@@ -286,7 +286,7 @@ void main() {
     'tenant home keeps reports and repairs without inspector lessons',
     (tester) async {
       await _pumpHome(tester, _HomeApi(partyOnly: true));
-      expect(find.text('Repairs'), findsOneWidget);
+      expect(find.text('View property'), findsOneWidget);
       expect(find.text('Your properties'), findsOneWidget);
       expect(find.text('A handover, in three steps'), findsNothing);
       expect(find.text('Inspections'), findsNothing);

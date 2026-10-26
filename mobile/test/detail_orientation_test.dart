@@ -131,8 +131,9 @@ void main() {
       tester,
       InspectionScreen(id: 'inspection-1', api: _OrientationApi()),
     );
-    await tester.ensureVisible(find.text('Continue Kitchen'));
-    await tester.tap(find.text('Continue Kitchen'));
+    expect(find.text('Next room: Kitchen'), findsOneWidget);
+    await tester.ensureVisible(find.text('Open room'));
+    await tester.tap(find.text('Open room'));
     await tester.pumpAndSettle();
 
     expect(find.byType(RoomScreen), findsOneWidget);

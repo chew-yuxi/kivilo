@@ -301,7 +301,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Payment proof'), findsNothing);
       expect(find.text('Request another document'), findsNothing);
-      await tester.tap(find.text('Upload tenancy agreement'));
+      await tester.tap(find.text('Upload PDF in browser'));
       await tester.pumpAndSettle();
       expect(
         urls.last.toString(),
@@ -320,8 +320,8 @@ void main() {
       await tester.tap(find.text('Choose photo').last);
       await tester.pumpAndSettle();
       expect(photos.added, [ImageSource.gallery]);
-      await tester.ensureVisible(find.text('Upload a PDF in browser'));
-      await tester.tap(find.text('Upload a PDF in browser'));
+      await tester.ensureVisible(find.text('Upload PDF in browser').last);
+      await tester.tap(find.text('Upload PDF in browser').last);
       await tester.pumpAndSettle();
       expect(
         urls.last.toString(),
@@ -517,7 +517,7 @@ void main() {
       );
       final upload = find.descendant(
         of: target,
-        matching: find.text('Upload a PDF in browser'),
+        matching: find.text('Upload PDF in browser').last,
       );
       await tester.ensureVisible(upload);
       await tester.tap(upload);

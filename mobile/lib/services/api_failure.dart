@@ -69,7 +69,7 @@ class ApiFailure implements Exception {
       'property_restore_expired' =>
         'The recovery period has ended. This property can no longer be restored.',
       'property_trashed' =>
-        'This property is in trash. Restore it from Account → Properties → Trash before continuing.',
+        'This property was deleted. Restore it from Properties → Recently deleted before continuing.',
       'restore_room_first' =>
         'Its room was deleted too. Restore the room first, then this.',
       'finding_save_conflict' =>

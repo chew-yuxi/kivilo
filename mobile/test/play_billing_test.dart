@@ -590,13 +590,16 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('1 seat · THB 999.00/month'), findsOneWidget);
+      expect(find.text('THB 999.00/month'), findsOneWidget);
+      expect(find.text('Seats'), findsNothing);
+      expect(find.text('25 active properties'), findsOneWidget);
       await tester.tap(find.text('Personal'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Harbour Team').last);
       await tester.pumpAndSettle();
       expect(api.statusCalls.last, 'agency');
-      expect(find.text('2 seats · THB 1,998.00/month'), findsOneWidget);
+      expect(find.text('2 seats'), findsOneWidget);
+      expect(find.text('THB 1,998.00/month'), findsOneWidget);
       expect(find.textContaining('50 active properties'), findsOneWidget);
       await tester.ensureVisible(find.text('Subscribe with Google Play'));
       await tester.tap(find.text('Subscribe with Google Play'));
@@ -604,6 +607,36 @@ void main() {
       expect(api.contexts.single.$1, 'agency');
     },
   );
+
+  testWidgets('personal purchase uses its plan without a redundant selector', (
+    tester,
+  ) async {
+    store.details.add(product(solo.productId));
+    await tester.pumpWidget(
+      MaterialApp(home: BillingScreen(api: api, billing: billing)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Seats'), findsNothing);
+    await tester.ensureVisible(find.text('Subscribe with Google Play'));
+    await tester.tap(find.text('Subscribe with Google Play'));
+    await tester.pump();
+    expect(api.contexts, [('personal', solo.productId, 'alice')]);
+    expect(store.bought.single.productDetails.id, solo.productId);
+  });
+
+  testWidgets('the current plan has one management action', (tester) async {
+    api.pro = true;
+    api.currentProductId = solo.productId;
+    store.details.add(product(solo.productId));
+    await tester.pumpWidget(
+      MaterialApp(home: BillingScreen(api: api, billing: billing)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Manage in Google Play'), findsOneWidget);
+    expect(find.text('Current plan'), findsNothing);
+    expect(find.text('Subscribe with Google Play'), findsNothing);
+    expect(find.text('Change plan in Google Play'), findsNothing);
+  });
 
   testWidgets('an ordinary team member sees the payer and cannot buy', (
     tester,
@@ -677,7 +710,7 @@ void main() {
           find.textContaining('Renews automatically'),
           150,
         );
-        expect(find.textContaining('SGD 78.00 each month'), findsOneWidget);
+        expect(find.text('SGD 78.00/month'), findsOneWidget);
         await tester.scrollUntilVisible(
           find.text('Subscribe with Google Play'),
           150,

@@ -225,6 +225,10 @@ class _RoomScreenState extends State<RoomScreen> {
   );
 
   Future<void> _openEvidenceActions(EvidenceCapture capture) async {
+    if (!widget.editable) {
+      await _handleEvidenceAction(capture, 'preview');
+      return;
+    }
     while (mounted) {
       final action = await _evidenceAction(capture);
       if (!mounted || action == null) return;
@@ -719,10 +723,6 @@ class _RoomScreenState extends State<RoomScreen> {
                     );
                   }
                   final room = snapshot.data!;
-                  final photos = room.captures
-                      .where((capture) => capture.kind == 'PHOTO')
-                      .length;
-                  final videos = room.captures.length - photos;
                   final checkIn = room.checkIn;
                   final inventory = <Widget>[
                     if (checkIn != null) ...[
@@ -738,7 +738,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         ),
                       ),
                       if (_showCheckIn) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: kiviloHeadingGap),
                         Card(
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
@@ -746,12 +746,13 @@ class _RoomScreenState extends State<RoomScreen> {
                           ),
                         ),
                       ],
-                      const SizedBox(height: 20),
+                      const SizedBox(height: kiviloSectionGap),
                     ],
                     KiviloSectionHeading(
                       title: 'Inventory',
-                      subtitle:
-                          '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
+                      subtitle: room.items.isEmpty
+                          ? null
+                          : '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
                       action: widget.editable
                           ? TextButton.icon(
                               onPressed: _busy || _addingItem ? null : _addItem,
@@ -777,15 +778,19 @@ class _RoomScreenState extends State<RoomScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'No inventory items yet',
+                                widget.editable
+                                    ? 'No inventory items yet'
+                                    : 'No items recorded',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Add an item, then open it to take photos and mark details.',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
+                              if (widget.editable) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Add an item to record its condition and photos.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -805,7 +810,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     KiviloSectionHeading(
                       title: 'Media',
                       subtitle: room.captures.isEmpty
-                          ? 'Photos and videos of this room'
+                          ? null
                           : room.captures.length == 1
                           ? '1 photo or video'
                           : '${room.captures.length} photos and videos',
@@ -826,7 +831,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         icon: const Icon(Icons.videocam_outlined),
                         label: const Text('Room media & walkthrough'),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: kiviloHeadingGap),
                     ],
                     if (room.captures.isEmpty)
                       Card(
@@ -844,15 +849,19 @@ class _RoomScreenState extends State<RoomScreen> {
                               ),
                               const SizedBox(height: 10),
                               Text(
-                                'No photos or videos yet',
+                                widget.editable
+                                    ? 'No photos or videos yet'
+                                    : 'No photos or videos recorded',
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Photos and videos appear here once they upload.',
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
+                              if (widget.editable) ...[
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Photos and videos appear here once they upload.',
+                                  textAlign: TextAlign.center,
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -904,7 +913,7 @@ class _RoomScreenState extends State<RoomScreen> {
                           ),
                         ),
                     if (widget.editable && room.status != 'REVIEWED') ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: kiviloSectionGap),
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(18),
@@ -922,23 +931,20 @@ class _RoomScreenState extends State<RoomScreen> {
                                     : 'Check every item against the photos and video. Your review makes this room ready for the report.',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
-                              const SizedBox(height: 14),
-                              FilledButton.icon(
-                                onPressed: _busy || room.items.isEmpty
-                                    ? null
-                                    : _reviewRoom,
-                                icon: const Icon(Icons.check_rounded),
-                                label: const Text('I reviewed this room'),
-                              ),
-                              if (room.items.isEmpty) ...[
-                                const SizedBox(height: kiviloButtonGap),
+                              const SizedBox(height: kiviloHeadingGap),
+                              if (room.items.isEmpty)
                                 OutlinedButton(
                                   onPressed: _busy
                                       ? null
                                       : () => _nothingToRecord(room),
                                   child: const Text('Nothing to record'),
+                                )
+                              else
+                                FilledButton.icon(
+                                  onPressed: _busy ? null : _reviewRoom,
+                                  icon: const Icon(Icons.check_rounded),
+                                  label: const Text('I reviewed this room'),
                                 ),
-                              ],
                             ],
                           ),
                         ),
@@ -1011,53 +1017,20 @@ class _RoomScreenState extends State<RoomScreen> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          KiviloStatusPill(status: room.status),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} · $photos photos · $videos videos',
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ),
-                        ],
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: KiviloStatusPill(status: room.status),
                       ),
-                      const SizedBox(height: 18),
-                      Card(
-                        color: KiviloColors.canvas,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Icon(
-                                room.status == 'REVIEWED'
-                                    ? Icons.check_circle_outline
-                                    : Icons.info_outline,
-                                size: 20,
-                                color: room.status == 'REVIEWED'
-                                    ? KiviloColors.green
-                                    : KiviloColors.muted,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  !widget.editable
-                                      ? 'This inventory is fixed for signing. Media remains available below.'
-                                      : switch (room.status) {
-                                          'PENDING' => 'Start with the inventory. Open an item to add photos and mark details.',
-                                          'REVIEW' => 'Open each inventory item to check its details and add photos, then mark this room reviewed.',
-                                          'REVIEWED' => 'This room has been reviewed. Open an item to update its details or add photos.',
-                                          _ => 'Add each item to the inventory, then open it to take photos and mark details.',
-                                        },
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                              ),
-                            ],
+                      if (!widget.editable) ...[
+                        const SizedBox(height: kiviloHeadingGap),
+                        KiviloNotice(
+                          tone: KiviloTone.info,
+                          child: Text(
+                            'This inventory is fixed for signing. You can still view its photos and videos.',
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
-                      ),
+                      ],
                       if (_error != null) ...[
                         const SizedBox(height: 12),
                         KiviloNotice(
@@ -1068,7 +1041,7 @@ class _RoomScreenState extends State<RoomScreen> {
                             ),
                         ),
                       ],
-                      const SizedBox(height: 30),
+                      const SizedBox(height: kiviloSectionGap),
                       if (wide)
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1092,7 +1065,7 @@ class _RoomScreenState extends State<RoomScreen> {
                         )
                       else ...[
                         ...inventory,
-                        const SizedBox(height: 20),
+                        const SizedBox(height: kiviloSectionGap),
                         ...media,
                       ],
                       if (_busy)
@@ -1225,11 +1198,9 @@ class _RoomScreenState extends State<RoomScreen> {
                     ),
                   ),
                   if (widget.editable) ...[
-                    IconButton(
-                      tooltip: 'Open item',
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(Icons.chevron_right, size: 22),
-                      onPressed: _busy ? null : () => _openItem(item),
+                    const Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Icon(Icons.chevron_right, size: 22),
                     ),
                     IconButton(
                       tooltip: 'Delete item',

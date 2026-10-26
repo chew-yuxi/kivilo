@@ -73,6 +73,8 @@ class _LibraryApi extends Api {
     this.canOpenDocuments = false,
     this.includeCare = false,
     this.canEditDetails = true,
+    this.reportStatus = 'DRAFT',
+    this.reportKind = 'CHECK_IN',
     this.assets = const [],
   }) : active = active ?? _active,
        super(attachAuth: false, cache: ReadCache());
@@ -81,11 +83,19 @@ class _LibraryApi extends Api {
   final bool canOpenDocuments;
   final bool includeCare;
   final bool canEditDetails;
+  final String reportStatus;
+  final String reportKind;
   final List<PropertyAssetSummary> assets;
   final states = <String>[];
   Map<String, dynamic>? updatedDetails;
   Map<String, dynamic>? updatedAsset;
   String? retiredAssetId;
+
+  @override
+  Future<UserProfile> me() async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    return const UserProfile(id: 'agent', name: 'Agent', roles: ['AGENT']);
+  }
 
   @override
   Future<AgencyIndex> agencies() async =>
@@ -171,8 +181,8 @@ class _LibraryApi extends Api {
         reports: [
           PropertyReport(
             id: 'report-draft',
-            kind: 'CHECK_IN',
-            status: 'DRAFT',
+            kind: reportKind,
+            status: reportStatus,
             createdAt: '2026-01-01T00:00:00.000Z',
           ),
         ],
@@ -241,6 +251,54 @@ Future<void> _chip(WidgetTester tester, String label) async {
 }
 
 void main() {
+  testWidgets('report actions distinguish work, signatures and completed reports', (
+    tester,
+  ) async {
+    for (final kind in ['CHECK_IN', 'CHECK_OUT']) {
+      final label = kind == 'CHECK_IN' ? 'check-in' : 'check-out';
+      for (final status in ['DRAFT', 'AWAITING_SIGNATURE', 'COMPLETED']) {
+        await tester.pumpWidget(
+          MaterialApp(
+            key: ValueKey('$kind-$status'),
+            theme: buildKiviloTheme(),
+            home: PropertyScreen(
+              propertyId: 'property-1',
+              api: _LibraryApi(reportStatus: status, reportKind: kind),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Continue $label'),
+          status == 'DRAFT' ? findsOneWidget : findsNothing,
+        );
+        if (status == 'AWAITING_SIGNATURE') {
+          expect(find.text('View $label signatures'), findsOneWidget);
+        } else if (status == 'COMPLETED') {
+          expect(find.text('View $label report'), findsOneWidget);
+        }
+        expect(tester.takeException(), isNull);
+      }
+    }
+  });
+
+  testWidgets('unavailable party emails do not look like missing data', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildKiviloTheme(),
+        home: PropertyScreen(
+          propertyId: 'property-1',
+          api: _LibraryApi(canEditDetails: false),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.textContaining('email not provided'), findsNothing);
+    expect(find.text('People, dates, rent and deposit'), findsOneWidget);
+  });
+
   testWidgets(
     'per-term documents use their own permission before repairs are available',
     (tester) async {

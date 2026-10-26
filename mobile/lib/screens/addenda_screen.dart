@@ -45,6 +45,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
   final _reason = TextEditingController();
   String _date = '';
   String? _detailsFor;
+  String? _pendingFor;
   Map<String, int> _pending = const {};
   bool _busy = false;
   String? _error;
@@ -59,12 +60,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
     if (mounted) {
       setState(() {
         _pending = pending;
-        if (draft != null && draft.id != _detailsFor) {
-          _detailsFor = draft.id;
-          _title.text = draft.title;
-          _reason.text = draft.reason ?? '';
-          _date = draft.effectiveDate;
-        }
+        _pendingFor = draft?.id;
       });
     }
     return workspace;
@@ -195,6 +191,10 @@ class _AddendaScreenState extends State<AddendaScreen> {
   }
 
   Future<void> _publish(AddendumDraft draft) async {
+    if (_pendingFor != draft.id) {
+      setState(() => _error = 'Wait while Kivilo checks for photos on this phone.');
+      return;
+    }
     if (_title.text.trim().isEmpty) {
       setState(() => _error = 'Give the update a title before publishing.');
       return;
@@ -255,6 +255,15 @@ class _AddendaScreenState extends State<AddendaScreen> {
         if (workspace == null) {
           return const Center(child: CircularProgressIndicator());
         }
+        // Retained workspaces can render before _load runs. Bind the form to the
+        // draft being displayed, without replacing edits on a same-draft refresh.
+        final draft = workspace.draft;
+        if (draft?.id != _detailsFor) {
+          _detailsFor = draft?.id;
+          _title.text = draft?.title ?? '';
+          _reason.text = draft?.reason ?? '';
+          _date = draft?.effectiveDate ?? '';
+        }
         return RefreshIndicator(onRefresh: _refresh, child: _body(workspace));
       },
     )),
@@ -303,7 +312,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
               ),
             ),
         ],
-        const SizedBox(height: 24),
+        const SizedBox(height: kiviloSectionGap),
         if (draft == null)
           FilledButton.icon(
             onPressed: _busy
@@ -330,7 +339,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Text(repair.title, style: text.titleSmall),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: kiviloHeadingGap),
                     OutlinedButton(
                       onPressed: _busy
                           ? null
@@ -371,11 +380,11 @@ class _AddendaScreenState extends State<AddendaScreen> {
         maxLines: 4,
         decoration: const InputDecoration(labelText: 'Reason'),
       ),
-      const SizedBox(height: 12),
+      const SizedBox(height: kiviloButtonGap),
       OutlinedButton.icon(
         onPressed: _busy ? null : _pickDate,
         icon: const Icon(Icons.calendar_today_outlined),
-        label: Text('Date of the change: ${shortDate(_date)}'),
+        label: Text('Date of the change: ${calendarDate(_date)}'),
       ),
       const SizedBox(height: kiviloButtonGap),
       TextButton(
@@ -392,9 +401,15 @@ class _AddendaScreenState extends State<AddendaScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Add a change'),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: kiviloButtonGap),
+      if (_pendingFor != draft.id) ...[
+        Text('Checking for photos on this phone…', style: text.bodySmall),
+        const SizedBox(height: kiviloHeadingGap),
+      ],
       FilledButton.icon(
-        onPressed: _busy ? null : () => _publish(draft),
+        onPressed: _busy || _pendingFor != draft.id
+            ? null
+            : () => _publish(draft),
         icon: const Icon(Icons.publish_outlined),
         label: Text(_busy ? 'Working…' : 'Publish update'),
       ),
@@ -404,6 +419,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
         style: kiviloDangerOutlined,
         child: const Text('Discard draft'),
       ),
+      const SizedBox(height: kiviloHeadingGap),
       Text(
         'Publishing freezes the update and asks the landlord and tenant to acknowledge it.',
         style: text.bodySmall?.copyWith(color: KiviloColors.muted),
@@ -519,41 +535,56 @@ class _AddendaScreenState extends State<AddendaScreen> {
                 ],
               ),
             ],
-            const SizedBox(height: 4),
-            Wrap(
-              spacing: 4,
-              children: [
-                TextButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _addPhoto(draft, entry, ImageSource.camera),
-                  icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Take photo'),
-                ),
-                TextButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _addPhoto(draft, entry, ImageSource.gallery),
-                  icon: const Icon(Icons.add_photo_alternate_outlined),
-                  label: const Text('Choose photo'),
-                ),
-                TextButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _editEntry(workspace, draft, entry),
-                  icon: const Icon(Icons.edit_outlined),
-                  label: const Text('Edit'),
-                ),
-                TextButton.icon(
-                  onPressed: _busy
-                      ? null
-                      : () => _run(
-                          () => _api.deleteAddendumEntry(draft.id, entry.id),
-                        ),
-                  icon: const Icon(Icons.delete_outline),
-                  label: const Text('Remove'),
-                ),
-              ],
+            const SizedBox(height: kiviloHeadingGap),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final twoColumns = constraints.maxWidth >= 320 &&
+                    MediaQuery.textScalerOf(context).scale(15) <= 20;
+                final width = twoColumns
+                    ? (constraints.maxWidth - kiviloButtonGap) / 2
+                    : constraints.maxWidth;
+                final actions = [
+                  TextButton.icon(
+                    onPressed: _busy
+                        ? null
+                        : () => _addPhoto(draft, entry, ImageSource.camera),
+                    icon: const Icon(Icons.photo_camera_outlined),
+                    label: const Text('Take photo'),
+                  ),
+                  TextButton.icon(
+                    onPressed: _busy
+                        ? null
+                        : () => _addPhoto(draft, entry, ImageSource.gallery),
+                    icon: const Icon(Icons.add_photo_alternate_outlined),
+                    label: const Text('Choose photo'),
+                  ),
+                  TextButton.icon(
+                    onPressed: _busy
+                        ? null
+                        : () => _editEntry(workspace, draft, entry),
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Edit change'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: _busy
+                        ? null
+                        : () => _run(
+                            () => _api.deleteAddendumEntry(draft.id, entry.id),
+                          ),
+                    style: kiviloDangerOutlined,
+                    icon: const Icon(Icons.delete_outline),
+                    label: const Text('Delete change'),
+                  ),
+                ];
+                return Wrap(
+                  spacing: kiviloButtonGap,
+                  runSpacing: kiviloButtonGap,
+                  children: [
+                    for (final action in actions)
+                      SizedBox(width: width, child: action),
+                  ],
+                );
+              },
             ),
           ],
         ),

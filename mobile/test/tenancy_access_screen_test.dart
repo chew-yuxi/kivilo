@@ -189,7 +189,7 @@ void main() {
       expect(find.text('Nimin'), findsOneWidget);
       expect(find.byType(TextField), findsNothing);
 
-      await tester.tap(find.text('Remove'));
+      await tester.tap(find.text('Remove access'));
       await tester.pumpAndSettle();
       expect(find.text('Remove Nimin'), findsOneWidget);
       expect(
@@ -274,21 +274,21 @@ void main() {
   ) async {
     final api = _FakeApi(shared: true);
     await open(tester, api);
-    await tester.tap(find.text('Remove'));
+    await tester.tap(find.text('Remove access'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Cancel'));
     await tester.pumpAndSettle();
     expect(api.removed, isEmpty);
 
     api.saving = Completer<void>();
-    await tester.tap(find.text('Remove'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Remove access'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Remove access'));
     await tester.pump(const Duration(milliseconds: 400));
     expect(api.removed, ['nimin']);
     expect(
       tester
-          .widget<TextButton>(find.widgetWithText(TextButton, 'Remove'))
+          .widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Remove access'))
           .onPressed,
       isNull,
     );
@@ -298,7 +298,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(api.reads, 2);
     expect(find.text('Private'), findsOneWidget);
-    expect(find.text('Remove'), findsNothing);
+    expect(find.text('Remove access'), findsNothing);
   });
 
   testWidgets('failed removal retains the person with an error', (
@@ -306,14 +306,14 @@ void main() {
   ) async {
     final api = _FakeApi(shared: true)..failure = ApiFailure.noConnection;
     await open(tester, api);
-    await tester.tap(find.text('Remove'));
-    await tester.pumpAndSettle();
     await tester.tap(find.text('Remove access'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Remove access'));
     await tester.pumpAndSettle();
 
     expect(find.text('Shared with Nimin'), findsOneWidget);
     expect(find.text(ApiFailure.noConnection.message), findsOneWidget);
-    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Remove access'), findsOneWidget);
   });
 
   testWidgets(
@@ -331,7 +331,7 @@ void main() {
       expect(find.text('Previous reports only'), findsOneWidget);
       expect(find.text('1 previous report'), findsOneWidget);
       expect(find.text('Can work on this tenancy'), findsNothing);
-      expect(find.text('Remove'), findsNothing);
+      expect(find.text('Remove access'), findsNothing);
       expect(find.byType(TextField), findsNothing);
     },
   );
@@ -346,13 +346,13 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Can work on this tenancy'), findsNothing);
-      await tester.tap(find.text('Remove'));
+      await tester.tap(find.text('Remove access'));
       await tester.pumpAndSettle();
       expect(
         find.textContaining('lose access to their previous reports'),
         findsOneWidget,
       );
-      await tester.tap(find.text('Remove access'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Remove access'));
       await tester.pumpAndSettle();
       expect(api.removed, ['previous-agent']);
       expect(find.text('Private'), findsOneWidget);

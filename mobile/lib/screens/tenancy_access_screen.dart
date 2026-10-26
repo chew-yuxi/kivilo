@@ -333,7 +333,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                               ),
                             ),
                           ),
-                        for (final person in access.collaborators)
+                        for (final person in access.collaborators) ...[
+                          const SizedBox(height: kiviloButtonGap),
                           Card(
                             child: Padding(
                               padding: const EdgeInsets.all(16),
@@ -353,10 +354,11 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                   const SizedBox(height: 4),
                                   const Text('Can work on this tenancy'),
                                   if (access.canManageAccess ||
-                                      access.scope == 'TENANCY')
+                                      access.scope == 'TENANCY') ...[
+                                    const SizedBox(height: kiviloButtonGap),
                                     SizedBox(
                                       width: double.infinity,
-                                      child: TextButton(
+                                      child: OutlinedButton(
                                         onPressed: disabled
                                             ? null
                                             : !access.canManageAccess
@@ -368,13 +370,16 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                                 person.stakeholderId,
                                                 person.name,
                                               ),
-                                        child: const Text('Remove'),
+                                        style: kiviloDangerOutlined,
+                                        child: const Text('Remove access'),
                                       ),
                                     ),
+                                  ],
                                 ],
                               ),
                             ),
                           ),
+                        ],
                         if (access.inspectionOnly.isNotEmpty) ...[
                           const SizedBox(height: 24),
                           Text(
@@ -386,7 +391,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                             'These agents keep access to reports they previously '
                             'worked on. They cannot work on the rest of this tenancy.',
                           ),
-                          for (final person in access.inspectionOnly)
+                          for (final person in access.inspectionOnly) ...[
+                            const SizedBox(height: kiviloButtonGap),
                             Card(
                               child: Padding(
                                 padding: const EdgeInsets.all(16),
@@ -407,10 +413,11 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                       '${person.inspectionIds.length == 1 ? 'report' : 'reports'}',
                                     ),
                                     if (access.canManageAccess ||
-                                        access.scope == 'TENANCY')
+                                        access.scope == 'TENANCY') ...[
+                                      const SizedBox(height: kiviloButtonGap),
                                       SizedBox(
                                         width: double.infinity,
-                                        child: TextButton(
+                                        child: OutlinedButton(
                                           onPressed: disabled
                                               ? null
                                               : !access.canManageAccess
@@ -423,13 +430,16 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                                   person.name,
                                                   reportsOnly: true,
                                                 ),
-                                          child: const Text('Remove'),
+                                          style: kiviloDangerOutlined,
+                                          child: const Text('Remove access'),
                                         ),
                                       ),
+                                    ],
                                   ],
                                 ),
                               ),
                             ),
+                          ],
                         ],
                         const SizedBox(height: 24),
                         if (access.canManageAccess) ...[

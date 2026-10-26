@@ -319,6 +319,8 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      expect(find.text('Add before photos'), findsOneWidget);
+      expect(find.text('Add'), findsNothing);
       await tester.scrollUntilVisible(
         find.text('Record move-in condition'),
         200,
@@ -331,6 +333,8 @@ void main() {
       );
       expect(button.onPressed, isNull);
       expect(find.text('I agree this was present at move-in'), findsNothing);
+      await tester.scrollUntilVisible(find.text('Photos'), 200);
+      expect(find.text('Add'), findsNothing);
       await tester.pumpWidget(const SizedBox());
       api.detail = {
         ...caseJson(role: 'LANDLORD', status: 'REPORTED'),

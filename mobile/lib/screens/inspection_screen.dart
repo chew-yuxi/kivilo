@@ -636,9 +636,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             signed
                                 ? 'Signed and safely recorded.'
                                 : sent
-                                ? 'Ready for both parties to sign.'
+                                ? 'Waiting for signatures.'
                                 : inspection.allRoomsReviewed
-                                ? 'Your rooms are ready. Review, then send.'
+                                ? 'Ready to send for signature.'
                                 : recording
                                 ? 'Build the record, room by room.'
                                 : 'Check each room before you send.',
@@ -674,8 +674,15 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               style: Theme.of(context).textTheme.bodySmall,
                               tabularNums: true,
                             ),
-                            const SizedBox(height: 14),
-                            OutlinedButton.icon(
+                            const SizedBox(height: kiviloHeadingGap),
+                            if (nextRoom != null) ...[
+                              Text(
+                                'Next room: ${nextRoom.name}',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                              const SizedBox(height: 8),
+                            ],
+                            FilledButton.icon(
                               onPressed: _busy
                                   ? null
                                   : inspection.rooms.isEmpty
@@ -690,12 +697,15 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                     ? Icons.draw_outlined
                                     : Icons.chevron_right,
                               ),
+                              iconAlignment: nextRoom == null
+                                  ? IconAlignment.start
+                                  : IconAlignment.end,
                               label: Text(
                                 inspection.rooms.isEmpty
                                     ? 'Add your first room'
                                     : inspection.allRoomsReviewed
                                     ? 'Send for signature'
-                                    : 'Continue ${nextRoom!.name}',
+                                    : 'Open room',
                               ),
                             ),
                           ],
@@ -747,7 +757,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     ),
                   ],
                   if (inspection.baselineId != null) ...[
-                    const SizedBox(height: 12),
+                    const SizedBox(height: kiviloButtonGap),
                     OutlinedButton.icon(
                       onPressed: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
@@ -799,7 +809,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     subtitle: inspection.rooms.isEmpty
                         ? 'Start with your first room'
                         : 'Inventory and media, room by room',
-                    action: inspection.isOpen
+                    action: inspection.isOpen && inspection.rooms.isNotEmpty
                         ? TextButton.icon(
                             onPressed: _busy ? null : _addRoom,
                             icon: const Icon(Icons.add),
@@ -909,13 +919,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: kiviloHeadingGap),
                             FilledButton.icon(
                               onPressed: _busy ? null : () => _pdf(inspection),
                               icon: const Icon(Icons.description_outlined),
                               label: const Text('View PDF'),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: kiviloButtonGap),
                             Builder(
                               builder: (context) => OutlinedButton.icon(
                                 onPressed: _busy
@@ -935,7 +945,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 label: const Text('Share PDF'),
                               ),
                             ),
-                            const SizedBox(height: 10),
+                            const SizedBox(height: kiviloButtonGap),
                             Builder(
                               builder: (context) => OutlinedButton.icon(
                                 onPressed: _busy
@@ -961,7 +971,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             // The report as the parties read it, with every update since
                             // signing and who has acknowledged it.
                             if (inspection.kind == 'CHECK_IN') ...[
-                              const SizedBox(height: 10),
+                              const SizedBox(height: kiviloButtonGap),
                               OutlinedButton.icon(
                                 onPressed: () => Navigator.of(context).push(
                                   MaterialPageRoute<void>(
@@ -995,7 +1005,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       inspection.status == 'COMPLETED' &&
                       (inspection.access?.scope != 'INSPECTION' ||
                           inspection.checkOutId != null)) ...[
-                    const SizedBox(height: 28),
+                    const SizedBox(height: kiviloSectionGap),
                     Card(
                       color: KiviloColors.canvas,
                       child: Padding(
@@ -1012,7 +1022,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               'Use this signed check-in as the baseline for a check-out.',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
-                            const SizedBox(height: 14),
+                            const SizedBox(height: kiviloHeadingGap),
                             OutlinedButton.icon(
                               onPressed: _busy
                                   ? null
@@ -1151,12 +1161,19 @@ class _InspectionScreenState extends State<InspectionScreen> {
     children: [
       Icon(icon, size: 18, color: KiviloColors.muted),
       const SizedBox(width: 10),
-      SizedBox(
-        width: 74,
-        child: Text(role, style: Theme.of(context).textTheme.bodySmall),
-      ),
       Expanded(
-        child: Text(name, style: Theme.of(context).textTheme.bodyMedium),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            SizedBox(
+              width: MediaQuery.textScalerOf(context).scale(74),
+              child: Text(role, style: Theme.of(context).textTheme.bodySmall),
+            ),
+            Text(name, style: Theme.of(context).textTheme.bodyMedium),
+          ],
+        ),
       ),
     ],
   );

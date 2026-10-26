@@ -114,6 +114,7 @@ void main() {
     expect(find.text('Your answer is needed'), findsOneWidget);
     expect(find.text('Landlord proposes'), findsOneWidget);
     expect(find.text('Minor repair clause · Clause 5(c)'), findsOneWidget);
+    expect(find.text('Suggest a change'), findsOneWidget);
 
     await tester.tap(find.text('Accept'));
     await tester.pumpAndSettle();
@@ -140,6 +141,28 @@ void main() {
     await tester.tap(reject);
     await tester.pumpAndSettle();
     expect(answers, [('proposal-1', 'REJECT', 'Crack was there')]);
+  });
+
+  testWidgets('repair answers remain readable and usable with larger text', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 900);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pumpCard(
+      tester,
+      responsibility(pending: proposalJson(), canAnswer: true),
+    );
+    final suggest = find.widgetWithText(OutlinedButton, 'Suggest a change');
+    final reject = find.widgetWithText(OutlinedButton, 'Reject');
+    expect(tester.getRect(reject).top - tester.getRect(suggest).bottom, 12);
+    await tester.ensureVisible(suggest);
+    await tester.tap(suggest);
+    await tester.pumpAndSettle();
+    expect(find.text('Suggest a different split'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('the proposing side can only wait or withdraw', (tester) async {

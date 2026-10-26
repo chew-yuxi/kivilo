@@ -7,6 +7,9 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
+String _count(Object? value, String one, String many) =>
+    '$value ${value == 1 ? one : many}';
+
 class PropertySettingsScreen extends StatefulWidget {
   const PropertySettingsScreen({super.key, required this.propertyId, this.api});
   final String propertyId;
@@ -35,9 +38,6 @@ class _PropertySettingsScreenState extends State<PropertySettingsScreen> {
     });
     await next.fresh;
   }
-
-  String _count(Object? value, String one, String many) =>
-      '$value ${value == 1 ? one : many}';
 
   void _locked(PropertySettings property, String action) => showLockedAction(
     context,
@@ -280,7 +280,7 @@ class _PropertyChangeDrawerState extends State<_PropertyChangeDrawer> {
           const SizedBox(height: 12),
           Text(
             deleting
-                ? 'This affects ${widget.property.counts['tenancies']} tenancies, ${widget.property.counts['inspections']} inspections and ${widget.property.counts['photos']} photos. You have 30 days to restore them from Properties → Trash.'
+                ? 'This affects ${_count(widget.property.counts['tenancies'], 'tenancy', 'tenancies')}, ${_count(widget.property.counts['inspections'], 'inspection', 'inspections')} and ${_count(widget.property.counts['photos'], 'photo', 'photos')}. You have 30 days to restore them from Properties → Recently deleted.'
                 : archiving
                 ? 'This removes the property from active work for everyone with access. Reports and evidence remain available in Archived properties.'
                 : 'This restores the property and its saved work to their previous state.',
