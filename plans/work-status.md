@@ -25,7 +25,7 @@ The retained Addenda draft date crash is fixed at initialization, preserving uns
 edits and the pending-photo publication guard. Transient native upload HTTP results
 (408/429/500/502/503/504) show a temporary delay and retain their durable media,
 ownership and capture identity. Regression coverage verifies fresh credentials,
-successful uploads whose response was lost, registration retries and permanent403
+successful uploads whose response was lost, registration retries and permanent 403
 errors. It does not prevent storage gateway timeouts or execute Android's OS worker.
 
 The exact release passes Flutter analysis and all **454 mobile tests**. Focused
@@ -38,13 +38,13 @@ unauthenticated API smoke checks. Physical-device installation remains **NOT RUN
 Store tracks and iOS are unchanged. Details and rollback: `mobile/RELEASE.md`.
 
 Earlier checks of the combined local working tree passed web typecheck, zero-warning
-lint, production build and218 unit tests. Integration had397 passes and the same
+lint, production build and 218 unit tests. Integration had 397 passes and the same
 eight failures reproduced on clean `2a588d2` (schema-vs-table denial assertions and
-a pending general StoragePurge tombstone). Web E2E passed25 cases; sandbox billing
+a pending general StoragePurge tombstone). Web E2E passed 25 cases; sandbox billing
 could not begin without a local Stripe webhook secret. The combined unfinished Home
-tree has459 mobile passes and three failures (fresh-answer loading, party tablet
+tree has 459 mobile passes and three failures (fresh-answer loading, party tablet
 navigation/layout and the old inspection cache on Home). Those changes and failures
-are excluded from this454-test release; Home shortcut deduplication remains local.
+are excluded from this 454-test release; Home shortcut deduplication remains local.
 
 ## Android and team billing — 26 October (internal release, device purchase pending)
 

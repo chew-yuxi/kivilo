@@ -22,28 +22,28 @@ and context switcher are excluded and preserved in the main working directory.
 
 The Addenda crash came from rendering a retained draft before initializing its date.
 Fields now bind to the displayed draft without overwriting unsaved edits on refresh,
-and Publish waits for that draft's pending-photo check. Native upload HTTP408,429,
-500,502,503,504 results now show a temporary delay while retaining media and retrying
+and Publish waits for that draft's pending-photo check. Native upload HTTP 408, 429,
+500, 502, 503 and 504 results now show a temporary delay while retaining media and retrying
 with stable capture identity. Permanent failures remain reported. This handles the
-reported504 correctly; it does not prevent an upstream gateway timeout.
+reported 504 correctly; it does not prevent an upstream gateway timeout.
 
 The exact release passes Flutter analysis and all **454 mobile tests**. Nineteen
 focused checks also cover the ported Home, repair navigation and four rendered Home
 layouts. The other changed screens were rendered at phone widths and enlarged text.
 Native compatibility passes without a native override. The only bundled asset
 difference is the removed `info_outline` glyph: a binary cmap comparison proves
-119 patch glyphs are a subset of the installed120, with no added assets or glyphs.
+119 patch glyphs are a subset of the installed 120, with no added assets or glyphs.
 The documented removal-only `--allow-asset-diffs` allowance was used; every other
 Flutter asset matches the installed release. Proof and logs are in
 `build/release-20261027-ux/`.
 
 Vercel automatically deployed the same source as
 `dpl_GUEPHkpNVW3KXV9C5rNhicMJJvuZ`, READY in `sin1`. Both production domains return
-200 for `/login` and401 for unauthenticated `/api/v1/me`. No backend source, native
+200 for `/login` and 401 for unauthenticated `/api/v1/me`. No backend source, native
 dependencies, store tracks or minimum-build floor changed. No iOS patch was made.
-Physical-device installation and interaction are **NOT RUN**. Build29 checks at
+Physical-device installation and interaction are **NOT RUN**. Build 29 checks at
 launch: close/reopen Kivilo, choose **Update**, then reopen from its notification.
-Rollback is to roll back Android29 patch1, returning to its original store code;
+Rollback is to roll back Android 29 patch 1, returning to its original store code;
 never delete queued media. Play purchase lifecycle testing remains a separate gate.
 
 ## Google Play subscriptions: implementation, 26 October 2026
