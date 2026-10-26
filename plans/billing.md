@@ -135,13 +135,16 @@ only the expired unpaid verification Checkout. The public handler re-read Stripe
 returned 200 without granting access. This verifies public routing and signing-secret
 alignment, **not delivery originating from Stripe or paid fulfillment**.
 
+The operator confirmed the temporary **Kivilo Setup** key is expired; **Kivilo Prod**
+remains the runtime credential. Their Revenue recovery screenshot shows the first
+failed renewal leaves the subscription overdue, and exhausting all retries cancels
+it. This matches Kivilo's grace period: `past_due` retains Pro during retries, while
+`canceled` removes it when the lifecycle event is processed. The invoice is separately
+left overdue and does not itself preserve Pro. No dashboard setting was changed by
+the agent during this confirmation.
+
 Remaining operator checks:
 
-- Expire the temporary **Kivilo Setup** key; its private setup process has exited.
-  Keep **Kivilo Prod** active. Credential retirement is pending operator handoff.
-- Verify live Revenue recovery → Retries ends exhausted subscriptions in `canceled`
-  or `unpaid`. This setting remains unverified; leaving a subscription `past_due`
-  preserves Pro access under the current grace-period rule.
 - Reconcile the first authorized real purchase with Stripe's successful event deliveries,
   invoice, local Pro entitlement and paid acquisition milestone. Open **Manage billing**
   too: live portal-session creation and cancellation have not been exercised.

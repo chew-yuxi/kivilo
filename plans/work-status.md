@@ -78,8 +78,10 @@ Public login/auth checks passed. The webhook rejected an invalid signature and a
 an operator-generated signed event referencing only that expired unpaid Checkout.
 This verifies public routing and secret alignment, not a Stripe-origin live delivery.
 No real payment has been taken. GST collection stays off because the operator is not
-registered. The temporary Setup key's retirement, failed-payment retry terminal state,
-first real purchase reconciliation and live portal session remain operator checks.
+registered. The operator confirmed the temporary Setup key is expired; their Revenue
+recovery screenshot shows exhausted retries cancel the subscription while leaving the
+invoice overdue. First real purchase reconciliation and a live portal session remain
+operator checks.
 All 15 unrelated tracked Home/app edits were preserved byte for byte.
 See [Billing readiness](billing.md#live-readiness-checked-2026-10-26).
 
