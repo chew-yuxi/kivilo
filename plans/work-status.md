@@ -68,11 +68,17 @@ If rolling back application code, retain the additive acquisition table and acce
 hardening; older server builds use the same trusted database role. Do not restore
 public client grants as part of a code rollback.
 
-Production checkout remains closed: the operator confirmed the Singapore live Stripe
-account is not activated. The sandbox payment was verified without counting it as a
-live conversion. [Billing readiness](billing.md#live-readiness-checked-2026-10-26)
-records the remaining lifecycle/risk handling, live account/catalog/webhook setup,
-restricted credentials and tax decisions. No real payment was taken.
+Production checkout remains closed while live setup progresses. The runtime key is a
+Production-only Vercel Secret; Preview/Development retain sandbox credentials. Stripe
+shows Payments and Payouts Active, and the live SGD39/month catalog and portal are
+configured. Lifecycle/risk handling, concurrent subscription sync and mode/catalog
+checks are implemented in the isolated billing branch. Runtime permission checks,
+live webhook installation and deployment remain pending. Vercel blocked the first remote
+preflight before building because the prior session's Git author is not authorized for
+the project; the operator authorized using their linked `chew-yuxi` GitHub identity
+for this new billing commit. The operator confirmed they
+are not GST registered, so tax collection stays off. No real payment has been taken.
+See [Billing readiness](billing.md#live-readiness-checked-2026-10-26).
 
 ## Search and AI visibility tracking — 26 October
 
@@ -553,8 +559,9 @@ read still shows `WAITING_FOR_REVIEW` with build24 `VALID`; the store freeze rem
 
 ## Deliberately outside the current implementation
 
-- Stripe live billing: user explicitly deferred activation. Existing email-us fallback
-  remains until business live configuration is supplied and activation is requested.
+- Stripe live sales remain closed during the user's active setup. The runtime key is
+  saved in Vercel; runtime permissions, live webhook and deployment remain pending
+  in [Billing readiness](billing.md#live-readiness-checked-2026-10-26).
 - Broader tenant-home design, Singapore servicing/CEA features, universal email-to-app
   links, 360 capture and AI-era schema cleanup require separate product work.
 - Dictation and serial copying use the phone keyboard/OS tools; the product has no AI.

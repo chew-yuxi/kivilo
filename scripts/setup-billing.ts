@@ -24,7 +24,12 @@ const EVENTS: Stripe.WebhookEndpointCreateParams.EnabledEvent[] = [
   'customer.subscription.created',
   'customer.subscription.updated',
   'customer.subscription.deleted',
+  'invoice.paid',
+  'invoice.payment_failed',
   'invoice.payment_succeeded',
+  'charge.refunded',
+  'charge.dispute.created',
+  'radar.early_fraud_warning.created',
 ]
 
 async function product(client: Stripe) {
@@ -95,6 +100,9 @@ async function webhook(client: Stripe, base: string) {
   const url = new URL('/api/stripe/webhook', base).toString()
   for await (const endpoint of client.webhookEndpoints.list()) {
     if (endpoint.url === url) {
+      if (endpoint.api_version !== Stripe.API_VERSION) {
+        throw new Error(`Webhook ${endpoint.id} uses ${endpoint.api_version}; recreate it with ${Stripe.API_VERSION} before enabling billing`)
+      }
       await client.webhookEndpoints.update(endpoint.id, { enabled_events: EVENTS, disabled: false })
       console.log(`Updated webhook ${endpoint.id} for ${url}. Its secret was printed when it was created.`)
       return

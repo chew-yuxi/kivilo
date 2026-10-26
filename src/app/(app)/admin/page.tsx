@@ -1,11 +1,12 @@
 import { adminUsage } from '@/lib/admin-usage'
 import { adminAcquisition } from '@/lib/admin-acquisition'
+import { adminBillingIncidents } from '@/lib/admin'
 
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Usage and errors', robots: { index: false, follow: false } }
 
 export default async function AdminPage() {
-  const [data, acquisition] = await Promise.all([adminUsage(), adminAcquisition()])
+  const [data, acquisition, billing] = await Promise.all([adminUsage(), adminAcquisition(), adminBillingIncidents()])
   const stages = [
     ['Created', data.created], ['Has captures', data.captured], ['Room reviewed', data.reviewed],
     ['Sent for signature', data.sent], ['Countersigned', data.completed],
@@ -86,6 +87,39 @@ export default async function AdminPage() {
           ))}</tbody>
         </table>
         {data.screens.length === 0 && <p className="mt-3 text-sm text-gray-500">No screen events yet.</p>}
+      </section>
+      <section>
+        <h2 className="mb-3 text-lg font-semibold">Billing incidents</h2>
+        <p className="mb-4 text-sm text-gray-500">
+          Latest 50 events, retained for 90 days. Status and amounts are recorded at the event time;
+          check Stripe for the current state. A refund does not cancel a subscription.
+          Review refunds, respond to disputes before their deadline, and investigate fraud warnings in Stripe.
+          Kivilo makes no automatic refunds or access changes from these events.
+        </p>
+        <div className="space-y-3">{billing.map((incident) => {
+          const money = incident.currency ? new Intl.NumberFormat('en-SG', { style: 'currency', currency: incident.currency }) : null
+          const amount = money && incident.amount !== null
+            ? money.format(incident.amount / 10 ** money.resolvedOptions().maximumFractionDigits!) : null
+          return (
+          <article key={incident.id} className="rounded-lg border border-gray-200 bg-white p-4 text-sm">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="font-semibold">
+                {incident.type === 'charge.refunded' ? 'Refund' : incident.type === 'charge.dispute.created' ? 'Dispute' : 'Early fraud warning'}
+                {!incident.livemode && ' · Sandbox'}
+              </h3>
+              <a className="text-indigo-700 underline" href={incident.dashboardUrl} target="_blank" rel="noreferrer">Review in Stripe</a>
+            </div>
+            <p className="mt-2">
+              {incident.status.replaceAll('_', ' ')}
+              {amount && ` · ${incident.type === 'charge.refunded' ? 'Total refunded' : 'Amount disputed'}: ${amount}`}
+            </p>
+            {incident.evidenceDueAt !== null && <p className="mt-1 font-medium">Evidence due: {new Date(incident.evidenceDueAt * 1000).toUTCString()}</p>}
+            <p className="mt-1 text-gray-500"><time dateTime={incident.occurredAt.toISOString()}>{incident.occurredAt.toUTCString()}</time></p>
+            <p className="mt-2 break-all font-mono text-xs text-gray-600">{incident.subscriptionId} · {incident.invoiceId} · {incident.eventId}</p>
+          </article>
+          )
+        })}</div>
+        {billing.length === 0 && <p className="text-sm text-gray-500">No billing incidents recorded.</p>}
       </section>
       <section>
         <h2 className="mb-3 text-lg font-semibold">Frequent errors</h2>

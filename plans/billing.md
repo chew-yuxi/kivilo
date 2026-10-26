@@ -55,9 +55,9 @@ Stripe is the truth about what a workspace paid for; the `Subscription` row is a
   reuses the agent's own customer only) and `openBillingPortal` (strictly the member who
   manages the plan, since the portal shows their card and invoices; anyone else gets
   "Not found"). Checkout is open to the manager, or to anyone when nobody manages it.
-- `src/lib/billing.ts`: `syncSubscription(id)` always re-retrieves the subscription and
-  writes the workspace row its metadata names, so replayed or out-of-order events are
-  harmless. It refuses to replace a different live Stripe subscription (two members
+- `src/lib/billing.ts`: `syncSubscription(id)` locks the workspace, re-retrieves the subscription,
+  checks mode/customer and the supported Kivilo catalog, then writes the current state.
+  Concurrent deliveries cannot overwrite a later read with an earlier network response. It refuses to replace a different live Stripe subscription (two members
   checking out at once); the throw is recorded by error tracking and alerts us, and one
   of the two must be refunded and canceled in Stripe by hand. A non-live subscription
   that is not the row's is ignored. `managedById` is set when a subscription first lands
@@ -68,7 +68,10 @@ Stripe is the truth about what a workspace paid for; the `Subscription` row is a
   `checkout.session.{completed,async_payment_succeeded}` re-reads the session and syncs
   only once payment is paid or no payment is required. Subscription created, updated and
   deleted events also go through `syncSubscription`. `invoice.payment_succeeded` records
-  the paid conversion described below. A failure is a 500 that Stripe retries.
+  the paid conversion described below. `invoice.paid` and `invoice.payment_failed`
+  reconcile fresh subscription state. Refund, dispute and early fraud-warning events
+  resolve InvoicePayments and fresh invoices to affected subscriptions and record
+  deduplicated admin incidents. A failure is a 500 that Stripe retries.
 - `pnpm team:set` refuses to put an agent paying on their own onto a team while that
   subscription is live. Fulfilling an account deletion cancels, immediately, any live
   subscription the person manages and clears them as manager, so a teammate can
@@ -105,15 +108,28 @@ See Stripe's [event definitions](https://docs.stripe.com/api/events/types) and
 
 ## Live readiness (checked 2026-10-26)
 
-**Production payments remain blocked.** The operator confirmed there is no activated
-Singapore Stripe account yet. A read-only Vercel production check found a test server
-key and no `STRIPE_WEBHOOK_SECRET`. The accessible sandbox has the SGD 39 monthly price
-and portal configuration, but no registered webhook endpoint. These are sandbox
-observations, not evidence of a configured live account. No account, live resources,
-live charges or production settings were created or changed during this work. The
-browser suite completed a sandbox Checkout payment with a temporary CLI webhook
-listener; the listener and its isolated credentials were removed afterward. That pass
-does not verify live payment readiness.
+**Live setup is in progress; no real payment has been taken.** The operator saved the
+runtime restricted key through a masked prompt as a write-only Vercel Secret scoped to
+Production. Preview/Development kept their separate sandbox setting. The key remains
+unreadable to the operator tooling; permission checks run inside the deployment environment.
+
+Stripe's live Account status shows Payments and Payouts Active, with no active tasks
+(26 October). The separate temporary setup key created product `kivilo_pro`, live price
+`price_1UUfMoHP9VOWpFf0nNMpteAi` (SGD 3900/seat/month) and portal configuration
+`bpc_1UUfMpHP9VOWpFf03NISzUNe`. The setup key stays only in a private process's memory.
+Live webhook installation, runtime permission verification and deployment are pending. The first
+remote preflight was blocked before building because the previous session's Git author
+is not an authorized Vercel project author; no live API probe ran in that deployment.
+
+Verification of this change: full typecheck, zero-warning ESLint, 207 unit tests,
+production build and all 25 Playwright tests passed. Sandbox Checkout and portal passed;
+signed subscription.created, invoice.payment_succeeded, invoice.paid and checkout.session.completed
+webhooks independently returned HTTP 200. The integration run passed 340 tests and
+failed eight existing tests (four deletion tests blocked by a pending local StoragePurge,
+four security assertions expecting table denial when the local DB denies schema access).
+A clean checkout of 5bc75b1 reproduces exactly those eight failures. The subsequent
+historical-subscription risk fix passed all 20 risk integration cases. No schema/grant
+changes or general storage cleanup were performed to make the tests pass.
 
 `checkoutOpen()` requires a server key plus a `whsec_` signing secret everywhere, and
 a live server key in Vercel production. This checks configuration presence and mode;
@@ -126,7 +142,7 @@ Operator setup order:
    details. Confirm the live account can accept charges and receive payouts.
 2. Validate the deployed billing flow in a separate sandbox, including signed webhook
    delivery, retries, a delayed payment, failed renewal, cancellation and account deletion.
-   Complete the remaining lifecycle/risk handling below before declaring live readiness.
+   Verify the lifecycle/risk behavior below before declaring live readiness.
 3. Use a separate restricted setup key in a secure operator environment to run
    `pnpm billing:setup https://my.kivilo.app` against the live account. This creates live
    catalog/portal/webhook resources; it must be an intentional operator action. Match
@@ -146,12 +162,20 @@ Live and sandbox resources are separate; the existing sandbox price cannot be us
 live mode. Follow Stripe's [go-live checklist](https://docs.stripe.com/get-started/checklist/go-live)
 and [key separation guidance](https://docs.stripe.com/keys).
 
+`pnpm billing:verify` checks the sandbox configuration; `pnpm billing:verify --live`
+requires a live key. It validates the current price, explicitly expanded portal rules,
+and runtime read access before creating and immediately expiring one unpaid Checkout.
+It prints no key, Checkout URL or customer details. Run it in a remote production build
+with `vercel deploy --prod --skip-domain` to use the write-only production key without
+retrieving it or changing the current domain. This does not verify paid fulfillment,
+subscription cancellation, portal session creation or Stripe webhook delivery.
+
 Restricted key permissions follow the actual SDK calls in this repo:
 
 | Key | Required resource access |
 |---|---|
-| Runtime | Checkout Sessions write; Subscriptions write (includes cancellation on account deletion); Invoices read; Prices read; Customer Portal sessions write and configurations read |
-| Temporary setup | Products write; Prices write; Customer Portal configurations write; Webhook Endpoints write |
+| Runtime | Checkout Sessions write; Subscriptions write (includes cancellation on account deletion); Invoices read (including InvoicePayments); Charges read; Prices read; Customer Portal write (the Dashboard groups sessions and configurations) |
+| Temporary setup | Products write; Prices write; Customer Portal write; Webhook Endpoints write |
 
 Write includes read. Start with these mapped permissions, validate every path with a
 sandbox restricted key, and inspect Stripe's permission errors for any dependent
@@ -159,15 +183,23 @@ permissions before issuing the live equivalent. The runtime has no need to creat
 products, prices or webhook endpoints. Retire the separate setup key after use. See
 [restricted key setup](https://docs.stripe.com/keys/restricted-api-keys).
 
-Remaining launch work: explicit `invoice.paid` / `invoice.payment_failed` lifecycle
-handling, and actions/alerting for `charge.dispute.created`, `charge.refunded` and
-`radar.early_fraud_warning.created`. They are not subscribed merely to acknowledge and
-discard them. Resolve each through Stripe's current invoice/subscription graph and
-decide the response before enabling live sales. Concurrent duplicate checkouts still
-need the documented manual refund/cancellation resolution.
+Lifecycle handlers reconcile current subscription state on paid/failed invoices, rather
+than treating an old event as current access. Mode and catalog checks apply to retrieved
+resources as well as signed events; connected-account events are ignored. Workspace
+advisory locks serialize subscription sync, including the first row creation.
+
+Risk events record operator tasks in `/admin`: follow the Stripe link, review refunds,
+respond to disputes before the shown deadline and investigate fraud warnings. Records
+contain only allowlisted IDs, status, amount/currency and deadline; no raw event payload
+or customer details. They are deduplicated, excluded from error emails and retained for
+90 days. Historical or duplicate Kivilo subscriptions still produce incidents after
+fresh catalog/mode/customer checks even if their ID no longer occupies the local row.
+No automatic refund, cancellation, access change or acquisition rollback occurs.
+Concurrent duplicate checkouts still need manual refund/cancellation resolution.
 See [subscription webhook guidance](https://docs.stripe.com/billing/subscriptions/webhooks).
 
-GST/Stripe Tax remains unconfigured: no `automatic_tax` is enabled. Confirm applicable
+The operator confirmed on 26 October that Nottoosweetlabs is **not GST registered**.
+GST/Stripe Tax remains off: no `automatic_tax` is enabled. Confirm applicable
 registrations with the business's tax adviser, then configure the confirmed live tax
 settings, product tax code and price tax behavior before enabling automatic tax. A
 sandbox registration does not establish live collection. See

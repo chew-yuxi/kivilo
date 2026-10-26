@@ -19,6 +19,7 @@
     "db:studio": "prisma studio",
     "setup:storage": "tsx scripts/setup-storage.ts",
     "billing:setup": "tsx scripts/setup-billing.ts",
+    "billing:verify": "tsx scripts/verify-billing.ts",
     "provider:upsert": "tsx scripts/upsert-service-provider.ts",
     "team:set": "tsx scripts/set-team.ts",
     "plan:set": "tsx scripts/set-plan.ts",

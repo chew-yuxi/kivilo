@@ -133,12 +133,14 @@ export async function alertNewErrors(now = new Date()) {
 
   const pending = await db.errorEvent.groupBy({
     by: ['fingerprint'],
-    where: { notifiedAt: null },
+    // Billing incidents are reviewed in /admin. They must not enter the error email
+    // outbox; their safe details and Stripe links stay behind the admin boundary.
+    where: { notifiedAt: null, context: { not: 'stripe_billing' } },
     _count: true,
   })
   const fingerprints = pending.map((group) => group.fingerprint)
   const known = new Set((await db.errorEvent.findMany({
-    where: { fingerprint: { in: fingerprints }, notifiedAt: { not: null } },
+    where: { fingerprint: { in: fingerprints }, notifiedAt: { not: null }, context: { not: 'stripe_billing' } },
     distinct: ['fingerprint'],
     select: { fingerprint: true },
   })).map((event) => event.fingerprint))
@@ -149,7 +151,7 @@ export async function alertNewErrors(now = new Date()) {
       .map(async (group) => ({
         count: group._count,
         latest: await db.errorEvent.findFirstOrThrow({
-          where: { fingerprint: group.fingerprint },
+          where: { fingerprint: group.fingerprint, context: { not: 'stripe_billing' } },
           orderBy: { occurredAt: 'desc' },
         }),
       })),
@@ -157,7 +159,7 @@ export async function alertNewErrors(now = new Date()) {
   if (fresh.length) await sendErrorAlert(to, fresh)
 
   await db.errorEvent.updateMany({
-    where: { notifiedAt: null, fingerprint: { in: fingerprints } },
+    where: { notifiedAt: null, fingerprint: { in: fingerprints }, context: { not: 'stripe_billing' } },
     data: { notifiedAt: now },
   })
   const { count: pruned } = await db.errorEvent.deleteMany({

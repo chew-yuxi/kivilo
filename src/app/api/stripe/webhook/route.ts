@@ -1,5 +1,6 @@
-import { stripe } from '@/lib/stripe'
-import { recordPaidInvoice, syncCheckoutSession, syncSubscription } from '@/lib/billing'
+import { stripe, stripeModeMatches } from '@/lib/stripe'
+import { recordPaidInvoice, syncCheckoutSession, syncInvoice, syncSubscription } from '@/lib/billing'
+import { handleBillingRiskEvent } from '@/lib/billing-risk'
 
 /// Stripe's events about subscriptions. The signature is checked against the raw body
 /// before anything in it is read: the request carries no session, so the signing secret
@@ -26,6 +27,12 @@ export async function POST(request: Request) {
     return Response.json({ error: 'invalid_signature' }, { status: 400 })
   }
 
+  // Kivilo bills its own customers and has no connected accounts. A correctly signed
+  // sandbox or Connect event must never change a production workspace's entitlement.
+  if (event.account || !stripeModeMatches(event.livemode)) {
+    return Response.json({ received: true })
+  }
+
   switch (event.type) {
     case 'checkout.session.completed':
     case 'checkout.session.async_payment_succeeded':
@@ -33,6 +40,15 @@ export async function POST(request: Request) {
       break
     case 'invoice.payment_succeeded':
       await recordPaidInvoice(event.data.object.id)
+      break
+    case 'invoice.paid':
+    case 'invoice.payment_failed':
+      await syncInvoice(event.data.object.id)
+      break
+    case 'charge.refunded':
+    case 'charge.dispute.created':
+    case 'radar.early_fraud_warning.created':
+      await handleBillingRiskEvent(event)
       break
     case 'customer.subscription.created':
     case 'customer.subscription.updated':

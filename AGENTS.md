@@ -550,7 +550,8 @@ than a caption, and the report is the artefact both parties are signing.
 Plans and limits are decided only in `src/lib/plan.ts` (`plans/billing.md`). Stripe is the
 truth about what was paid; the `Subscription` row is a copy, written only by
 `syncSubscription` in `src/lib/billing.ts`, which re-reads the subscription from Stripe
-every time, so a replayed or out-of-order event is harmless. It refuses to replace a
+under a workspace advisory lock, verifies mode and the supported Kivilo catalog, then
+writes the current state. It refuses to replace a
 workspace's different live subscription and throws, which error tracking alerts on.
 Checkout and the portal are server actions in `src/lib/billing-actions.ts`; the portal
 opens only for the member in `managedById`. `/account` syncs when Stripe sends the agent
@@ -566,15 +567,23 @@ endpoint, printing its secret only when it creates it. Env: `STRIPE_SECRET_KEY` 
 webhook secret. Comps (`pnpm plan:set`) never touch a Stripe-paid row.
 
 **Production sells only on a live key.** The Vercel Marketplace provisioned a Stripe
-sandbox, and its test keys are in every environment, production included. A sandbox key
+sandbox; local and preview keep sandbox credentials separate from production. A sandbox key
 in production would sell Pro to anyone holding Stripe's public test card, so
 `checkoutOpen()` in `src/lib/stripe.ts` hides Upgrade and refuses `startCheckout` there
 until `STRIPE_SECRET_KEY` is `sk_live_`/`rk_live_` and `STRIPE_WEBHOOK_SECRET` is
 configured; `/account` falls back to "email us". Test environments also require a
 server key and webhook secret before Checkout opens.
-Going live: a Singapore Stripe account, its live key in Vercel production, then
-`pnpm billing:setup <production URL>` with that key and its `whsec_` as
-`STRIPE_WEBHOOK_SECRET`.
+Live setup uses a temporary restricted setup key for `pnpm billing:setup <production URL>`
+and a separate restricted runtime key. Store the runtime key and endpoint's `whsec_` as
+Production-only Vercel Secrets. Current setup and verification are in `plans/billing.md`.
+
+`invoice.paid` and `invoice.payment_failed` reconcile fresh subscription state;
+`invoice.payment_succeeded` alone can record the paid acquisition milestone.
+Refund, dispute and early fraud-warning events follow InvoicePayments to the affected
+subscription. `billing-risk.ts` records safe, deduplicated admin incidents, including
+historical Kivilo subscriptions replaced by a later subscription. These incidents never
+refund, cancel or change access automatically and are excluded from error alert emails.
+Review them in `/admin` and act in Stripe. Their retention is 90 days.
 
 **Store rule:** agents buy on the web only. The Flutter app and `/api/v1` never show a
 price, an upgrade button, or where to buy.

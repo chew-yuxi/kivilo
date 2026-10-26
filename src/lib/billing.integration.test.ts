@@ -71,7 +71,7 @@ vi.mock('@/lib/email', () => ({ sendAccountDeletionComplete: vi.fn(async () => {
 
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
-import { syncSubscription } from '@/lib/billing'
+import { syncCheckoutSession, syncInvoice, syncSubscription } from '@/lib/billing'
 import { checkoutOpen } from '@/lib/stripe'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
 import { FREE_ACTIVE_PROPERTIES, workspacePlan } from '@/lib/plan'
@@ -103,14 +103,19 @@ async function team(name: string) {
 function paid(id: string, workspace: Record<string, string>, managedById: string, quantity = 1) {
   subscriptions.set(id, {
     id,
+    livemode: /_live_/.test(process.env.STRIPE_SECRET_KEY ?? ''),
     status: 'active',
     customer: `cus_${id}`,
     metadata: { ...workspace, managedById },
     cancel_at: null,
     cancel_at_period_end: false,
-    items: { data: [{ quantity, current_period_end: periodEnd }] },
+    items: { has_more: false, data: [{ quantity, current_period_end: periodEnd, price: {
+      product: 'kivilo_pro', type: 'recurring', currency: 'sgd', unit_amount: 3900,
+      livemode: /_live_/.test(process.env.STRIPE_SECRET_KEY ?? ''),
+      recurring: { interval: 'month', interval_count: 1, usage_type: 'licensed' },
+    } }] },
   })
-  return subscriptions.get(id) as { status: string; cancel_at_period_end: boolean; items: { data: { quantity: number }[] } }
+  return subscriptions.get(id) as Stripe.Subscription
 }
 
 function as(person: Stakeholder) {
@@ -188,6 +193,85 @@ describe('syncSubscription', () => {
     expect(await db.subscription.findUniqueOrThrow({ where: { teamId: office.id } })).toMatchObject({
       status: 'active', seats: 2, stripeSubscriptionId: `sub_comp_${tag}`, managedById: payer.id,
     })
+  })
+
+  it('re-reads after acquiring the workspace lock instead of applying a delayed active snapshot', async () => {
+    const payer = await agent('Concurrent-cancel')
+    const id = `sub_concurrent_cancel_${tag}`
+    const current = paid(id, { stakeholderId: payer.id }, payer.id)
+    await syncSubscription(id)
+    let started!: () => void
+    let resume!: () => void
+    const reading = new Promise<void>((resolve) => { started = resolve })
+    const released = new Promise<void>((resolve) => { resume = resolve })
+    client.subscriptions.retrieve.mockImplementationOnce(async () => {
+      const old = structuredClone(current)
+      started()
+      await released
+      return old
+    })
+    const delayed = syncSubscription(id)
+    await reading
+    try {
+      current.status = 'canceled'
+      await syncSubscription(id)
+    } finally {
+      resume()
+    }
+    await delayed
+    expect(await workspacePlan(payer)).toMatchObject({ plan: 'FREE', subscription: { status: 'canceled' } })
+  })
+
+  it('serializes simultaneous first delivery and competing replacements of an ended subscription', async () => {
+    const payer = await agent('Concurrent-replace')
+    const initialId = `sub_concurrent_initial_${tag}`
+    const initial = paid(initialId, { stakeholderId: payer.id }, payer.id)
+    await Promise.all([syncSubscription(initialId), syncSubscription(initialId)])
+    expect(await db.subscription.count({ where: { stakeholderId: payer.id } })).toBe(1)
+    initial.status = 'canceled'
+    await syncSubscription(initialId)
+    const ids = [`sub_concurrent_a_${tag}`, `sub_concurrent_b_${tag}`]
+    for (const id of ids) paid(id, { stakeholderId: payer.id }, payer.id)
+    const results = await Promise.allSettled(ids.map((id) => syncSubscription(id)))
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1)
+    const refusal = results.find((result) => result.status === 'rejected')
+    expect(refusal?.status === 'rejected' && refusal.reason.message).toContain('already pays through')
+    const saved = await db.subscription.findUniqueOrThrow({ where: { stakeholderId: payer.id } })
+    const winner = results.findIndex((result) => result.status === 'fulfilled')
+    expect(saved.stripeSubscriptionId).toBe(ids[winner])
+  })
+
+  it.each(['product', 'currency', 'metered', 'annual', 'multiple', 'zero-seats', 'free-price']) (
+    'refuses an unsupported %s catalog shape before granting Pro', async (change) => {
+      const payer = await agent(`Catalog-${change}`)
+      const id = `sub_catalog_${change}_${tag}`
+      const value = paid(id, { stakeholderId: payer.id }, payer.id)
+      const item = value.items.data[0]
+      if (change === 'product') item.price.product = 'another_product'
+      if (change === 'currency') item.price.currency = 'usd'
+      if (change === 'metered') item.price.recurring!.usage_type = 'metered'
+      if (change === 'annual') item.price.recurring!.interval = 'year'
+      if (change === 'multiple') value.items.data.push(structuredClone(item))
+      if (change === 'zero-seats') item.quantity = 0
+      if (change === 'free-price') item.price.unit_amount = 0
+      await expect(syncSubscription(id)).rejects.toThrow('not a supported Kivilo Pro subscription')
+      expect(await db.subscription.findUnique({ where: { stakeholderId: payer.id } })).toBeNull()
+    },
+  )
+
+  it('refuses production sandbox resources through direct sync and the Checkout return', async () => {
+    const payer = await agent('Mode-boundary')
+    const id = `sub_mode_${tag}`
+    paid(id, { stakeholderId: payer.id }, payer.id)
+    vi.stubEnv('VERCEL_ENV', 'production')
+    await expect(syncSubscription(id)).rejects.toThrow('mode does not match')
+    vi.stubEnv('STRIPE_SECRET_KEY', 'rk_live_unused')
+    await expect(syncSubscription(id)).rejects.toThrow('mode does not match')
+    client.checkout.sessions.retrieve.mockResolvedValue({
+      livemode: false, mode: 'subscription', payment_status: 'paid', subscription: id,
+    })
+    await expect(syncCheckoutSession('cs_test_mode')).rejects.toThrow('mode does not match')
+    expect(await db.subscription.findUnique({ where: { stakeholderId: payer.id } })).toBeNull()
   })
 })
 
@@ -268,6 +352,7 @@ describe('checkout and the billing portal', () => {
 
 describe('the Stripe webhook', () => {
   const secret = 'whsec_test_kivilo'
+  beforeEach(() => vi.stubEnv('STRIPE_SECRET_KEY', 'rk_live_unused'))
 
   function post(body: string, signature: string | null) {
     return webhook(new Request('http://localhost/api/stripe/webhook', {
@@ -277,8 +362,11 @@ describe('the Stripe webhook', () => {
     }))
   }
 
-  function signedEvent(type: string, object: Record<string, unknown>) {
-    const body = JSON.stringify({ id: 'evt_test', object: 'event', type, data: { object } })
+  function signedEvent(type: string, object: Record<string, unknown>, overrides: Record<string, unknown> = {}) {
+    const body = JSON.stringify({
+      id: 'evt_test', object: 'event', type,
+      livemode: /_live_/.test(process.env.STRIPE_SECRET_KEY ?? ''), data: { object }, ...overrides,
+    })
     const signature = (client.webhooks as Stripe['webhooks']).generateTestHeaderString({ payload: body, secret })
     return post(body, signature)
   }
@@ -303,12 +391,55 @@ describe('the Stripe webhook', () => {
     return value
   }
 
+  it('ignores signed events from the wrong mode or a connected account without reads or writes', async () => {
+    for (const overrides of [{ livemode: false }, { account: 'acct_connected' }]) {
+      expect((await signedEvent('customer.subscription.created', { id: 'sub_unrelated' }, overrides)).status).toBe(200)
+    }
+    expect(client.subscriptions.retrieve).not.toHaveBeenCalled()
+    expect(client.invoices.retrieve).not.toHaveBeenCalled()
+  })
+
+  it('reconciles failed and paid invoices from the current subscription without recording a conversion', async () => {
+    const payer = await acquired('Invoice-lifecycle')
+    const id = `sub_lifecycle_${tag}`
+    const current = paid(id, { stakeholderId: payer.id }, payer.id)
+    const bill = invoice(`in_lifecycle_${tag}`, id, { status: 'open' })
+    current.status = 'past_due'
+    await signedEvent('invoice.payment_failed', { id: bill.id })
+    expect(await workspacePlan(payer)).toMatchObject({ plan: 'PRO', subscription: { status: 'past_due' } })
+    current.status = 'active'
+    invoice(bill.id, id)
+    await signedEvent('invoice.paid', { id: bill.id })
+    // An old failure delivered after recovery must not put the account back past due.
+    await signedEvent('invoice.payment_failed', { id: bill.id, status: 'open' })
+    expect(await workspacePlan(payer)).toMatchObject({ subscription: { status: 'active' } })
+    expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })).firstPaidAt).toBeNull()
+    current.status = 'unpaid'
+    await signedEvent('invoice.payment_failed', { id: bill.id })
+    expect(await workspacePlan(payer)).toMatchObject({ plan: 'FREE', subscription: { status: 'unpaid' } })
+  })
+
+  it('checks invoice mode and customer before entitlement changes', async () => {
+    const payer = await acquired('Invoice-boundary')
+    const id = `sub_invoice_boundary_${tag}`
+    const current = paid(id, { stakeholderId: payer.id }, payer.id)
+    await syncSubscription(id)
+    current.status = 'canceled'
+    const wrongMode = invoice(`in_wrong_mode_${tag}`, id, { livemode: false })
+    await expect(syncInvoice(wrongMode.id)).rejects.toThrow('mode does not match')
+    const wrongCustomer = invoice(`in_wrong_lifecycle_customer_${tag}`, id, { customer: 'cus_other' })
+    await expect(syncInvoice(wrongCustomer.id)).rejects.toThrow('invoice customer')
+    expect(await workspacePlan(payer)).toMatchObject({ plan: 'PRO', subscription: { status: 'active' } })
+    const standalone = invoice(`in_standalone_lifecycle_${tag}`, id, { parent: null })
+    expect(await syncInvoice(standalone.id)).toBeNull()
+  })
+
   it('reads nothing it has not verified, then syncs from Stripe', async () => {
     vi.stubEnv('STRIPE_WEBHOOK_SECRET', secret)
     const solo = await agent('Hooked')
     paid(`sub_hook_${tag}`, { stakeholderId: solo.id }, solo.id)
     const body = JSON.stringify({
-      id: 'evt_test', object: 'event', type: 'customer.subscription.created',
+      id: 'evt_test', object: 'event', type: 'customer.subscription.created', livemode: true,
       data: { object: { id: `sub_hook_${tag}` } },
     })
 
@@ -324,7 +455,8 @@ describe('the Stripe webhook', () => {
 
     const accepted = await post(body, signed)
     expect(accepted.status).toBe(200)
-    expect(client.subscriptions.retrieve).toHaveBeenCalledExactlyOnceWith(`sub_hook_${tag}`)
+    expect(client.subscriptions.retrieve).toHaveBeenCalledTimes(2)
+    expect(client.subscriptions.retrieve).toHaveBeenNthCalledWith(1, `sub_hook_${tag}`)
     expect(await workspacePlan(solo)).toMatchObject({ plan: 'PRO' })
   })
 
@@ -375,6 +507,7 @@ describe('the Stripe webhook', () => {
     ['unpaid', { status: 'open' }],
     ['standalone', { parent: null }],
   ])('does not count a %s invoice as a paid conversion', async (name, overrides) => {
+    if (name === 'test') vi.stubEnv('STRIPE_SECRET_KEY', 'rk_test_unused')
     const payer = await acquired(`Excluded-${name}`)
     const sub = `sub_excluded_${name}_${tag}`
     paid(sub, { stakeholderId: payer.id }, payer.id)
@@ -391,7 +524,7 @@ describe('the Stripe webhook', () => {
     current.status = 'trialing'
     await signedEvent('customer.subscription.created', { id: sub })
     current.status = 'active'
-    client.checkout.sessions.retrieve.mockResolvedValue({ subscription: sub, payment_status: 'paid' })
+    client.checkout.sessions.retrieve.mockResolvedValue({ livemode: true, mode: 'subscription', subscription: sub, payment_status: 'paid' })
     await signedEvent('checkout.session.completed', { id: 'cs_completed', mode: 'subscription' })
     await db.subscription.update({ where: { stakeholderId: payer.id }, data: { status: 'comped' } })
     expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })).firstPaidAt).toBeNull()
@@ -402,10 +535,10 @@ describe('the Stripe webhook', () => {
     const payer = await acquired('Delayed')
     const sub = `sub_delayed_${tag}`
     paid(sub, { stakeholderId: payer.id }, payer.id)
-    client.checkout.sessions.retrieve.mockResolvedValue({ subscription: sub, payment_status: 'unpaid' })
+    client.checkout.sessions.retrieve.mockResolvedValue({ livemode: true, mode: 'subscription', subscription: sub, payment_status: 'unpaid' })
     await signedEvent('checkout.session.completed', { id: 'cs_delayed', mode: 'subscription' })
     expect(client.subscriptions.retrieve).not.toHaveBeenCalled()
-    client.checkout.sessions.retrieve.mockResolvedValue({ subscription: sub, payment_status: 'paid' })
+    client.checkout.sessions.retrieve.mockResolvedValue({ livemode: true, mode: 'subscription', subscription: sub, payment_status: 'paid' })
     await signedEvent('checkout.session.async_payment_succeeded', { id: 'cs_delayed', mode: 'subscription' })
     expect(await workspacePlan(payer)).toMatchObject({ plan: 'PRO' })
     expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })).firstPaidAt).toBeNull()
@@ -434,7 +567,7 @@ describe('the Stripe webhook', () => {
     // Stripe metadata can be stale after local account handling; it cannot change ownership.
     paid(sub, { stakeholderId: payer.id }, other.id)
     const wrong = invoice(`in_wrong_customer_${tag}`, sub, { customer: 'cus_unrelated' })
-    await signedEvent('invoice.payment_succeeded', { id: wrong.id })
+    await expect(signedEvent('invoice.payment_succeeded', { id: wrong.id })).rejects.toThrow('invoice customer')
     expect((await db.accountAcquisition.findUniqueOrThrow({ where: { stakeholderId: payer.id } })).firstPaidAt).toBeNull()
     const right = invoice(`in_right_owner_${tag}`, sub)
     await signedEvent('invoice.payment_succeeded', { id: right.id })
