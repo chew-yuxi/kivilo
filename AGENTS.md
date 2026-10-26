@@ -585,8 +585,12 @@ historical Kivilo subscriptions replaced by a later subscription. These incident
 refund, cancel or change access automatically and are excluded from error alert emails.
 Review them in `/admin` and act in Stripe. Their retention is 90 days.
 
-**Store rule:** agents buy on the web only. The Flutter app and `/api/v1` never show a
-price, an upgrade button, or where to buy.
+**Store rule:** the web sells Personal and operational-team plans through Stripe.
+Android uses Google Play Billing for Personal and team plans, with server verification,
+acknowledgement and authenticated renewal notifications. iOS keeps its existing
+consumption-only behavior. Never link Android/iOS digital upgrades to Stripe checkout.
+The current catalog, workspace boundary and release gates are in
+`plans/google-play-billing.md`. New Android billing requires a new native store build.
 
 ## Error tracking
 
@@ -672,16 +676,18 @@ and JPEG, and the agent can set the name printed beside them.
 
 ## Plans and billing
 
-A plan belongs to a workspace: the agent's team, or the agent alone (`plans/billing.md`).
+A plan belongs to a selected operational `Agency`, the agent's personal workspace,
+or an existing billing-only `Team` (`plans/billing.md`, `plans/google-play-billing.md`).
 Free holds 5 active properties; Pro is per seat with 25 each, pooled. A property counts once
-against its lead's billing workspace, including private properties, and sharing does not
-charge the collaborator's workspace. **`src/lib/plan-limits.ts` holds the shared limits;
+against its Agency's pool for team work, or its lead's personal/legacy billing pool
+for personal work. Sharing does not charge the collaborator's workspace. **`src/lib/plan-limits.ts` holds the shared limits;
 `src/lib/plan.ts` enforces them**, and `createInspection`, the only place a property
 is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so
-there is still one rule for who an agent is. Nothing is locked over the limit. The app
-shows the plan and never a price or a way to buy, because store rules forbid steering to
-an outside purchase. Comps go through `pnpm plan:set`; buying is under "Billing" above.
+there is still one rule for who an agent is. Nothing is locked over the limit. Android shows Google Play's prices and a native purchase flow. iOS keeps its current
+read-only plan view. Team owners/managers may start billing, and only the recorded payer
+manages an existing subscription. Comps go through `pnpm plan:set`; buying is under
+"Billing" above.
 
 ## Lessons
 

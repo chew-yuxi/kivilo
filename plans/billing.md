@@ -1,6 +1,15 @@
 # Plans and billing
 
-## The model (decided 2026-10-15)
+## Android and operational teams (26 October 2026)
+
+The new implementation extends workspace billing to operational `Agency` teams and adds
+native Google Play purchases for Android. See [Android and team billing](google-play-billing.md)
+for the current entitlement boundary, exact seat catalog, authenticated notifications,
+setup and release gates. The historical web-only store rule below is superseded for
+Android; iOS remains consumption-only. No automatic personal-to-team entitlement
+migration is performed.
+
+## The original model (decided 2026-10-15)
 
 Figma-style. A plan belongs to a **workspace**: an agent's `Team`, or the agent alone when
 they are on none. One `Subscription` row per workspace (exactly one of `teamId` /

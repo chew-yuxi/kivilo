@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shorebird_code_push/shorebird_code_push.dart';
@@ -9,11 +11,13 @@ import '../models/agency.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
+import '../services/play_billing.dart';
 import '../services/push_notifications.dart';
 import '../services/saved_signature.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
+import 'billing_screen.dart';
 import 'team_screen.dart';
 import '../ui/kivilo_layout.dart';
 
@@ -35,7 +39,7 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
   late final _api = widget.api ?? Api();
   // Each section loads from what this phone saved, then refreshes on its own; the
   // page itself never waits for any of them.
@@ -47,8 +51,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _api.branding,
     retainKey: 'branding',
   );
-  late final Loading<WorkspacePlan> _plan = _api.load(
-    _api.plan,
+  late Loading<WorkspacePlan> _plan = _api.load(
+    _loadPlan,
     retainKey: 'plan',
   );
   late Loading<AgencyIndex> _teams = _api.load(
@@ -58,6 +62,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
+  StreamSubscription<void>? _planChanges;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _planChanges = PlayBilling.current?.planChanges.listen(
+      (_) => _refreshPlan(),
+    );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_planChanges?.cancel());
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refreshPlan();
+  }
+
+  void _refreshPlan() {
+    if (!mounted) return;
+    setState(
+      () => _plan = _api.load(_loadPlan, savedFirst: false, retainKey: 'plan'),
+    );
+  }
+
+  Future<void> _openBilling() async {
+    final billing = PlayBilling.current;
+    if (billing == null) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => BillingScreen(api: _api, billing: billing),
+      ),
+    );
+    _refreshPlan();
+  }
+
+  Future<WorkspacePlan> _loadPlan() => PlayBilling.supported && PlayBilling.current != null
+      ? _api.selectedWorkspacePlan()
+      : _api.plan();
+
 
   /// What is on this phone, for support: the store build, and the Shorebird patch it is
   /// running. A build not made with `shorebird release` has no patch to report.
@@ -338,7 +387,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? 'Plan'
                 : [
                     plan.pro ? 'Pro' : 'Free',
-                    if (plan.team != null) plan.team!,
+                    if (plan.team != null) plan.team!
+                    else if (PlayBilling.supported && PlayBilling.current != null) 'Personal',
                   ].join(' · '),
           ),
           subtitle: Text(
@@ -348,6 +398,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ? 'Loading'
                 : '${plan.activeProperties} of ${plan.limit} active $noun in use',
           ),
+          trailing: PlayBilling.supported && PlayBilling.current != null
+              ? const Icon(Icons.chevron_right)
+              : null,
+          onTap: PlayBilling.supported && PlayBilling.current != null ? _openBilling : null,
         ),
       );
     },
@@ -456,6 +510,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: kiviloHeadingGap),
             _planCard(),
+            if (PlayBilling.supported && PlayBilling.current != null)
+              TextButton(onPressed: _openBilling, child: const Text('View personal & team plans')),
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: kiviloHeadingGap),

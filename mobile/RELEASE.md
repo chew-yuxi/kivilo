@@ -5,6 +5,33 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Google Play subscriptions: implementation, 26 October 2026
+
+Android Account opens **View personal & team plans**. The billing page selects
+Personal or an active operational team, reads monthly prices from Google Play, and
+offers the exact seat products permitted by the server. Owners/managers can purchase;
+other members see the subscription manager. A seat change requires the matching
+current Play purchase and replaces it with time proration. A purchase cannot transfer
+between Kivilo accounts or teams, and the same Google Play account cannot buy the same
+seat product twice for separate teams.
+
+The Android-only `in_app_purchase_android` plugin adds a native dependency. This must
+ship in a new Android store build, never a Shorebird patch. iOS has no new purchase
+plugin or purchase interface. The app-wide listener submits purchases, restores and
+pending payments to the authenticated backend; only the backend grants and acknowledges
+them. Unconfirmed purchases stay recoverable through Google Play and retry on sign-in,
+foreground return and after a temporary verification failure. Account plan usage refreshes
+on foreground return and after verification. Existing Stripe subscriptions remain usable
+and cannot be replaced by a second Play subscription.
+
+Local verification: Flutter analysis passes, the full 416-test mobile suite passes, followed by two additional
+small-phone checks (17 billing tests in total); an Android debug APK builds with the new plugin. These are development
+checks, not evidence of a completed Play transaction. Before enabling production
+purchases, configure the Play catalog, API credentials and authenticated RTDN endpoint,
+upload the new signed Android build, and complete a Google Play license-tester purchase,
+restore, seat change, cancellation and expiry check. No live charge is needed for those
+license-tester checks. Store upload and licensed purchase verification remain pending.
+
 ## Dark multi-shot photo editor: 26 October 2026 Singapore time
 
 Source `75f0157`, pushed to `origin/main` before release. Tapping a multi-shot thumbnail

@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import { requireAgent } from '@/lib/auth'
+import { agencyList } from '@/lib/agency'
 import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
 import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
-import { PRO_ACTIVE_PROPERTIES_PER_SEAT, workspacePlan } from '@/lib/plan'
+import { PRO_ACTIVE_PROPERTIES_PER_SEAT, subscriptionCanResume, workspacePlan } from '@/lib/plan'
 import { checkoutOpen } from '@/lib/stripe'
 import { SignOut } from '@/components/sign-out'
 
@@ -11,26 +12,30 @@ const SUPPORT = 'hello@nottoosweetlabs.com'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Account' }
 
-/// Prices appear here, on the web, and never in the app: the stores forbid pointing a
-/// buyer at an outside purchase. Stripe Checkout and the portal both return here, and
+/// Stripe Checkout and the portal both return here, and
 /// this page syncs from Stripe on the way in, so the plan shown is current even when the
 /// webhook has not landed yet.
 export default async function AccountPage({ searchParams }: PageProps<'/account'>) {
   const agent = await requireAgent()
-  const { checkout, billing } = await searchParams
+  const { checkout, billing, agencyId: selectedAgency } = await searchParams
+  const agencyId = typeof selectedAgency === 'string' && selectedAgency !== 'personal' ? selectedAgency : null
+  const { agencies } = await agencyList(agent.id)
   if (typeof checkout === 'string') {
     await syncCheckoutSession(checkout)
   } else if (billing === 'returned') {
-    const { subscription } = await workspacePlan(agent)
+    const { subscription } = await workspacePlan(agent, agencyId)
     if (subscription?.stripeSubscriptionId) await syncSubscription(subscription.stripeSubscriptionId)
   }
 
-  const workspace = await workspacePlan(agent)
+  const workspace = await workspacePlan(agent, agencyId)
   const { subscription } = workspace
   const pro = workspace.plan === 'PRO'
   const comped = subscription?.status === 'comped'
+  const play = !!subscription?.googlePlayPurchaseId
+  const playCanResume = play && subscriptionCanResume(subscription!)
+  const canCheckout = !pro && !playCanResume && workspace.isManager && checkoutOpen()
   // Strictly the payer: the portal shows their card and invoices.
-  const managesBilling = !!subscription?.stripeCustomerId && subscription.managedById === agent.id
+  const managesBilling = !play && !!subscription?.stripeCustomerId && subscription.managedById === agent.id && workspace.isManager
   const date = (value: Date) => value.toLocaleDateString('en-SG', { dateStyle: 'long' })
 
   return (
@@ -50,6 +55,17 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
           <span>Properties and archived work</span><span aria-hidden="true">›</span>
         </Link>
       </div>
+
+      {agencies.length > 0 && (
+        <nav aria-label="Billing workspace" className="mt-8 flex flex-wrap gap-2">
+          <Link href="/account" aria-current={!agencyId ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${!agencyId ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>Personal</Link>
+          {agencies.map((agency) => (
+            <Link key={agency.id} href={`/account?agencyId=${encodeURIComponent(agency.id)}`} aria-current={agencyId === agency.id ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${agencyId === agency.id ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>
+              {agency.name}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-baseline justify-between gap-4">
@@ -73,7 +89,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
         </div>
         <p className="mt-2 text-xs text-gray-500">
           A property counts while its tenancy runs, until its check-out is signed.
-          {workspace.team && ' Shared by everyone on your team.'}
+          {workspace.team && ' Shared by everyone on this team.'}
         </p>
 
         {pro && subscription && (
@@ -81,9 +97,10 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
             <p>
               {subscription.seats} {subscription.seats === 1 ? 'seat' : 'seats'}
               {comped && ' · complimentary'}
+              {play && ' · paid through Google Play'}
             </p>
-            {subscription.status === 'past_due' && (
-              <p className="text-red-600">The last payment failed. We are retrying the card.</p>
+            {(subscription.status === 'past_due' || subscription.status === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD') && (
+              <p className="text-red-600">The last payment failed. Your payment provider is retrying it.</p>
             )}
             {subscription.currentPeriodEnd && (
               <p>
@@ -93,14 +110,20 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
             )}
           </div>
         )}
+        {agencyId && !workspace.isManager && !subscription?.managedBy && (
+          <p className="mt-4 text-sm text-gray-600">A team owner or manager can subscribe for this team.</p>
+        )}
         {subscription?.managedBy && subscription.managedById !== agent.id && (
           <p className="mt-4 text-sm text-gray-600">Billing is managed by {subscription.managedBy.name}.</p>
         )}
 
-        {!pro && (
+        {workspace.team && <p className="mt-3 text-sm text-gray-600">{workspace.seatsNeeded} active team {workspace.seatsNeeded === 1 ? 'member' : 'members'}.</p>}
+        {workspace.needsMoreSeats && <p className="mt-3 text-sm text-red-600">Add a seat for every active team member before adding more properties. Existing work stays available.</p>}
+        {playCanResume && !pro && <p className="mt-4 text-sm text-gray-600">Resolve or resume this subscription in Google Play to restore Pro.</p>}
+        {!pro && !playCanResume && (
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
             Pro is S$39 per agent each month and includes {PRO_ACTIVE_PROPERTIES_PER_SEAT}{' '}
-            active properties for each agent, shared across your team.
+            active properties for each agent{workspace.team ? ', shared across this team' : ''}.
             {!checkoutOpen() && (
               <>
                 {' '}To move to Pro, email{' '}
@@ -112,17 +135,28 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
             )}
           </p>
         )}
-        {(managesBilling || (!pro && workspace.isManager && checkoutOpen())) && (
+        {(managesBilling || canCheckout || (play && workspace.isManager)) && (
           <div className="mt-4 flex flex-wrap gap-3">
-            {!pro && workspace.isManager && checkoutOpen() && (
-              <form action={startCheckout}>
+            {canCheckout && (
+              <form action={startCheckout} className="space-y-3">
+                <input type="hidden" name="agencyId" value={agencyId ?? 'personal'} />
+                {workspace.team && (
+                  <label className="block text-sm text-gray-700">
+                    Seats at S$39 each / month
+                    <input className="ml-3 w-20 rounded-md border border-gray-300 px-2 py-1" type="number" name="seats" min={workspace.seatsNeeded} max={1000} defaultValue={workspace.seatsNeeded} required />
+                  </label>
+                )}
                 <button className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
                   Upgrade to Pro
                 </button>
               </form>
             )}
+            {play && workspace.isManager && (
+              <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener noreferrer" className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Manage in Google Play</a>
+            )}
             {managesBilling && (
               <form action={openBillingPortal}>
+                <input type="hidden" name="agencyId" value={agencyId ?? 'personal'} />
                 <button className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                   Manage billing
                 </button>

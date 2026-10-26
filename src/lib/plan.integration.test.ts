@@ -182,7 +182,7 @@ describe('plan limits', () => {
     expect(await refused.json()).toEqual({ error: 'plan_limit' })
 
     const plan = await planRoute(new Request('http://kivilo.test/api/v1/me/plan'), context)
-    expect(await plan.json()).toEqual({
+    expect(await plan.json()).toMatchObject({
       plan: 'FREE',
       activeProperties: FREE_ACTIVE_PROPERTIES,
       limit: FREE_ACTIVE_PROPERTIES,

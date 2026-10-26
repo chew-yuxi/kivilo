@@ -48,7 +48,7 @@ class AgentBranding {
 }
 
 /// The plan of the agent's workspace (their team, or them alone) and how much of it is
-/// in use. Deliberately no price and no way to buy: a plan is bought on the web.
+/// in use. The Android billing screen reads available prices from Google Play.
 class WorkspacePlan {
   const WorkspacePlan({
     required this.pro,

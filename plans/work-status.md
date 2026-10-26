@@ -12,6 +12,28 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
+## Android and team billing — 26 October (implementation verified, rollout pending)
+
+The isolated Google Play change adds native Android purchases for Personal and
+operational Agency teams, while web team checkout uses Stripe. Server verification,
+renewal notifications, restore, exact seat changes, provider-conflict protection and
+rejected Play purchase refunds share the existing data-layer authorization boundary.
+The new Android-only billing dependency requires a store build; iOS is unchanged.
+
+The owner created Google's merchant payments profile. All 21 Singapore catalog
+products were created as drafts: Personal Pro and exact team seat counts 1–20,
+S$39 per seat monthly. No products were activated and no customer was charged.
+Dedicated runtime access and authenticated notification setup await browser security
+confirmation. The original Home/context-switcher working files remain untouched.
+
+Combined typecheck, zero-warning lint, production build and 218 unit tests pass.
+The integration suite passes 385 cases and reproduces the same eight recorded local
+baseline failures (four storage-purge/account-erasure fixtures, four permission-error
+wording assertions). All 26 Play billing cases pass. Flutter analysis and the 416-test
+suite pass, plus two additional small-phone checks; the Android debug APK builds.
+Browser checks, signed store build, production migration/deployment and licensed Play
+purchase verification are still being finalized. Details: `plans/google-play-billing.md`.
+
 ## Account acquisition and payment attribution — 26 October
 
 The implementation connects a finite, 30-day marketing first-touch cookie to verified

@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
 import { lockAgencyTenancy } from '@/lib/agency'
+import { assertCanAddProperty } from '@/lib/plan'
 
 export async function respondToRenewal(tenancyId: string, choice: 'NOT_RENEWING' | 'DISMISSED' | 'LATER') {
   const agent = await requireAgent()
@@ -57,6 +58,11 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
     if (source.renewedAs) return source.renewedAs.inspections[0].id
     if (startDate <= source.endDate || endDate <= startDate) {
       throw new Error('Renewal dates must follow the current tenancy and end after they start')
+    }
+    if (endDate >= new Date()) {
+      const lead = source.agentId && source.agentId !== agent.id
+        ? await tx.stakeholder.findUniqueOrThrow({ where: { id: source.agentId } }) : agent
+      await assertCanAddProperty(lead, source.agencyId, tx, source.propertyId)
     }
     const renewal = await tx.inspection.create({
       data: {

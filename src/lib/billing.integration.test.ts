@@ -83,6 +83,7 @@ import type { Stakeholder } from '@/generated/prisma'
 const tag = randomUUID().slice(0, 8)
 const people: string[] = []
 const teams: string[] = []
+const agencies: string[] = []
 const periodEnd = Math.floor(new Date('2026-12-01T00:00:00Z').getTime() / 1000)
 
 async function agent(name: string, teamId: string | null = null) {
@@ -133,6 +134,7 @@ afterAll(async () => {
   vi.unstubAllEnvs()
   await db.accountDeletionRequest.deleteMany({ where: { stakeholderId: { in: people } } })
   await db.subscription.deleteMany({ where: { OR: [{ stakeholderId: { in: people } }, { teamId: { in: teams } }] } })
+  await db.agency.deleteMany({ where: { id: { in: agencies } } })
   await db.stakeholder.deleteMany({ where: { id: { in: people } } })
   await db.team.deleteMany({ where: { id: { in: teams } } })
   await db.$disconnect()
@@ -678,5 +680,55 @@ describe('leaving a paid plan behind', () => {
       customer: undefined, customer_email: teammate.email,
       subscription_data: { metadata: { teamId: office.id, managedById: teammate.id } },
     }))
+  })
+})
+
+
+describe('operational team billing', () => {
+  it('checks out and reconciles the selected operational team independently of its payer', async () => {
+    const owner = await agent('Agency payer')
+    const teammate = await agent('Agency teammate')
+    const agency = await db.agency.create({ data: { name: `Paid agency ${tag}`, members: { create: [
+      { stakeholderId: owner.id, status: 'ACTIVE', role: 'OWNER' },
+      { stakeholderId: teammate.id, status: 'ACTIVE', role: 'AGENT' },
+    ] } } })
+    agencies.push(agency.id)
+    const form = new FormData()
+    form.set('agencyId', agency.id)
+    form.set('seats', '3')
+    as(teammate)
+    await expect(startCheckout(form)).rejects.toThrow('Only the member who manages billing can subscribe')
+    expect(client.checkout.sessions.create).not.toHaveBeenCalled()
+    form.set('seats', '1')
+    as(owner)
+    await expect(startCheckout(form)).rejects.toThrow('enough seats')
+    form.set('seats', '3')
+    as(owner)
+    await expect(startCheckout(form)).rejects.toThrow('REDIRECT https://checkout.stripe.com/')
+    expect(client.checkout.sessions.create).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      line_items: [{ price: 'price_pro', quantity: 3 }],
+      subscription_data: { metadata: { agencyId: agency.id, managedById: owner.id } },
+      success_url: `http://localhost:3000/account?agencyId=${agency.id}&checkout={CHECKOUT_SESSION_ID}`,
+    }))
+    paid(`sub_agency_${tag}`, { agencyId: agency.id }, owner.id, 3)
+    await syncSubscription(`sub_agency_${tag}`)
+    expect(await workspacePlan(teammate, agency.id)).toMatchObject({ plan: 'PRO', limit: 75, isManager: false })
+    expect(await workspacePlan(owner, null)).toMatchObject({ plan: 'FREE', limit: 5 })
+    as(teammate)
+    await expect(openBillingPortal(form)).rejects.toThrow('Not found')
+    as(owner)
+    await expect(openBillingPortal(form)).rejects.toThrow('REDIRECT https://billing.stripe.com/')
+    expect(client.billingPortal.sessions.create).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      return_url: `http://localhost:3000/account?agencyId=${agency.id}&billing=returned`,
+    }))
+  })
+
+  it('refuses mixed workspace metadata instead of charging another plan', async () => {
+    const payer = await agent('Mixed target')
+    const agency = await db.agency.create({ data: { name: `Mixed agency ${tag}` } })
+    agencies.push(agency.id)
+    paid(`sub_mixed_${tag}`, { agencyId: agency.id, stakeholderId: payer.id }, payer.id)
+    await expect(syncSubscription(`sub_mixed_${tag}`)).rejects.toThrow('exactly one workspace')
+    expect(await db.subscription.count({ where: { agencyId: agency.id } })).toBe(0)
   })
 })

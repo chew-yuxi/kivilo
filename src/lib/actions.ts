@@ -150,7 +150,6 @@ export async function createInspection(input: {
   deposit: string
 }) {
   const agent = await requireAgent()
-  await assertCanAddProperty(agent)
 
   const required = [input.line1, input.postalCode, input.landlordName, input.tenantName]
   if (required.some((value) => !value.trim())) {
@@ -183,6 +182,7 @@ export async function createInspection(input: {
       await lockAgency(input.agencyId, tx)
       await requireAgencyMembership(input.agencyId, agent.id, tx)
     }
+    await assertCanAddProperty(agent, input.agencyId ?? null, tx)
     return tx.inspection.create({
     data: {
       kind: 'CHECK_IN',

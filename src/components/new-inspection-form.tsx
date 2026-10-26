@@ -28,11 +28,12 @@ function defaultDates() {
   return { start: iso(start), end: iso(end) }
 }
 
-export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial }: {
+export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial, plans }: {
   agentId: string
   teams: WorkspaceTeam[]
   initialWorkspace: string
   rememberInitial: boolean
+  plans: Record<string, { active: number; limit: number; needsMoreSeats: boolean }>
 }) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
@@ -42,6 +43,8 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
     if (rememberInitial) rememberWorkspace(agentId, initialWorkspace)
   }, [agentId, initialWorkspace, rememberInitial])
   const dates = defaultDates()
+  const plan = plans[workspace]
+  const limited = plan.needsMoreSeats || plan.active >= plan.limit
 
   function dismissKeyboard() {
     if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
@@ -105,6 +108,16 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
         </p>
         <Link href="/team" className="text-link inline-flex min-h-11 items-center text-sm">Create or join a team</Link>
       </fieldset>
+      {limited && (
+        <div className="rounded-lg border border-gray-200 bg-white p-5" data-testid="plan-limit">
+          <p className="text-sm font-medium">
+            {plan.needsMoreSeats ? 'This team needs a paid seat for every active member' : `Your plan’s ${plan.limit} active ${plan.limit === 1 ? 'property is' : 'properties are'} in use`}
+          </p>
+          <p className="mt-1 text-sm text-gray-500">A property stops counting when its check-out is signed or its tenancy ends. Existing work stays available.</p>
+          <Link href={workspace === 'personal' ? '/account' : `/account?agencyId=${encodeURIComponent(workspace)}`} className="mt-4 inline-block rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">See your plan</Link>
+        </div>
+      )}
+      <fieldset disabled={pending || limited} className={limited ? 'hidden' : 'space-y-8'}>
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Property</legend>
         <label className="block text-xs font-medium text-gray-600">
@@ -252,11 +265,12 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
 
       <button
         type="submit"
-        disabled={pending}
+        disabled={pending || limited}
         className="w-full rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 sm:w-auto"
       >
         {pending ? 'Creating…' : 'Create and start capturing'}
       </button>
+      </fieldset>
     </form>
   )
 }

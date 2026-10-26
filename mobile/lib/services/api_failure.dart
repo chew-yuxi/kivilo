@@ -38,7 +38,8 @@ class ApiFailure implements Exception {
       'document_missing' =>
         'The document upload did not finish. Your photo is still on this phone. Retry the upload.',
       'document_conflict' =>
-        error.response?.data is Map && (error.response!.data as Map)['message'] is String
+        error.response?.data is Map &&
+                (error.response!.data as Map)['message'] is String
             ? (error.response!.data as Map)['message'] as String
             : 'This document changed. Refresh and check the latest file.',
       'invalid_document' =>
@@ -56,6 +57,13 @@ class ApiFailure implements Exception {
                 (error.response!.data as Map)['message'] is String
             ? (error.response!.data as Map)['message'] as String
             : 'Team access has changed. Refresh and try again.',
+      'billing_conflict' || 'billing_unavailable' || 'invalid_purchase' =>
+        error.response?.data is Map &&
+                (error.response!.data as Map)['message'] is String
+            ? (error.response!.data as Map)['message'] as String
+            : 'Your subscription could not be updated. Restore purchases and try again.',
+      'purchase_not_found' =>
+        'This purchase belongs to another Kivilo account. Sign in to the account that bought it to restore access.',
       'property_history' =>
         'This property has report history and cannot be deleted. Archive it to preserve its records.',
       'property_restore_expired' =>

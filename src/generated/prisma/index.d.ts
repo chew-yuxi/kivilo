@@ -61,6 +61,17 @@ export type AgencyActivity = $Result.DefaultSelection<Prisma.$AgencyActivityPayl
  */
 export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
 /**
+ * Model GooglePlayBillingAccount
+ * Server-verified Google Play purchase history. Tokens never leave the server after
+ * submission and are never logged. Owner erasure retains a non-transferable tombstone.
+ */
+export type GooglePlayBillingAccount = $Result.DefaultSelection<Prisma.$GooglePlayBillingAccountPayload>
+/**
+ * Model GooglePlayPurchase
+ * 
+ */
+export type GooglePlayPurchase = $Result.DefaultSelection<Prisma.$GooglePlayPurchasePayload>
+/**
  * Model AgentBranding
  * The complete report identity for an agent's personal work. For team work, the
  * responsible agent's CEA registration and contact are combined with AgencyBranding.
@@ -1038,6 +1049,26 @@ export class PrismaClient<
   get subscription(): Prisma.SubscriptionDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.googlePlayBillingAccount`: Exposes CRUD operations for the **GooglePlayBillingAccount** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GooglePlayBillingAccounts
+    * const googlePlayBillingAccounts = await prisma.googlePlayBillingAccount.findMany()
+    * ```
+    */
+  get googlePlayBillingAccount(): Prisma.GooglePlayBillingAccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.googlePlayPurchase`: Exposes CRUD operations for the **GooglePlayPurchase** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more GooglePlayPurchases
+    * const googlePlayPurchases = await prisma.googlePlayPurchase.findMany()
+    * ```
+    */
+  get googlePlayPurchase(): Prisma.GooglePlayPurchaseDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.agentBranding`: Exposes CRUD operations for the **AgentBranding** model.
     * Example usage:
     * ```ts
@@ -1911,6 +1942,8 @@ export namespace Prisma {
     AgencyMembership: 'AgencyMembership',
     AgencyActivity: 'AgencyActivity',
     Subscription: 'Subscription',
+    GooglePlayBillingAccount: 'GooglePlayBillingAccount',
+    GooglePlayPurchase: 'GooglePlayPurchase',
     AgentBranding: 'AgentBranding',
     Property: 'Property',
     PropertyEvent: 'PropertyEvent',
@@ -1968,7 +2001,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2561,6 +2594,154 @@ export namespace Prisma {
           count: {
             args: Prisma.SubscriptionCountArgs<ExtArgs>
             result: $Utils.Optional<SubscriptionCountAggregateOutputType> | number
+          }
+        }
+      }
+      GooglePlayBillingAccount: {
+        payload: Prisma.$GooglePlayBillingAccountPayload<ExtArgs>
+        fields: Prisma.GooglePlayBillingAccountFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GooglePlayBillingAccountFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GooglePlayBillingAccountFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          findFirst: {
+            args: Prisma.GooglePlayBillingAccountFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GooglePlayBillingAccountFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          findMany: {
+            args: Prisma.GooglePlayBillingAccountFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>[]
+          }
+          create: {
+            args: Prisma.GooglePlayBillingAccountCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          createMany: {
+            args: Prisma.GooglePlayBillingAccountCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GooglePlayBillingAccountCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>[]
+          }
+          delete: {
+            args: Prisma.GooglePlayBillingAccountDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          update: {
+            args: Prisma.GooglePlayBillingAccountUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          deleteMany: {
+            args: Prisma.GooglePlayBillingAccountDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GooglePlayBillingAccountUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GooglePlayBillingAccountUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>[]
+          }
+          upsert: {
+            args: Prisma.GooglePlayBillingAccountUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayBillingAccountPayload>
+          }
+          aggregate: {
+            args: Prisma.GooglePlayBillingAccountAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGooglePlayBillingAccount>
+          }
+          groupBy: {
+            args: Prisma.GooglePlayBillingAccountGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GooglePlayBillingAccountGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GooglePlayBillingAccountCountArgs<ExtArgs>
+            result: $Utils.Optional<GooglePlayBillingAccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      GooglePlayPurchase: {
+        payload: Prisma.$GooglePlayPurchasePayload<ExtArgs>
+        fields: Prisma.GooglePlayPurchaseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.GooglePlayPurchaseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.GooglePlayPurchaseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          findFirst: {
+            args: Prisma.GooglePlayPurchaseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.GooglePlayPurchaseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          findMany: {
+            args: Prisma.GooglePlayPurchaseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>[]
+          }
+          create: {
+            args: Prisma.GooglePlayPurchaseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          createMany: {
+            args: Prisma.GooglePlayPurchaseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.GooglePlayPurchaseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>[]
+          }
+          delete: {
+            args: Prisma.GooglePlayPurchaseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          update: {
+            args: Prisma.GooglePlayPurchaseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          deleteMany: {
+            args: Prisma.GooglePlayPurchaseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.GooglePlayPurchaseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.GooglePlayPurchaseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>[]
+          }
+          upsert: {
+            args: Prisma.GooglePlayPurchaseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$GooglePlayPurchasePayload>
+          }
+          aggregate: {
+            args: Prisma.GooglePlayPurchaseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateGooglePlayPurchase>
+          }
+          groupBy: {
+            args: Prisma.GooglePlayPurchaseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<GooglePlayPurchaseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.GooglePlayPurchaseCountArgs<ExtArgs>
+            result: $Utils.Optional<GooglePlayPurchaseCountAggregateOutputType> | number
           }
         }
       }
@@ -5803,6 +5984,8 @@ export namespace Prisma {
     agencyMembership?: AgencyMembershipOmit
     agencyActivity?: AgencyActivityOmit
     subscription?: SubscriptionOmit
+    googlePlayBillingAccount?: GooglePlayBillingAccountOmit
+    googlePlayPurchase?: GooglePlayPurchaseOmit
     agentBranding?: AgentBrandingOmit
     property?: PropertyOmit
     propertyEvent?: PropertyEventOmit
@@ -5956,6 +6139,7 @@ export namespace Prisma {
     supportingDocumentRequests: number
     supportingDocumentFiles: number
     subscriptionsManaged: number
+    googlePlayBillingAccounts: number
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5990,6 +6174,7 @@ export namespace Prisma {
     supportingDocumentRequests?: boolean | StakeholderCountOutputTypeCountSupportingDocumentRequestsArgs
     supportingDocumentFiles?: boolean | StakeholderCountOutputTypeCountSupportingDocumentFilesArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
+    googlePlayBillingAccounts?: boolean | StakeholderCountOutputTypeCountGooglePlayBillingAccountsArgs
   }
 
   // Custom InputTypes
@@ -6220,6 +6405,13 @@ export namespace Prisma {
     where?: SubscriptionWhereInput
   }
 
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountGooglePlayBillingAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GooglePlayBillingAccountWhereInput
+  }
+
 
   /**
    * Count Type TeamCountOutputType
@@ -6338,6 +6530,37 @@ export namespace Prisma {
    */
   export type AgencyMembershipCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NotificationWhereInput
+  }
+
+
+  /**
+   * Count Type GooglePlayBillingAccountCountOutputType
+   */
+
+  export type GooglePlayBillingAccountCountOutputType = {
+    purchases: number
+  }
+
+  export type GooglePlayBillingAccountCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    purchases?: boolean | GooglePlayBillingAccountCountOutputTypeCountPurchasesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * GooglePlayBillingAccountCountOutputType without action
+   */
+  export type GooglePlayBillingAccountCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccountCountOutputType
+     */
+    select?: GooglePlayBillingAccountCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * GooglePlayBillingAccountCountOutputType without action
+   */
+  export type GooglePlayBillingAccountCountOutputTypeCountPurchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GooglePlayPurchaseWhereInput
   }
 
 
@@ -7465,6 +7688,7 @@ export namespace Prisma {
     supportingDocumentFiles?: boolean | Stakeholder$supportingDocumentFilesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
+    googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -7546,6 +7770,7 @@ export namespace Prisma {
     supportingDocumentFiles?: boolean | Stakeholder$supportingDocumentFilesArgs<ExtArgs>
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
+    googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7596,6 +7821,7 @@ export namespace Prisma {
        */
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       subscriptionsManaged: Prisma.$SubscriptionPayload<ExtArgs>[]
+      googlePlayBillingAccounts: Prisma.$GooglePlayBillingAccountPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8049,6 +8275,7 @@ export namespace Prisma {
     supportingDocumentFiles<T extends Stakeholder$supportingDocumentFilesArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$supportingDocumentFilesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentFilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    googlePlayBillingAccounts<T extends Stakeholder$googlePlayBillingAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9306,6 +9533,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.googlePlayBillingAccounts
+   */
+  export type Stakeholder$googlePlayBillingAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    where?: GooglePlayBillingAccountWhereInput
+    orderBy?: GooglePlayBillingAccountOrderByWithRelationInput | GooglePlayBillingAccountOrderByWithRelationInput[]
+    cursor?: GooglePlayBillingAccountWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GooglePlayBillingAccountScalarFieldEnum | GooglePlayBillingAccountScalarFieldEnum[]
   }
 
   /**
@@ -11795,6 +12046,7 @@ export namespace Prisma {
     tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
     activity?: boolean | Agency$activityArgs<ExtArgs>
     branding?: boolean | Agency$brandingArgs<ExtArgs>
+    subscription?: boolean | Agency$subscriptionArgs<ExtArgs>
     reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["agency"]>
@@ -11826,6 +12078,7 @@ export namespace Prisma {
     tenancies?: boolean | Agency$tenanciesArgs<ExtArgs>
     activity?: boolean | Agency$activityArgs<ExtArgs>
     branding?: boolean | Agency$brandingArgs<ExtArgs>
+    subscription?: boolean | Agency$subscriptionArgs<ExtArgs>
     reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -11839,6 +12092,7 @@ export namespace Prisma {
       tenancies: Prisma.$TenancyPayload<ExtArgs>[]
       activity: Prisma.$AgencyActivityPayload<ExtArgs>[]
       branding: Prisma.$AgencyBrandingPayload<ExtArgs> | null
+      subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       reportInspections: Prisma.$InspectionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -12244,6 +12498,7 @@ export namespace Prisma {
     tenancies<T extends Agency$tenanciesArgs<ExtArgs> = {}>(args?: Subset<T, Agency$tenanciesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     activity<T extends Agency$activityArgs<ExtArgs> = {}>(args?: Subset<T, Agency$activityArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AgencyActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     branding<T extends Agency$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Agency$brandingArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    subscription<T extends Agency$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Agency$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     reportInspections<T extends Agency$reportInspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Agency$reportInspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -12759,6 +13014,25 @@ export namespace Prisma {
      */
     include?: AgencyBrandingInclude<ExtArgs> | null
     where?: AgencyBrandingWhereInput
+  }
+
+  /**
+   * Agency.subscription
+   */
+  export type Agency$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    where?: SubscriptionWhereInput
   }
 
   /**
@@ -16173,6 +16447,7 @@ export namespace Prisma {
 
   export type SubscriptionMinAggregateOutputType = {
     id: string | null
+    agencyId: string | null
     teamId: string | null
     stakeholderId: string | null
     plan: $Enums.Plan | null
@@ -16180,6 +16455,7 @@ export namespace Prisma {
     status: string | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    googlePlayPurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean | null
     managedById: string | null
@@ -16189,6 +16465,7 @@ export namespace Prisma {
 
   export type SubscriptionMaxAggregateOutputType = {
     id: string | null
+    agencyId: string | null
     teamId: string | null
     stakeholderId: string | null
     plan: $Enums.Plan | null
@@ -16196,6 +16473,7 @@ export namespace Prisma {
     status: string | null
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    googlePlayPurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean | null
     managedById: string | null
@@ -16205,6 +16483,7 @@ export namespace Prisma {
 
   export type SubscriptionCountAggregateOutputType = {
     id: number
+    agencyId: number
     teamId: number
     stakeholderId: number
     plan: number
@@ -16212,6 +16491,7 @@ export namespace Prisma {
     status: number
     stripeCustomerId: number
     stripeSubscriptionId: number
+    googlePlayPurchaseId: number
     currentPeriodEnd: number
     cancelAtPeriodEnd: number
     managedById: number
@@ -16231,6 +16511,7 @@ export namespace Prisma {
 
   export type SubscriptionMinAggregateInputType = {
     id?: true
+    agencyId?: true
     teamId?: true
     stakeholderId?: true
     plan?: true
@@ -16238,6 +16519,7 @@ export namespace Prisma {
     status?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    googlePlayPurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16247,6 +16529,7 @@ export namespace Prisma {
 
   export type SubscriptionMaxAggregateInputType = {
     id?: true
+    agencyId?: true
     teamId?: true
     stakeholderId?: true
     plan?: true
@@ -16254,6 +16537,7 @@ export namespace Prisma {
     status?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    googlePlayPurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16263,6 +16547,7 @@ export namespace Prisma {
 
   export type SubscriptionCountAggregateInputType = {
     id?: true
+    agencyId?: true
     teamId?: true
     stakeholderId?: true
     plan?: true
@@ -16270,6 +16555,7 @@ export namespace Prisma {
     status?: true
     stripeCustomerId?: true
     stripeSubscriptionId?: true
+    googlePlayPurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16366,6 +16652,7 @@ export namespace Prisma {
 
   export type SubscriptionGroupByOutputType = {
     id: string
+    agencyId: string | null
     teamId: string | null
     stakeholderId: string | null
     plan: $Enums.Plan
@@ -16373,6 +16660,7 @@ export namespace Prisma {
     status: string
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
+    googlePlayPurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean
     managedById: string | null
@@ -16401,6 +16689,7 @@ export namespace Prisma {
 
   export type SubscriptionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    agencyId?: boolean
     teamId?: boolean
     stakeholderId?: boolean
     plan?: boolean
@@ -16408,18 +16697,22 @@ export namespace Prisma {
     status?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    googlePlayPurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    agencyId?: boolean
     teamId?: boolean
     stakeholderId?: boolean
     plan?: boolean
@@ -16427,18 +16720,22 @@ export namespace Prisma {
     status?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    googlePlayPurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    agencyId?: boolean
     teamId?: boolean
     stakeholderId?: boolean
     plan?: boolean
@@ -16446,18 +16743,22 @@ export namespace Prisma {
     status?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    googlePlayPurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectScalar = {
     id?: boolean
+    agencyId?: boolean
     teamId?: boolean
     stakeholderId?: boolean
     plan?: boolean
@@ -16465,6 +16766,7 @@ export namespace Prisma {
     status?: boolean
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
+    googlePlayPurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
@@ -16472,43 +16774,53 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "teamId" | "stakeholderId" | "plan" | "seats" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "managedById" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agencyId" | "teamId" | "stakeholderId" | "plan" | "seats" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "managedById" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }
   export type SubscriptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }
   export type SubscriptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
+    agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
+    googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
   }
 
   export type $SubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Subscription"
     objects: {
       team: Prisma.$TeamPayload<ExtArgs> | null
+      agency: Prisma.$AgencyPayload<ExtArgs> | null
       stakeholder: Prisma.$StakeholderPayload<ExtArgs> | null
       managedBy: Prisma.$StakeholderPayload<ExtArgs> | null
+      googlePlayPurchase: Prisma.$GooglePlayPurchasePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      agencyId: string | null
       teamId: string | null
       stakeholderId: string | null
       plan: $Enums.Plan
       seats: number
       /**
        * Stripe's subscription status verbatim (active, trialing, past_due, canceled, ...),
-       * or "comped" for a plan set by `pnpm plan:set` with nothing in Stripe behind it.
+       * Google Play SUBSCRIPTION_STATE_* verbatim, or "comped" for an operator plan.
        */
       status: string
       stripeCustomerId: string | null
       stripeSubscriptionId: string | null
+      googlePlayPurchaseId: string | null
       currentPeriodEnd: Date | null
       cancelAtPeriodEnd: boolean
       /**
@@ -16913,8 +17225,10 @@ export namespace Prisma {
   export interface Prisma__SubscriptionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     team<T extends Subscription$teamArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$teamArgs<ExtArgs>>): Prisma__TeamClient<$Result.GetResult<Prisma.$TeamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    agency<T extends Subscription$agencyArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$agencyArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     stakeholder<T extends Subscription$stakeholderArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$stakeholderArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     managedBy<T extends Subscription$managedByArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$managedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    googlePlayPurchase<T extends Subscription$googlePlayPurchaseArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$googlePlayPurchaseArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -16945,6 +17259,7 @@ export namespace Prisma {
    */
   interface SubscriptionFieldRefs {
     readonly id: FieldRef<"Subscription", 'String'>
+    readonly agencyId: FieldRef<"Subscription", 'String'>
     readonly teamId: FieldRef<"Subscription", 'String'>
     readonly stakeholderId: FieldRef<"Subscription", 'String'>
     readonly plan: FieldRef<"Subscription", 'Plan'>
@@ -16952,6 +17267,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Subscription", 'String'>
     readonly stripeCustomerId: FieldRef<"Subscription", 'String'>
     readonly stripeSubscriptionId: FieldRef<"Subscription", 'String'>
+    readonly googlePlayPurchaseId: FieldRef<"Subscription", 'String'>
     readonly currentPeriodEnd: FieldRef<"Subscription", 'DateTime'>
     readonly cancelAtPeriodEnd: FieldRef<"Subscription", 'Boolean'>
     readonly managedById: FieldRef<"Subscription", 'String'>
@@ -17377,6 +17693,25 @@ export namespace Prisma {
   }
 
   /**
+   * Subscription.agency
+   */
+  export type Subscription$agencyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    where?: AgencyWhereInput
+  }
+
+  /**
    * Subscription.stakeholder
    */
   export type Subscription$stakeholderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17415,6 +17750,25 @@ export namespace Prisma {
   }
 
   /**
+   * Subscription.googlePlayPurchase
+   */
+  export type Subscription$googlePlayPurchaseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    where?: GooglePlayPurchaseWhereInput
+  }
+
+  /**
    * Subscription without action
    */
   export type SubscriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17430,6 +17784,2363 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GooglePlayBillingAccount
+   */
+
+  export type AggregateGooglePlayBillingAccount = {
+    _count: GooglePlayBillingAccountCountAggregateOutputType | null
+    _min: GooglePlayBillingAccountMinAggregateOutputType | null
+    _max: GooglePlayBillingAccountMaxAggregateOutputType | null
+  }
+
+  export type GooglePlayBillingAccountMinAggregateOutputType = {
+    id: string | null
+    workspaceKey: string | null
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type GooglePlayBillingAccountMaxAggregateOutputType = {
+    id: string | null
+    workspaceKey: string | null
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type GooglePlayBillingAccountCountAggregateOutputType = {
+    id: number
+    workspaceKey: number
+    stakeholderId: number
+    retirementStartedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type GooglePlayBillingAccountMinAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+  }
+
+  export type GooglePlayBillingAccountMaxAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+  }
+
+  export type GooglePlayBillingAccountCountAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type GooglePlayBillingAccountAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GooglePlayBillingAccount to aggregate.
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayBillingAccounts to fetch.
+     */
+    orderBy?: GooglePlayBillingAccountOrderByWithRelationInput | GooglePlayBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GooglePlayBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GooglePlayBillingAccounts
+    **/
+    _count?: true | GooglePlayBillingAccountCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GooglePlayBillingAccountMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GooglePlayBillingAccountMaxAggregateInputType
+  }
+
+  export type GetGooglePlayBillingAccountAggregateType<T extends GooglePlayBillingAccountAggregateArgs> = {
+        [P in keyof T & keyof AggregateGooglePlayBillingAccount]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGooglePlayBillingAccount[P]>
+      : GetScalarType<T[P], AggregateGooglePlayBillingAccount[P]>
+  }
+
+
+
+
+  export type GooglePlayBillingAccountGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GooglePlayBillingAccountWhereInput
+    orderBy?: GooglePlayBillingAccountOrderByWithAggregationInput | GooglePlayBillingAccountOrderByWithAggregationInput[]
+    by: GooglePlayBillingAccountScalarFieldEnum[] | GooglePlayBillingAccountScalarFieldEnum
+    having?: GooglePlayBillingAccountScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GooglePlayBillingAccountCountAggregateInputType | true
+    _min?: GooglePlayBillingAccountMinAggregateInputType
+    _max?: GooglePlayBillingAccountMaxAggregateInputType
+  }
+
+  export type GooglePlayBillingAccountGroupByOutputType = {
+    id: string
+    workspaceKey: string
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date
+    _count: GooglePlayBillingAccountCountAggregateOutputType | null
+    _min: GooglePlayBillingAccountMinAggregateOutputType | null
+    _max: GooglePlayBillingAccountMaxAggregateOutputType | null
+  }
+
+  type GetGooglePlayBillingAccountGroupByPayload<T extends GooglePlayBillingAccountGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GooglePlayBillingAccountGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GooglePlayBillingAccountGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GooglePlayBillingAccountGroupByOutputType[P]>
+            : GetScalarType<T[P], GooglePlayBillingAccountGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GooglePlayBillingAccountSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+    purchases?: boolean | GooglePlayBillingAccount$purchasesArgs<ExtArgs>
+    _count?: boolean | GooglePlayBillingAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayBillingAccount"]>
+
+  export type GooglePlayBillingAccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayBillingAccount"]>
+
+  export type GooglePlayBillingAccountSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayBillingAccount"]>
+
+  export type GooglePlayBillingAccountSelectScalar = {
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type GooglePlayBillingAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceKey" | "stakeholderId" | "retirementStartedAt" | "createdAt", ExtArgs["result"]["googlePlayBillingAccount"]>
+  export type GooglePlayBillingAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+    purchases?: boolean | GooglePlayBillingAccount$purchasesArgs<ExtArgs>
+    _count?: boolean | GooglePlayBillingAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type GooglePlayBillingAccountIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+  }
+  export type GooglePlayBillingAccountIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | GooglePlayBillingAccount$stakeholderArgs<ExtArgs>
+  }
+
+  export type $GooglePlayBillingAccountPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GooglePlayBillingAccount"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs> | null
+      purchases: Prisma.$GooglePlayPurchasePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      /**
+       * Hash of a server-selected billing workspace and its payer, sent to Google Play.
+       */
+      id: string
+      workspaceKey: string
+      stakeholderId: string | null
+      retirementStartedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["googlePlayBillingAccount"]>
+    composites: {}
+  }
+
+  type GooglePlayBillingAccountGetPayload<S extends boolean | null | undefined | GooglePlayBillingAccountDefaultArgs> = $Result.GetResult<Prisma.$GooglePlayBillingAccountPayload, S>
+
+  type GooglePlayBillingAccountCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GooglePlayBillingAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GooglePlayBillingAccountCountAggregateInputType | true
+    }
+
+  export interface GooglePlayBillingAccountDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GooglePlayBillingAccount'], meta: { name: 'GooglePlayBillingAccount' } }
+    /**
+     * Find zero or one GooglePlayBillingAccount that matches the filter.
+     * @param {GooglePlayBillingAccountFindUniqueArgs} args - Arguments to find a GooglePlayBillingAccount
+     * @example
+     * // Get one GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GooglePlayBillingAccountFindUniqueArgs>(args: SelectSubset<T, GooglePlayBillingAccountFindUniqueArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GooglePlayBillingAccount that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GooglePlayBillingAccountFindUniqueOrThrowArgs} args - Arguments to find a GooglePlayBillingAccount
+     * @example
+     * // Get one GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GooglePlayBillingAccountFindUniqueOrThrowArgs>(args: SelectSubset<T, GooglePlayBillingAccountFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GooglePlayBillingAccount that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountFindFirstArgs} args - Arguments to find a GooglePlayBillingAccount
+     * @example
+     * // Get one GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GooglePlayBillingAccountFindFirstArgs>(args?: SelectSubset<T, GooglePlayBillingAccountFindFirstArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GooglePlayBillingAccount that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountFindFirstOrThrowArgs} args - Arguments to find a GooglePlayBillingAccount
+     * @example
+     * // Get one GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GooglePlayBillingAccountFindFirstOrThrowArgs>(args?: SelectSubset<T, GooglePlayBillingAccountFindFirstOrThrowArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GooglePlayBillingAccounts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GooglePlayBillingAccounts
+     * const googlePlayBillingAccounts = await prisma.googlePlayBillingAccount.findMany()
+     * 
+     * // Get first 10 GooglePlayBillingAccounts
+     * const googlePlayBillingAccounts = await prisma.googlePlayBillingAccount.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const googlePlayBillingAccountWithIdOnly = await prisma.googlePlayBillingAccount.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GooglePlayBillingAccountFindManyArgs>(args?: SelectSubset<T, GooglePlayBillingAccountFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GooglePlayBillingAccount.
+     * @param {GooglePlayBillingAccountCreateArgs} args - Arguments to create a GooglePlayBillingAccount.
+     * @example
+     * // Create one GooglePlayBillingAccount
+     * const GooglePlayBillingAccount = await prisma.googlePlayBillingAccount.create({
+     *   data: {
+     *     // ... data to create a GooglePlayBillingAccount
+     *   }
+     * })
+     * 
+     */
+    create<T extends GooglePlayBillingAccountCreateArgs>(args: SelectSubset<T, GooglePlayBillingAccountCreateArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GooglePlayBillingAccounts.
+     * @param {GooglePlayBillingAccountCreateManyArgs} args - Arguments to create many GooglePlayBillingAccounts.
+     * @example
+     * // Create many GooglePlayBillingAccounts
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GooglePlayBillingAccountCreateManyArgs>(args?: SelectSubset<T, GooglePlayBillingAccountCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GooglePlayBillingAccounts and returns the data saved in the database.
+     * @param {GooglePlayBillingAccountCreateManyAndReturnArgs} args - Arguments to create many GooglePlayBillingAccounts.
+     * @example
+     * // Create many GooglePlayBillingAccounts
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GooglePlayBillingAccounts and only return the `id`
+     * const googlePlayBillingAccountWithIdOnly = await prisma.googlePlayBillingAccount.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GooglePlayBillingAccountCreateManyAndReturnArgs>(args?: SelectSubset<T, GooglePlayBillingAccountCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GooglePlayBillingAccount.
+     * @param {GooglePlayBillingAccountDeleteArgs} args - Arguments to delete one GooglePlayBillingAccount.
+     * @example
+     * // Delete one GooglePlayBillingAccount
+     * const GooglePlayBillingAccount = await prisma.googlePlayBillingAccount.delete({
+     *   where: {
+     *     // ... filter to delete one GooglePlayBillingAccount
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GooglePlayBillingAccountDeleteArgs>(args: SelectSubset<T, GooglePlayBillingAccountDeleteArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GooglePlayBillingAccount.
+     * @param {GooglePlayBillingAccountUpdateArgs} args - Arguments to update one GooglePlayBillingAccount.
+     * @example
+     * // Update one GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GooglePlayBillingAccountUpdateArgs>(args: SelectSubset<T, GooglePlayBillingAccountUpdateArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GooglePlayBillingAccounts.
+     * @param {GooglePlayBillingAccountDeleteManyArgs} args - Arguments to filter GooglePlayBillingAccounts to delete.
+     * @example
+     * // Delete a few GooglePlayBillingAccounts
+     * const { count } = await prisma.googlePlayBillingAccount.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GooglePlayBillingAccountDeleteManyArgs>(args?: SelectSubset<T, GooglePlayBillingAccountDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GooglePlayBillingAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GooglePlayBillingAccounts
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GooglePlayBillingAccountUpdateManyArgs>(args: SelectSubset<T, GooglePlayBillingAccountUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GooglePlayBillingAccounts and returns the data updated in the database.
+     * @param {GooglePlayBillingAccountUpdateManyAndReturnArgs} args - Arguments to update many GooglePlayBillingAccounts.
+     * @example
+     * // Update many GooglePlayBillingAccounts
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GooglePlayBillingAccounts and only return the `id`
+     * const googlePlayBillingAccountWithIdOnly = await prisma.googlePlayBillingAccount.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GooglePlayBillingAccountUpdateManyAndReturnArgs>(args: SelectSubset<T, GooglePlayBillingAccountUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GooglePlayBillingAccount.
+     * @param {GooglePlayBillingAccountUpsertArgs} args - Arguments to update or create a GooglePlayBillingAccount.
+     * @example
+     * // Update or create a GooglePlayBillingAccount
+     * const googlePlayBillingAccount = await prisma.googlePlayBillingAccount.upsert({
+     *   create: {
+     *     // ... data to create a GooglePlayBillingAccount
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GooglePlayBillingAccount we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GooglePlayBillingAccountUpsertArgs>(args: SelectSubset<T, GooglePlayBillingAccountUpsertArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GooglePlayBillingAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountCountArgs} args - Arguments to filter GooglePlayBillingAccounts to count.
+     * @example
+     * // Count the number of GooglePlayBillingAccounts
+     * const count = await prisma.googlePlayBillingAccount.count({
+     *   where: {
+     *     // ... the filter for the GooglePlayBillingAccounts we want to count
+     *   }
+     * })
+    **/
+    count<T extends GooglePlayBillingAccountCountArgs>(
+      args?: Subset<T, GooglePlayBillingAccountCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GooglePlayBillingAccountCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GooglePlayBillingAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GooglePlayBillingAccountAggregateArgs>(args: Subset<T, GooglePlayBillingAccountAggregateArgs>): Prisma.PrismaPromise<GetGooglePlayBillingAccountAggregateType<T>>
+
+    /**
+     * Group by GooglePlayBillingAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayBillingAccountGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GooglePlayBillingAccountGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GooglePlayBillingAccountGroupByArgs['orderBy'] }
+        : { orderBy?: GooglePlayBillingAccountGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GooglePlayBillingAccountGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGooglePlayBillingAccountGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GooglePlayBillingAccount model
+   */
+  readonly fields: GooglePlayBillingAccountFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GooglePlayBillingAccount.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GooglePlayBillingAccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends GooglePlayBillingAccount$stakeholderArgs<ExtArgs> = {}>(args?: Subset<T, GooglePlayBillingAccount$stakeholderArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    purchases<T extends GooglePlayBillingAccount$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, GooglePlayBillingAccount$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GooglePlayBillingAccount model
+   */
+  interface GooglePlayBillingAccountFieldRefs {
+    readonly id: FieldRef<"GooglePlayBillingAccount", 'String'>
+    readonly workspaceKey: FieldRef<"GooglePlayBillingAccount", 'String'>
+    readonly stakeholderId: FieldRef<"GooglePlayBillingAccount", 'String'>
+    readonly retirementStartedAt: FieldRef<"GooglePlayBillingAccount", 'DateTime'>
+    readonly createdAt: FieldRef<"GooglePlayBillingAccount", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GooglePlayBillingAccount findUnique
+   */
+  export type GooglePlayBillingAccountFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayBillingAccount to fetch.
+     */
+    where: GooglePlayBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayBillingAccount findUniqueOrThrow
+   */
+  export type GooglePlayBillingAccountFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayBillingAccount to fetch.
+     */
+    where: GooglePlayBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayBillingAccount findFirst
+   */
+  export type GooglePlayBillingAccountFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayBillingAccount to fetch.
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayBillingAccounts to fetch.
+     */
+    orderBy?: GooglePlayBillingAccountOrderByWithRelationInput | GooglePlayBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GooglePlayBillingAccounts.
+     */
+    cursor?: GooglePlayBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayBillingAccounts.
+     */
+    distinct?: GooglePlayBillingAccountScalarFieldEnum | GooglePlayBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayBillingAccount findFirstOrThrow
+   */
+  export type GooglePlayBillingAccountFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayBillingAccount to fetch.
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayBillingAccounts to fetch.
+     */
+    orderBy?: GooglePlayBillingAccountOrderByWithRelationInput | GooglePlayBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GooglePlayBillingAccounts.
+     */
+    cursor?: GooglePlayBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayBillingAccounts.
+     */
+    distinct?: GooglePlayBillingAccountScalarFieldEnum | GooglePlayBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayBillingAccount findMany
+   */
+  export type GooglePlayBillingAccountFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayBillingAccounts to fetch.
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayBillingAccounts to fetch.
+     */
+    orderBy?: GooglePlayBillingAccountOrderByWithRelationInput | GooglePlayBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GooglePlayBillingAccounts.
+     */
+    cursor?: GooglePlayBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayBillingAccounts.
+     */
+    distinct?: GooglePlayBillingAccountScalarFieldEnum | GooglePlayBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayBillingAccount create
+   */
+  export type GooglePlayBillingAccountCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GooglePlayBillingAccount.
+     */
+    data: XOR<GooglePlayBillingAccountCreateInput, GooglePlayBillingAccountUncheckedCreateInput>
+  }
+
+  /**
+   * GooglePlayBillingAccount createMany
+   */
+  export type GooglePlayBillingAccountCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GooglePlayBillingAccounts.
+     */
+    data: GooglePlayBillingAccountCreateManyInput | GooglePlayBillingAccountCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GooglePlayBillingAccount createManyAndReturn
+   */
+  export type GooglePlayBillingAccountCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * The data used to create many GooglePlayBillingAccounts.
+     */
+    data: GooglePlayBillingAccountCreateManyInput | GooglePlayBillingAccountCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GooglePlayBillingAccount update
+   */
+  export type GooglePlayBillingAccountUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GooglePlayBillingAccount.
+     */
+    data: XOR<GooglePlayBillingAccountUpdateInput, GooglePlayBillingAccountUncheckedUpdateInput>
+    /**
+     * Choose, which GooglePlayBillingAccount to update.
+     */
+    where: GooglePlayBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayBillingAccount updateMany
+   */
+  export type GooglePlayBillingAccountUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GooglePlayBillingAccounts.
+     */
+    data: XOR<GooglePlayBillingAccountUpdateManyMutationInput, GooglePlayBillingAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which GooglePlayBillingAccounts to update
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * Limit how many GooglePlayBillingAccounts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GooglePlayBillingAccount updateManyAndReturn
+   */
+  export type GooglePlayBillingAccountUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * The data used to update GooglePlayBillingAccounts.
+     */
+    data: XOR<GooglePlayBillingAccountUpdateManyMutationInput, GooglePlayBillingAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which GooglePlayBillingAccounts to update
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * Limit how many GooglePlayBillingAccounts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GooglePlayBillingAccount upsert
+   */
+  export type GooglePlayBillingAccountUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GooglePlayBillingAccount to update in case it exists.
+     */
+    where: GooglePlayBillingAccountWhereUniqueInput
+    /**
+     * In case the GooglePlayBillingAccount found by the `where` argument doesn't exist, create a new GooglePlayBillingAccount with this data.
+     */
+    create: XOR<GooglePlayBillingAccountCreateInput, GooglePlayBillingAccountUncheckedCreateInput>
+    /**
+     * In case the GooglePlayBillingAccount was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GooglePlayBillingAccountUpdateInput, GooglePlayBillingAccountUncheckedUpdateInput>
+  }
+
+  /**
+   * GooglePlayBillingAccount delete
+   */
+  export type GooglePlayBillingAccountDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter which GooglePlayBillingAccount to delete.
+     */
+    where: GooglePlayBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayBillingAccount deleteMany
+   */
+  export type GooglePlayBillingAccountDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GooglePlayBillingAccounts to delete
+     */
+    where?: GooglePlayBillingAccountWhereInput
+    /**
+     * Limit how many GooglePlayBillingAccounts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GooglePlayBillingAccount.stakeholder
+   */
+  export type GooglePlayBillingAccount$stakeholderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * GooglePlayBillingAccount.purchases
+   */
+  export type GooglePlayBillingAccount$purchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    where?: GooglePlayPurchaseWhereInput
+    orderBy?: GooglePlayPurchaseOrderByWithRelationInput | GooglePlayPurchaseOrderByWithRelationInput[]
+    cursor?: GooglePlayPurchaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: GooglePlayPurchaseScalarFieldEnum | GooglePlayPurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayBillingAccount without action
+   */
+  export type GooglePlayBillingAccountDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayBillingAccount
+     */
+    select?: GooglePlayBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayBillingAccount
+     */
+    omit?: GooglePlayBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayBillingAccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model GooglePlayPurchase
+   */
+
+  export type AggregateGooglePlayPurchase = {
+    _count: GooglePlayPurchaseCountAggregateOutputType | null
+    _min: GooglePlayPurchaseMinAggregateOutputType | null
+    _max: GooglePlayPurchaseMaxAggregateOutputType | null
+  }
+
+  export type GooglePlayPurchaseMinAggregateOutputType = {
+    id: string | null
+    purchaseToken: string | null
+    accountId: string | null
+    productId: string | null
+    basePlanId: string | null
+    state: string | null
+    expiresAt: Date | null
+    autoRenewing: boolean | null
+    acknowledged: boolean | null
+    testPurchase: boolean | null
+    replacedById: string | null
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    refundReason: string | null
+    refundedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GooglePlayPurchaseMaxAggregateOutputType = {
+    id: string | null
+    purchaseToken: string | null
+    accountId: string | null
+    productId: string | null
+    basePlanId: string | null
+    state: string | null
+    expiresAt: Date | null
+    autoRenewing: boolean | null
+    acknowledged: boolean | null
+    testPurchase: boolean | null
+    replacedById: string | null
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    refundReason: string | null
+    refundedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type GooglePlayPurchaseCountAggregateOutputType = {
+    id: number
+    purchaseToken: number
+    accountId: number
+    productId: number
+    basePlanId: number
+    state: number
+    expiresAt: number
+    autoRenewing: number
+    acknowledged: number
+    testPurchase: number
+    replacedById: number
+    grantedAt: number
+    rejectedAt: number
+    refundReason: number
+    refundedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type GooglePlayPurchaseMinAggregateInputType = {
+    id?: true
+    purchaseToken?: true
+    accountId?: true
+    productId?: true
+    basePlanId?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    acknowledged?: true
+    testPurchase?: true
+    replacedById?: true
+    grantedAt?: true
+    rejectedAt?: true
+    refundReason?: true
+    refundedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GooglePlayPurchaseMaxAggregateInputType = {
+    id?: true
+    purchaseToken?: true
+    accountId?: true
+    productId?: true
+    basePlanId?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    acknowledged?: true
+    testPurchase?: true
+    replacedById?: true
+    grantedAt?: true
+    rejectedAt?: true
+    refundReason?: true
+    refundedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type GooglePlayPurchaseCountAggregateInputType = {
+    id?: true
+    purchaseToken?: true
+    accountId?: true
+    productId?: true
+    basePlanId?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    acknowledged?: true
+    testPurchase?: true
+    replacedById?: true
+    grantedAt?: true
+    rejectedAt?: true
+    refundReason?: true
+    refundedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type GooglePlayPurchaseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GooglePlayPurchase to aggregate.
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayPurchases to fetch.
+     */
+    orderBy?: GooglePlayPurchaseOrderByWithRelationInput | GooglePlayPurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: GooglePlayPurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayPurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayPurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned GooglePlayPurchases
+    **/
+    _count?: true | GooglePlayPurchaseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: GooglePlayPurchaseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: GooglePlayPurchaseMaxAggregateInputType
+  }
+
+  export type GetGooglePlayPurchaseAggregateType<T extends GooglePlayPurchaseAggregateArgs> = {
+        [P in keyof T & keyof AggregateGooglePlayPurchase]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateGooglePlayPurchase[P]>
+      : GetScalarType<T[P], AggregateGooglePlayPurchase[P]>
+  }
+
+
+
+
+  export type GooglePlayPurchaseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: GooglePlayPurchaseWhereInput
+    orderBy?: GooglePlayPurchaseOrderByWithAggregationInput | GooglePlayPurchaseOrderByWithAggregationInput[]
+    by: GooglePlayPurchaseScalarFieldEnum[] | GooglePlayPurchaseScalarFieldEnum
+    having?: GooglePlayPurchaseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: GooglePlayPurchaseCountAggregateInputType | true
+    _min?: GooglePlayPurchaseMinAggregateInputType
+    _max?: GooglePlayPurchaseMaxAggregateInputType
+  }
+
+  export type GooglePlayPurchaseGroupByOutputType = {
+    id: string
+    purchaseToken: string
+    accountId: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt: Date | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById: string | null
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    refundReason: string | null
+    refundedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: GooglePlayPurchaseCountAggregateOutputType | null
+    _min: GooglePlayPurchaseMinAggregateOutputType | null
+    _max: GooglePlayPurchaseMaxAggregateOutputType | null
+  }
+
+  type GetGooglePlayPurchaseGroupByPayload<T extends GooglePlayPurchaseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<GooglePlayPurchaseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof GooglePlayPurchaseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], GooglePlayPurchaseGroupByOutputType[P]>
+            : GetScalarType<T[P], GooglePlayPurchaseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type GooglePlayPurchaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    purchaseToken?: boolean
+    accountId?: boolean
+    productId?: boolean
+    basePlanId?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    acknowledged?: boolean
+    testPurchase?: boolean
+    replacedById?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    refundReason?: boolean
+    refundedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+    subscription?: boolean | GooglePlayPurchase$subscriptionArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayPurchase"]>
+
+  export type GooglePlayPurchaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    purchaseToken?: boolean
+    accountId?: boolean
+    productId?: boolean
+    basePlanId?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    acknowledged?: boolean
+    testPurchase?: boolean
+    replacedById?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    refundReason?: boolean
+    refundedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayPurchase"]>
+
+  export type GooglePlayPurchaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    purchaseToken?: boolean
+    accountId?: boolean
+    productId?: boolean
+    basePlanId?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    acknowledged?: boolean
+    testPurchase?: boolean
+    replacedById?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    refundReason?: boolean
+    refundedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["googlePlayPurchase"]>
+
+  export type GooglePlayPurchaseSelectScalar = {
+    id?: boolean
+    purchaseToken?: boolean
+    accountId?: boolean
+    productId?: boolean
+    basePlanId?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    acknowledged?: boolean
+    testPurchase?: boolean
+    replacedById?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    refundReason?: boolean
+    refundedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type GooglePlayPurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "purchaseToken" | "accountId" | "productId" | "basePlanId" | "state" | "expiresAt" | "autoRenewing" | "acknowledged" | "testPurchase" | "replacedById" | "grantedAt" | "rejectedAt" | "refundReason" | "refundedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["googlePlayPurchase"]>
+  export type GooglePlayPurchaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+    subscription?: boolean | GooglePlayPurchase$subscriptionArgs<ExtArgs>
+  }
+  export type GooglePlayPurchaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+  }
+  export type GooglePlayPurchaseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | GooglePlayBillingAccountDefaultArgs<ExtArgs>
+  }
+
+  export type $GooglePlayPurchasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "GooglePlayPurchase"
+    objects: {
+      account: Prisma.$GooglePlayBillingAccountPayload<ExtArgs>
+      subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      purchaseToken: string
+      accountId: string
+      productId: string
+      basePlanId: string
+      state: string
+      expiresAt: Date | null
+      autoRenewing: boolean
+      acknowledged: boolean
+      testPurchase: boolean
+      replacedById: string | null
+      grantedAt: Date | null
+      rejectedAt: Date | null
+      refundReason: string | null
+      refundedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["googlePlayPurchase"]>
+    composites: {}
+  }
+
+  type GooglePlayPurchaseGetPayload<S extends boolean | null | undefined | GooglePlayPurchaseDefaultArgs> = $Result.GetResult<Prisma.$GooglePlayPurchasePayload, S>
+
+  type GooglePlayPurchaseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<GooglePlayPurchaseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: GooglePlayPurchaseCountAggregateInputType | true
+    }
+
+  export interface GooglePlayPurchaseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['GooglePlayPurchase'], meta: { name: 'GooglePlayPurchase' } }
+    /**
+     * Find zero or one GooglePlayPurchase that matches the filter.
+     * @param {GooglePlayPurchaseFindUniqueArgs} args - Arguments to find a GooglePlayPurchase
+     * @example
+     * // Get one GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends GooglePlayPurchaseFindUniqueArgs>(args: SelectSubset<T, GooglePlayPurchaseFindUniqueArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one GooglePlayPurchase that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {GooglePlayPurchaseFindUniqueOrThrowArgs} args - Arguments to find a GooglePlayPurchase
+     * @example
+     * // Get one GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends GooglePlayPurchaseFindUniqueOrThrowArgs>(args: SelectSubset<T, GooglePlayPurchaseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GooglePlayPurchase that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseFindFirstArgs} args - Arguments to find a GooglePlayPurchase
+     * @example
+     * // Get one GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends GooglePlayPurchaseFindFirstArgs>(args?: SelectSubset<T, GooglePlayPurchaseFindFirstArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first GooglePlayPurchase that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseFindFirstOrThrowArgs} args - Arguments to find a GooglePlayPurchase
+     * @example
+     * // Get one GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends GooglePlayPurchaseFindFirstOrThrowArgs>(args?: SelectSubset<T, GooglePlayPurchaseFindFirstOrThrowArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more GooglePlayPurchases that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all GooglePlayPurchases
+     * const googlePlayPurchases = await prisma.googlePlayPurchase.findMany()
+     * 
+     * // Get first 10 GooglePlayPurchases
+     * const googlePlayPurchases = await prisma.googlePlayPurchase.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const googlePlayPurchaseWithIdOnly = await prisma.googlePlayPurchase.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends GooglePlayPurchaseFindManyArgs>(args?: SelectSubset<T, GooglePlayPurchaseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a GooglePlayPurchase.
+     * @param {GooglePlayPurchaseCreateArgs} args - Arguments to create a GooglePlayPurchase.
+     * @example
+     * // Create one GooglePlayPurchase
+     * const GooglePlayPurchase = await prisma.googlePlayPurchase.create({
+     *   data: {
+     *     // ... data to create a GooglePlayPurchase
+     *   }
+     * })
+     * 
+     */
+    create<T extends GooglePlayPurchaseCreateArgs>(args: SelectSubset<T, GooglePlayPurchaseCreateArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many GooglePlayPurchases.
+     * @param {GooglePlayPurchaseCreateManyArgs} args - Arguments to create many GooglePlayPurchases.
+     * @example
+     * // Create many GooglePlayPurchases
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends GooglePlayPurchaseCreateManyArgs>(args?: SelectSubset<T, GooglePlayPurchaseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many GooglePlayPurchases and returns the data saved in the database.
+     * @param {GooglePlayPurchaseCreateManyAndReturnArgs} args - Arguments to create many GooglePlayPurchases.
+     * @example
+     * // Create many GooglePlayPurchases
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many GooglePlayPurchases and only return the `id`
+     * const googlePlayPurchaseWithIdOnly = await prisma.googlePlayPurchase.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends GooglePlayPurchaseCreateManyAndReturnArgs>(args?: SelectSubset<T, GooglePlayPurchaseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a GooglePlayPurchase.
+     * @param {GooglePlayPurchaseDeleteArgs} args - Arguments to delete one GooglePlayPurchase.
+     * @example
+     * // Delete one GooglePlayPurchase
+     * const GooglePlayPurchase = await prisma.googlePlayPurchase.delete({
+     *   where: {
+     *     // ... filter to delete one GooglePlayPurchase
+     *   }
+     * })
+     * 
+     */
+    delete<T extends GooglePlayPurchaseDeleteArgs>(args: SelectSubset<T, GooglePlayPurchaseDeleteArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one GooglePlayPurchase.
+     * @param {GooglePlayPurchaseUpdateArgs} args - Arguments to update one GooglePlayPurchase.
+     * @example
+     * // Update one GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends GooglePlayPurchaseUpdateArgs>(args: SelectSubset<T, GooglePlayPurchaseUpdateArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more GooglePlayPurchases.
+     * @param {GooglePlayPurchaseDeleteManyArgs} args - Arguments to filter GooglePlayPurchases to delete.
+     * @example
+     * // Delete a few GooglePlayPurchases
+     * const { count } = await prisma.googlePlayPurchase.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends GooglePlayPurchaseDeleteManyArgs>(args?: SelectSubset<T, GooglePlayPurchaseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GooglePlayPurchases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many GooglePlayPurchases
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends GooglePlayPurchaseUpdateManyArgs>(args: SelectSubset<T, GooglePlayPurchaseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more GooglePlayPurchases and returns the data updated in the database.
+     * @param {GooglePlayPurchaseUpdateManyAndReturnArgs} args - Arguments to update many GooglePlayPurchases.
+     * @example
+     * // Update many GooglePlayPurchases
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more GooglePlayPurchases and only return the `id`
+     * const googlePlayPurchaseWithIdOnly = await prisma.googlePlayPurchase.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends GooglePlayPurchaseUpdateManyAndReturnArgs>(args: SelectSubset<T, GooglePlayPurchaseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one GooglePlayPurchase.
+     * @param {GooglePlayPurchaseUpsertArgs} args - Arguments to update or create a GooglePlayPurchase.
+     * @example
+     * // Update or create a GooglePlayPurchase
+     * const googlePlayPurchase = await prisma.googlePlayPurchase.upsert({
+     *   create: {
+     *     // ... data to create a GooglePlayPurchase
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the GooglePlayPurchase we want to update
+     *   }
+     * })
+     */
+    upsert<T extends GooglePlayPurchaseUpsertArgs>(args: SelectSubset<T, GooglePlayPurchaseUpsertArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of GooglePlayPurchases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseCountArgs} args - Arguments to filter GooglePlayPurchases to count.
+     * @example
+     * // Count the number of GooglePlayPurchases
+     * const count = await prisma.googlePlayPurchase.count({
+     *   where: {
+     *     // ... the filter for the GooglePlayPurchases we want to count
+     *   }
+     * })
+    **/
+    count<T extends GooglePlayPurchaseCountArgs>(
+      args?: Subset<T, GooglePlayPurchaseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], GooglePlayPurchaseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a GooglePlayPurchase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends GooglePlayPurchaseAggregateArgs>(args: Subset<T, GooglePlayPurchaseAggregateArgs>): Prisma.PrismaPromise<GetGooglePlayPurchaseAggregateType<T>>
+
+    /**
+     * Group by GooglePlayPurchase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {GooglePlayPurchaseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends GooglePlayPurchaseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: GooglePlayPurchaseGroupByArgs['orderBy'] }
+        : { orderBy?: GooglePlayPurchaseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, GooglePlayPurchaseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetGooglePlayPurchaseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the GooglePlayPurchase model
+   */
+  readonly fields: GooglePlayPurchaseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for GooglePlayPurchase.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__GooglePlayPurchaseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    account<T extends GooglePlayBillingAccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GooglePlayBillingAccountDefaultArgs<ExtArgs>>): Prisma__GooglePlayBillingAccountClient<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subscription<T extends GooglePlayPurchase$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, GooglePlayPurchase$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the GooglePlayPurchase model
+   */
+  interface GooglePlayPurchaseFieldRefs {
+    readonly id: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly purchaseToken: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly accountId: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly productId: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly basePlanId: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly state: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly expiresAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+    readonly autoRenewing: FieldRef<"GooglePlayPurchase", 'Boolean'>
+    readonly acknowledged: FieldRef<"GooglePlayPurchase", 'Boolean'>
+    readonly testPurchase: FieldRef<"GooglePlayPurchase", 'Boolean'>
+    readonly replacedById: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly grantedAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+    readonly rejectedAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+    readonly refundReason: FieldRef<"GooglePlayPurchase", 'String'>
+    readonly refundedAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+    readonly createdAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+    readonly updatedAt: FieldRef<"GooglePlayPurchase", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * GooglePlayPurchase findUnique
+   */
+  export type GooglePlayPurchaseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayPurchase to fetch.
+     */
+    where: GooglePlayPurchaseWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayPurchase findUniqueOrThrow
+   */
+  export type GooglePlayPurchaseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayPurchase to fetch.
+     */
+    where: GooglePlayPurchaseWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayPurchase findFirst
+   */
+  export type GooglePlayPurchaseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayPurchase to fetch.
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayPurchases to fetch.
+     */
+    orderBy?: GooglePlayPurchaseOrderByWithRelationInput | GooglePlayPurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GooglePlayPurchases.
+     */
+    cursor?: GooglePlayPurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayPurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayPurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayPurchases.
+     */
+    distinct?: GooglePlayPurchaseScalarFieldEnum | GooglePlayPurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayPurchase findFirstOrThrow
+   */
+  export type GooglePlayPurchaseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayPurchase to fetch.
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayPurchases to fetch.
+     */
+    orderBy?: GooglePlayPurchaseOrderByWithRelationInput | GooglePlayPurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for GooglePlayPurchases.
+     */
+    cursor?: GooglePlayPurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayPurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayPurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayPurchases.
+     */
+    distinct?: GooglePlayPurchaseScalarFieldEnum | GooglePlayPurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayPurchase findMany
+   */
+  export type GooglePlayPurchaseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which GooglePlayPurchases to fetch.
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of GooglePlayPurchases to fetch.
+     */
+    orderBy?: GooglePlayPurchaseOrderByWithRelationInput | GooglePlayPurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing GooglePlayPurchases.
+     */
+    cursor?: GooglePlayPurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` GooglePlayPurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` GooglePlayPurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of GooglePlayPurchases.
+     */
+    distinct?: GooglePlayPurchaseScalarFieldEnum | GooglePlayPurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * GooglePlayPurchase create
+   */
+  export type GooglePlayPurchaseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * The data needed to create a GooglePlayPurchase.
+     */
+    data: XOR<GooglePlayPurchaseCreateInput, GooglePlayPurchaseUncheckedCreateInput>
+  }
+
+  /**
+   * GooglePlayPurchase createMany
+   */
+  export type GooglePlayPurchaseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many GooglePlayPurchases.
+     */
+    data: GooglePlayPurchaseCreateManyInput | GooglePlayPurchaseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * GooglePlayPurchase createManyAndReturn
+   */
+  export type GooglePlayPurchaseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * The data used to create many GooglePlayPurchases.
+     */
+    data: GooglePlayPurchaseCreateManyInput | GooglePlayPurchaseCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GooglePlayPurchase update
+   */
+  export type GooglePlayPurchaseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * The data needed to update a GooglePlayPurchase.
+     */
+    data: XOR<GooglePlayPurchaseUpdateInput, GooglePlayPurchaseUncheckedUpdateInput>
+    /**
+     * Choose, which GooglePlayPurchase to update.
+     */
+    where: GooglePlayPurchaseWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayPurchase updateMany
+   */
+  export type GooglePlayPurchaseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update GooglePlayPurchases.
+     */
+    data: XOR<GooglePlayPurchaseUpdateManyMutationInput, GooglePlayPurchaseUncheckedUpdateManyInput>
+    /**
+     * Filter which GooglePlayPurchases to update
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * Limit how many GooglePlayPurchases to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * GooglePlayPurchase updateManyAndReturn
+   */
+  export type GooglePlayPurchaseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * The data used to update GooglePlayPurchases.
+     */
+    data: XOR<GooglePlayPurchaseUpdateManyMutationInput, GooglePlayPurchaseUncheckedUpdateManyInput>
+    /**
+     * Filter which GooglePlayPurchases to update
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * Limit how many GooglePlayPurchases to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * GooglePlayPurchase upsert
+   */
+  export type GooglePlayPurchaseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * The filter to search for the GooglePlayPurchase to update in case it exists.
+     */
+    where: GooglePlayPurchaseWhereUniqueInput
+    /**
+     * In case the GooglePlayPurchase found by the `where` argument doesn't exist, create a new GooglePlayPurchase with this data.
+     */
+    create: XOR<GooglePlayPurchaseCreateInput, GooglePlayPurchaseUncheckedCreateInput>
+    /**
+     * In case the GooglePlayPurchase was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<GooglePlayPurchaseUpdateInput, GooglePlayPurchaseUncheckedUpdateInput>
+  }
+
+  /**
+   * GooglePlayPurchase delete
+   */
+  export type GooglePlayPurchaseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
+    /**
+     * Filter which GooglePlayPurchase to delete.
+     */
+    where: GooglePlayPurchaseWhereUniqueInput
+  }
+
+  /**
+   * GooglePlayPurchase deleteMany
+   */
+  export type GooglePlayPurchaseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which GooglePlayPurchases to delete
+     */
+    where?: GooglePlayPurchaseWhereInput
+    /**
+     * Limit how many GooglePlayPurchases to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * GooglePlayPurchase.subscription
+   */
+  export type GooglePlayPurchase$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    where?: SubscriptionWhereInput
+  }
+
+  /**
+   * GooglePlayPurchase without action
+   */
+  export type GooglePlayPurchaseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the GooglePlayPurchase
+     */
+    select?: GooglePlayPurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the GooglePlayPurchase
+     */
+    omit?: GooglePlayPurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: GooglePlayPurchaseInclude<ExtArgs> | null
   }
 
 
@@ -68260,6 +70971,7 @@ export namespace Prisma {
 
   export const SubscriptionScalarFieldEnum: {
     id: 'id',
+    agencyId: 'agencyId',
     teamId: 'teamId',
     stakeholderId: 'stakeholderId',
     plan: 'plan',
@@ -68267,6 +70979,7 @@ export namespace Prisma {
     status: 'status',
     stripeCustomerId: 'stripeCustomerId',
     stripeSubscriptionId: 'stripeSubscriptionId',
+    googlePlayPurchaseId: 'googlePlayPurchaseId',
     currentPeriodEnd: 'currentPeriodEnd',
     cancelAtPeriodEnd: 'cancelAtPeriodEnd',
     managedById: 'managedById',
@@ -68275,6 +70988,40 @@ export namespace Prisma {
   };
 
   export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+  export const GooglePlayBillingAccountScalarFieldEnum: {
+    id: 'id',
+    workspaceKey: 'workspaceKey',
+    stakeholderId: 'stakeholderId',
+    retirementStartedAt: 'retirementStartedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type GooglePlayBillingAccountScalarFieldEnum = (typeof GooglePlayBillingAccountScalarFieldEnum)[keyof typeof GooglePlayBillingAccountScalarFieldEnum]
+
+
+  export const GooglePlayPurchaseScalarFieldEnum: {
+    id: 'id',
+    purchaseToken: 'purchaseToken',
+    accountId: 'accountId',
+    productId: 'productId',
+    basePlanId: 'basePlanId',
+    state: 'state',
+    expiresAt: 'expiresAt',
+    autoRenewing: 'autoRenewing',
+    acknowledged: 'acknowledged',
+    testPurchase: 'testPurchase',
+    replacedById: 'replacedById',
+    grantedAt: 'grantedAt',
+    rejectedAt: 'rejectedAt',
+    refundReason: 'refundReason',
+    refundedAt: 'refundedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type GooglePlayPurchaseScalarFieldEnum = (typeof GooglePlayPurchaseScalarFieldEnum)[keyof typeof GooglePlayPurchaseScalarFieldEnum]
 
 
   export const AgentBrandingScalarFieldEnum: {
@@ -69680,6 +72427,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
+    googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -69728,6 +72476,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileOrderByRelationAggregateInput
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountOrderByRelationAggregateInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -69779,6 +72528,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileListRelationFilter
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
+    googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
   }, "id" | "email" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -69980,6 +72730,7 @@ export namespace Prisma {
     tenancies?: TenancyListRelationFilter
     activity?: AgencyActivityListRelationFilter
     branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     reportInspections?: InspectionListRelationFilter
   }
 
@@ -69992,6 +72743,7 @@ export namespace Prisma {
     tenancies?: TenancyOrderByRelationAggregateInput
     activity?: AgencyActivityOrderByRelationAggregateInput
     branding?: AgencyBrandingOrderByWithRelationInput
+    subscription?: SubscriptionOrderByWithRelationInput
     reportInspections?: InspectionOrderByRelationAggregateInput
   }
 
@@ -70007,6 +72759,7 @@ export namespace Prisma {
     tenancies?: TenancyListRelationFilter
     activity?: AgencyActivityListRelationFilter
     branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     reportInspections?: InspectionListRelationFilter
   }, "id">
 
@@ -70252,6 +73005,7 @@ export namespace Prisma {
     OR?: SubscriptionWhereInput[]
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
     id?: StringFilter<"Subscription"> | string
+    agencyId?: StringNullableFilter<"Subscription"> | string | null
     teamId?: StringNullableFilter<"Subscription"> | string | null
     stakeholderId?: StringNullableFilter<"Subscription"> | string | null
     plan?: EnumPlanFilter<"Subscription"> | $Enums.Plan
@@ -70259,18 +73013,22 @@ export namespace Prisma {
     status?: StringFilter<"Subscription"> | string
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
+    googlePlayPurchaseId?: StringNullableFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     managedById?: StringNullableFilter<"Subscription"> | string | null
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     managedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    googlePlayPurchase?: XOR<GooglePlayPurchaseNullableScalarRelationFilter, GooglePlayPurchaseWhereInput> | null
   }
 
   export type SubscriptionOrderByWithRelationInput = {
     id?: SortOrder
+    agencyId?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
     stakeholderId?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -70278,22 +73036,27 @@ export namespace Prisma {
     status?: SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
+    googlePlayPurchaseId?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     team?: TeamOrderByWithRelationInput
+    agency?: AgencyOrderByWithRelationInput
     stakeholder?: StakeholderOrderByWithRelationInput
     managedBy?: StakeholderOrderByWithRelationInput
+    googlePlayPurchase?: GooglePlayPurchaseOrderByWithRelationInput
   }
 
   export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    agencyId?: string
     teamId?: string
     stakeholderId?: string
     stripeCustomerId?: string
     stripeSubscriptionId?: string
+    googlePlayPurchaseId?: string
     AND?: SubscriptionWhereInput | SubscriptionWhereInput[]
     OR?: SubscriptionWhereInput[]
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
@@ -70306,12 +73069,15 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
     team?: XOR<TeamNullableScalarRelationFilter, TeamWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
     stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     managedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
-  }, "id" | "teamId" | "stakeholderId" | "stripeCustomerId" | "stripeSubscriptionId">
+    googlePlayPurchase?: XOR<GooglePlayPurchaseNullableScalarRelationFilter, GooglePlayPurchaseWhereInput> | null
+  }, "id" | "agencyId" | "teamId" | "stakeholderId" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId">
 
   export type SubscriptionOrderByWithAggregationInput = {
     id?: SortOrder
+    agencyId?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
     stakeholderId?: SortOrderInput | SortOrder
     plan?: SortOrder
@@ -70319,6 +73085,7 @@ export namespace Prisma {
     status?: SortOrder
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
+    googlePlayPurchaseId?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrderInput | SortOrder
@@ -70336,6 +73103,7 @@ export namespace Prisma {
     OR?: SubscriptionScalarWhereWithAggregatesInput[]
     NOT?: SubscriptionScalarWhereWithAggregatesInput | SubscriptionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Subscription"> | string
+    agencyId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     teamId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     stakeholderId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     plan?: EnumPlanWithAggregatesFilter<"Subscription"> | $Enums.Plan
@@ -70343,11 +73111,188 @@ export namespace Prisma {
     status?: StringWithAggregatesFilter<"Subscription"> | string
     stripeCustomerId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    googlePlayPurchaseId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolWithAggregatesFilter<"Subscription"> | boolean
     managedById?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
+  }
+
+  export type GooglePlayBillingAccountWhereInput = {
+    AND?: GooglePlayBillingAccountWhereInput | GooglePlayBillingAccountWhereInput[]
+    OR?: GooglePlayBillingAccountWhereInput[]
+    NOT?: GooglePlayBillingAccountWhereInput | GooglePlayBillingAccountWhereInput[]
+    id?: StringFilter<"GooglePlayBillingAccount"> | string
+    workspaceKey?: StringFilter<"GooglePlayBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"GooglePlayBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"GooglePlayBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayBillingAccount"> | Date | string
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    purchases?: GooglePlayPurchaseListRelationFilter
+  }
+
+  export type GooglePlayBillingAccountOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    retirementStartedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+    purchases?: GooglePlayPurchaseOrderByRelationAggregateInput
+  }
+
+  export type GooglePlayBillingAccountWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: GooglePlayBillingAccountWhereInput | GooglePlayBillingAccountWhereInput[]
+    OR?: GooglePlayBillingAccountWhereInput[]
+    NOT?: GooglePlayBillingAccountWhereInput | GooglePlayBillingAccountWhereInput[]
+    workspaceKey?: StringFilter<"GooglePlayBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"GooglePlayBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"GooglePlayBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayBillingAccount"> | Date | string
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    purchases?: GooglePlayPurchaseListRelationFilter
+  }, "id">
+
+  export type GooglePlayBillingAccountOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    retirementStartedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: GooglePlayBillingAccountCountOrderByAggregateInput
+    _max?: GooglePlayBillingAccountMaxOrderByAggregateInput
+    _min?: GooglePlayBillingAccountMinOrderByAggregateInput
+  }
+
+  export type GooglePlayBillingAccountScalarWhereWithAggregatesInput = {
+    AND?: GooglePlayBillingAccountScalarWhereWithAggregatesInput | GooglePlayBillingAccountScalarWhereWithAggregatesInput[]
+    OR?: GooglePlayBillingAccountScalarWhereWithAggregatesInput[]
+    NOT?: GooglePlayBillingAccountScalarWhereWithAggregatesInput | GooglePlayBillingAccountScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GooglePlayBillingAccount"> | string
+    workspaceKey?: StringWithAggregatesFilter<"GooglePlayBillingAccount"> | string
+    stakeholderId?: StringNullableWithAggregatesFilter<"GooglePlayBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableWithAggregatesFilter<"GooglePlayBillingAccount"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GooglePlayBillingAccount"> | Date | string
+  }
+
+  export type GooglePlayPurchaseWhereInput = {
+    AND?: GooglePlayPurchaseWhereInput | GooglePlayPurchaseWhereInput[]
+    OR?: GooglePlayPurchaseWhereInput[]
+    NOT?: GooglePlayPurchaseWhereInput | GooglePlayPurchaseWhereInput[]
+    id?: StringFilter<"GooglePlayPurchase"> | string
+    purchaseToken?: StringFilter<"GooglePlayPurchase"> | string
+    accountId?: StringFilter<"GooglePlayPurchase"> | string
+    productId?: StringFilter<"GooglePlayPurchase"> | string
+    basePlanId?: StringFilter<"GooglePlayPurchase"> | string
+    state?: StringFilter<"GooglePlayPurchase"> | string
+    expiresAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    autoRenewing?: BoolFilter<"GooglePlayPurchase"> | boolean
+    acknowledged?: BoolFilter<"GooglePlayPurchase"> | boolean
+    testPurchase?: BoolFilter<"GooglePlayPurchase"> | boolean
+    replacedById?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    grantedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    refundReason?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    refundedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+    account?: XOR<GooglePlayBillingAccountScalarRelationFilter, GooglePlayBillingAccountWhereInput>
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+  }
+
+  export type GooglePlayPurchaseOrderByWithRelationInput = {
+    id?: SortOrder
+    purchaseToken?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    basePlanId?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    autoRenewing?: SortOrder
+    acknowledged?: SortOrder
+    testPurchase?: SortOrder
+    replacedById?: SortOrderInput | SortOrder
+    grantedAt?: SortOrderInput | SortOrder
+    rejectedAt?: SortOrderInput | SortOrder
+    refundReason?: SortOrderInput | SortOrder
+    refundedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    account?: GooglePlayBillingAccountOrderByWithRelationInput
+    subscription?: SubscriptionOrderByWithRelationInput
+  }
+
+  export type GooglePlayPurchaseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    purchaseToken?: string
+    AND?: GooglePlayPurchaseWhereInput | GooglePlayPurchaseWhereInput[]
+    OR?: GooglePlayPurchaseWhereInput[]
+    NOT?: GooglePlayPurchaseWhereInput | GooglePlayPurchaseWhereInput[]
+    accountId?: StringFilter<"GooglePlayPurchase"> | string
+    productId?: StringFilter<"GooglePlayPurchase"> | string
+    basePlanId?: StringFilter<"GooglePlayPurchase"> | string
+    state?: StringFilter<"GooglePlayPurchase"> | string
+    expiresAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    autoRenewing?: BoolFilter<"GooglePlayPurchase"> | boolean
+    acknowledged?: BoolFilter<"GooglePlayPurchase"> | boolean
+    testPurchase?: BoolFilter<"GooglePlayPurchase"> | boolean
+    replacedById?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    grantedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    refundReason?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    refundedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+    account?: XOR<GooglePlayBillingAccountScalarRelationFilter, GooglePlayBillingAccountWhereInput>
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+  }, "id" | "purchaseToken">
+
+  export type GooglePlayPurchaseOrderByWithAggregationInput = {
+    id?: SortOrder
+    purchaseToken?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    basePlanId?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
+    autoRenewing?: SortOrder
+    acknowledged?: SortOrder
+    testPurchase?: SortOrder
+    replacedById?: SortOrderInput | SortOrder
+    grantedAt?: SortOrderInput | SortOrder
+    rejectedAt?: SortOrderInput | SortOrder
+    refundReason?: SortOrderInput | SortOrder
+    refundedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: GooglePlayPurchaseCountOrderByAggregateInput
+    _max?: GooglePlayPurchaseMaxOrderByAggregateInput
+    _min?: GooglePlayPurchaseMinOrderByAggregateInput
+  }
+
+  export type GooglePlayPurchaseScalarWhereWithAggregatesInput = {
+    AND?: GooglePlayPurchaseScalarWhereWithAggregatesInput | GooglePlayPurchaseScalarWhereWithAggregatesInput[]
+    OR?: GooglePlayPurchaseScalarWhereWithAggregatesInput[]
+    NOT?: GooglePlayPurchaseScalarWhereWithAggregatesInput | GooglePlayPurchaseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    purchaseToken?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    accountId?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    productId?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    basePlanId?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    state?: StringWithAggregatesFilter<"GooglePlayPurchase"> | string
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"GooglePlayPurchase"> | Date | string | null
+    autoRenewing?: BoolWithAggregatesFilter<"GooglePlayPurchase"> | boolean
+    acknowledged?: BoolWithAggregatesFilter<"GooglePlayPurchase"> | boolean
+    testPurchase?: BoolWithAggregatesFilter<"GooglePlayPurchase"> | boolean
+    replacedById?: StringNullableWithAggregatesFilter<"GooglePlayPurchase"> | string | null
+    grantedAt?: DateTimeNullableWithAggregatesFilter<"GooglePlayPurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableWithAggregatesFilter<"GooglePlayPurchase"> | Date | string | null
+    refundReason?: StringNullableWithAggregatesFilter<"GooglePlayPurchase"> | string | null
+    refundedAt?: DateTimeNullableWithAggregatesFilter<"GooglePlayPurchase"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"GooglePlayPurchase"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"GooglePlayPurchase"> | Date | string
   }
 
   export type AgentBrandingWhereInput = {
@@ -74176,6 +77121,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -74223,6 +77169,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUpdateInput = {
@@ -74270,6 +77217,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -74317,6 +77265,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -74541,6 +77490,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -74553,6 +77503,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -74565,6 +77516,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -74577,6 +77529,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -74844,12 +77797,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutSubscriptionInput
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateInput = {
     id?: string
+    agencyId?: string | null
     teamId?: string | null
     stakeholderId?: string | null
     plan: $Enums.Plan
@@ -74857,6 +77813,7 @@ export namespace Prisma {
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -74876,12 +77833,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -74889,6 +77849,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -74898,6 +77859,7 @@ export namespace Prisma {
 
   export type SubscriptionCreateManyInput = {
     id?: string
+    agencyId?: string | null
     teamId?: string | null
     stakeholderId?: string | null
     plan: $Enums.Plan
@@ -74905,6 +77867,7 @@ export namespace Prisma {
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -74927,6 +77890,7 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -74934,9 +77898,212 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayBillingAccountCreateInput = {
+    id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    stakeholder?: StakeholderCreateNestedOneWithoutGooglePlayBillingAccountsInput
+    purchases?: GooglePlayPurchaseCreateNestedManyWithoutAccountInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedCreateInput = {
+    id: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: GooglePlayPurchaseUncheckedCreateNestedManyWithoutAccountInput
+  }
+
+  export type GooglePlayBillingAccountUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneWithoutGooglePlayBillingAccountsNestedInput
+    purchases?: GooglePlayPurchaseUpdateManyWithoutAccountNestedInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: GooglePlayPurchaseUncheckedUpdateManyWithoutAccountNestedInput
+  }
+
+  export type GooglePlayBillingAccountCreateManyInput = {
+    id: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type GooglePlayBillingAccountUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayBillingAccountUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayPurchaseCreateInput = {
+    id?: string
+    purchaseToken: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    account: GooglePlayBillingAccountCreateNestedOneWithoutPurchasesInput
+    subscription?: SubscriptionCreateNestedOneWithoutGooglePlayPurchaseInput
+  }
+
+  export type GooglePlayPurchaseUncheckedCreateInput = {
+    id?: string
+    purchaseToken: string
+    accountId: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutGooglePlayPurchaseInput
+  }
+
+  export type GooglePlayPurchaseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    account?: GooglePlayBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput
+    subscription?: SubscriptionUpdateOneWithoutGooglePlayPurchaseNestedInput
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUncheckedUpdateOneWithoutGooglePlayPurchaseNestedInput
+  }
+
+  export type GooglePlayPurchaseCreateManyInput = {
+    id?: string
+    purchaseToken: string
+    accountId: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GooglePlayPurchaseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -79220,6 +82387,12 @@ export namespace Prisma {
     none?: SubscriptionWhereInput
   }
 
+  export type GooglePlayBillingAccountListRelationFilter = {
+    every?: GooglePlayBillingAccountWhereInput
+    some?: GooglePlayBillingAccountWhereInput
+    none?: GooglePlayBillingAccountWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -79318,6 +82491,10 @@ export namespace Prisma {
   }
 
   export type SubscriptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GooglePlayBillingAccountOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -79777,13 +82954,24 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type AgencyNullableScalarRelationFilter = {
+    is?: AgencyWhereInput | null
+    isNot?: AgencyWhereInput | null
+  }
+
   export type StakeholderNullableScalarRelationFilter = {
     is?: StakeholderWhereInput | null
     isNot?: StakeholderWhereInput | null
   }
 
+  export type GooglePlayPurchaseNullableScalarRelationFilter = {
+    is?: GooglePlayPurchaseWhereInput | null
+    isNot?: GooglePlayPurchaseWhereInput | null
+  }
+
   export type SubscriptionCountOrderByAggregateInput = {
     id?: SortOrder
+    agencyId?: SortOrder
     teamId?: SortOrder
     stakeholderId?: SortOrder
     plan?: SortOrder
@@ -79791,6 +82979,7 @@ export namespace Prisma {
     status?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    googlePlayPurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -79804,6 +82993,7 @@ export namespace Prisma {
 
   export type SubscriptionMaxOrderByAggregateInput = {
     id?: SortOrder
+    agencyId?: SortOrder
     teamId?: SortOrder
     stakeholderId?: SortOrder
     plan?: SortOrder
@@ -79811,6 +83001,7 @@ export namespace Prisma {
     status?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    googlePlayPurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -79820,6 +83011,7 @@ export namespace Prisma {
 
   export type SubscriptionMinOrderByAggregateInput = {
     id?: SortOrder
+    agencyId?: SortOrder
     teamId?: SortOrder
     stakeholderId?: SortOrder
     plan?: SortOrder
@@ -79827,6 +83019,7 @@ export namespace Prisma {
     status?: SortOrder
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
+    googlePlayPurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -79862,6 +83055,105 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type GooglePlayPurchaseListRelationFilter = {
+    every?: GooglePlayPurchaseWhereInput
+    some?: GooglePlayPurchaseWhereInput
+    none?: GooglePlayPurchaseWhereInput
+  }
+
+  export type GooglePlayPurchaseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type GooglePlayBillingAccountCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GooglePlayBillingAccountMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GooglePlayBillingAccountMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type GooglePlayBillingAccountScalarRelationFilter = {
+    is?: GooglePlayBillingAccountWhereInput
+    isNot?: GooglePlayBillingAccountWhereInput
+  }
+
+  export type GooglePlayPurchaseCountOrderByAggregateInput = {
+    id?: SortOrder
+    purchaseToken?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    basePlanId?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    acknowledged?: SortOrder
+    testPurchase?: SortOrder
+    replacedById?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    refundReason?: SortOrder
+    refundedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GooglePlayPurchaseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    purchaseToken?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    basePlanId?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    acknowledged?: SortOrder
+    testPurchase?: SortOrder
+    replacedById?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    refundReason?: SortOrder
+    refundedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type GooglePlayPurchaseMinOrderByAggregateInput = {
+    id?: SortOrder
+    purchaseToken?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    basePlanId?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    acknowledged?: SortOrder
+    testPurchase?: SortOrder
+    replacedById?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    refundReason?: SortOrder
+    refundedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type AgentBrandingCountOrderByAggregateInput = {
@@ -80207,11 +83499,6 @@ export namespace Prisma {
     in?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
     notIn?: $Enums.RenewalDecision[] | ListEnumRenewalDecisionFieldRefInput<$PrismaModel> | null
     not?: NestedEnumRenewalDecisionNullableFilter<$PrismaModel> | $Enums.RenewalDecision | null
-  }
-
-  export type AgencyNullableScalarRelationFilter = {
-    is?: AgencyWhereInput | null
-    isNot?: AgencyWhereInput | null
   }
 
   export type TenancyNullableScalarRelationFilter = {
@@ -83086,6 +86373,13 @@ export namespace Prisma {
     connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
   }
 
+  export type GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput> | GooglePlayBillingAccountCreateWithoutStakeholderInput[] | GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput | GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    createMany?: GooglePlayBillingAccountCreateManyStakeholderInputEnvelope
+    connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+  }
+
   export type AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -83319,6 +86613,13 @@ export namespace Prisma {
     connectOrCreate?: SubscriptionCreateOrConnectWithoutManagedByInput | SubscriptionCreateOrConnectWithoutManagedByInput[]
     createMany?: SubscriptionCreateManyManagedByInputEnvelope
     connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+  }
+
+  export type GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput> | GooglePlayBillingAccountCreateWithoutStakeholderInput[] | GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput | GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    createMany?: GooglePlayBillingAccountCreateManyStakeholderInputEnvelope
+    connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -83811,6 +87112,20 @@ export namespace Prisma {
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
   }
 
+  export type GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput> | GooglePlayBillingAccountCreateWithoutStakeholderInput[] | GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput | GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    upsert?: GooglePlayBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput | GooglePlayBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: GooglePlayBillingAccountCreateManyStakeholderInputEnvelope
+    set?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    disconnect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    delete?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    update?: GooglePlayBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput | GooglePlayBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: GooglePlayBillingAccountUpdateManyWithWhereWithoutStakeholderInput | GooglePlayBillingAccountUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
+  }
+
   export type AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -84275,6 +87590,20 @@ export namespace Prisma {
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
   }
 
+  export type GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput> | GooglePlayBillingAccountCreateWithoutStakeholderInput[] | GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput | GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    upsert?: GooglePlayBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput | GooglePlayBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: GooglePlayBillingAccountCreateManyStakeholderInputEnvelope
+    set?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    disconnect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    delete?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+    update?: GooglePlayBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput | GooglePlayBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: GooglePlayBillingAccountUpdateManyWithWhereWithoutStakeholderInput | GooglePlayBillingAccountUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
+  }
+
   export type StakeholderCreateNestedOneWithoutAcquisitionInput = {
     create?: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutAcquisitionInput
@@ -84406,6 +87735,12 @@ export namespace Prisma {
     connect?: AgencyBrandingWhereUniqueInput
   }
 
+  export type SubscriptionCreateNestedOneWithoutAgencyInput = {
+    create?: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutAgencyInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
   export type InspectionCreateNestedManyWithoutReportAgencyInput = {
     create?: XOR<InspectionCreateWithoutReportAgencyInput, InspectionUncheckedCreateWithoutReportAgencyInput> | InspectionCreateWithoutReportAgencyInput[] | InspectionUncheckedCreateWithoutReportAgencyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
@@ -84438,6 +87773,12 @@ export namespace Prisma {
     create?: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
     connectOrCreate?: AgencyBrandingCreateOrConnectWithoutAgencyInput
     connect?: AgencyBrandingWhereUniqueInput
+  }
+
+  export type SubscriptionUncheckedCreateNestedOneWithoutAgencyInput = {
+    create?: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutAgencyInput
+    connect?: SubscriptionWhereUniqueInput
   }
 
   export type InspectionUncheckedCreateNestedManyWithoutReportAgencyInput = {
@@ -84497,6 +87838,16 @@ export namespace Prisma {
     delete?: AgencyBrandingWhereInput | boolean
     connect?: AgencyBrandingWhereUniqueInput
     update?: XOR<XOR<AgencyBrandingUpdateToOneWithWhereWithoutAgencyInput, AgencyBrandingUpdateWithoutAgencyInput>, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type SubscriptionUpdateOneWithoutAgencyNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutAgencyInput
+    upsert?: SubscriptionUpsertWithoutAgencyInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutAgencyInput, SubscriptionUpdateWithoutAgencyInput>, SubscriptionUncheckedUpdateWithoutAgencyInput>
   }
 
   export type InspectionUpdateManyWithoutReportAgencyNestedInput = {
@@ -84563,6 +87914,16 @@ export namespace Prisma {
     delete?: AgencyBrandingWhereInput | boolean
     connect?: AgencyBrandingWhereUniqueInput
     update?: XOR<XOR<AgencyBrandingUpdateToOneWithWhereWithoutAgencyInput, AgencyBrandingUpdateWithoutAgencyInput>, AgencyBrandingUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutAgencyInput
+    upsert?: SubscriptionUpsertWithoutAgencyInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutAgencyInput, SubscriptionUpdateWithoutAgencyInput>, SubscriptionUncheckedUpdateWithoutAgencyInput>
   }
 
   export type InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput = {
@@ -84691,6 +88052,12 @@ export namespace Prisma {
     connect?: TeamWhereUniqueInput
   }
 
+  export type AgencyCreateNestedOneWithoutSubscriptionInput = {
+    create?: XOR<AgencyCreateWithoutSubscriptionInput, AgencyUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutSubscriptionInput
+    connect?: AgencyWhereUniqueInput
+  }
+
   export type StakeholderCreateNestedOneWithoutSubscriptionInput = {
     create?: XOR<StakeholderCreateWithoutSubscriptionInput, StakeholderUncheckedCreateWithoutSubscriptionInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutSubscriptionInput
@@ -84701,6 +88068,12 @@ export namespace Prisma {
     create?: XOR<StakeholderCreateWithoutSubscriptionsManagedInput, StakeholderUncheckedCreateWithoutSubscriptionsManagedInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutSubscriptionsManagedInput
     connect?: StakeholderWhereUniqueInput
+  }
+
+  export type GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutSubscriptionInput
+    connect?: GooglePlayPurchaseWhereUniqueInput
   }
 
   export type EnumPlanFieldUpdateOperationsInput = {
@@ -84725,6 +88098,16 @@ export namespace Prisma {
     update?: XOR<XOR<TeamUpdateToOneWithWhereWithoutSubscriptionInput, TeamUpdateWithoutSubscriptionInput>, TeamUncheckedUpdateWithoutSubscriptionInput>
   }
 
+  export type AgencyUpdateOneWithoutSubscriptionNestedInput = {
+    create?: XOR<AgencyCreateWithoutSubscriptionInput, AgencyUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutSubscriptionInput
+    upsert?: AgencyUpsertWithoutSubscriptionInput
+    disconnect?: AgencyWhereInput | boolean
+    delete?: AgencyWhereInput | boolean
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutSubscriptionInput, AgencyUpdateWithoutSubscriptionInput>, AgencyUncheckedUpdateWithoutSubscriptionInput>
+  }
+
   export type StakeholderUpdateOneWithoutSubscriptionNestedInput = {
     create?: XOR<StakeholderCreateWithoutSubscriptionInput, StakeholderUncheckedCreateWithoutSubscriptionInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutSubscriptionInput
@@ -84743,6 +88126,120 @@ export namespace Prisma {
     delete?: StakeholderWhereInput | boolean
     connect?: StakeholderWhereUniqueInput
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutSubscriptionsManagedInput, StakeholderUpdateWithoutSubscriptionsManagedInput>, StakeholderUncheckedUpdateWithoutSubscriptionsManagedInput>
+  }
+
+  export type GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutSubscriptionInput
+    upsert?: GooglePlayPurchaseUpsertWithoutSubscriptionInput
+    disconnect?: GooglePlayPurchaseWhereInput | boolean
+    delete?: GooglePlayPurchaseWhereInput | boolean
+    connect?: GooglePlayPurchaseWhereUniqueInput
+    update?: XOR<XOR<GooglePlayPurchaseUpdateToOneWithWhereWithoutSubscriptionInput, GooglePlayPurchaseUpdateWithoutSubscriptionInput>, GooglePlayPurchaseUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type StakeholderCreateNestedOneWithoutGooglePlayBillingAccountsInput = {
+    create?: XOR<StakeholderCreateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutGooglePlayBillingAccountsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type GooglePlayPurchaseCreateNestedManyWithoutAccountInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput> | GooglePlayPurchaseCreateWithoutAccountInput[] | GooglePlayPurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutAccountInput | GooglePlayPurchaseCreateOrConnectWithoutAccountInput[]
+    createMany?: GooglePlayPurchaseCreateManyAccountInputEnvelope
+    connect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+  }
+
+  export type GooglePlayPurchaseUncheckedCreateNestedManyWithoutAccountInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput> | GooglePlayPurchaseCreateWithoutAccountInput[] | GooglePlayPurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutAccountInput | GooglePlayPurchaseCreateOrConnectWithoutAccountInput[]
+    createMany?: GooglePlayPurchaseCreateManyAccountInputEnvelope
+    connect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+  }
+
+  export type StakeholderUpdateOneWithoutGooglePlayBillingAccountsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutGooglePlayBillingAccountsInput
+    upsert?: StakeholderUpsertWithoutGooglePlayBillingAccountsInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutGooglePlayBillingAccountsInput, StakeholderUpdateWithoutGooglePlayBillingAccountsInput>, StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput>
+  }
+
+  export type GooglePlayPurchaseUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput> | GooglePlayPurchaseCreateWithoutAccountInput[] | GooglePlayPurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutAccountInput | GooglePlayPurchaseCreateOrConnectWithoutAccountInput[]
+    upsert?: GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput | GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: GooglePlayPurchaseCreateManyAccountInputEnvelope
+    set?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    disconnect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    delete?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    connect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    update?: GooglePlayPurchaseUpdateWithWhereUniqueWithoutAccountInput | GooglePlayPurchaseUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: GooglePlayPurchaseUpdateManyWithWhereWithoutAccountInput | GooglePlayPurchaseUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: GooglePlayPurchaseScalarWhereInput | GooglePlayPurchaseScalarWhereInput[]
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput> | GooglePlayPurchaseCreateWithoutAccountInput[] | GooglePlayPurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: GooglePlayPurchaseCreateOrConnectWithoutAccountInput | GooglePlayPurchaseCreateOrConnectWithoutAccountInput[]
+    upsert?: GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput | GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: GooglePlayPurchaseCreateManyAccountInputEnvelope
+    set?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    disconnect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    delete?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    connect?: GooglePlayPurchaseWhereUniqueInput | GooglePlayPurchaseWhereUniqueInput[]
+    update?: GooglePlayPurchaseUpdateWithWhereUniqueWithoutAccountInput | GooglePlayPurchaseUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: GooglePlayPurchaseUpdateManyWithWhereWithoutAccountInput | GooglePlayPurchaseUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: GooglePlayPurchaseScalarWhereInput | GooglePlayPurchaseScalarWhereInput[]
+  }
+
+  export type GooglePlayBillingAccountCreateNestedOneWithoutPurchasesInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutPurchasesInput
+    connect?: GooglePlayBillingAccountWhereUniqueInput
+  }
+
+  export type SubscriptionCreateNestedOneWithoutGooglePlayPurchaseInput = {
+    create?: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutGooglePlayPurchaseInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type SubscriptionUncheckedCreateNestedOneWithoutGooglePlayPurchaseInput = {
+    create?: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutGooglePlayPurchaseInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type GooglePlayBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput = {
+    create?: XOR<GooglePlayBillingAccountCreateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutPurchasesInput
+    upsert?: GooglePlayBillingAccountUpsertWithoutPurchasesInput
+    connect?: GooglePlayBillingAccountWhereUniqueInput
+    update?: XOR<XOR<GooglePlayBillingAccountUpdateToOneWithWhereWithoutPurchasesInput, GooglePlayBillingAccountUpdateWithoutPurchasesInput>, GooglePlayBillingAccountUncheckedUpdateWithoutPurchasesInput>
+  }
+
+  export type SubscriptionUpdateOneWithoutGooglePlayPurchaseNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutGooglePlayPurchaseInput
+    upsert?: SubscriptionUpsertWithoutGooglePlayPurchaseInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutGooglePlayPurchaseInput, SubscriptionUpdateWithoutGooglePlayPurchaseInput>, SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput>
+  }
+
+  export type SubscriptionUncheckedUpdateOneWithoutGooglePlayPurchaseNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutGooglePlayPurchaseInput
+    upsert?: SubscriptionUpsertWithoutGooglePlayPurchaseInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutGooglePlayPurchaseInput, SubscriptionUpdateWithoutGooglePlayPurchaseInput>, SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput>
   }
 
   export type StakeholderCreateNestedOneWithoutBrandingInput = {
@@ -90731,17 +94228,21 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutSubscriptionInput
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutStakeholderInput = {
     id?: string
+    agencyId?: string | null
     teamId?: string | null
     plan: $Enums.Plan
     seats: number
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -90766,11 +94267,14 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutSubscriptionInput
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutManagedByInput = {
     id?: string
+    agencyId?: string | null
     teamId?: string | null
     stakeholderId?: string | null
     plan: $Enums.Plan
@@ -90778,6 +94282,7 @@ export namespace Prisma {
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     createdAt?: Date | string
@@ -90791,6 +94296,32 @@ export namespace Prisma {
 
   export type SubscriptionCreateManyManagedByInputEnvelope = {
     data: SubscriptionCreateManyManagedByInput | SubscriptionCreateManyManagedByInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type GooglePlayBillingAccountCreateWithoutStakeholderInput = {
+    id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: GooglePlayPurchaseCreateNestedManyWithoutAccountInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput = {
+    id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: GooglePlayPurchaseUncheckedCreateNestedManyWithoutAccountInput
+  }
+
+  export type GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput = {
+    where: GooglePlayBillingAccountWhereUniqueInput
+    create: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type GooglePlayBillingAccountCreateManyStakeholderInputEnvelope = {
+    data: GooglePlayBillingAccountCreateManyStakeholderInput | GooglePlayBillingAccountCreateManyStakeholderInput[]
     skipDuplicates?: boolean
   }
 
@@ -91782,17 +95313,21 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutStakeholderInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
     seats?: IntFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -91821,6 +95356,7 @@ export namespace Prisma {
     OR?: SubscriptionScalarWhereInput[]
     NOT?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
     id?: StringFilter<"Subscription"> | string
+    agencyId?: StringNullableFilter<"Subscription"> | string | null
     teamId?: StringNullableFilter<"Subscription"> | string | null
     stakeholderId?: StringNullableFilter<"Subscription"> | string | null
     plan?: EnumPlanFilter<"Subscription"> | $Enums.Plan
@@ -91828,11 +95364,39 @@ export namespace Prisma {
     status?: StringFilter<"Subscription"> | string
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
+    googlePlayPurchaseId?: StringNullableFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     managedById?: StringNullableFilter<"Subscription"> | string | null
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
+  }
+
+  export type GooglePlayBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: GooglePlayBillingAccountWhereUniqueInput
+    update: XOR<GooglePlayBillingAccountUpdateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<GooglePlayBillingAccountCreateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type GooglePlayBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: GooglePlayBillingAccountWhereUniqueInput
+    data: XOR<GooglePlayBillingAccountUpdateWithoutStakeholderInput, GooglePlayBillingAccountUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type GooglePlayBillingAccountUpdateManyWithWhereWithoutStakeholderInput = {
+    where: GooglePlayBillingAccountScalarWhereInput
+    data: XOR<GooglePlayBillingAccountUpdateManyMutationInput, GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type GooglePlayBillingAccountScalarWhereInput = {
+    AND?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
+    OR?: GooglePlayBillingAccountScalarWhereInput[]
+    NOT?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
+    id?: StringFilter<"GooglePlayBillingAccount"> | string
+    workspaceKey?: StringFilter<"GooglePlayBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"GooglePlayBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"GooglePlayBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayBillingAccount"> | Date | string
   }
 
   export type StakeholderCreateWithoutAcquisitionInput = {
@@ -91879,6 +95443,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAcquisitionInput = {
@@ -91925,6 +95490,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAcquisitionInput = {
@@ -91987,6 +95553,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAcquisitionInput = {
@@ -92033,6 +95600,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutTeamInput = {
@@ -92079,6 +95647,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTeamInput = {
@@ -92125,6 +95694,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTeamInput = {
@@ -92148,18 +95718,22 @@ export namespace Prisma {
     cancelAtPeriodEnd?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutTeamInput = {
     id?: string
+    agencyId?: string | null
     stakeholderId?: string | null
     plan: $Enums.Plan
     seats: number
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -92226,18 +95800,22 @@ export namespace Prisma {
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutTeamInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
     seats?: IntFieldUpdateOperationsInput | number
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -92394,6 +95972,45 @@ export namespace Prisma {
   export type AgencyBrandingCreateOrConnectWithoutAgencyInput = {
     where: AgencyBrandingWhereUniqueInput
     create: XOR<AgencyBrandingCreateWithoutAgencyInput, AgencyBrandingUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type SubscriptionCreateWithoutAgencyInput = {
+    id?: string
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutSubscriptionInput
+    stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
+    managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+  }
+
+  export type SubscriptionUncheckedCreateWithoutAgencyInput = {
+    id?: string
+    teamId?: string | null
+    stakeholderId?: string | null
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    managedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionCreateOrConnectWithoutAgencyInput = {
+    where: SubscriptionWhereUniqueInput
+    create: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
   }
 
   export type InspectionCreateWithoutReportAgencyInput = {
@@ -92559,6 +96176,51 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SubscriptionUpsertWithoutAgencyInput = {
+    update: XOR<SubscriptionUpdateWithoutAgencyInput, SubscriptionUncheckedUpdateWithoutAgencyInput>
+    create: XOR<SubscriptionCreateWithoutAgencyInput, SubscriptionUncheckedCreateWithoutAgencyInput>
+    where?: SubscriptionWhereInput
+  }
+
+  export type SubscriptionUpdateToOneWithWhereWithoutAgencyInput = {
+    where?: SubscriptionWhereInput
+    data: XOR<SubscriptionUpdateWithoutAgencyInput, SubscriptionUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type SubscriptionUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
+    managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+  }
+
+  export type SubscriptionUncheckedUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    managedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type InspectionUpsertWithWhereUniqueWithoutReportAgencyInput = {
     where: InspectionWhereUniqueInput
     update: XOR<InspectionUpdateWithoutReportAgencyInput, InspectionUncheckedUpdateWithoutReportAgencyInput>
@@ -92583,6 +96245,7 @@ export namespace Prisma {
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -92594,6 +96257,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -92621,6 +96285,7 @@ export namespace Prisma {
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -92632,6 +96297,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -92643,6 +96309,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -92654,6 +96321,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -92706,6 +96374,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAgencyMembershipsInput = {
@@ -92752,6 +96421,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAgencyMembershipsInput = {
@@ -92826,6 +96496,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -92837,6 +96508,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -92895,6 +96567,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAgencyMembershipsInput = {
@@ -92941,6 +96614,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput = {
@@ -92967,6 +96641,7 @@ export namespace Prisma {
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -92978,6 +96653,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -93005,6 +96681,7 @@ export namespace Prisma {
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -93016,6 +96693,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -93038,6 +96716,35 @@ export namespace Prisma {
   export type TeamCreateOrConnectWithoutSubscriptionInput = {
     where: TeamWhereUniqueInput
     create: XOR<TeamCreateWithoutSubscriptionInput, TeamUncheckedCreateWithoutSubscriptionInput>
+  }
+
+  export type AgencyCreateWithoutSubscriptionInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutSubscriptionInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutSubscriptionInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutSubscriptionInput, AgencyUncheckedCreateWithoutSubscriptionInput>
   }
 
   export type StakeholderCreateWithoutSubscriptionInput = {
@@ -93084,6 +96791,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionInput = {
@@ -93130,6 +96838,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionInput = {
@@ -93181,6 +96890,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionsManagedInput = {
@@ -93227,11 +96937,57 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionsManagedInput = {
     where: StakeholderWhereUniqueInput
     create: XOR<StakeholderCreateWithoutSubscriptionsManagedInput, StakeholderUncheckedCreateWithoutSubscriptionsManagedInput>
+  }
+
+  export type GooglePlayPurchaseCreateWithoutSubscriptionInput = {
+    id?: string
+    purchaseToken: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    account: GooglePlayBillingAccountCreateNestedOneWithoutPurchasesInput
+  }
+
+  export type GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput = {
+    id?: string
+    purchaseToken: string
+    accountId: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GooglePlayPurchaseCreateOrConnectWithoutSubscriptionInput = {
+    where: GooglePlayPurchaseWhereUniqueInput
+    create: XOR<GooglePlayPurchaseCreateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput>
   }
 
   export type TeamUpsertWithoutSubscriptionInput = {
@@ -93259,6 +97015,41 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: StakeholderUncheckedUpdateManyWithoutTeamNestedInput
+  }
+
+  export type AgencyUpsertWithoutSubscriptionInput = {
+    update: XOR<AgencyUpdateWithoutSubscriptionInput, AgencyUncheckedUpdateWithoutSubscriptionInput>
+    create: XOR<AgencyCreateWithoutSubscriptionInput, AgencyUncheckedCreateWithoutSubscriptionInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutSubscriptionInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutSubscriptionInput, AgencyUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type AgencyUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
   export type StakeholderUpsertWithoutSubscriptionInput = {
@@ -93316,6 +97107,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionInput = {
@@ -93362,6 +97154,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutSubscriptionsManagedInput = {
@@ -93419,6 +97212,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionsManagedInput = {
@@ -93465,6 +97259,483 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type GooglePlayPurchaseUpsertWithoutSubscriptionInput = {
+    update: XOR<GooglePlayPurchaseUpdateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedUpdateWithoutSubscriptionInput>
+    create: XOR<GooglePlayPurchaseCreateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput>
+    where?: GooglePlayPurchaseWhereInput
+  }
+
+  export type GooglePlayPurchaseUpdateToOneWithWhereWithoutSubscriptionInput = {
+    where?: GooglePlayPurchaseWhereInput
+    data: XOR<GooglePlayPurchaseUpdateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type GooglePlayPurchaseUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    account?: GooglePlayBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StakeholderCreateWithoutGooglePlayBillingAccountsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutGooglePlayBillingAccountsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput>
+  }
+
+  export type GooglePlayPurchaseCreateWithoutAccountInput = {
+    id?: string
+    purchaseToken: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionCreateNestedOneWithoutGooglePlayPurchaseInput
+  }
+
+  export type GooglePlayPurchaseUncheckedCreateWithoutAccountInput = {
+    id?: string
+    purchaseToken: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutGooglePlayPurchaseInput
+  }
+
+  export type GooglePlayPurchaseCreateOrConnectWithoutAccountInput = {
+    where: GooglePlayPurchaseWhereUniqueInput
+    create: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput>
+  }
+
+  export type GooglePlayPurchaseCreateManyAccountInputEnvelope = {
+    data: GooglePlayPurchaseCreateManyAccountInput | GooglePlayPurchaseCreateManyAccountInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StakeholderUpsertWithoutGooglePlayBillingAccountsInput = {
+    update: XOR<StakeholderUpdateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput>
+    create: XOR<StakeholderCreateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutGooglePlayBillingAccountsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutGooglePlayBillingAccountsInput, StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput>
+  }
+
+  export type StakeholderUpdateWithoutGooglePlayBillingAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+  }
+
+  export type GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput = {
+    where: GooglePlayPurchaseWhereUniqueInput
+    update: XOR<GooglePlayPurchaseUpdateWithoutAccountInput, GooglePlayPurchaseUncheckedUpdateWithoutAccountInput>
+    create: XOR<GooglePlayPurchaseCreateWithoutAccountInput, GooglePlayPurchaseUncheckedCreateWithoutAccountInput>
+  }
+
+  export type GooglePlayPurchaseUpdateWithWhereUniqueWithoutAccountInput = {
+    where: GooglePlayPurchaseWhereUniqueInput
+    data: XOR<GooglePlayPurchaseUpdateWithoutAccountInput, GooglePlayPurchaseUncheckedUpdateWithoutAccountInput>
+  }
+
+  export type GooglePlayPurchaseUpdateManyWithWhereWithoutAccountInput = {
+    where: GooglePlayPurchaseScalarWhereInput
+    data: XOR<GooglePlayPurchaseUpdateManyMutationInput, GooglePlayPurchaseUncheckedUpdateManyWithoutAccountInput>
+  }
+
+  export type GooglePlayPurchaseScalarWhereInput = {
+    AND?: GooglePlayPurchaseScalarWhereInput | GooglePlayPurchaseScalarWhereInput[]
+    OR?: GooglePlayPurchaseScalarWhereInput[]
+    NOT?: GooglePlayPurchaseScalarWhereInput | GooglePlayPurchaseScalarWhereInput[]
+    id?: StringFilter<"GooglePlayPurchase"> | string
+    purchaseToken?: StringFilter<"GooglePlayPurchase"> | string
+    accountId?: StringFilter<"GooglePlayPurchase"> | string
+    productId?: StringFilter<"GooglePlayPurchase"> | string
+    basePlanId?: StringFilter<"GooglePlayPurchase"> | string
+    state?: StringFilter<"GooglePlayPurchase"> | string
+    expiresAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    autoRenewing?: BoolFilter<"GooglePlayPurchase"> | boolean
+    acknowledged?: BoolFilter<"GooglePlayPurchase"> | boolean
+    testPurchase?: BoolFilter<"GooglePlayPurchase"> | boolean
+    replacedById?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    grantedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    refundReason?: StringNullableFilter<"GooglePlayPurchase"> | string | null
+    refundedAt?: DateTimeNullableFilter<"GooglePlayPurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"GooglePlayPurchase"> | Date | string
+  }
+
+  export type GooglePlayBillingAccountCreateWithoutPurchasesInput = {
+    id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    stakeholder?: StakeholderCreateNestedOneWithoutGooglePlayBillingAccountsInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedCreateWithoutPurchasesInput = {
+    id: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type GooglePlayBillingAccountCreateOrConnectWithoutPurchasesInput = {
+    where: GooglePlayBillingAccountWhereUniqueInput
+    create: XOR<GooglePlayBillingAccountCreateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedCreateWithoutPurchasesInput>
+  }
+
+  export type SubscriptionCreateWithoutGooglePlayPurchaseInput = {
+    id?: string
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutSubscriptionInput
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
+    stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
+    managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+  }
+
+  export type SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput = {
+    id?: string
+    agencyId?: string | null
+    teamId?: string | null
+    stakeholderId?: string | null
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    managedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionCreateOrConnectWithoutGooglePlayPurchaseInput = {
+    where: SubscriptionWhereUniqueInput
+    create: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+  }
+
+  export type GooglePlayBillingAccountUpsertWithoutPurchasesInput = {
+    update: XOR<GooglePlayBillingAccountUpdateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedUpdateWithoutPurchasesInput>
+    create: XOR<GooglePlayBillingAccountCreateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedCreateWithoutPurchasesInput>
+    where?: GooglePlayBillingAccountWhereInput
+  }
+
+  export type GooglePlayBillingAccountUpdateToOneWithWhereWithoutPurchasesInput = {
+    where?: GooglePlayBillingAccountWhereInput
+    data: XOR<GooglePlayBillingAccountUpdateWithoutPurchasesInput, GooglePlayBillingAccountUncheckedUpdateWithoutPurchasesInput>
+  }
+
+  export type GooglePlayBillingAccountUpdateWithoutPurchasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneWithoutGooglePlayBillingAccountsNestedInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedUpdateWithoutPurchasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionUpsertWithoutGooglePlayPurchaseInput = {
+    update: XOR<SubscriptionUpdateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput>
+    create: XOR<SubscriptionCreateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput>
+    where?: SubscriptionWhereInput
+  }
+
+  export type SubscriptionUpdateToOneWithWhereWithoutGooglePlayPurchaseInput = {
+    where?: SubscriptionWhereInput
+    data: XOR<SubscriptionUpdateWithoutGooglePlayPurchaseInput, SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput>
+  }
+
+  export type SubscriptionUpdateWithoutGooglePlayPurchaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
+    stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
+    managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+  }
+
+  export type SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    managedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StakeholderCreateWithoutBrandingInput = {
@@ -93511,6 +97782,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutBrandingInput = {
@@ -93557,6 +97829,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutBrandingInput = {
@@ -93619,6 +97892,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutBrandingInput = {
@@ -93665,6 +97939,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateWithoutPropertyInput = {
@@ -94348,6 +98623,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -94394,6 +98670,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -94445,6 +98722,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -94491,6 +98769,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -94542,6 +98821,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -94588,6 +98868,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -94603,6 +98884,7 @@ export namespace Prisma {
     members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -94614,6 +98896,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
   }
 
@@ -95080,6 +99363,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -95126,6 +99410,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -95183,6 +99468,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -95229,6 +99515,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -95286,6 +99573,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -95332,6 +99620,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyUpsertWithoutTenanciesInput = {
@@ -95353,6 +99642,7 @@ export namespace Prisma {
     members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -95364,6 +99654,7 @@ export namespace Prisma {
     members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
   }
 
@@ -95680,6 +99971,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyCollaborationsInput = {
@@ -95726,6 +100018,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyCollaborationsInput = {
@@ -95777,6 +100070,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyAccessGrantedInput = {
@@ -95823,6 +100117,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyAccessGrantedInput = {
@@ -95950,6 +100245,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyCollaborationsInput = {
@@ -95996,6 +100292,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenancyAccessGrantedInput = {
@@ -96053,6 +100350,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyAccessGrantedInput = {
@@ -96099,6 +100397,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateWithoutInspectionsInput = {
@@ -96204,6 +100503,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -96250,6 +100550,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -96301,6 +100602,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportInspectionsInput = {
@@ -96347,6 +100649,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportInspectionsInput = {
@@ -96363,6 +100666,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutReportInspectionsInput = {
@@ -96374,6 +100678,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutReportInspectionsInput = {
@@ -97015,6 +101320,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -97061,6 +101367,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutReportInspectionsInput = {
@@ -97118,6 +101425,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportInspectionsInput = {
@@ -97164,6 +101472,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyUpsertWithoutReportInspectionsInput = {
@@ -97186,6 +101495,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutReportInspectionsInput = {
@@ -97197,6 +101507,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
   }
 
   export type InspectionUpsertWithoutCheckOutInput = {
@@ -97688,6 +101999,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionAccessGrantsInput = {
@@ -97734,6 +102046,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionAccessGrantsInput = {
@@ -97873,6 +102186,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionAccessGrantsInput = {
@@ -97919,6 +102233,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -99485,6 +103800,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceCasesReportedInput = {
@@ -99531,6 +103847,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceCasesReportedInput = {
@@ -100051,6 +104368,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceCasesReportedInput = {
@@ -100097,6 +104415,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceEventUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
@@ -100443,6 +104762,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEventsInput = {
@@ -100489,6 +104809,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEventsInput = {
@@ -100614,6 +104935,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEventsInput = {
@@ -100660,6 +104982,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutVisitsInput = {
@@ -101086,6 +105409,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEvidenceUploadedInput = {
@@ -101132,6 +105456,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEvidenceUploadedInput = {
@@ -101294,6 +105619,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEvidenceUploadedInput = {
@@ -101340,6 +105666,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutVerificationInput = {
@@ -101417,6 +105744,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceVerificationsInput = {
@@ -101463,6 +105791,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceVerificationsInput = {
@@ -101562,6 +105891,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput = {
@@ -101608,6 +105938,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
@@ -101711,6 +106042,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
@@ -101757,6 +106089,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
@@ -101808,6 +106141,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
@@ -101854,6 +106188,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
@@ -101979,6 +106314,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
@@ -102025,6 +106361,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
@@ -102082,6 +106419,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
@@ -102128,6 +106466,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutProviderInput = {
@@ -102285,6 +106624,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput = {
@@ -102331,6 +106671,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput = {
@@ -102492,6 +106833,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
@@ -102538,6 +106880,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput = {
@@ -102625,6 +106968,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput = {
@@ -102671,6 +107015,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput = {
@@ -102764,6 +107109,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput = {
@@ -102810,6 +107156,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutDeviceInstallationsInput = {
@@ -102856,6 +107203,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeviceInstallationsInput = {
@@ -102902,6 +107250,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeviceInstallationsInput = {
@@ -102996,6 +107345,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeviceInstallationsInput = {
@@ -103042,6 +107392,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutInstallationInput = {
@@ -103119,6 +107470,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutNotificationsInput = {
@@ -103165,6 +107517,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutNotificationsInput = {
@@ -103351,6 +107704,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutNotificationsInput = {
@@ -103397,6 +107751,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyUpsertWithoutNotificationsInput = {
@@ -104385,6 +108740,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutFindingPhotoDraftsInput = {
@@ -104431,6 +108787,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutFindingPhotoDraftsInput = {
@@ -104651,6 +109008,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutFindingPhotoDraftsInput = {
@@ -104697,6 +109055,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type FindingUpsertWithoutPhotoDraftsInput = {
@@ -105025,6 +109384,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -105071,6 +109431,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -105210,6 +109571,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -105256,6 +109618,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutReportEmailsInput = {
@@ -105373,6 +109736,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportEmailsInput = {
@@ -105419,6 +109783,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportEmailsInput = {
@@ -105558,6 +109923,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportEmailsInput = {
@@ -105604,6 +109970,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
@@ -105917,6 +110284,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaCreatedInput = {
@@ -105963,6 +110331,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaCreatedInput = {
@@ -106014,6 +110383,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaPublishedInput = {
@@ -106060,6 +110430,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaPublishedInput = {
@@ -106242,6 +110613,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaDisputedInput = {
@@ -106288,6 +110660,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaDisputedInput = {
@@ -106427,6 +110800,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaCreatedInput = {
@@ -106473,6 +110847,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutAddendaPublishedInput = {
@@ -106530,6 +110905,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaPublishedInput = {
@@ -106576,6 +110952,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput = {
@@ -106728,6 +111105,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaDisputedInput = {
@@ -106774,6 +111152,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type ReportAddendumCreateWithoutEntriesInput = {
@@ -107316,6 +111695,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput = {
@@ -107362,6 +111742,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput = {
@@ -107479,6 +111860,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput = {
@@ -107525,6 +111907,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutDeletionRequestsInput = {
@@ -107571,6 +111954,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
@@ -107617,6 +112001,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
@@ -107703,6 +112088,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
@@ -107749,6 +112135,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {
@@ -107890,6 +112277,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutErrorEventsInput = {
@@ -107936,6 +112324,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutErrorEventsInput = {
@@ -107998,6 +112387,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutErrorEventsInput = {
@@ -108044,6 +112434,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutProductEventsInput = {
@@ -108090,6 +112481,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutProductEventsInput = {
@@ -108136,6 +112528,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutProductEventsInput = {
@@ -108198,6 +112591,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutProductEventsInput = {
@@ -108244,6 +112638,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutIssuedReportFilesInput = {
@@ -108463,6 +112858,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAssessmentResponsesInput = {
@@ -108509,6 +112905,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAssessmentResponsesInput = {
@@ -108602,6 +112999,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAssessmentResponsesInput = {
@@ -108648,6 +113046,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyMembershipCreateManyStakeholderInput = {
@@ -109073,6 +113472,7 @@ export namespace Prisma {
 
   export type SubscriptionCreateManyManagedByInput = {
     id?: string
+    agencyId?: string | null
     teamId?: string | null
     stakeholderId?: string | null
     plan: $Enums.Plan
@@ -109080,10 +113480,18 @@ export namespace Prisma {
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type GooglePlayBillingAccountCreateManyStakeholderInput = {
+    id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
   }
 
   export type AgencyMembershipUpdateWithoutStakeholderInput = {
@@ -110479,11 +114887,14 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -110491,6 +114902,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -110499,6 +114911,7 @@ export namespace Prisma {
 
   export type SubscriptionUncheckedUpdateManyWithoutManagedByInput = {
     id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
     plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
@@ -110506,10 +114919,34 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayBillingAccountUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: GooglePlayPurchaseUpdateManyWithoutAccountNestedInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: GooglePlayPurchaseUncheckedUpdateManyWithoutAccountNestedInput
+  }
+
+  export type GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StakeholderCreateManyTeamInput = {
@@ -110568,6 +115005,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTeamInput = {
@@ -110614,6 +115052,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateManyWithoutTeamInput = {
@@ -111000,6 +115439,84 @@ export namespace Prisma {
     emailError?: NullableStringFieldUpdateOperationsInput | string | null
     pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type GooglePlayPurchaseCreateManyAccountInput = {
+    id?: string
+    purchaseToken: string
+    productId: string
+    basePlanId: string
+    state: string
+    expiresAt?: Date | string | null
+    autoRenewing: boolean
+    acknowledged: boolean
+    testPurchase: boolean
+    replacedById?: string | null
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    refundReason?: string | null
+    refundedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type GooglePlayPurchaseUpdateWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUpdateOneWithoutGooglePlayPurchaseNestedInput
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUncheckedUpdateOneWithoutGooglePlayPurchaseNestedInput
+  }
+
+  export type GooglePlayPurchaseUncheckedUpdateManyWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    purchaseToken?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    basePlanId?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    acknowledged?: BoolFieldUpdateOperationsInput | boolean
+    testPurchase?: BoolFieldUpdateOperationsInput | boolean
+    replacedById?: NullableStringFieldUpdateOperationsInput | string | null
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    refundReason?: NullableStringFieldUpdateOperationsInput | string | null
+    refundedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type TenancyCreateManyPropertyInput = {

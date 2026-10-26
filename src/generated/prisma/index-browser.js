@@ -199,6 +199,7 @@ exports.Prisma.AgencyActivityScalarFieldEnum = {
 
 exports.Prisma.SubscriptionScalarFieldEnum = {
   id: 'id',
+  agencyId: 'agencyId',
   teamId: 'teamId',
   stakeholderId: 'stakeholderId',
   plan: 'plan',
@@ -206,9 +207,38 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   status: 'status',
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
+  googlePlayPurchaseId: 'googlePlayPurchaseId',
   currentPeriodEnd: 'currentPeriodEnd',
   cancelAtPeriodEnd: 'cancelAtPeriodEnd',
   managedById: 'managedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.GooglePlayBillingAccountScalarFieldEnum = {
+  id: 'id',
+  workspaceKey: 'workspaceKey',
+  stakeholderId: 'stakeholderId',
+  retirementStartedAt: 'retirementStartedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.GooglePlayPurchaseScalarFieldEnum = {
+  id: 'id',
+  purchaseToken: 'purchaseToken',
+  accountId: 'accountId',
+  productId: 'productId',
+  basePlanId: 'basePlanId',
+  state: 'state',
+  expiresAt: 'expiresAt',
+  autoRenewing: 'autoRenewing',
+  acknowledged: 'acknowledged',
+  testPurchase: 'testPurchase',
+  replacedById: 'replacedById',
+  grantedAt: 'grantedAt',
+  rejectedAt: 'rejectedAt',
+  refundReason: 'refundReason',
+  refundedAt: 'refundedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1070,6 +1100,8 @@ exports.Prisma.ModelName = {
   AgencyMembership: 'AgencyMembership',
   AgencyActivity: 'AgencyActivity',
   Subscription: 'Subscription',
+  GooglePlayBillingAccount: 'GooglePlayBillingAccount',
+  GooglePlayPurchase: 'GooglePlayPurchase',
   AgentBranding: 'AgentBranding',
   Property: 'Property',
   PropertyEvent: 'PropertyEvent',

@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
 import { sendAccountDeletionComplete } from '@/lib/email'
+import { retirePlayBilling } from '@/lib/play-billing'
 import { syncSubscription } from '@/lib/billing'
 import { isLive } from '@/lib/plan'
 import { stripe } from '@/lib/stripe'
@@ -157,6 +158,7 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
     // teammate subscribe again, on a customer of their own: the portal only ever opens
     // for the member who manages the plan, so nobody reaches the deleted payer's invoices.
     // Stripe is re-read first, so a rerun after a partial failure never cancels twice.
+    await retirePlayBilling(person.id)
     const managed = await db.subscription.findMany({ where: { managedById: person.id } })
     for (const { stripeSubscriptionId, status } of managed) {
       if (!stripeSubscriptionId || !isLive(status)) continue

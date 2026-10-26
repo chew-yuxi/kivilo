@@ -10,6 +10,7 @@ import { AgencyActionError } from '@/lib/agency-errors'
 import { tenancyAccess } from '@/lib/tenancy-access'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
+import { assertCanAddProperty, subscriptionCanResume, subscriptionIsLive } from '@/lib/plan'
 import type { AgencyMembership, Prisma, Stakeholder } from '@/generated/prisma'
 
 const agencyName = z.string().trim().min(1).max(100)
@@ -109,6 +110,13 @@ export async function respondAgencyInvitation(agencyId: string, memberId: string
     if (!invitation.expiresAt || invitation.expiresAt <= new Date()) {
       throw new AgencyActionError('This invitation has expired. Ask a team manager to send it again.')
     }
+    if (action === 'accept') {
+      const subscription = await tx.subscription.findUnique({ where: { agencyId } })
+      if (subscription && subscriptionIsLive(subscription) &&
+          await tx.agencyMembership.count({ where: { agencyId, status: 'ACTIVE' } }) >= subscription.seats) {
+        throw new AgencyActionError('This team needs another paid seat. Ask its billing manager to add a seat before accepting.')
+      }
+    }
     await tx.agencyMembership.update({ where: { id: invitation.id }, data: action === 'accept'
       ? { status: 'ACTIVE', acceptedAt: new Date(), expiresAt: null }
       : { status: 'REMOVED', removedAt: new Date(), expiresAt: null } })
@@ -135,6 +143,18 @@ export async function changeAgencyMember(agencyId: string, memberId: string, raw
     if (!member || member.status === 'REMOVED') throw new Error('Member not found')
     if (manager.role !== 'OWNER' && (member.role === 'OWNER' || ('role' in input && input.role === 'OWNER'))) {
       throw new AgencyActionError('Only a team owner can change ownership.')
+    }
+    if (member.status === 'ACTIVE' && (('role' in input && input.role === 'AGENT') || ('action' in input && input.action === 'remove'))) {
+      const subscription = await tx.subscription.findUnique({ where: { agencyId } })
+      if (subscription?.managedById === member.stakeholderId &&
+          (subscription.stripeSubscriptionId || subscription.googlePlayPurchaseId) && subscriptionCanResume(subscription)) {
+        throw new AgencyActionError('This member manages the team’s paid subscription. Cancel it and wait until it ends before removing their billing access.')
+      }
+      if (subscription?.managedById === member.stakeholderId) {
+        // A future subscription may be bought by another manager. The old payer's
+        // customer is never reused when managedById has been cleared.
+        await tx.subscription.update({ where: { id: subscription.id }, data: { managedById: null } })
+      }
     }
     const removingOwner = member.status === 'ACTIVE' && member.role === 'OWNER' &&
       (('role' in input && input.role !== 'OWNER') || ('action' in input && input.action === 'remove'))
@@ -208,6 +228,10 @@ export async function assignTenancy(tenancyId: string, raw: z.input<typeof assig
     if (!tenancy.agencyId) {
       if (tenancy.agentId !== actor.id) throw new Error('Tenancy not found')
       await requireAgencyMembership(agencyId, actor.id, tx)
+      const active = { endDate: { gte: new Date() }, inspections: { none: { kind: 'CHECK_OUT' as const, status: 'COMPLETED' as const } }, property: { trashedAt: null } }
+      if (await tx.tenancy.findFirst({ where: { id: tenancy.id, ...active } })) {
+        await assertCanAddProperty(actor, agencyId, tx, tenancy.propertyId)
+      }
     }
     const leadAgentId = input.leadAgentId ?? tenancy.agentId
     if (!leadAgentId) throw new AgencyActionError('Choose a responsible lead agent.')

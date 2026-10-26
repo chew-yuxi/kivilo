@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { isLive } from '@/lib/plan'
+import { isLive, subscriptionCanResume } from '@/lib/plan'
 import { assertStripeMode, PRO_PRODUCT_ID, stripe } from '@/lib/stripe'
 
 /// Stripe is the truth about what a workspace has paid for; the Subscription row is a
@@ -20,22 +20,23 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
   const client = stripe()
   const initial = await client.subscriptions.retrieve(subscriptionId)
   assertStripeMode(initial)
-  const { teamId, stakeholderId } = initial.metadata
-  const where = teamId ? { teamId } : stakeholderId ? { stakeholderId } : null
-  if (!where || (teamId && stakeholderId)) {
+  const { agencyId, teamId, stakeholderId } = initial.metadata
+  const where = agencyId ? { agencyId } : teamId ? { teamId } : stakeholderId ? { stakeholderId } : null
+  if (!where || [agencyId, teamId, stakeholderId].filter(Boolean).length !== 1) {
     throw new Error(`Stripe subscription ${initial.id} must name exactly one workspace`)
   }
 
   return db.$transaction(async (tx) => {
+    if (agencyId) await tx.$queryRaw`SELECT "id" FROM "Agency" WHERE "id" = ${agencyId} FOR SHARE`
     // Lock the workspace even before it has a Subscription row. Fetch again only after
     // acquiring the lock: an earlier network response must not overwrite a newer sync.
-    const lock = teamId ? `stripe:team:${teamId}` : `stripe:stakeholder:${stakeholderId}`
+    const lock = agencyId ? `billing:agency:${agencyId}` : teamId ? `billing:team:${teamId}` : `billing:stakeholder:${stakeholderId}`
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lock}, 0))`
     const subscription = await client.subscriptions.retrieve(subscriptionId, {}, {
       timeout: 8_000, maxNetworkRetries: 0,
     })
     assertStripeMode(subscription)
-    if (subscription.metadata.teamId !== teamId || subscription.metadata.stakeholderId !== stakeholderId) {
+    if (subscription.metadata.agencyId !== agencyId || subscription.metadata.teamId !== teamId || subscription.metadata.stakeholderId !== stakeholderId) {
       throw new Error(`Stripe subscription ${subscription.id} changed workspace while syncing`)
     }
     const customerId = typeof subscription.customer === 'string' ? subscription.customer : subscription.customer.id
@@ -59,6 +60,7 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
       status: subscription.status,
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
+      googlePlayPurchaseId: null,
       // A cancellation set for a date rather than the period end still ends it then.
       currentPeriodEnd: new Date((subscription.cancel_at ?? item.current_period_end) * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end || subscription.cancel_at !== null,
@@ -67,6 +69,10 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     const existing = await tx.subscription.findUnique({ where })
     if (!existing) {
       return tx.subscription.create({ data: { ...where, ...state, managedById: managedById || null } })
+    }
+    if (existing.googlePlayPurchaseId && subscriptionCanResume(existing)) {
+      if (!isLive(subscription.status)) return existing
+      throw new Error('Workspace already pays through Google Play; refusing a second paid subscription')
     }
     if (existing.stripeSubscriptionId === subscription.id) {
       // The manager is set when the subscription first lands and is ours after that:
@@ -78,7 +84,7 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     if (!isLive(subscription.status)) return existing
     if (existing.stripeSubscriptionId && isLive(existing.status)) {
       throw new Error(
-        `Workspace ${teamId ? `team ${teamId}` : stakeholderId} already pays through ` +
+        `Workspace ${agencyId ?? teamId ?? stakeholderId} already pays through ` +
         `${existing.stripeSubscriptionId}; refusing to replace it with ${subscription.id}. ` +
         'Refund and cancel one of them in Stripe.',
       )

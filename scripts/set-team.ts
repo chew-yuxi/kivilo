@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
-import { isLive } from '@/lib/plan'
+import { isLive, subscriptionCanResume } from '@/lib/plan'
 
 /// Puts an agent on a team, or takes them off one with an empty --team. The agent is found
 /// by email, or created unclaimed so their first sign-in claims them already on the team.
@@ -18,6 +18,9 @@ import { isLive } from '@/lib/plan'
 /// they cancel it in Manage billing and move once it has ended.
 export async function setTeam(email: string, team: string) {
   const own = await db.subscription.findFirst({ where: { stakeholder: { email } } })
+  if (team && own?.googlePlayPurchaseId && subscriptionCanResume(own)) {
+    throw new Error(`${email} pays through Google Play; cancel there and wait until the subscription ends before joining a billing team`)
+  }
   if (team && own?.stripeSubscriptionId && isLive(own.status)) {
     throw new Error(
       `${email} pays for Pro on their own (${own.stripeSubscriptionId}); joining a team would ` +
@@ -28,7 +31,11 @@ export async function setTeam(email: string, team: string) {
     where: { team: { members: { some: { email } } }, managedBy: { email } },
     include: { team: { select: { name: true } } },
   })
-  if (managed?.team && managed.team.name !== team && managed.stripeSubscriptionId && isLive(managed.status)) {
+  if (managed?.team && managed.team.name !== team &&
+      (managed.stripeSubscriptionId || managed.googlePlayPurchaseId) && subscriptionCanResume(managed)) {
+    if (managed.googlePlayPurchaseId) {
+      throw new Error(`${email} manages ${managed.team.name}'s Google Play subscription; cancel it in Google Play and wait until it ends before leaving`)
+    }
     throw new Error(
       `${email} manages ${managed.team.name}'s Pro subscription (${managed.stripeSubscriptionId}), ` +
       'paid on their card; leaving the team would leave it paying through someone outside it. ' +

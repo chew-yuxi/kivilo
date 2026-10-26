@@ -7,6 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config.dart';
 import '../models/addenda.dart';
 import '../models/agency.dart';
+import '../models/billing.dart';
 import '../models/property_history.dart';
 import '../models/property_work.dart';
 import '../models/property_settings.dart';
@@ -406,6 +407,62 @@ class Api {
   Future<WorkspacePlan> plan() async => WorkspacePlan.fromJson(
     await _read('/api/v1/me/plan', 'plan') as Map<String, dynamic>,
   );
+
+  Future<WorkspacePlan> selectedWorkspacePlan() async {
+    final preference = await workspacePreference();
+    final agencyId = preference == null || preference == 'all'
+        ? 'personal'
+        : preference;
+    return WorkspacePlan.fromJson(
+      await _read(
+            '/api/v1/me/plan?agencyId=${Uri.encodeQueryComponent(agencyId)}',
+            'plan:$agencyId',
+          )
+          as Map<String, dynamic>,
+    );
+  }
+
+  Future<PlayBillingStatus> playBillingStatus(String agencyId) async =>
+      PlayBillingStatus.fromJson(
+        (await _get<Map<String, dynamic>>(
+          '/api/v1/billing/google-play',
+          queryParameters: {'agencyId': agencyId},
+          expectedOwnerId: currentOwnerId,
+        )).data!,
+      );
+
+  Future<PlayPurchaseContext> playPurchaseContext({
+    required String agencyId,
+    required String productId,
+    required String expectedOwnerId,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/billing/google-play/purchase-context',
+      data: {'agencyId': agencyId, 'productId': productId},
+      options: Options(
+        extra: {'expectedOwnerId': expectedOwnerId},
+        sendTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 45),
+      ),
+    );
+    return PlayPurchaseContext.fromJson(response.data!);
+  });
+
+  Future<PlayVerification> verifyPlayPurchase({
+    required String purchaseToken,
+    required String expectedOwnerId,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/billing/google-play/verify',
+      data: {'purchaseToken': purchaseToken},
+      options: Options(
+        extra: {'expectedOwnerId': expectedOwnerId},
+        sendTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 45),
+      ),
+    );
+    return PlayVerification.fromJson(response.data!);
+  });
 
   Future<AgentBranding?> saveBranding(Map<String, dynamic> body) =>
       _call(() async {

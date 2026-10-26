@@ -16,6 +16,7 @@ import 'services/foreground_capture_retry.dart';
 import 'services/push_notifications.dart';
 import 'services/patch_update.dart';
 import 'services/product_events.dart';
+import 'services/play_billing.dart';
 import 'screens/sign_in_screen.dart';
 import 'ui/kivilo_theme.dart';
 
@@ -43,6 +44,7 @@ Future<void> main() async {
         localStorage: SecureSessionStore(),
       ),
     );
+    PlayBilling.install(Api());
     // Without this, a token refresh that fails while the phone has no signal is an
     // unhandled zone error and takes the app down. An inspector is offline by default,
     // so this is the ordinary case, not the exceptional one.
@@ -103,6 +105,8 @@ Future<void> _resumeCaptures() async {
 
 void _resumeUserServices() {
   unawaited(_resumeCaptures());
+  final billing = PlayBilling.current;
+  if (billing != null) unawaited(billing.resume());
   // Reports wait for a session as well as for signal, so a sign-in is a moment to send.
   final reporter = ErrorReporter.current;
   if (reporter != null) unawaited(reporter.flush());
@@ -159,6 +163,7 @@ class _RootState extends State<_Root> with WidgetsBindingObserver {
         state == AppLifecycleState.paused ||
         state == AppLifecycleState.hidden) {
       _captureRetry.stop();
+      PlayBilling.current?.suspend();
     }
   }
 
