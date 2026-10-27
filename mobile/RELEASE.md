@@ -5,6 +5,24 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Item photo screen: 27 October 2026 Singapore time
+
+Source `7096fdc`, pushed to `origin/main` before patching. On an item, Take photos is
+now the footer with Choose photos as a text button under it, and Done moves to the
+top right. The item screen no longer offers video (the room walkthrough video is
+unchanged), its list is headed Photos and says when there are none yet.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **2** / `752397` | **stable**, active and latest |
+
+Built from a pinned worktree of the source with production defines. Flutter analysis
+was clean and all **454 mobile tests** passed. No icon was added or removed relative
+to patch 1's source `7701842`, and there was no native diff against base `89a8534`;
+the only asset difference is patch 1's documented `MaterialIcons-Regular.otf`
+removal, so `--allow-asset-diffs` was used as before. No iOS patch was made. Rendered
+at a 390pt width only; physical-device verification remains **NOT RUN**.
+
 ## Mobile UX cleanup and Android 29 fixes — 27 October 2026 Singapore time
 
 Source `77018422d7c406944fa88c1d5c05efb3ae0873e9`, pushed to `origin/main` before
