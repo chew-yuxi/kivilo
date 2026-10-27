@@ -158,7 +158,7 @@ void main() {
     bool wide = false,
   }) async {
     final image = ResizeImage.resizeIfNeeded(
-      wide ? 112 : 56,
+      160, // The grid tile decodes at its largest cell, 160 at this ratio of 1.
       null,
       NetworkImage(_saved(clientId).url),
     );
@@ -191,7 +191,7 @@ void main() {
       for (final row in await queue.forRoom('living', 'owner')) {
         await precacheImage(
           ResizeImage.resizeIfNeeded(
-            wide ? 112 : 56,
+            160, // The grid tile decodes at its largest cell, 160 at this ratio of 1.
             null,
             FileImage(File('${root.path}/${row.relativePath}')),
           ),
@@ -274,7 +274,7 @@ void main() {
           expect(tester.element(card('first')), same(cardElement));
           expect(tester.state(image('first')), same(imageState));
           expect(frame(tester, 'first').image, same(localFrame));
-          expect(find.text('Uploaded · updating report'), findsOneWidget);
+          expect(find.text('Adding'), findsOneWidget);
 
           api.refreshes.single.complete(_room([_saved('first')]));
           await settle(tester);
@@ -282,7 +282,10 @@ void main() {
           expect(tester.element(card('first')), same(cardElement));
           expect(tester.state(image('first')), same(imageState));
           expect(frame(tester, 'first').image, same(localFrame));
-          expect(find.text('In the report'), findsOneWidget);
+          expect(
+            find.bySemanticsLabel(RegExp(r'In the report$')),
+            findsOneWidget,
+          );
 
           remote.complete(ImageInfo(image: remoteFrame.clone()));
           await settle(tester);
@@ -349,25 +352,28 @@ void main() {
         final secondState = tester.state(image('second'));
         final firstFrame = frame(tester, 'first').image;
         final secondFrame = frame(tester, 'second').image;
-        final firstY = tester.getTopLeft(card('first')).dy;
-        final secondY = tester.getTopLeft(card('second')).dy;
-        expect(secondY, lessThan(firstY));
+        // Reading order in the grid: an earlier row, or further left on the same one.
+        bool secondFirst() {
+          final first = tester.getTopLeft(card('first'));
+          final second = tester.getTopLeft(card('second'));
+          return second.dy < first.dy ||
+              (second.dy == first.dy && second.dx < first.dx);
+        }
+
+        expect(secondFirst(), isTrue);
 
         // The older photo completes first. The first refresh is already in flight
         // when the newer photo also completes, so it cannot retire either card.
         await finish(tester, first);
         await finish(tester, second);
         expect(api.refreshes, hasLength(1));
-        expect(
-          tester.getTopLeft(card('second')).dy,
-          lessThan(tester.getTopLeft(card('first')).dy),
-        );
+        expect(secondFirst(), isTrue);
         api.refreshes.first.complete(_room([_saved('first')]));
         await settle(tester);
         expect(api.refreshes, hasLength(2));
         expect(card('first'), findsOneWidget);
         expect(card('second'), findsOneWidget);
-        expect(find.text('Uploaded · updating report'), findsNWidgets(2));
+        expect(find.text('Adding'), findsNWidgets(2));
         expect(tester.state(image('first')), same(firstState));
         expect(tester.state(image('second')), same(secondState));
         expect(frame(tester, 'first').image, same(firstFrame));
@@ -376,15 +382,15 @@ void main() {
         // Registration order differs from local capture order.
         api.refreshes.last.complete(_room([_saved('second'), _saved('first')]));
         await settle(tester);
-        expect(
-          tester.getTopLeft(card('second')).dy,
-          lessThan(tester.getTopLeft(card('first')).dy),
-        );
+        expect(secondFirst(), isTrue);
         expect(tester.state(image('first')), same(firstState));
         expect(tester.state(image('second')), same(secondState));
         expect(frame(tester, 'first').image, same(firstFrame));
         expect(frame(tester, 'second').image, same(secondFrame));
-        expect(find.text('In the report'), findsNWidgets(2));
+        expect(
+          find.bySemanticsLabel(RegExp(r'In the report$')),
+          findsNWidgets(2),
+        );
         await close(tester);
       },
     );
@@ -405,7 +411,7 @@ void main() {
     });
     await settle(tester);
     expect(card('deleted'), findsNothing);
-    expect(find.text('Uploaded · updating report'), findsNothing);
+    expect(find.text('Adding'), findsNothing);
     api.refreshes.single.complete(_room([]));
     await settle(tester);
     expect(card('deleted'), findsNothing);
@@ -435,14 +441,14 @@ void main() {
     expect(card('coalesced'), findsOneWidget);
     expect(tester.state(image('coalesced')), same(imageState));
     expect(frame(tester, 'coalesced').image, same(localFrame));
-    expect(find.text('Uploaded · updating report'), findsOneWidget);
+    expect(find.text('Adding'), findsOneWidget);
 
     api.refreshes.single.complete(_room([_saved('coalesced')]));
     await settle(tester);
     expect(card('coalesced'), findsOneWidget);
     expect(tester.state(image('coalesced')), same(imageState));
     expect(frame(tester, 'coalesced').image, same(localFrame));
-    expect(find.text('In the report'), findsOneWidget);
+    expect(find.bySemanticsLabel(RegExp(r'In the report$')), findsOneWidget);
     await close(tester);
   });
 
@@ -464,7 +470,7 @@ void main() {
       expect(card('awaiting-link'), findsOneWidget);
       expect(tester.state(image('awaiting-link')), same(imageState));
       expect(frame(tester, 'awaiting-link').image, same(localFrame));
-      expect(find.text('Uploaded · updating report'), findsOneWidget);
+      expect(find.text('Adding'), findsOneWidget);
       await tester.tap(find.byTooltip('Retry uploads'));
       await settle(tester);
       expect(api.refreshes, hasLength(2));
@@ -473,7 +479,7 @@ void main() {
       expect(card('awaiting-link'), findsOneWidget);
       expect(tester.state(image('awaiting-link')), same(imageState));
       expect(frame(tester, 'awaiting-link').image, same(localFrame));
-      expect(find.text('In the report'), findsOneWidget);
+      expect(find.bySemanticsLabel(RegExp(r'In the report$')), findsOneWidget);
       await close(tester);
     },
   );

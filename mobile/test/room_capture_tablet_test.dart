@@ -325,7 +325,7 @@ void main() {
       expect(find.byType(Image).evaluate().length, lessThan(20));
       for (final image in tester.widgetList<Image>(find.byType(Image))) {
         expect(image.image, isA<ResizeImage>());
-        expect((image.image as ResizeImage).width, 112);
+        expect((image.image as ResizeImage).width, 160);
       }
       final media = find.byKey(const PageStorageKey('capture-media-kitchen'));
       await tester.scrollUntilVisible(

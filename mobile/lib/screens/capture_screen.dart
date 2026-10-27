@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:number_flow_flutter/number_flow_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -938,105 +937,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  /// [bytes] in the unit and precision the [total] calls for, so the moving figure keeps
-  /// the unit of the size it is counting towards instead of jumping from KB to MB.
-  ({double value, int digits, String unit}) _sizeIn(int bytes, int total) {
-    if (total >= 1024 * 1024) {
-      return (
-        value: bytes / (1024 * 1024),
-        digits: total >= 10 * 1024 * 1024 ? 1 : 2,
-        unit: 'MB',
-      );
-    }
-    return (
-      value: bytes / 1024,
-      digits: total >= 100 * 1024 ? 0 : 1,
-      unit: 'KB',
-    );
-  }
-
-  Widget _pendingCaptureProgress(PendingCapture capture) {
-    final update = capture.clientId == null
-        ? null
-        : _syncUpdates[capture.clientId!];
-    final progress = (update?.progress ?? 0).clamp(0.0, 1.0);
-    final sent = _sizeIn(
-      (capture.sizeBytes * progress).round(),
-      capture.sizeBytes,
-    );
-    final whole = _sizeIn(capture.sizeBytes, capture.sizeBytes);
-    final annotationError =
-        capture.uploadedId != null &&
-        !capture.registrationAnnotationsApplied &&
-        capture.annotations != null;
-    final message = annotationError
-        ? 'The photo uploaded, but its marks did not. Try again, or edit the marks.'
-        : capture.lastError;
-    final color = annotationError || capture.lastError != null
-        ? KiviloColors.red
-        : KiviloColors.pink;
-    final detailStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: capture.lastError == null ? KiviloColors.muted : KiviloColors.red,
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (capture.awaitingMarkup)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-            child: OutlinedButton.icon(
-              onPressed: () => _markQueued(capture),
-              icon: const Icon(Icons.gesture_outlined),
-              label: const Text('Finish marking'),
-            ),
-          ),
-        if (!capture.awaitingMarkup)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 2, 12, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                KiviloProgressBar(
-                  value: capture.lastError == null ? progress : null,
-                  color: color,
-                ),
-                const SizedBox(height: 6),
-                if (message != null)
-                  Text(message, style: detailStyle)
-                else
-                  // The figures roll digit by digit, NumberFlow style, rather than
-                  // flickering as each progress event lands.
-                  Row(
-                    children: [
-                      // All of the line is NumberFlow's own text: beside a plain Text
-                      // its glyphs sit a pixel higher.
-                      NumberFlow(
-                        value: (progress * 100).round(),
-                        suffix: '% · ',
-                        style: detailStyle,
-                        tabularNums: true,
-                      ),
-                      NumberFlow(
-                        value: sent.value,
-                        format: NumberFlowFormat.decimal(
-                          minFraction: sent.digits,
-                          maxFraction: sent.digits,
-                        ),
-                        suffix:
-                            ' ${sent.unit} of ${whole.value.toStringAsFixed(whole.digits)} ${whole.unit}',
-                        style: detailStyle,
-                        tabularNums: true,
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
   @override
   void dispose() {
     unawaited(_syncSubscription?.cancel());
@@ -1076,6 +976,11 @@ class _CaptureScreenState extends State<CaptureScreen> {
         _handingOver.values.any(
           (capture) => widget.itemId == null || capture.itemId == widget.itemId,
         );
+    final paused = pending
+        ?.where(
+          (capture) => _annotationError(capture) || capture.lastError != null,
+        )
+        .firstOrNull;
     final checkIn = _room?.checkIn;
     final baseline = checkIn?.lines
         .where((line) => line.key == item?.baselineKey)
@@ -1247,6 +1152,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   KiviloColors.amber,
                   onTap: () => unawaited(_drain()),
                 ),
+              // A tile only says "Paused"; the reason belongs here.
+              if (paused != null)
+                _notice(
+                  Icons.error_outline,
+                  _annotationError(paused)
+                      ? 'A photo uploaded, but its marks did not. Tap to try again, or edit its marks.'
+                      : 'Upload paused. ${paused.lastError} Tap to try again.',
+                  KiviloColors.redSoft,
+                  KiviloColors.red,
+                  onTap: () => unawaited(_drain()),
+                ),
               // An item's photo actions are the footer, so this screen is about the photos.
               if (widget.itemId == null) ...[
                 KiviloSegmentedControl<bool>(
@@ -1332,12 +1248,24 @@ class _CaptureScreenState extends State<CaptureScreen> {
             Widget cardAt(int index) {
               final key = keys[index];
               final capture = captures[key]!;
-              return _captureCard(
+              return _captureTile(
                 key,
                 pending: capture.pending,
                 saved: capture.saved,
-                wide: wide,
+                number: index + 1,
               );
+            }
+
+            // The photo is the content, so the list is the photos themselves:
+            // three across on a phone, status only on one still on its way.
+            const grid = SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 160,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+            );
+            int? indexOfKey(Key key) {
+              final index = keys.indexOf((key as ValueKey<String>).value);
+              return index < 0 ? null : index;
             }
 
             final media = <Widget>[
@@ -1356,22 +1284,25 @@ class _CaptureScreenState extends State<CaptureScreen> {
               if (wide)
                 SizedBox(
                   height: (constraints.maxHeight - 100).clamp(360, 600),
-                  child: ListView.builder(
+                  child: GridView.builder(
                     key: PageStorageKey('capture-media-${widget.roomId}'),
                     primary: false,
+                    gridDelegate: grid,
                     itemCount: keys.length,
-                    findChildIndexCallback: (key) {
-                      final index = keys.indexOf(
-                        (key as ValueKey<String>).value,
-                      );
-                      return index < 0 ? null : index;
-                    },
+                    findChildIndexCallback: indexOfKey,
                     itemBuilder: (_, index) => cardAt(index),
                   ),
                 )
-              else ...[
-                for (var index = 0; index < keys.length; index++) cardAt(index),
-              ],
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  gridDelegate: grid,
+                  itemCount: keys.length,
+                  findChildIndexCallback: indexOfKey,
+                  itemBuilder: (_, index) => cardAt(index),
+                ),
             ];
             return ListView(
               padding: kiviloScreenPadding,
@@ -1486,11 +1417,46 @@ class _CaptureScreenState extends State<CaptureScreen> {
     );
   }
 
-  Widget _captureCard(
+  /// What a photo still on its way says on its tile, in a word or two so it fits a
+  /// phone tile beside the actions button. Null once it is in the report.
+  ({String text, bool problem, double? progress})? _pendingStatus(
+    PendingCapture capture,
+  ) {
+    if (_handingOver.containsKey(capture.id)) {
+      return (text: 'Adding', problem: false, progress: null);
+    }
+    final update = capture.clientId == null
+        ? null
+        : _syncUpdates[capture.clientId!];
+    if (capture.awaitingMarkup) {
+      return (text: 'Tap to add', problem: false, progress: null);
+    }
+    if (_annotationError(capture) || capture.lastError != null) {
+      return (text: 'Paused', problem: true, progress: null);
+    }
+    return (
+      text: switch (update?.stage) {
+        EvidenceSyncStage.uploading => 'Uploading',
+        EvidenceSyncStage.registering => 'Adding',
+        EvidenceSyncStage.finalizing => 'Adding',
+        EvidenceSyncStage.failed => 'Paused',
+        _ => capture.claimedAt == null ? 'Waiting' : 'Preparing',
+      },
+      problem: update?.stage == EvidenceSyncStage.failed,
+      progress: (update?.progress ?? 0).clamp(0.0, 1.0),
+    );
+  }
+
+  bool _annotationError(PendingCapture capture) =>
+      capture.uploadedId != null &&
+      !capture.registrationAnnotationsApplied &&
+      capture.annotations != null;
+
+  Widget _captureTile(
     String identity, {
     required PendingCapture? pending,
     required EvidenceCapture? saved,
-    required bool wide,
+    required int number,
   }) {
     final handingOver = pending != null && _handingOver.containsKey(pending.id);
     final kind = pending?.kind ?? saved!.kind;
@@ -1500,81 +1466,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ? null
               : jsonDecode(pending.annotations!) as Map<String, dynamic>
         : saved!.annotations;
-    final preview = ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: SizedBox(
-        width: wide ? 112 : 56,
-        height: wide ? 84 : 56,
-        child: kind == 'PHOTO' && (pending == null || _root != null)
-            ? MarkedPhoto(
-                image: pending != null
-                    ? FileImage(File('${_root!.path}/${pending.relativePath}'))
-                    : NetworkImage(saved!.url),
-                annotations: annotations,
-                cacheWidth:
-                    ((wide ? 112 : 56) * MediaQuery.devicePixelRatioOf(context))
-                        .ceil(),
-                fit: BoxFit.contain,
-              )
-            : VideoPoster(posterUrl: saved?.posterUrl, iconSize: 24),
-      ),
-    );
-    final title = Text(
-      note?.isNotEmpty == true
-          ? note!
-          : pending != null
-          ? (kind == 'PHOTO' ? 'Photo on this phone' : 'Video on this phone')
-          : (kind == 'PHOTO' ? 'Photo' : 'Video'),
-    );
-    String status;
-    var color = KiviloColors.green;
-    if (pending == null) {
-      status = 'In the report';
-    } else if (handingOver) {
-      status = 'Uploaded · updating report';
-    } else {
-      final capture = pending;
-      final update = _syncUpdates[capture.clientId];
-      final annotationError =
-          capture.uploadedId != null &&
-          !capture.registrationAnnotationsApplied &&
-          capture.annotations != null;
-      final stage = capture.awaitingMarkup
-          ? 'Ready to mark'
-          : annotationError
-          ? 'Marks need attention'
-          : capture.lastError != null
-          ? 'Upload paused'
-          : switch (update?.stage) {
-              EvidenceSyncStage.preparing => 'Preparing secure upload',
-              EvidenceSyncStage.uploading => 'Uploading',
-              EvidenceSyncStage.registering =>
-                widget.itemId == null ? 'Adding to room' : 'Adding to item',
-              EvidenceSyncStage.finalizing => 'Uploading notes and marks',
-              EvidenceSyncStage.failed => 'Upload paused',
-              _ =>
-                capture.claimedAt == null
-                    ? 'Saved safely · waiting to upload'
-                    : 'Preparing secure upload',
-            };
-
-      status = stage;
-      color = annotationError || capture.lastError != null
-          ? KiviloColors.red
-          : KiviloColors.pink;
-    }
-    final subtitle = Text(status, style: TextStyle(color: color));
-    final actions = IconButton(
-      onPressed: handingOver
-          ? null
-          : () => unawaited(
-              pending != null
-                  ? _openQueuedActions(pending)
-                  : _openServerActions(saved!),
-            ),
-      icon: const Icon(Icons.more_horiz),
-      tooltip: 'Media actions',
-    );
+    final status = pending == null ? null : _pendingStatus(pending);
     final VoidCallback? open = handingOver
         ? null
         : kind == 'PHOTO'
@@ -1584,46 +1476,139 @@ class _CaptureScreenState extends State<CaptureScreen> {
         : pending == null
         ? () => unawaited(_openServerActions(saved!))
         : null;
-    return Card(
+    final hasNote = note?.isNotEmpty == true;
+    Widget badge(IconData icon) => DecoratedBox(
+      decoration: const BoxDecoration(
+        color: Colors.black54,
+        shape: BoxShape.circle,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Icon(icon, size: 16, color: Colors.white),
+      ),
+    );
+    return Semantics(
       key: ValueKey(identity),
-      margin: const EdgeInsets.only(bottom: 10),
-      child: Column(
-        children: [
-          if (wide)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
-              child: Row(
-                children: [
-                  InkWell(onTap: open, child: preview),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DefaultTextStyle.merge(
-                          style: Theme.of(context).textTheme.titleMedium,
-                          child: title,
+      button: open != null,
+      label: [
+        '${kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+        if (hasNote) note!,
+        status?.text ?? 'In the report',
+      ].join(', '),
+      child: Material(
+        color: KiviloColors.canvas,
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: open,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (kind == 'PHOTO' && (pending == null || _root != null))
+                MarkedPhoto(
+                  image: pending != null
+                      ? FileImage(
+                          File('${_root!.path}/${pending.relativePath}'),
+                        )
+                      : NetworkImage(saved!.url),
+                  annotations: annotations,
+                  cacheWidth: (160 * MediaQuery.devicePixelRatioOf(context))
+                      .ceil(),
+                  fit: BoxFit.cover,
+                )
+              else
+                VideoPoster(posterUrl: saved?.posterUrl, iconSize: 28),
+              if (status != null)
+                Positioned(
+                  left: 6,
+                  top: 6,
+                  right: 36,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
                         ),
-                        const SizedBox(height: 6),
-                        subtitle,
-                      ],
+                        // Already in the tile's label; read once.
+                        child: ExcludeSemantics(
+                          child: Text(
+                            status.text,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: status.problem
+                                  ? KiviloColors.redBorder
+                                  : Colors.white,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  actions,
-                ],
+                ),
+              // The 48 tap target is offset so the visible circle sits 6 from the
+              // corner, level with the status chip.
+              Positioned(
+                top: -5,
+                right: -5,
+                child: IconButton(
+                  onPressed: handingOver
+                      ? null
+                      : () => unawaited(
+                          pending != null
+                              ? _openQueuedActions(pending)
+                              : _openServerActions(saved!),
+                        ),
+                  icon: badge(Icons.more_horiz),
+                  tooltip: 'Media actions',
+                ),
               ),
-            )
-          else
-            ListTile(
-              onTap: open,
-              contentPadding: const EdgeInsets.fromLTRB(12, 6, 4, 6),
-              leading: preview,
-              title: title,
-              subtitle: subtitle,
-              trailing: actions,
-            ),
-          if (pending != null && !handingOver) _pendingCaptureProgress(pending),
-        ],
+              if (hasNote)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: ColoredBox(
+                    color: Colors.black54,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 5, 8, 6),
+                      child: ExcludeSemantics(
+                        child: Text(
+                          note!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              if (status?.progress != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: KiviloProgressBar(
+                    value: status!.progress,
+                    color: KiviloColors.pink,
+                    minHeight: 3,
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

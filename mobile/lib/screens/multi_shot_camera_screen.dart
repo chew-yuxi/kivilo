@@ -10,7 +10,6 @@ import '../services/camera_startup.dart';
 import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../ui/kivilo_layout.dart';
-import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
 import 'photo_mark_screen.dart';
 
@@ -375,60 +374,9 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
     }
   }
 
-  Future<void> _discard() async {
-    await widget.queue.requestDeleteMany(_drafts.map((draft) => draft.id));
-    if (mounted) Navigator.pop(context, true);
-  }
-
-  Future<void> _leave() async {
-    if (_saving || _closing) return;
-    if (_drafts.isEmpty) {
-      Navigator.pop(context, false);
-      return;
-    }
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Finish these photos?',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${_drafts.length} ${_drafts.length == 1 ? 'photo is' : 'photos are'} saved safely on this phone.',
-              ),
-              const SizedBox(height: 16),
-              FilledButton(
-                onPressed: () => Navigator.pop(context, 'save'),
-                child: Text('Save ${_drafts.length} photos'),
-              ),
-              const SizedBox(height: kiviloButtonGap),
-              TextButton(
-                onPressed: () => Navigator.pop(context, 'later'),
-                child: const Text('Finish later'),
-              ),
-              const SizedBox(height: kiviloButtonGap),
-              OutlinedButton(
-                style: kiviloDangerOutlined,
-                onPressed: () => Navigator.pop(context, 'discard'),
-                child: const Text('Discard this session'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    if (action == 'save') await _finish();
-    if (action == 'later' && mounted) Navigator.pop(context, false);
-    if (action == 'discard') await _discard();
-  }
+  /// Leaving keeps every photo, exactly as Done does. Marking is optional, so a
+  /// photo nobody marked belongs in the report; Delete with Undo removes one.
+  Future<void> _leave() => _finish();
 
   void _scaleStart(ScaleStartDetails details) => _baseZoom = _zoom;
 

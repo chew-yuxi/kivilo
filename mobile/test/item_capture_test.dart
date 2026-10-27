@@ -296,7 +296,7 @@ void main() {
       final capture = (await queue.byClientId('interrupted-sofa'))!;
       expect(capture.itemId, 'sofa');
       expect(capture.awaitingMarkup, isTrue);
-      expect(find.text('Finish marking'), findsNothing);
+      expect(find.text('Tap to add'), findsNothing);
       expect(api.requests, isEmpty);
       await tester.pumpWidget(const SizedBox.shrink());
       await settle(tester);
@@ -326,11 +326,11 @@ void main() {
       await add('table');
       await open(tester);
       final reads = api.reads;
-      expect(find.text('Finish marking'), findsOneWidget);
+      expect(find.text('Tap to add'), findsOneWidget);
       await queue.take(sofa);
       await settle(tester);
       expect(api.reads, greaterThan(reads));
-      expect(find.text('Finish marking'), findsNothing);
+      expect(find.text('Tap to add'), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
       await settle(tester);
     },
