@@ -5,6 +5,27 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Unmarked photos go to the report, and photos show as a grid: 27 October 2026 Singapore time
+
+Source `6ae1816`, pushed to `origin/main` before patching. Leaving the multi-shot camera
+now keeps and sends every photo exactly as Done does; the "Finish these photos?" sheet
+with Finish later and Discard is gone, since marking is optional. The item and room
+photo lists are a grid of thumbnails, three across on a phone, with a photo's note as
+its caption and a status chip only while it is on its way. The detailed reason for a
+paused upload is a notice above the grid. `multi_shot_leave_test.dart` fails on the
+previous camera code.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **5** / `754141` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **32** / `754150` | **stable**, active and latest for iOS |
+
+Both built from one pinned worktree with production defines. Flutter analysis was
+clean and all **467 mobile tests** passed. No icon is added against either base; the
+icon-font differences are removals only, so `--allow-asset-diffs` was used. No native
+difference. iOS shared 78.5% of Dart code with its possible-slower-execution warning.
+Rendered at a 390pt width only; physical devices **NOT RUN**.
+
 ## iOS TestFlight brought level with Android 29: 27 October 2026 Singapore time
 
 Source `b7f897f`, pushed to `origin/main` before patching. iOS TestFlight `1.0.0+25`
