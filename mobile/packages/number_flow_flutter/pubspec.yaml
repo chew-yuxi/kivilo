@@ -1,0 +1,40 @@
+name: number_flow_flutter
+description: >-
+  Beautiful animated numbers for Flutter — digit-by-digit rolling transitions
+  with locale-aware formatting, springs, and motion blur.
+version: 0.1.0
+homepage: https://github.com/briankariuki/number_flow_flutter
+repository: https://github.com/briankariuki/number_flow_flutter
+issue_tracker: https://github.com/briankariuki/number_flow_flutter/issues
+
+topics:
+  - animation
+  - number
+  - counter
+  - text
+  - ui
+
+# Pure Dart/Flutter package (no native code) — runs on every platform.
+platforms:
+  android:
+  ios:
+  linux:
+  macos:
+  web:
+  windows:
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.24.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
