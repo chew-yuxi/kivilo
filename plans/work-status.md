@@ -12,6 +12,27 @@ The camera-enabled internal builds now have the same UI: Android26 patch **1** /
 and iOS TestFlight25 patch **25** / `745855`, both stable and read back. No store binary
 or track changed. Details and rollback are in `mobile/RELEASE.md`.
 
+## Number animation error on Android 29 patch 2 — 27 October (released)
+
+Source `3f05b34` is pushed. Android `1.0.0+29` patch **3** / **752855** is stable,
+active and latest, with all three architectures verified by readback. Patch 2's
+item-photo improvements are included; unfinished Home work remains local.
+
+The number animation's teardown canceled an exit ticker whose callback disposed
+the same controller again, matching fingerprint `c0324b1fcf79be57`. Four original
+library regressions reproduced the failure. The local, verified copy of
+`number_flow_flutter` 0.1.0 fixes exit ownership and disposes active and exiting
+wheels once, preserving rolling counters and reduced-motion behavior. Only one
+vendored Dart file changes; the license and other source files remain unchanged.
+
+Flutter analysis, all **465 mobile tests**, and **11 focused lifecycle tests** pass.
+The Android compatibility dry-run passes. Binary asset checks confirm only the
+existing removed Material icon from patch 1; no native override was used. Vercel
+auto-deployed the source and both production domains pass login/API smoke checks.
+Physical-device verification is **NOT RUN**. No store-track or iOS release changes.
+Release, provenance, verification and rollback details: `mobile/RELEASE.md` and
+`build/release-20261027-number-flow/`.
+
 ## Mobile UX cleanup and build 29 errors — 27 October (released)
 
 Source `7701842` is pushed. Android `1.0.0+29` patch **1** / **752374** is stable,

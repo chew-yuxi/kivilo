@@ -5,6 +5,42 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Number animation lifecycle fix — 27 October 2026 Singapore time
+
+Source `3f05b34d589e3ba850e8d74a18c120afe91213cb` is pushed to `origin/main`.
+Android `1.0.0+29` patch **3**, ID **752855**, is **stable**, active and latest,
+verified by patch info and list readback. All three Android architectures are
+present. This includes patch 2's item-photo screen changes.
+
+The reported `_TypeError` at `FlowRenderMixin._startExit.finish` was reproduced
+when a number counter left the screen during an exit animation. Upstream 0.1.0
+disposed its opacity controller during teardown, then its canceled ticker callback
+disposed it again. Exiting digit wheels could also retain active tickers.
+
+`mobile/packages/number_flow_flutter` retains the published 0.1.0 library, license
+and package metadata. Its archive hash was verified against the previous lockfile;
+only `flow_render.dart` has a Dart source change. Cleanup now belongs to the current
+exit slot, canceled callbacks cannot affect revived slots, completed slots leave
+the repaint list, and teardown invalidates callbacks before disposing all wheels.
+Rolling numbers remain enabled. The local package README records provenance and
+when to return to the hosted dependency. No native plugin was added or changed.
+
+The original package failed four lifecycle reproductions with the matching stack.
+The fix passes all **11 focused regressions**, full Flutter analysis, and all
+**465 mobile tests**, including animation timing and reduced-motion checks.
+Shorebird dry-run and native compatibility checks pass. All ten bundled assets
+match the store release except the existing removal-only Material icon difference
+from patch 1. Binary glyph comparison confirms no added glyphs, so the documented
+`--allow-asset-diffs` allowance was used; no native override was used.
+
+Built from the isolated, pinned source with production defines and Flutter 3.47.2.
+Vercel auto-deployed the source as `dpl_8Zz6oynJBujFZXHQAS3gDkeAdbH8`, READY;
+both production domains pass login and unauthenticated API checks. Evidence is in
+`build/release-20261027-number-flow/`. Store tracks and iOS are unchanged. Physical
+device verification remains **NOT RUN**. Close/reopen Kivilo, choose **Update**, then
+reopen from its notification. The rollback target is Android 29 patch 2 / `752397`,
+which retains the original animation defect. Never delete queued media on rollback.
+
 ## Item photo screen: 27 October 2026 Singapore time
 
 Source `7096fdc`, pushed to `origin/main` before patching. On an item, Take photos is
