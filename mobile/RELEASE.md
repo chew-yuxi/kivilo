@@ -5,6 +5,27 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## iOS TestFlight brought level with Android 29: 27 October 2026 Singapore time
+
+Source `b7f897f`, pushed to `origin/main` before patching. iOS TestFlight `1.0.0+25`
+had last been patched (30) from an isolated source; this patch carries current main:
+the dark photo editor, the item photo screen, the room photo link fix, the Android 29
+UX cleanup and the number-animation lifecycle fix. The findings chevron moved from
+`Icons.keyboard_arrow_down`, absent from build 25's icon font, to
+`Icons.keyboard_arrow_down_rounded`, present in both build 25 and Android 29.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| iOS TestFlight `1.0.0+25` | **31** / `754007` | **stable**, active and latest for iOS |
+
+Against base `f9dd26d` no icon is added and only `Icons.info_outline` is removed, so
+`--allow-asset-diffs` was used for that removal-only font difference. Shorebird found
+no native difference: the new `in_app_purchase_android` plugin has no iOS code, and
+`PlayBilling.install` returns early unless the platform is Android. Flutter analysis
+was clean and all **466 mobile tests** passed. Shorebird shared 80.8% of Dart code and
+emitted its possible-slower-execution warning, as earlier iOS patches did. Public iOS
+24 and Android 29 are unchanged. Physical device **NOT RUN**.
+
 ## Fresh room photo links after a restart: 27 October 2026 Singapore time
 
 Source `1cdc86a`, pushed to `origin/main` before patching. After a cold start the room
