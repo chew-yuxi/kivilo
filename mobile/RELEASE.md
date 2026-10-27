@@ -5,6 +5,27 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Photos sent at 2048px, and opened on their small copy: 28 October 2026 Singapore time
+
+Source `8ad6bd2`, app only, pushed to `origin/main` before patching. Every evidence
+picker (room and item, finding, repair, update, document) now asks `image_picker` for a
+2048px long edge at JPEG 85, as the web always has, instead of the 3 to 6 MB camera
+frame; stored originals are untouched. Opening or marking a photo draws its 640px
+poster at once with its marks and swaps in the full photo on its first frame.
+`marked_photo_test.dart` pins the swap.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **8** / `755029` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **35** / `755042` | **stable**, active and latest for iOS |
+
+Both built from one pinned worktree with production defines. Flutter analysis was
+clean and all **473 mobile tests** passed. No icon added against either base;
+`--allow-asset-diffs` covered the known removal-only font difference. No native
+difference (`maxWidth`/`maxHeight` are existing `image_picker` arguments). iOS shared
+77.7% of Dart code with its possible-slower-execution warning. Physical devices
+**NOT RUN**.
+
 ## Finding, repair and update photo tiles from a 640px WebP: 28 October 2026 Singapore time
 
 Source `d9341e1`, pushed to `origin/main` after `20261028090000_photo_posters` was
