@@ -996,7 +996,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                           icon: RotatedBox(
                             quarterTurns: _showItemDetails ? 2 : 0,
                             child: const Icon(
-                              Icons.keyboard_arrow_down,
+                              Icons.keyboard_arrow_down_rounded,
                               size: 18,
                             ),
                           ),
