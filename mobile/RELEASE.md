@@ -5,6 +5,26 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Fresh room photo links after a restart: 27 October 2026 Singapore time
+
+Source `1cdc86a`, pushed to `origin/main` before patching. After a cold start the room
+screen opened from the copy saved on the phone, whose signed photo links had expired.
+`_stable` timed each link from when it was first shown, so it kept those dead links
+for 45 minutes and discarded the server's fresh ones: every attached photo showed the
+broken-image icon although production storage, the signed URLs and the JPEGs were
+verified intact. It now reads each link's expiry from its token and keeps it only while
+more than ten minutes remain. `room_photo_links_test.dart` fails on the old code.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **4** / `753955` | **stable**, active and latest |
+
+Built from a pinned worktree with production defines. Flutter analysis was clean and
+all **466 mobile tests** passed. No icon added or removed against patch 1's source;
+the only native-file diff since base `89a8534` is the pure-Dart vendored
+`number_flow_flutter` already shipped in patch 3. `--allow-asset-diffs` was used for
+the same documented icon-font removal. No iOS patch. Physical device **NOT RUN**.
+
 ## Number animation lifecycle fix — 27 October 2026 Singapore time
 
 Source `3f05b34d589e3ba850e8d74a18c120afe91213cb` is pushed to `origin/main`.
