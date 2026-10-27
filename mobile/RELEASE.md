@@ -5,6 +5,27 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Finding, repair and update photo tiles from a 640px WebP: 28 October 2026 Singapore time
+
+Source `d9341e1`, pushed to `origin/main` after `20261028090000_photo_posters` was
+applied to production (RLS on, no client privileges), and deployed by Vercel (READY,
+`sin1`). Finding photos, repair evidence and update photos get posters in the new
+`PhotoPoster` table, keyed by the original's path; all 8 in production were backfilled
+from the pinned source. The finding editor, comparison, repair, addenda and report
+tiles draw `posterUrl` and fall back to `url`; viewers keep the original.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **7** / `754949` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **34** / `754973` | **stable**, active and latest for iOS |
+
+Both built from one pinned worktree with production defines. Flutter analysis was
+clean and all **472 mobile tests** passed. No icon added against either base;
+`--allow-asset-diffs` covered the known removal-only font difference. No native
+difference. The first iOS publish failed on a DNS lookup of `api.shorebird.dev` after
+building; the retry published. iOS shared 77.8% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Photo tiles from a 640px WebP: 28 October 2026 Singapore time
 
 Source `51d2d6c`, pushed to `origin/main` and deployed by Vercel (READY, `sin1`) before
