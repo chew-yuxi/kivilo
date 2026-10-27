@@ -384,12 +384,16 @@ class FindingPhotos extends ChangeNotifier {
           ? [
               await _picker.pickImage(
                 source: source,
-                imageQuality: 90,
+                maxWidth: evidencePhotoEdge,
+                maxHeight: evidencePhotoEdge,
+                imageQuality: evidencePhotoQuality,
                 requestFullMetadata: false,
               ),
             ].whereType<XFile>().toList()
           : await _picker.pickMultiImage(
-              imageQuality: 90,
+              maxWidth: evidencePhotoEdge,
+              maxHeight: evidencePhotoEdge,
+              imageQuality: evidencePhotoQuality,
               requestFullMetadata: false,
             );
       final ids = await _persistPicked(intent, files);

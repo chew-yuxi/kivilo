@@ -156,4 +156,41 @@ void main() {
     expect(tester.getSize(find.byType(RawImage)), const Size(240, 480));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('draws the small copy until the full photo has a frame', (
+    tester,
+  ) async {
+    final original = _DelayedImage();
+    final small = _DelayedImage();
+    bool showing(ImageProvider image) => tester
+        .widgetList<Image>(find.byType(Image))
+        .any((widget) => widget.image == image);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Center(
+          child: SizedBox(
+            width: 240,
+            height: 160,
+            child: MarkedPhoto(
+              image: original,
+              placeholder: small,
+              annotations: _marks(4, 3),
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.runAsync(() => small.complete(4, 3));
+    await tester.pump();
+    expect(showing(small), isTrue);
+    // Marks are drawn over the small copy in the same box.
+    expect(find.byType(CustomPaint), findsWidgets);
+
+    await tester.runAsync(() => original.complete(40, 30));
+    await tester.pump();
+    await tester.pump();
+    expect(showing(small), isFalse);
+    expect(showing(original), isTrue);
+  });
 }

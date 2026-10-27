@@ -104,7 +104,9 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       }
       final photo = await _picker.pickImage(
         source: source,
-        imageQuality: 95,
+        maxWidth: evidencePhotoEdge,
+        maxHeight: evidencePhotoEdge,
+        imageQuality: evidencePhotoQuality,
         requestFullMetadata: false,
       );
       if (photo != null) await _savePhoto(photo);

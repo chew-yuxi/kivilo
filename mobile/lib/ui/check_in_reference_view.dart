@@ -25,6 +25,7 @@ class CheckInReferenceView extends StatelessWidget {
                 maxScale: 5,
                 child: MarkedNetworkPhoto(
                   url: photo.url,
+                  placeholderUrl: photo.posterUrl,
                   annotations: photo.annotations,
                   fit: BoxFit.contain,
                 ),

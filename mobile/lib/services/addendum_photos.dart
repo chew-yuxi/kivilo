@@ -65,7 +65,9 @@ class AddendumPhotos {
     // and Android decodes and compresses it to JPEG (or PNG, with transparency).
     final photo = await _picker.pickImage(
       source: source,
-      imageQuality: 90,
+      maxWidth: evidencePhotoEdge,
+      maxHeight: evidencePhotoEdge,
+      imageQuality: evidencePhotoQuality,
       requestFullMetadata: false,
     );
     if (photo == null) return null;

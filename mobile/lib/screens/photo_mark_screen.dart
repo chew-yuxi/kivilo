@@ -40,6 +40,7 @@ class PhotoMarkScreen extends StatefulWidget {
   const PhotoMarkScreen({
     super.key,
     required this.image,
+    this.placeholder,
     this.annotations,
     this.onChanged,
     this.saveLabel = 'Save',
@@ -47,6 +48,10 @@ class PhotoMarkScreen extends StatefulWidget {
   });
 
   final ImageProvider image;
+
+  /// The photo's small copy, shown while a full-size [image] downloads. Marking waits
+  /// for the full photo, since marks are measured against it.
+  final ImageProvider? placeholder;
   final Map<String, dynamic>? annotations;
 
   /// New captures persist each completed mark locally before upload is released.
@@ -510,8 +515,19 @@ class _PhotoMarkScreenState extends State<PhotoMarkScreen> {
                 );
               }
               if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    if (widget.placeholder != null)
+                      Positioned.fill(
+                        child: Image(
+                          image: widget.placeholder!,
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                        ),
+                      ),
+                    const CircularProgressIndicator(color: Colors.white),
+                  ],
                 );
               }
               final photo = snapshot.data!;

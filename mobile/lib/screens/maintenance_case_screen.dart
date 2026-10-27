@@ -16,6 +16,7 @@ import 'responsibility_card.dart';
 import 'report_screen.dart';
 import 'video_screen.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/marked_network_photo.dart';
 
 class _MoveInDefectComposer extends StatefulWidget {
   const _MoveInDefectComposer({required this.item});
@@ -1007,8 +1008,9 @@ class _EvidenceCard extends StatelessWidget {
                             child: InteractiveViewer(
                               minScale: 0.8,
                               maxScale: 5,
-                              child: Image.network(
-                                evidence.url,
+                              child: MarkedNetworkPhoto(
+                                url: evidence.url,
+                                placeholderUrl: evidence.posterUrl,
                                 fit: BoxFit.contain,
                               ),
                             ),

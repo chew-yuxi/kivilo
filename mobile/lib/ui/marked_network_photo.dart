@@ -9,6 +9,7 @@ class MarkedNetworkPhoto extends StatelessWidget {
   const MarkedNetworkPhoto({
     super.key,
     required this.url,
+    this.placeholderUrl,
     this.annotations,
     this.fit = BoxFit.cover,
     this.semanticLabel,
@@ -16,6 +17,9 @@ class MarkedNetworkPhoto extends StatelessWidget {
   });
 
   final String url;
+
+  /// The photo's small copy, drawn at once while a full-size [url] downloads.
+  final String? placeholderUrl;
   final Map<String, dynamic>? annotations;
   final BoxFit fit;
   final String? semanticLabel;
@@ -24,6 +28,7 @@ class MarkedNetworkPhoto extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MarkedPhoto(
     image: NetworkImage(url),
+    placeholder: placeholderUrl == null ? null : NetworkImage(placeholderUrl!),
     annotations: annotations,
     fit: fit,
     semanticLabel: semanticLabel,
@@ -39,6 +44,7 @@ class MarkedPhoto extends StatelessWidget {
   const MarkedPhoto({
     super.key,
     required this.image,
+    this.placeholder,
     this.annotations,
     this.fit = BoxFit.cover,
     this.semanticLabel,
@@ -47,6 +53,10 @@ class MarkedPhoto extends StatelessWidget {
   });
 
   final ImageProvider image;
+
+  /// Drawn in the same box until [image] has its first frame. It has the same
+  /// proportions, so the marks sit on it exactly as on the full photo.
+  final ImageProvider? placeholder;
   final Map<String, dynamic>? annotations;
   final BoxFit fit;
   final String? semanticLabel;
@@ -62,6 +72,18 @@ class MarkedPhoto extends StatelessWidget {
     fit: imageFit,
     gaplessPlayback: true,
     semanticLabel: semanticLabel,
+    frameBuilder: placeholder == null
+        ? null
+        : (_, child, frame, synchronous) => frame != null || synchronous
+              ? child
+              : Image(
+                  image: placeholder!,
+                  fit: imageFit,
+                  gaplessPlayback: true,
+                  // The full photo reports its own failure; a missing small copy
+                  // only means nothing shows until it arrives.
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
     errorBuilder: (_, _, _) => ColoredBox(
       color: KiviloColors.canvas,
       child: Icon(errorIcon, color: KiviloColors.subtle),

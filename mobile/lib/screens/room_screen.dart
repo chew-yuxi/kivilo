@@ -304,6 +304,7 @@ class _RoomScreenState extends State<RoomScreen> {
                   maxScale: 5,
                   child: MarkedNetworkPhoto(
                     url: capture.url,
+                    placeholderUrl: capture.posterUrl,
                     annotations: capture.annotations,
                     fit: BoxFit.contain,
                   ),
@@ -321,6 +322,9 @@ class _RoomScreenState extends State<RoomScreen> {
         MaterialPageRoute(
           builder: (_) => PhotoMarkScreen(
             image: NetworkImage(capture.url),
+            placeholder: capture.posterUrl == null
+                ? null
+                : NetworkImage(capture.posterUrl!),
             annotations: capture.annotations,
           ),
         ),

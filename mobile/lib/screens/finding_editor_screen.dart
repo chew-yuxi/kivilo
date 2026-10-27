@@ -397,10 +397,12 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
 
   Future<void> _markPhoto(FindingEvidence photo) async {
     ImageProvider image;
+    ImageProvider? placeholder;
     if (photo.localPath != null && await File(photo.localPath!).exists()) {
       image = MemoryImage(await File(photo.localPath!).readAsBytes());
     } else if (photo.url != null) {
       image = NetworkImage(photo.url!);
+      if (photo.posterUrl != null) placeholder = NetworkImage(photo.posterUrl!);
     } else {
       throw const ApiFailure(
         'Connect and retry to open this photo. Its upload is kept on this phone.',
@@ -413,6 +415,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
       MaterialPageRoute(
         builder: (_) => PhotoMarkScreen(
           image: image,
+          placeholder: placeholder,
           annotations: photo.annotations,
           saveLabel: photo.awaitingMarkup ? 'Save photo' : 'Save',
           onChanged: (annotations) =>
@@ -449,6 +452,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                       child: provider == null
                           ? MarkedNetworkPhoto(
                               url: photo.url!,
+                              placeholderUrl: photo.posterUrl,
                               annotations: photo.annotations,
                               fit: BoxFit.contain,
                             )
@@ -1190,6 +1194,7 @@ class _ItemInformation extends StatelessWidget {
               maxScale: 5,
               child: MarkedNetworkPhoto(
                 url: photo.url,
+                placeholderUrl: photo.posterUrl,
                 annotations: photo.annotations,
                 semanticLabel: photo.note ?? source,
                 fit: BoxFit.contain,

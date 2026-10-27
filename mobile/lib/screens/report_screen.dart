@@ -759,13 +759,12 @@ class _ReportScreenState extends State<ReportScreen> {
           child: InteractiveViewer(
             minScale: 0.8,
             maxScale: 5,
-            child: photo.marks.isEmpty
-                ? Image.network(photo.url, fit: BoxFit.contain)
-                : MarkedNetworkPhoto(
-                    url: photo.url,
-                    annotations: photo.annotations,
-                    fit: BoxFit.contain,
-                  ),
+            child: MarkedNetworkPhoto(
+              url: photo.url,
+              placeholderUrl: photo.posterUrl,
+              annotations: photo.annotations,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),
@@ -1140,6 +1139,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   maxScale: 6,
                   child: MarkedNetworkPhoto(
                     url: photo.url,
+                    placeholderUrl: photo.posterUrl,
                     annotations: photo.annotations,
                     fit: BoxFit.contain,
                   ),

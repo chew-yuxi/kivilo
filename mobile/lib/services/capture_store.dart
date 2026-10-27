@@ -5,6 +5,15 @@ import 'package:drift/drift.dart';
 
 import 'capture_queue.dart';
 
+/// Longest edge an evidence photo is sent at, the same as the web's
+/// (`src/lib/downscale.ts`). A camera frame is 3 to 6 MB; at this size it is a fifth of
+/// that, uploads and opens that much faster, and a rating plate is still legible.
+const evidencePhotoEdge = 2048.0;
+
+/// The JPEG quality of that re-encode, also the web's. Below 100 makes both platforms
+/// re-encode, which is also what turns an iPhone's HEIC into JPEG.
+const evidencePhotoQuality = 85;
+
 /// Saves the camera's temporary file into app support storage before a capture is
 /// acknowledged in the UI. A small journal covers a crash between the file rename and
 /// SQLite insert; reconcile() imports that file on the next launch.

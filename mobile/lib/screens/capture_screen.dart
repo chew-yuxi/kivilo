@@ -310,7 +310,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
           ? await _picker.pickVideo(source: ImageSource.camera)
           : await _picker.pickImage(
               source: ImageSource.camera,
-              imageQuality: 95,
+              maxWidth: evidencePhotoEdge,
+              maxHeight: evidencePhotoEdge,
+              imageQuality: evidencePhotoQuality,
               requestFullMetadata: false,
             );
       await _saveSelection(picked == null ? [] : [picked], video: _videoMode);
@@ -364,7 +366,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
         await _saveSelection(picked == null ? [] : [picked], video: true);
       } else {
         final picked = await _picker.pickMultiImage(
-          imageQuality: 95,
+          maxWidth: evidencePhotoEdge,
+          maxHeight: evidencePhotoEdge,
+          imageQuality: evidencePhotoQuality,
           requestFullMetadata: false,
         );
         await _saveSelection(picked, video: false);
@@ -889,6 +893,9 @@ class _CaptureScreenState extends State<CaptureScreen> {
       MaterialPageRoute(
         builder: (_) => PhotoMarkScreen(
           image: NetworkImage(capture.url),
+          placeholder: capture.posterUrl == null
+              ? null
+              : NetworkImage(capture.posterUrl!),
           annotations: capture.annotations,
         ),
       ),

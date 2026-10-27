@@ -84,7 +84,9 @@ class SupportingDocumentPhotos {
       await _writeIntent(root, intent);
       final photo = await _picker.pickImage(
         source: source,
-        imageQuality: 90,
+        maxWidth: evidencePhotoEdge,
+        maxHeight: evidencePhotoEdge,
+        imageQuality: evidencePhotoQuality,
         requestFullMetadata: false,
       );
       if (photo == null) {
