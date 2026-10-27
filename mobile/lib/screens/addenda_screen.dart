@@ -484,7 +484,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
                           child: Image.network(
-                            photo.url,
+                            photo.posterUrl ?? photo.url,
                             width: 88,
                             height: 88,
                             fit: BoxFit.cover,

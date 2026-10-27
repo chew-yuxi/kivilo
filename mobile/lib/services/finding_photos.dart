@@ -19,6 +19,7 @@ class FindingEvidence {
   const FindingEvidence({
     required this.id,
     this.url,
+    this.posterUrl,
     this.localPath,
     this.note,
     this.annotations,
@@ -31,6 +32,8 @@ class FindingEvidence {
   });
   final String id;
   final String? url;
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String? localPath;
   final String? note;
   final Map<String, dynamic>? annotations;
@@ -283,6 +286,7 @@ class FindingPhotos extends ChangeNotifier {
       result[photo.id] = FindingEvidence(
         id: photo.id,
         url: photo.url,
+        posterUrl: photo.posterUrl,
         note: photo.note,
         annotations: photo.annotations,
         saved: true,
@@ -292,6 +296,7 @@ class FindingPhotos extends ChangeNotifier {
       result[photo['id'] as String] = FindingEvidence(
         id: photo['id'] as String,
         url: photo['url'] as String?,
+        posterUrl: photo['posterUrl'] as String?,
         note: photo['note'] as String?,
         annotations: photo['annotations'] as Map<String, dynamic>?,
         pending: photo['registeredAt'] == null,
@@ -307,6 +312,7 @@ class FindingPhotos extends ChangeNotifier {
         localPath: '${root.path}/${row.relativePath}',
         note: row.note,
         url: result[row.clientId!]?.url,
+        posterUrl: result[row.clientId!]?.posterUrl,
         annotations: row.annotations == null
             ? null
             : jsonDecode(row.annotations!) as Map<String, dynamic>,
@@ -323,6 +329,7 @@ class FindingPhotos extends ChangeNotifier {
       result[photo.id] = FindingEvidence(
         id: photo.id,
         url: photo.url,
+        posterUrl: photo.posterUrl,
         note: edit.hasNote ? edit.note : photo.note,
         annotations: edit.hasAnnotations
             ? edit.annotations == null

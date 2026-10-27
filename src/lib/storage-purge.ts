@@ -59,6 +59,8 @@ export async function purgeStorageEntry(purge: StoragePurge) {
     if (await inUse()) {
       throw new Error(`Prefix ${purge.path} reappeared during prefix purge`)
     }
+    // Their posters sat beside them and went with the prefix.
+    await db.photoPoster.deleteMany({ where: { sourcePath: { startsWith: `${purge.path}/` } } })
   } else {
     // The path may be a video's poster or a draft update's photo.
     const inUse = async () =>
@@ -83,6 +85,10 @@ export async function purgeStorageEntry(purge: StoragePurge) {
     if (await inUse()) {
       throw new Error(`Object ${purge.path} reappeared during object purge`)
     }
+    // A finding, repair or update photo's poster goes with it (src/lib/poster.ts). The
+    // path is checked even with no row, in case the row write failed after the upload.
+    await purgeObject(`${purge.path}.poster.webp`)
+    await db.photoPoster.deleteMany({ where: { sourcePath: purge.path } })
   }
   await db.storagePurge.updateMany({
     where: { id: purge.id, completedAt: null },

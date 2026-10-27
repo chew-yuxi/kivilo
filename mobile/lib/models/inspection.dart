@@ -558,11 +558,14 @@ class ComparablePhoto {
   const ComparablePhoto({
     required this.id,
     required this.url,
+    this.posterUrl,
     this.note,
     this.annotations,
   });
   final String id;
   final String url;
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String? note;
   final Map<String, dynamic>? annotations;
 
@@ -572,6 +575,7 @@ class ComparablePhoto {
         return ComparablePhoto(
           id: photo['id'] as String,
           url: photo['url'] as String,
+          posterUrl: photo['posterUrl'] as String?,
           note: photo['note'] as String?,
           annotations: photo['annotations'] as Map<String, dynamic>?,
         );

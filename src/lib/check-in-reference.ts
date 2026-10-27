@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { inspectionScope } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import type { StateRoom } from '@/lib/addenda-state'
 import type { Prisma } from '@/generated/prisma'
@@ -163,15 +164,8 @@ export async function signedCheckInReference(roomId: string, agentId: string) {
   const frozen = await frozenBaseline(roomId, agentId)
   if (!frozen) return null
   const urls = await signPhotos(frozen.baseline.photos)
-  // The app's tiles draw a check-in capture's poster once the cron has made it. Addendum
-  // photos are not captures and have none.
-  const posters = await db.capture.findMany({
-    where: { storagePath: { in: frozen.baseline.photos.map((photo) => photo.storagePath) }, posterPath: { not: null } },
-    select: { storagePath: true, posterPath: true },
-  })
-  const posterUrls = new Map(await Promise.all(
-    posters.map(async (capture) => [capture.storagePath, await createDownloadUrl(capture.posterPath!)] as const),
-  ))
+  // The app's tiles draw each photo's poster once the cron has made it.
+  const posters = await posterUrls(frozen.baseline.photos.map((photo) => photo.storagePath))
   const paths = new Map(frozen.baseline.photos.map((photo) => [photo.id, photo.storagePath]))
   const reference = referenceOf(frozen)
   return {
@@ -179,7 +173,7 @@ export async function signedCheckInReference(roomId: string, agentId: string) {
     photos: reference.photos.map((photo) => ({
       ...photo,
       url: urls[photo.id],
-      posterUrl: posterUrls.get(paths.get(photo.id)!) ?? null,
+      posterUrl: posters.get(paths.get(photo.id)!) ?? null,
     })),
   }
 }

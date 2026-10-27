@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { authorizeReport } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { propertyLabel } from '@/lib/format'
 import { toAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
@@ -117,6 +118,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
           photos: await Promise.all(entry.photos.map(async ({ storagePath, ...photo }) => ({
             ...photo,
             url: await createDownloadUrl(storagePath),
+            posterUrl: (await posterUrls([storagePath])).get(storagePath) ?? null,
           }))),
         }))),
       }
@@ -136,6 +138,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
         photos: await Promise.all((finding.photos ?? []).map(async ({ storagePath, ...photo }) => ({
           ...photo,
           url: await createDownloadUrl(storagePath),
+          posterUrl: (await posterUrls([storagePath])).get(storagePath) ?? null,
         }))),
         evidence: await Promise.all((finding.maintenanceEvidence?.evidence ?? []).map(async (item) => ({
           id: item.id,
@@ -143,6 +146,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
           mimeType: item.mimeType,
           note: item.note,
           url: await createDownloadUrl(item.storagePath),
+          posterUrl: (await posterUrls([item.storagePath])).get(item.storagePath) ?? null,
         }))),
       }))),
     },

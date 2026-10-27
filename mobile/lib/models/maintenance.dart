@@ -276,6 +276,7 @@ class MaintenanceEvidenceModel {
     required this.mimeType,
     required this.url,
     required this.createdAt,
+    this.posterUrl,
     this.visitId,
     this.note,
   });
@@ -285,6 +286,8 @@ class MaintenanceEvidenceModel {
   final String mimeType;
   final String url;
   final String createdAt;
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String? visitId;
   final String? note;
 
@@ -298,6 +301,7 @@ class MaintenanceEvidenceModel {
         mimeType: json['mimeType'] as String,
         url: json['url'] as String,
         createdAt: json['createdAt'] as String,
+        posterUrl: json['posterUrl'] as String?,
         visitId: json['visitId'] as String?,
         note: json['note'] as String?,
       );

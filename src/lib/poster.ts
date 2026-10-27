@@ -80,6 +80,34 @@ async function makePoster(capture: Due) {
   }
 }
 
+/// Finding, repair and update photos still in use with no poster yet, newest first. The
+/// three tables share nothing but a storage path, so one query unions them. A deleted
+/// finding photo still shows in a published assessment, as the purge worker reads it.
+function dueOtherPhotos(limit: number) {
+  return db.$queryRaw<{ sourcePath: string }[]>`
+    SELECT "storagePath" AS "sourcePath" FROM (
+      SELECT "storagePath", "mimeType", "createdAt" FROM "FindingPhoto"
+        WHERE "registeredAt" IS NOT NULL AND ("deletedAt" IS NULL OR "publishedAt" IS NOT NULL)
+      UNION ALL SELECT "storagePath", "mimeType", "createdAt" FROM "MaintenanceEvidence"
+      UNION ALL SELECT "storagePath", "mimeType", "createdAt" FROM "ReportAddendumPhoto"
+    ) photo
+    WHERE "mimeType" IN ('image/jpeg', 'image/png', 'image/webp')
+      AND NOT EXISTS (
+        SELECT 1 FROM "PhotoPoster" poster WHERE poster."sourcePath" = photo."storagePath"
+          AND (poster."posterPath" IS NOT NULL OR poster."attempts" >= ${MAX_ATTEMPTS})
+      )
+    GROUP BY "storagePath"
+    ORDER BY max("createdAt") DESC
+    LIMIT ${limit}`
+}
+
+/// Beside the original, so its prefix purge takes the poster too.
+async function makeOtherPoster(sourcePath: string) {
+  const posterPath = `${sourcePath}.poster.webp`
+  await uploadBytes(posterPath, await photoPoster(sourcePath), 'image/webp')
+  await db.photoPoster.upsert({ where: { sourcePath }, create: { sourcePath, posterPath }, update: { posterPath } })
+}
+
 /// Newest first, so a capture just taken is not queued behind a backlog.
 export async function makePosters(limit = 5, photoLimit = 60) {
   const due = { posterPath: null, posterAttempts: { lt: MAX_ATTEMPTS } }
@@ -90,6 +118,7 @@ export async function makePosters(limit = 5, photoLimit = 60) {
   const photos = await db.capture.findMany({
     where: { kind: 'PHOTO', ...due }, orderBy: { createdAt: 'desc' }, take: photoLimit, select,
   })
+  const others = await dueOtherPhotos(photoLimit)
   const made: string[] = []
   const failed: string[] = []
   const attempt = async (capture: Due) => {
@@ -105,8 +134,23 @@ export async function makePosters(limit = 5, photoLimit = 60) {
       failed.push(capture.id)
     }
   }
-  for (let start = 0; start < photos.length; start += PHOTO_CONCURRENCY) {
-    await Promise.all(photos.slice(start, start + PHOTO_CONCURRENCY).map(attempt))
+  const attemptOther = async ({ sourcePath }: { sourcePath: string }) => {
+    try {
+      await makeOtherPoster(sourcePath)
+      made.push(sourcePath)
+    } catch (error) {
+      console.error(`Poster for ${sourcePath} failed:`, error)
+      await db.photoPoster.upsert({
+        where: { sourcePath },
+        create: { sourcePath, attempts: 1 },
+        update: { attempts: { increment: 1 } },
+      })
+      failed.push(sourcePath)
+    }
+  }
+  const resizes = [...photos.map((photo) => () => attempt(photo)), ...others.map((photo) => () => attemptOther(photo))]
+  for (let start = 0; start < resizes.length; start += PHOTO_CONCURRENCY) {
+    await Promise.all(resizes.slice(start, start + PHOTO_CONCURRENCY).map((resize) => resize()))
   }
   for (const video of videos) await attempt(video)
   return { made, failed }

@@ -37,6 +37,8 @@ export type EvidenceCapture = {
   id: string
   kind: 'VIDEO' | 'PHOTO'
   url: string
+  /// A photo's 640px copy for the tiles and strip, once the poster cron has made it.
+  posterUrl: string | null
   annotations: StoredAnnotations | null
 }
 
@@ -245,7 +247,7 @@ function ItemRow({
                         </span>
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={capture.url} alt="" className="h-full w-full object-cover" />
+                        <img src={capture.posterUrl ?? capture.url} alt="" className="h-full w-full object-cover" />
                       )}
                       {selected && (
                         <span className="absolute right-0.5 top-0.5 rounded-full bg-brand-500 px-1 text-[10px] leading-4 text-white">
@@ -465,7 +467,7 @@ export function ReviewEditor({
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={capture.url}
+                  src={capture.posterUrl ?? capture.url}
                   alt="Inspection photo"
                   className="block h-44 w-auto max-w-[85vw] object-contain sm:h-auto sm:w-full sm:max-w-none"
                 />

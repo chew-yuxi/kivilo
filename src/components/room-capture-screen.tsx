@@ -27,6 +27,8 @@ export type ServerCapture = {
   note: string | null
   durationSec: number | null
   url: string
+  /// A photo's 640px copy for tiles, once the poster cron has made it.
+  posterUrl: string | null
   annotations: StoredAnnotations | null
 }
 
@@ -714,7 +716,7 @@ export function RoomCaptureScreen({
               {lastShot.source === 'queue' ? (
                 <QueuedMedia capture={lastShot.capture} />
               ) : (
-                <Media kind={lastShot.kind} url={lastShot.capture.url} />
+                <Media kind={lastShot.kind} url={lastShot.capture.posterUrl ?? lastShot.capture.url} />
               )}
             </div>
             <p className="min-w-0 flex-1 text-sm text-gray-600">
@@ -765,7 +767,7 @@ export function RoomCaptureScreen({
                     {tile.source === 'queue' ? (
                       <QueuedMedia capture={tile.capture} />
                     ) : (
-                      <Media kind={tile.kind} url={tile.capture.url} />
+                      <Media kind={tile.kind} url={tile.capture.posterUrl ?? tile.capture.url} />
                     )}
                     {state && (
                       <span className="absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-medium text-white">

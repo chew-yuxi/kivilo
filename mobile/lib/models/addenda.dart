@@ -179,6 +179,7 @@ class DraftEntry {
           (p) => DraftPhoto(
             id: p['id'] as String,
             url: p['url'] as String,
+            posterUrl: p['posterUrl'] as String?,
             note: p['note'] as String?,
             label: p['label'] as String?,
           ),
@@ -191,11 +192,14 @@ class DraftPhoto {
   const DraftPhoto({
     required this.id,
     required this.url,
+    this.posterUrl,
     this.note,
     this.label,
   });
   final String id;
   final String url;
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String? note;
 
   /// "Before" or "After" for a repair's evidence.

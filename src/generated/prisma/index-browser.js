@@ -376,6 +376,13 @@ exports.Prisma.CaptureScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.PhotoPosterScalarFieldEnum = {
+  sourcePath: 'sourcePath',
+  posterPath: 'posterPath',
+  attempts: 'attempts',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.RoomScalarFieldEnum = {
   id: 'id',
   inspectionId: 'inspectionId',
@@ -1111,6 +1118,7 @@ exports.Prisma.ModelName = {
   Inspection: 'Inspection',
   InspectionAccessGrant: 'InspectionAccessGrant',
   Capture: 'Capture',
+  PhotoPoster: 'PhotoPoster',
   Room: 'Room',
   InspectionItem: 'InspectionItem',
   ItemEvidence: 'ItemEvidence',

@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { agentTenancies, authorizeTenancy, tenancyScope, notificationScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { Prisma } from '@/generated/prisma'
 import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
@@ -386,6 +387,7 @@ export async function listMaintenanceCases(tenancyId: string, stakeholderId: str
 
 export async function maintenanceCaseDetail(caseId: string, stakeholderId: string) {
   const { maintenanceCase, role } = await authorizeMaintenanceCase(caseId, stakeholderId)
+  const posters = await posterUrls(maintenanceCase.evidence.map((item) => item.storagePath))
   const evidence = await Promise.all(maintenanceCase.evidence.map(async (item) => ({
     id: item.id,
     visitId: item.visitId,
@@ -395,6 +397,7 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     note: item.note,
     createdAt: item.createdAt.toISOString(),
     url: await createDownloadUrl(item.storagePath),
+    posterUrl: posters.get(item.storagePath) ?? null,
   })))
   const { tenancy } = maintenanceCase
   const proposals = maintenanceCase.responsibilityProposals.map((proposal) => ({

@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { authorizeInspection, inspectionScope } from '@/lib/auth'
 import { annotationInputSchema, toAnnotations, type AnnotationInput } from '@/lib/annotations'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { Prisma, type FindingPhoto } from '@/generated/prisma'
 
 const uuid = z.string().uuid()
@@ -71,6 +72,7 @@ export async function findingPhotoView(photo: FindingPhoto) {
     note: photo.note, annotations: toAnnotations(photo.annotations), createdAt: photo.createdAt.toISOString(),
     registeredAt: photo.registeredAt?.toISOString() ?? null,
     url: photo.registeredAt ? await createDownloadUrl(photo.storagePath) : null,
+    posterUrl: photo.registeredAt ? (await posterUrls([photo.storagePath])).get(photo.storagePath) ?? null : null,
   }
 }
 

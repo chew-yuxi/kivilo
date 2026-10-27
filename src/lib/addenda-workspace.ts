@@ -1,6 +1,7 @@
 import { db } from '@/lib/db'
 import { authorizeInspection } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { addendumView, currentState } from '@/lib/addenda'
 
 /// Everything the agent works on updates with, for the web panel and the app alike: what
@@ -67,6 +68,7 @@ export async function addendaWorkspace(inspectionId: string, agentId: string) {
             photos: await Promise.all(entry.photos.map(async (photo) => ({
               id: photo.id,
               url: await createDownloadUrl(photo.storagePath),
+              posterUrl: (await posterUrls([photo.storagePath])).get(photo.storagePath) ?? null,
               note: photo.note,
               label: photo.label,
             }))),

@@ -1,4 +1,5 @@
 import { CAPTURE_BUCKET, serviceClient } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { roomBaselineSchema, type CheckInLine } from '@/lib/check-in-reference'
 import { toAnnotations } from '@/lib/annotations'
 import type { Prisma } from '@/generated/prisma'
@@ -138,9 +139,11 @@ export async function findingComparables(inspection: Source) {
     }
     if (paths.some((path) => !signed.has(path))) throw new Error('Could not sign a finding photo')
   }
+  const posters = await posterUrls(paths)
   const photoView = (photo: Photo) => ({
     id: photo.id,
     url: signed.get(photo.storagePath)!,
+    posterUrl: posters.get(photo.storagePath) ?? null,
     note: photo.note,
     annotations: toAnnotations(photo.annotations),
   })

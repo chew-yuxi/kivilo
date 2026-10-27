@@ -902,7 +902,7 @@ class _ReportScreenState extends State<ReportScreen> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              photo.url,
+                              photo.posterUrl ?? photo.url,
                               width: 96,
                               height: 96,
                               fit: BoxFit.cover,
@@ -1075,7 +1075,7 @@ class _ReportScreenState extends State<ReportScreen> {
                                     child: SizedBox(
                                       height: 120,
                                       child: MarkedNetworkPhoto(
-                                        url: photo.url,
+                                        url: photo.posterUrl ?? photo.url,
                                         annotations: photo.annotations,
                                         fit: BoxFit.contain,
                                       ),

@@ -16,6 +16,8 @@ import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { CAPTURE_BUCKET, captureExists, downloadCapture, serviceClient, uploadBytes } from '@/lib/storage'
 import { makePosters } from '@/lib/poster'
+import { posterUrls } from '@/lib/poster-urls'
+import { purgeStorageEntry } from '@/lib/storage-purge'
 import { deleteCapture } from '@/lib/actions'
 
 /// Runs the real ffmpeg against the local storage stack: the poster is read from a
@@ -51,7 +53,7 @@ async function deal() {
   const room = await db.room.create({
     data: { inspectionId: inspection.id, name: 'Kitchen', order: 0, status: 'CAPTURING' },
   })
-  return { inspection, room }
+  return { inspection, room, agent }
 }
 
 async function video(roomId: string, bytes: Uint8Array) {
@@ -71,6 +73,10 @@ afterAll(async () => {
     if (paths.length) await serviceClient().storage.from(CAPTURE_BUCKET).remove(paths)
     await db.storagePurge.deleteMany({ where: { path: { startsWith: room } } })
   }
+  const objects = written.filter((path) => !path.endsWith('/'))
+  await serviceClient().storage.from(CAPTURE_BUCKET).remove(objects)
+  await db.storagePurge.deleteMany({ where: { path: { in: objects } } })
+  await db.photoPoster.deleteMany({ where: { sourcePath: { in: objects } } })
   await db.property.deleteMany({ where: { postalCode: '992345' } })
   await db.$disconnect()
 })
@@ -121,6 +127,42 @@ describe('video posters', () => {
     expect([poster.format, poster.width, poster.height, poster.orientation ?? 1]).toEqual(['webp', 480, 640, 1])
     // The original is evidence and is never rewritten.
     expect(Buffer.from(await downloadCapture(storagePath)).equals(original)).toBe(true)
+  })
+
+  it('makes a finding photo a poster beside it, and purges both together', async () => {
+    const { inspection, agent } = await deal()
+    const draft = await db.findingPhotoDraft.create({ data: { id: randomUUID(), inspectionId: inspection.id, createdById: agent.id } })
+    const original = await sharp({ create: { width: 3000, height: 2000, channels: 3, background: '#4080c0' } }).jpeg().toBuffer()
+    const photo = async (registered: boolean) => {
+      const clientId = randomUUID()
+      const storagePath = `findings/${inspection.id}/${draft.id}/${clientId}.jpg`
+      await uploadBytes(storagePath, new Uint8Array(original), 'image/jpeg')
+      written.push(storagePath, `${storagePath}.poster.webp`)
+      return db.findingPhoto.create({
+        data: { clientId, draftId: draft.id, storagePath, mimeType: 'image/jpeg', registeredAt: registered ? new Date() : null },
+      })
+    }
+    const registered = await photo(true)
+    const unfinished = await photo(false)
+
+    const result = await makePosters(0)
+    expect(result.made).toContain(registered.storagePath)
+    expect(result.made).not.toContain(unfinished.storagePath)
+    const posterPath = `${registered.storagePath}.poster.webp`
+    expect(await db.photoPoster.findUnique({ where: { sourcePath: registered.storagePath } })).toMatchObject({ posterPath })
+    const poster = await sharp(Buffer.from(await downloadCapture(posterPath))).metadata()
+    expect([poster.format, poster.width, poster.height]).toEqual(['webp', 640, 427])
+    expect([...(await posterUrls([registered.storagePath, unfinished.storagePath])).keys()]).toEqual([registered.storagePath])
+
+    await db.findingPhoto.update({ where: { clientId: registered.clientId }, data: { deletedAt: new Date() } })
+    const longAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const purge = await db.storagePurge.create({
+      data: { path: registered.storagePath, isPrefix: false, readyAt: longAgo, createdAt: longAgo },
+    })
+    expect(await purgeStorageEntry(purge)).toBe('completed')
+    expect(await captureExists(registered.storagePath)).toBe(false)
+    expect(await captureExists(posterPath)).toBe(false)
+    expect(await db.photoPoster.findUnique({ where: { sourcePath: registered.storagePath } })).toBeNull()
   })
 
   it('gives up on an unreadable file after a few attempts', async () => {

@@ -575,6 +575,19 @@ model Capture {
   @@index([roomId])
 }
 
+/// The small copy of a stored photo that is not a Capture: a finding photo, repair
+/// evidence or an update's photo. Keyed by the original's path, so an update photo that
+/// reuses repair evidence shares its poster. The poster is stored beside the original as
+/// `<path>.poster.webp`, so a prefix purge takes it too, and the object purge removes it
+/// with its original (src/lib/storage-purge.ts). Made by the poster cron.
+model PhotoPoster {
+  sourcePath String   @id
+  /// Null until made, and while a failing photo is retried.
+  posterPath String?  @unique
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+}
+
 enum RoomStatus {
   /// Created by the inspector, nothing captured yet.
   PENDING

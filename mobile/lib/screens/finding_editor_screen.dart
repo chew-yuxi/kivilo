@@ -598,7 +598,7 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                         height: 128,
                         child: photo.url != null
                             ? MarkedNetworkPhoto(
-                                url: photo.url!,
+                                url: photo.posterUrl ?? photo.url!,
                                 annotations: photo.annotations,
                                 fit: BoxFit.contain,
                               )
@@ -1223,7 +1223,7 @@ class _ItemInformation extends StatelessWidget {
               child: ColoredBox(
                 color: KiviloColors.canvas,
                 child: MarkedNetworkPhoto(
-                  url: photo.url,
+                  url: photo.posterUrl ?? photo.url,
                   annotations: photo.annotations,
                   semanticLabel: photo.note ?? '$source photo',
                   fit: BoxFit.contain,

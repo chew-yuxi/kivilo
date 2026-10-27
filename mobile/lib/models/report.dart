@@ -326,6 +326,8 @@ class ReportFinding {
   final String? estimatedCost;
   final String rationale;
   final String? maintenanceTitle;
+
+  /// Drawn only as small tiles, so each image's poster where the server has made one.
   final List<String> evidenceImageUrls;
   final List<ReportPhoto> photos;
 
@@ -342,7 +344,7 @@ class ReportFinding {
     evidenceImageUrls: (json['evidence'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .where((e) => (e['mimeType'] as String).startsWith('image/'))
-        .map((e) => e['url'] as String)
+        .map((e) => (e['posterUrl'] as String?) ?? e['url'] as String)
         .toList(),
   );
 }
@@ -509,12 +511,15 @@ class AddendumPhoto {
   const AddendumPhoto({
     required this.id,
     required this.url,
+    this.posterUrl,
     required this.mimeType,
     this.note,
     this.label,
   });
   final String id;
   final String url;
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String mimeType;
   final String? note;
 
@@ -524,6 +529,7 @@ class AddendumPhoto {
   factory AddendumPhoto.fromJson(Map<String, dynamic> json) => AddendumPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
+    posterUrl: json['posterUrl'] as String?,
     mimeType: json['mimeType'] as String,
     note: json['note'] as String?,
     label: json['label'] as String?,

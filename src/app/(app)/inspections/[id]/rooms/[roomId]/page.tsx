@@ -44,6 +44,7 @@ export default async function RoomReviewPage({
           id: capture.id,
           kind: capture.kind,
           url: await createDownloadUrl(capture.storagePath),
+          posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
           annotations: toAnnotations(capture.annotations),
         }),
       ),

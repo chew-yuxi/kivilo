@@ -405,7 +405,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
           {entry.photos.map((photo) => (
             <figure key={photo.id} className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-24 w-full rounded border border-gray-200 object-contain" />
+              <img src={photo.posterUrl ?? photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-24 w-full rounded border border-gray-200 object-contain" />
               <figcaption className="flex flex-wrap items-center justify-between gap-1 text-xs text-gray-500">
                 <span>{photo.label ?? ''}</span>
                 <button

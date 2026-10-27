@@ -53,6 +53,8 @@ export default async function RoomCapturePage({
       note: capture.note,
       durationSec: capture.durationSec,
       url: await createDownloadUrl(capture.storagePath),
+      // Photos only: a video's poster is a still, and its tile plays the video itself.
+      posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
       annotations: toAnnotations(capture.annotations),
     })),
   )

@@ -128,6 +128,15 @@ export type InspectionAccessGrant = $Result.DefaultSelection<Prisma.$InspectionA
  */
 export type Capture = $Result.DefaultSelection<Prisma.$CapturePayload>
 /**
+ * Model PhotoPoster
+ * The small copy of a stored photo that is not a Capture: a finding photo, repair
+ * evidence or an update's photo. Keyed by the original's path, so an update photo that
+ * reuses repair evidence shares its poster. The poster is stored beside the original as
+ * `<path>.poster.webp`, so a prefix purge takes it too, and the object purge removes it
+ * with its original (src/lib/storage-purge.ts). Made by the poster cron.
+ */
+export type PhotoPoster = $Result.DefaultSelection<Prisma.$PhotoPosterPayload>
+/**
  * Model Room
  * 
  */
@@ -1159,6 +1168,16 @@ export class PrismaClient<
   get capture(): Prisma.CaptureDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.photoPoster`: Exposes CRUD operations for the **PhotoPoster** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PhotoPosters
+    * const photoPosters = await prisma.photoPoster.findMany()
+    * ```
+    */
+  get photoPoster(): Prisma.PhotoPosterDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.room`: Exposes CRUD operations for the **Room** model.
     * Example usage:
     * ```ts
@@ -1953,6 +1972,7 @@ export namespace Prisma {
     Inspection: 'Inspection',
     InspectionAccessGrant: 'InspectionAccessGrant',
     Capture: 'Capture',
+    PhotoPoster: 'PhotoPoster',
     Room: 'Room',
     InspectionItem: 'InspectionItem',
     ItemEvidence: 'ItemEvidence',
@@ -2001,7 +2021,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "photoPoster" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3408,6 +3428,80 @@ export namespace Prisma {
           count: {
             args: Prisma.CaptureCountArgs<ExtArgs>
             result: $Utils.Optional<CaptureCountAggregateOutputType> | number
+          }
+        }
+      }
+      PhotoPoster: {
+        payload: Prisma.$PhotoPosterPayload<ExtArgs>
+        fields: Prisma.PhotoPosterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PhotoPosterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PhotoPosterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          findFirst: {
+            args: Prisma.PhotoPosterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PhotoPosterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          findMany: {
+            args: Prisma.PhotoPosterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>[]
+          }
+          create: {
+            args: Prisma.PhotoPosterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          createMany: {
+            args: Prisma.PhotoPosterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PhotoPosterCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>[]
+          }
+          delete: {
+            args: Prisma.PhotoPosterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          update: {
+            args: Prisma.PhotoPosterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          deleteMany: {
+            args: Prisma.PhotoPosterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PhotoPosterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PhotoPosterUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>[]
+          }
+          upsert: {
+            args: Prisma.PhotoPosterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PhotoPosterPayload>
+          }
+          aggregate: {
+            args: Prisma.PhotoPosterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePhotoPoster>
+          }
+          groupBy: {
+            args: Prisma.PhotoPosterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PhotoPosterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PhotoPosterCountArgs<ExtArgs>
+            result: $Utils.Optional<PhotoPosterCountAggregateOutputType> | number
           }
         }
       }
@@ -5995,6 +6089,7 @@ export namespace Prisma {
     inspection?: InspectionOmit
     inspectionAccessGrant?: InspectionAccessGrantOmit
     capture?: CaptureOmit
+    photoPoster?: PhotoPosterOmit
     room?: RoomOmit
     inspectionItem?: InspectionItemOmit
     itemEvidence?: ItemEvidenceOmit
@@ -31583,6 +31678,1030 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: CaptureInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PhotoPoster
+   */
+
+  export type AggregatePhotoPoster = {
+    _count: PhotoPosterCountAggregateOutputType | null
+    _avg: PhotoPosterAvgAggregateOutputType | null
+    _sum: PhotoPosterSumAggregateOutputType | null
+    _min: PhotoPosterMinAggregateOutputType | null
+    _max: PhotoPosterMaxAggregateOutputType | null
+  }
+
+  export type PhotoPosterAvgAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type PhotoPosterSumAggregateOutputType = {
+    attempts: number | null
+  }
+
+  export type PhotoPosterMinAggregateOutputType = {
+    sourcePath: string | null
+    posterPath: string | null
+    attempts: number | null
+    createdAt: Date | null
+  }
+
+  export type PhotoPosterMaxAggregateOutputType = {
+    sourcePath: string | null
+    posterPath: string | null
+    attempts: number | null
+    createdAt: Date | null
+  }
+
+  export type PhotoPosterCountAggregateOutputType = {
+    sourcePath: number
+    posterPath: number
+    attempts: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PhotoPosterAvgAggregateInputType = {
+    attempts?: true
+  }
+
+  export type PhotoPosterSumAggregateInputType = {
+    attempts?: true
+  }
+
+  export type PhotoPosterMinAggregateInputType = {
+    sourcePath?: true
+    posterPath?: true
+    attempts?: true
+    createdAt?: true
+  }
+
+  export type PhotoPosterMaxAggregateInputType = {
+    sourcePath?: true
+    posterPath?: true
+    attempts?: true
+    createdAt?: true
+  }
+
+  export type PhotoPosterCountAggregateInputType = {
+    sourcePath?: true
+    posterPath?: true
+    attempts?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PhotoPosterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhotoPoster to aggregate.
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhotoPosters to fetch.
+     */
+    orderBy?: PhotoPosterOrderByWithRelationInput | PhotoPosterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PhotoPosterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhotoPosters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhotoPosters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PhotoPosters
+    **/
+    _count?: true | PhotoPosterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: PhotoPosterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: PhotoPosterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PhotoPosterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PhotoPosterMaxAggregateInputType
+  }
+
+  export type GetPhotoPosterAggregateType<T extends PhotoPosterAggregateArgs> = {
+        [P in keyof T & keyof AggregatePhotoPoster]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePhotoPoster[P]>
+      : GetScalarType<T[P], AggregatePhotoPoster[P]>
+  }
+
+
+
+
+  export type PhotoPosterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PhotoPosterWhereInput
+    orderBy?: PhotoPosterOrderByWithAggregationInput | PhotoPosterOrderByWithAggregationInput[]
+    by: PhotoPosterScalarFieldEnum[] | PhotoPosterScalarFieldEnum
+    having?: PhotoPosterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PhotoPosterCountAggregateInputType | true
+    _avg?: PhotoPosterAvgAggregateInputType
+    _sum?: PhotoPosterSumAggregateInputType
+    _min?: PhotoPosterMinAggregateInputType
+    _max?: PhotoPosterMaxAggregateInputType
+  }
+
+  export type PhotoPosterGroupByOutputType = {
+    sourcePath: string
+    posterPath: string | null
+    attempts: number
+    createdAt: Date
+    _count: PhotoPosterCountAggregateOutputType | null
+    _avg: PhotoPosterAvgAggregateOutputType | null
+    _sum: PhotoPosterSumAggregateOutputType | null
+    _min: PhotoPosterMinAggregateOutputType | null
+    _max: PhotoPosterMaxAggregateOutputType | null
+  }
+
+  type GetPhotoPosterGroupByPayload<T extends PhotoPosterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PhotoPosterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PhotoPosterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PhotoPosterGroupByOutputType[P]>
+            : GetScalarType<T[P], PhotoPosterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PhotoPosterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sourcePath?: boolean
+    posterPath?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["photoPoster"]>
+
+  export type PhotoPosterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sourcePath?: boolean
+    posterPath?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["photoPoster"]>
+
+  export type PhotoPosterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    sourcePath?: boolean
+    posterPath?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+  }, ExtArgs["result"]["photoPoster"]>
+
+  export type PhotoPosterSelectScalar = {
+    sourcePath?: boolean
+    posterPath?: boolean
+    attempts?: boolean
+    createdAt?: boolean
+  }
+
+  export type PhotoPosterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"sourcePath" | "posterPath" | "attempts" | "createdAt", ExtArgs["result"]["photoPoster"]>
+
+  export type $PhotoPosterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PhotoPoster"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      sourcePath: string
+      /**
+       * Null until made, and while a failing photo is retried.
+       */
+      posterPath: string | null
+      attempts: number
+      createdAt: Date
+    }, ExtArgs["result"]["photoPoster"]>
+    composites: {}
+  }
+
+  type PhotoPosterGetPayload<S extends boolean | null | undefined | PhotoPosterDefaultArgs> = $Result.GetResult<Prisma.$PhotoPosterPayload, S>
+
+  type PhotoPosterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PhotoPosterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PhotoPosterCountAggregateInputType | true
+    }
+
+  export interface PhotoPosterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PhotoPoster'], meta: { name: 'PhotoPoster' } }
+    /**
+     * Find zero or one PhotoPoster that matches the filter.
+     * @param {PhotoPosterFindUniqueArgs} args - Arguments to find a PhotoPoster
+     * @example
+     * // Get one PhotoPoster
+     * const photoPoster = await prisma.photoPoster.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PhotoPosterFindUniqueArgs>(args: SelectSubset<T, PhotoPosterFindUniqueArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PhotoPoster that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PhotoPosterFindUniqueOrThrowArgs} args - Arguments to find a PhotoPoster
+     * @example
+     * // Get one PhotoPoster
+     * const photoPoster = await prisma.photoPoster.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PhotoPosterFindUniqueOrThrowArgs>(args: SelectSubset<T, PhotoPosterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhotoPoster that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterFindFirstArgs} args - Arguments to find a PhotoPoster
+     * @example
+     * // Get one PhotoPoster
+     * const photoPoster = await prisma.photoPoster.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PhotoPosterFindFirstArgs>(args?: SelectSubset<T, PhotoPosterFindFirstArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PhotoPoster that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterFindFirstOrThrowArgs} args - Arguments to find a PhotoPoster
+     * @example
+     * // Get one PhotoPoster
+     * const photoPoster = await prisma.photoPoster.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PhotoPosterFindFirstOrThrowArgs>(args?: SelectSubset<T, PhotoPosterFindFirstOrThrowArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PhotoPosters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PhotoPosters
+     * const photoPosters = await prisma.photoPoster.findMany()
+     * 
+     * // Get first 10 PhotoPosters
+     * const photoPosters = await prisma.photoPoster.findMany({ take: 10 })
+     * 
+     * // Only select the `sourcePath`
+     * const photoPosterWithSourcePathOnly = await prisma.photoPoster.findMany({ select: { sourcePath: true } })
+     * 
+     */
+    findMany<T extends PhotoPosterFindManyArgs>(args?: SelectSubset<T, PhotoPosterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PhotoPoster.
+     * @param {PhotoPosterCreateArgs} args - Arguments to create a PhotoPoster.
+     * @example
+     * // Create one PhotoPoster
+     * const PhotoPoster = await prisma.photoPoster.create({
+     *   data: {
+     *     // ... data to create a PhotoPoster
+     *   }
+     * })
+     * 
+     */
+    create<T extends PhotoPosterCreateArgs>(args: SelectSubset<T, PhotoPosterCreateArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PhotoPosters.
+     * @param {PhotoPosterCreateManyArgs} args - Arguments to create many PhotoPosters.
+     * @example
+     * // Create many PhotoPosters
+     * const photoPoster = await prisma.photoPoster.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PhotoPosterCreateManyArgs>(args?: SelectSubset<T, PhotoPosterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PhotoPosters and returns the data saved in the database.
+     * @param {PhotoPosterCreateManyAndReturnArgs} args - Arguments to create many PhotoPosters.
+     * @example
+     * // Create many PhotoPosters
+     * const photoPoster = await prisma.photoPoster.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PhotoPosters and only return the `sourcePath`
+     * const photoPosterWithSourcePathOnly = await prisma.photoPoster.createManyAndReturn({
+     *   select: { sourcePath: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PhotoPosterCreateManyAndReturnArgs>(args?: SelectSubset<T, PhotoPosterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PhotoPoster.
+     * @param {PhotoPosterDeleteArgs} args - Arguments to delete one PhotoPoster.
+     * @example
+     * // Delete one PhotoPoster
+     * const PhotoPoster = await prisma.photoPoster.delete({
+     *   where: {
+     *     // ... filter to delete one PhotoPoster
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PhotoPosterDeleteArgs>(args: SelectSubset<T, PhotoPosterDeleteArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PhotoPoster.
+     * @param {PhotoPosterUpdateArgs} args - Arguments to update one PhotoPoster.
+     * @example
+     * // Update one PhotoPoster
+     * const photoPoster = await prisma.photoPoster.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PhotoPosterUpdateArgs>(args: SelectSubset<T, PhotoPosterUpdateArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PhotoPosters.
+     * @param {PhotoPosterDeleteManyArgs} args - Arguments to filter PhotoPosters to delete.
+     * @example
+     * // Delete a few PhotoPosters
+     * const { count } = await prisma.photoPoster.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PhotoPosterDeleteManyArgs>(args?: SelectSubset<T, PhotoPosterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhotoPosters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PhotoPosters
+     * const photoPoster = await prisma.photoPoster.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PhotoPosterUpdateManyArgs>(args: SelectSubset<T, PhotoPosterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PhotoPosters and returns the data updated in the database.
+     * @param {PhotoPosterUpdateManyAndReturnArgs} args - Arguments to update many PhotoPosters.
+     * @example
+     * // Update many PhotoPosters
+     * const photoPoster = await prisma.photoPoster.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PhotoPosters and only return the `sourcePath`
+     * const photoPosterWithSourcePathOnly = await prisma.photoPoster.updateManyAndReturn({
+     *   select: { sourcePath: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PhotoPosterUpdateManyAndReturnArgs>(args: SelectSubset<T, PhotoPosterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PhotoPoster.
+     * @param {PhotoPosterUpsertArgs} args - Arguments to update or create a PhotoPoster.
+     * @example
+     * // Update or create a PhotoPoster
+     * const photoPoster = await prisma.photoPoster.upsert({
+     *   create: {
+     *     // ... data to create a PhotoPoster
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PhotoPoster we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PhotoPosterUpsertArgs>(args: SelectSubset<T, PhotoPosterUpsertArgs<ExtArgs>>): Prisma__PhotoPosterClient<$Result.GetResult<Prisma.$PhotoPosterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PhotoPosters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterCountArgs} args - Arguments to filter PhotoPosters to count.
+     * @example
+     * // Count the number of PhotoPosters
+     * const count = await prisma.photoPoster.count({
+     *   where: {
+     *     // ... the filter for the PhotoPosters we want to count
+     *   }
+     * })
+    **/
+    count<T extends PhotoPosterCountArgs>(
+      args?: Subset<T, PhotoPosterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PhotoPosterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PhotoPoster.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PhotoPosterAggregateArgs>(args: Subset<T, PhotoPosterAggregateArgs>): Prisma.PrismaPromise<GetPhotoPosterAggregateType<T>>
+
+    /**
+     * Group by PhotoPoster.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PhotoPosterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PhotoPosterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PhotoPosterGroupByArgs['orderBy'] }
+        : { orderBy?: PhotoPosterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PhotoPosterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPhotoPosterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PhotoPoster model
+   */
+  readonly fields: PhotoPosterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PhotoPoster.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PhotoPosterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PhotoPoster model
+   */
+  interface PhotoPosterFieldRefs {
+    readonly sourcePath: FieldRef<"PhotoPoster", 'String'>
+    readonly posterPath: FieldRef<"PhotoPoster", 'String'>
+    readonly attempts: FieldRef<"PhotoPoster", 'Int'>
+    readonly createdAt: FieldRef<"PhotoPoster", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PhotoPoster findUnique
+   */
+  export type PhotoPosterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter, which PhotoPoster to fetch.
+     */
+    where: PhotoPosterWhereUniqueInput
+  }
+
+  /**
+   * PhotoPoster findUniqueOrThrow
+   */
+  export type PhotoPosterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter, which PhotoPoster to fetch.
+     */
+    where: PhotoPosterWhereUniqueInput
+  }
+
+  /**
+   * PhotoPoster findFirst
+   */
+  export type PhotoPosterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter, which PhotoPoster to fetch.
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhotoPosters to fetch.
+     */
+    orderBy?: PhotoPosterOrderByWithRelationInput | PhotoPosterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhotoPosters.
+     */
+    cursor?: PhotoPosterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhotoPosters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhotoPosters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhotoPosters.
+     */
+    distinct?: PhotoPosterScalarFieldEnum | PhotoPosterScalarFieldEnum[]
+  }
+
+  /**
+   * PhotoPoster findFirstOrThrow
+   */
+  export type PhotoPosterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter, which PhotoPoster to fetch.
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhotoPosters to fetch.
+     */
+    orderBy?: PhotoPosterOrderByWithRelationInput | PhotoPosterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PhotoPosters.
+     */
+    cursor?: PhotoPosterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhotoPosters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhotoPosters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhotoPosters.
+     */
+    distinct?: PhotoPosterScalarFieldEnum | PhotoPosterScalarFieldEnum[]
+  }
+
+  /**
+   * PhotoPoster findMany
+   */
+  export type PhotoPosterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter, which PhotoPosters to fetch.
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PhotoPosters to fetch.
+     */
+    orderBy?: PhotoPosterOrderByWithRelationInput | PhotoPosterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PhotoPosters.
+     */
+    cursor?: PhotoPosterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PhotoPosters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PhotoPosters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PhotoPosters.
+     */
+    distinct?: PhotoPosterScalarFieldEnum | PhotoPosterScalarFieldEnum[]
+  }
+
+  /**
+   * PhotoPoster create
+   */
+  export type PhotoPosterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * The data needed to create a PhotoPoster.
+     */
+    data: XOR<PhotoPosterCreateInput, PhotoPosterUncheckedCreateInput>
+  }
+
+  /**
+   * PhotoPoster createMany
+   */
+  export type PhotoPosterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PhotoPosters.
+     */
+    data: PhotoPosterCreateManyInput | PhotoPosterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PhotoPoster createManyAndReturn
+   */
+  export type PhotoPosterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * The data used to create many PhotoPosters.
+     */
+    data: PhotoPosterCreateManyInput | PhotoPosterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PhotoPoster update
+   */
+  export type PhotoPosterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * The data needed to update a PhotoPoster.
+     */
+    data: XOR<PhotoPosterUpdateInput, PhotoPosterUncheckedUpdateInput>
+    /**
+     * Choose, which PhotoPoster to update.
+     */
+    where: PhotoPosterWhereUniqueInput
+  }
+
+  /**
+   * PhotoPoster updateMany
+   */
+  export type PhotoPosterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PhotoPosters.
+     */
+    data: XOR<PhotoPosterUpdateManyMutationInput, PhotoPosterUncheckedUpdateManyInput>
+    /**
+     * Filter which PhotoPosters to update
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * Limit how many PhotoPosters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhotoPoster updateManyAndReturn
+   */
+  export type PhotoPosterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * The data used to update PhotoPosters.
+     */
+    data: XOR<PhotoPosterUpdateManyMutationInput, PhotoPosterUncheckedUpdateManyInput>
+    /**
+     * Filter which PhotoPosters to update
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * Limit how many PhotoPosters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhotoPoster upsert
+   */
+  export type PhotoPosterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * The filter to search for the PhotoPoster to update in case it exists.
+     */
+    where: PhotoPosterWhereUniqueInput
+    /**
+     * In case the PhotoPoster found by the `where` argument doesn't exist, create a new PhotoPoster with this data.
+     */
+    create: XOR<PhotoPosterCreateInput, PhotoPosterUncheckedCreateInput>
+    /**
+     * In case the PhotoPoster was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PhotoPosterUpdateInput, PhotoPosterUncheckedUpdateInput>
+  }
+
+  /**
+   * PhotoPoster delete
+   */
+  export type PhotoPosterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
+    /**
+     * Filter which PhotoPoster to delete.
+     */
+    where: PhotoPosterWhereUniqueInput
+  }
+
+  /**
+   * PhotoPoster deleteMany
+   */
+  export type PhotoPosterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PhotoPosters to delete
+     */
+    where?: PhotoPosterWhereInput
+    /**
+     * Limit how many PhotoPosters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PhotoPoster without action
+   */
+  export type PhotoPosterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PhotoPoster
+     */
+    select?: PhotoPosterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PhotoPoster
+     */
+    omit?: PhotoPosterOmit<ExtArgs> | null
   }
 
 
@@ -71185,6 +72304,16 @@ export namespace Prisma {
   export type CaptureScalarFieldEnum = (typeof CaptureScalarFieldEnum)[keyof typeof CaptureScalarFieldEnum]
 
 
+  export const PhotoPosterScalarFieldEnum: {
+    sourcePath: 'sourcePath',
+    posterPath: 'posterPath',
+    attempts: 'attempts',
+    createdAt: 'createdAt'
+  };
+
+  export type PhotoPosterScalarFieldEnum = (typeof PhotoPosterScalarFieldEnum)[keyof typeof PhotoPosterScalarFieldEnum]
+
+
   export const RoomScalarFieldEnum: {
     id: 'id',
     inspectionId: 'inspectionId',
@@ -74208,6 +75337,55 @@ export namespace Prisma {
     posterPath?: StringNullableWithAggregatesFilter<"Capture"> | string | null
     posterAttempts?: IntWithAggregatesFilter<"Capture"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Capture"> | Date | string
+  }
+
+  export type PhotoPosterWhereInput = {
+    AND?: PhotoPosterWhereInput | PhotoPosterWhereInput[]
+    OR?: PhotoPosterWhereInput[]
+    NOT?: PhotoPosterWhereInput | PhotoPosterWhereInput[]
+    sourcePath?: StringFilter<"PhotoPoster"> | string
+    posterPath?: StringNullableFilter<"PhotoPoster"> | string | null
+    attempts?: IntFilter<"PhotoPoster"> | number
+    createdAt?: DateTimeFilter<"PhotoPoster"> | Date | string
+  }
+
+  export type PhotoPosterOrderByWithRelationInput = {
+    sourcePath?: SortOrder
+    posterPath?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PhotoPosterWhereUniqueInput = Prisma.AtLeast<{
+    sourcePath?: string
+    posterPath?: string
+    AND?: PhotoPosterWhereInput | PhotoPosterWhereInput[]
+    OR?: PhotoPosterWhereInput[]
+    NOT?: PhotoPosterWhereInput | PhotoPosterWhereInput[]
+    attempts?: IntFilter<"PhotoPoster"> | number
+    createdAt?: DateTimeFilter<"PhotoPoster"> | Date | string
+  }, "sourcePath" | "posterPath">
+
+  export type PhotoPosterOrderByWithAggregationInput = {
+    sourcePath?: SortOrder
+    posterPath?: SortOrderInput | SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+    _count?: PhotoPosterCountOrderByAggregateInput
+    _avg?: PhotoPosterAvgOrderByAggregateInput
+    _max?: PhotoPosterMaxOrderByAggregateInput
+    _min?: PhotoPosterMinOrderByAggregateInput
+    _sum?: PhotoPosterSumOrderByAggregateInput
+  }
+
+  export type PhotoPosterScalarWhereWithAggregatesInput = {
+    AND?: PhotoPosterScalarWhereWithAggregatesInput | PhotoPosterScalarWhereWithAggregatesInput[]
+    OR?: PhotoPosterScalarWhereWithAggregatesInput[]
+    NOT?: PhotoPosterScalarWhereWithAggregatesInput | PhotoPosterScalarWhereWithAggregatesInput[]
+    sourcePath?: StringWithAggregatesFilter<"PhotoPoster"> | string
+    posterPath?: StringNullableWithAggregatesFilter<"PhotoPoster"> | string | null
+    attempts?: IntWithAggregatesFilter<"PhotoPoster"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"PhotoPoster"> | Date | string
   }
 
   export type RoomWhereInput = {
@@ -79115,6 +80293,55 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type PhotoPosterCreateInput = {
+    sourcePath: string
+    posterPath?: string | null
+    attempts?: number
+    createdAt?: Date | string
+  }
+
+  export type PhotoPosterUncheckedCreateInput = {
+    sourcePath: string
+    posterPath?: string | null
+    attempts?: number
+    createdAt?: Date | string
+  }
+
+  export type PhotoPosterUpdateInput = {
+    sourcePath?: StringFieldUpdateOperationsInput | string
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhotoPosterUncheckedUpdateInput = {
+    sourcePath?: StringFieldUpdateOperationsInput | string
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhotoPosterCreateManyInput = {
+    sourcePath: string
+    posterPath?: string | null
+    attempts?: number
+    createdAt?: Date | string
+  }
+
+  export type PhotoPosterUpdateManyMutationInput = {
+    sourcePath?: StringFieldUpdateOperationsInput | string
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PhotoPosterUncheckedUpdateManyInput = {
+    sourcePath?: StringFieldUpdateOperationsInput | string
+    posterPath?: NullableStringFieldUpdateOperationsInput | string | null
+    attempts?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type RoomCreateInput = {
     id?: string
     name: string
@@ -83961,6 +85188,35 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumCaptureKindFilter<$PrismaModel>
     _max?: NestedEnumCaptureKindFilter<$PrismaModel>
+  }
+
+  export type PhotoPosterCountOrderByAggregateInput = {
+    sourcePath?: SortOrder
+    posterPath?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PhotoPosterAvgOrderByAggregateInput = {
+    attempts?: SortOrder
+  }
+
+  export type PhotoPosterMaxOrderByAggregateInput = {
+    sourcePath?: SortOrder
+    posterPath?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PhotoPosterMinOrderByAggregateInput = {
+    sourcePath?: SortOrder
+    posterPath?: SortOrder
+    attempts?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PhotoPosterSumOrderByAggregateInput = {
+    attempts?: SortOrder
   }
 
   export type EnumRoomStatusFilter<$PrismaModel = never> = {

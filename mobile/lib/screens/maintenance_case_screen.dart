@@ -1028,7 +1028,7 @@ class _EvidenceCard extends StatelessWidget {
                 color: KiviloColors.canvas,
                 height: 200,
                 child: Image.network(
-                  evidence.url,
+                  evidence.posterUrl ?? evidence.url,
                   fit: BoxFit.contain,
                   errorBuilder: (_, _, _) => const Center(
                     child: Text('Could not load. Pull to refresh the link.'),
