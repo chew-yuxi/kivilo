@@ -178,4 +178,23 @@ void main() {
     });
     expect(video.posterUrl, 'https://example.test/poster');
   });
+
+  test(
+    'a photo carries its small copy for tiles, and none from an older server',
+    () {
+      final photo = CheckInPhoto.fromJson({
+        'id': 'photo-1',
+        'url': 'https://example.test/original',
+        'posterUrl': 'https://example.test/poster',
+        'update': false,
+      });
+      expect(photo.posterUrl, 'https://example.test/poster');
+      final older = CheckInPhoto.fromJson({
+        'id': 'photo-1',
+        'url': 'https://example.test/original',
+        'update': false,
+      });
+      expect(older.posterUrl, isNull);
+    },
+  );
 }

@@ -1510,7 +1510,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       ? FileImage(
                           File('${_root!.path}/${pending.relativePath}'),
                         )
-                      : NetworkImage(saved!.url),
+                      : NetworkImage(saved!.posterUrl ?? saved.url),
                   annotations: annotations,
                   cacheWidth: (160 * MediaQuery.devicePixelRatioOf(context))
                       .ceil(),

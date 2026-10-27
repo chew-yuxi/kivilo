@@ -142,12 +142,16 @@ class ReportPhoto {
   const ReportPhoto({
     required this.id,
     required this.url,
+    this.posterUrl,
     this.note,
     this.annotations,
     this.mimeType,
   });
   final String id;
   final String url;
+
+  /// The photo resized to 640px, for tiles. Null until the server has made it.
+  final String? posterUrl;
   final String? note;
   final String? mimeType;
 
@@ -162,6 +166,7 @@ class ReportPhoto {
   factory ReportPhoto.fromJson(Map<String, dynamic> json) => ReportPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
+    posterUrl: json['posterUrl'] as String?,
     note: json['note'] as String?,
     annotations: json['annotations'] as Map<String, dynamic>?,
     mimeType: json['mimeType'] as String?,

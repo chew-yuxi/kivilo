@@ -137,6 +137,9 @@ class _RoomScreenState extends State<RoomScreen> {
                   CheckInPhoto(
                     id: photo.id,
                     url: _stable(photo.id, photo.url),
+                    posterUrl: photo.posterUrl == null
+                        ? null
+                        : _stable('poster:${photo.id}', photo.posterUrl!),
                     caption: photo.caption,
                     update: photo.update,
                     annotations: photo.annotations,
@@ -1118,7 +1121,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     color: KiviloColors.canvas,
                     child: capture.kind == 'PHOTO'
                         ? MarkedNetworkPhoto(
-                            url: capture.url,
+                            url: capture.posterUrl ?? capture.url,
                             annotations: capture.annotations,
                             fit: BoxFit.contain,
                           )
@@ -1324,7 +1327,7 @@ class _RoomScreenState extends State<RoomScreen> {
                     color: KiviloColors.canvas,
                     child: capture.kind == 'PHOTO'
                         ? MarkedNetworkPhoto(
-                            url: capture.url,
+                            url: capture.posterUrl ?? capture.url,
                             annotations: capture.annotations,
                           )
                         : VideoPoster(
@@ -1674,7 +1677,9 @@ class _ItemEditorState extends State<ItemEditor> {
                                       color: Colors.white,
                                       child: capture.kind == 'PHOTO'
                                           ? MarkedNetworkPhoto(
-                                              url: capture.url,
+                                              url:
+                                                  capture.posterUrl ??
+                                                  capture.url,
                                               annotations: capture.annotations,
                                             )
                                           : VideoPoster(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/ui/check_in_reference_view.dart';
+import 'package:kivilo/ui/marked_network_photo.dart';
 
 Widget _host(CheckInReference reference) => MaterialApp(
   home: Scaffold(body: CheckInReferenceView(reference: reference)),
@@ -84,5 +85,35 @@ void main() {
 
     expect(find.text('Update · Basin\n1. chip in enamel'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('draws the small copy in the tile and opens the original', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        const CheckInReference(
+          baselineId: 'check-in-1',
+          conductedAt: null,
+          lines: [],
+          photos: [
+            CheckInPhoto(
+              id: 'photo-1',
+              url: 'https://example.test/original.jpg',
+              posterUrl: 'https://example.test/poster.jpg',
+              caption: 'Basin',
+            ),
+          ],
+        ),
+      ),
+    );
+
+    String drawn() => tester
+        .widget<MarkedNetworkPhoto>(find.byType(MarkedNetworkPhoto).last)
+        .url;
+    expect(drawn(), 'https://example.test/poster.jpg');
+    await tester.tap(find.byType(MarkedNetworkPhoto));
+    await tester.pumpAndSettle();
+    expect(drawn(), 'https://example.test/original.jpg');
   });
 }

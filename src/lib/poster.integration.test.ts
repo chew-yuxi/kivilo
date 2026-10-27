@@ -3,6 +3,7 @@ import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { randomUUID } from 'node:crypto'
 import ffmpegPath from 'ffmpeg-static'
+import sharp from 'sharp'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
@@ -13,7 +14,7 @@ vi.mock('@/lib/auth', async (importActual) => {
 
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
-import { CAPTURE_BUCKET, captureExists, serviceClient, uploadBytes } from '@/lib/storage'
+import { CAPTURE_BUCKET, captureExists, downloadCapture, serviceClient, uploadBytes } from '@/lib/storage'
 import { makePosters } from '@/lib/poster'
 import { deleteCapture } from '@/lib/actions'
 
@@ -96,6 +97,30 @@ describe('video posters', () => {
       where: { path: { in: [saved.storagePath, saved.posterPath!] } },
     })
     expect(tombstones).toHaveLength(2)
+  })
+
+  it('stores a photo as WebP, upright within 640px, in the same proportions, beside the original', async () => {
+    const { room } = await deal()
+    // A phone photo held upright: landscape pixels with EXIF orientation 6.
+    const original = await sharp({ create: { width: 4000, height: 3000, channels: 3, background: '#c08040' } })
+      .jpeg()
+      .withMetadata({ orientation: 6 })
+      .toBuffer()
+    const storagePath = `${room.id}/${randomUUID()}.jpg`
+    await uploadBytes(storagePath, new Uint8Array(original), 'image/jpeg')
+    written.push(storagePath, `${room.id}/`)
+    const capture = await db.capture.create({
+      data: { roomId: room.id, kind: 'PHOTO', storagePath, mimeType: 'image/jpeg', sizeBytes: original.length },
+    })
+
+    const result = await makePosters(0)
+    expect(result.made).toContain(capture.id)
+    const saved = await db.capture.findUniqueOrThrow({ where: { id: capture.id } })
+    expect(saved.posterPath).toBe(`${room.id}/${capture.id}.poster.webp`)
+    const poster = await sharp(Buffer.from(await downloadCapture(saved.posterPath!))).metadata()
+    expect([poster.format, poster.width, poster.height, poster.orientation ?? 1]).toEqual(['webp', 480, 640, 1])
+    // The original is evidence and is never rewritten.
+    expect(Buffer.from(await downloadCapture(storagePath)).equals(original)).toBe(true)
   })
 
   it('gives up on an unreadable file after a few attempts', async () => {

@@ -348,6 +348,7 @@ class CheckInPhoto {
   const CheckInPhoto({
     required this.id,
     required this.url,
+    this.posterUrl,
     this.caption,
     this.update = false,
     this.annotations,
@@ -355,6 +356,10 @@ class CheckInPhoto {
 
   final String id;
   final String url;
+
+  /// The photo resized to 640px, for tiles. Null until the server has made it, and
+  /// always for a photo from an addendum.
+  final String? posterUrl;
 
   /// What the photo is of, as the report captions it ("Before: cracked basin").
   final String? caption;
@@ -366,6 +371,7 @@ class CheckInPhoto {
   factory CheckInPhoto.fromJson(Map<String, dynamic> json) => CheckInPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
+    posterUrl: json['posterUrl'] as String?,
     caption: json['caption'] as String?,
     update: json['update'] as bool,
     annotations: json['annotations'] as Map<String, dynamic>?,

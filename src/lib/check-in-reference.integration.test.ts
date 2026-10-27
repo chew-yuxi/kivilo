@@ -151,7 +151,15 @@ describe('check-in reference', () => {
     ])
     // The app is handed the URL on the photo itself.
     expect((await signedCheckInReference(kitchen.id, checkIn.agentId))!.photos).toMatchObject([
-      { caption: 'Hob and worktop', url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg' },
+      { caption: 'Hob and worktop', url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg', posterUrl: null },
+    ])
+    // Its tile draws the check-in capture's poster once the cron has made it.
+    await db.capture.update({
+      where: { storagePath: 'REFERENCE-KITCHEN/kitchen-agreed.jpg' },
+      data: { posterPath: 'REFERENCE-KITCHEN/kitchen-agreed.poster.jpg' },
+    })
+    expect((await signedCheckInReference(kitchen.id, checkIn.agentId))!.photos).toMatchObject([
+      { url: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.jpg', posterUrl: 'https://storage.test/REFERENCE-KITCHEN/kitchen-agreed.poster.jpg' },
     ])
     const { lines } = (await checkInReference(kitchen.id, checkIn.agentId))!
     expect(lines.map((line) => [line.name, line.condition, line.notes])).toEqual([

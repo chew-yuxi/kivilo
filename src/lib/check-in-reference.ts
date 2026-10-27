@@ -163,8 +163,25 @@ export async function signedCheckInReference(roomId: string, agentId: string) {
   const frozen = await frozenBaseline(roomId, agentId)
   if (!frozen) return null
   const urls = await signPhotos(frozen.baseline.photos)
+  // The app's tiles draw a check-in capture's poster once the cron has made it. Addendum
+  // photos are not captures and have none.
+  const posters = await db.capture.findMany({
+    where: { storagePath: { in: frozen.baseline.photos.map((photo) => photo.storagePath) }, posterPath: { not: null } },
+    select: { storagePath: true, posterPath: true },
+  })
+  const posterUrls = new Map(await Promise.all(
+    posters.map(async (capture) => [capture.storagePath, await createDownloadUrl(capture.posterPath!)] as const),
+  ))
+  const paths = new Map(frozen.baseline.photos.map((photo) => [photo.id, photo.storagePath]))
   const reference = referenceOf(frozen)
-  return { ...reference, photos: reference.photos.map((photo) => ({ ...photo, url: urls[photo.id] })) }
+  return {
+    ...reference,
+    photos: reference.photos.map((photo) => ({
+      ...photo,
+      url: urls[photo.id],
+      posterUrl: posterUrls.get(paths.get(photo.id)!) ?? null,
+    })),
+  }
 }
 
 /// A signed URL for each of a check-out room's check-in photos, by photo id. Empty

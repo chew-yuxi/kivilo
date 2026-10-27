@@ -189,7 +189,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     rooms: await Promise.all(inspection.rooms.map(async (room) => {
       const previews = room.captures
         .map((capture) => ({
-          path: capture.kind === 'PHOTO' ? capture.storagePath : capture.posterPath,
+          // The strip's tiles are 92px wide, so a photo's poster whenever it has one.
+          path: capture.posterPath ?? (capture.kind === 'PHOTO' ? capture.storagePath : null),
           annotations: capture.kind === 'PHOTO' ? toAnnotations(capture.annotations) : null,
         }))
         .filter((preview): preview is typeof preview & { path: string } => preview.path !== null)

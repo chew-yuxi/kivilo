@@ -720,7 +720,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.network(
-                      photo.url,
+                      photo.posterUrl ?? photo.url,
                       fit: BoxFit.cover,
                       semanticLabel: photo.note ?? '${room.name} photo',
                       errorBuilder: (_, _, _) =>

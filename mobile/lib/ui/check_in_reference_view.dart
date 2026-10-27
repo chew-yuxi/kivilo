@@ -64,7 +64,7 @@ class CheckInReferenceView extends StatelessWidget {
                   child: ColoredBox(
                     color: KiviloColors.canvas,
                     child: MarkedNetworkPhoto(
-                      url: photo.url,
+                      url: photo.posterUrl ?? photo.url,
                       annotations: photo.annotations,
                       fit: BoxFit.contain,
                     ),

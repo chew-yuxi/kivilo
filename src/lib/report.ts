@@ -87,6 +87,8 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
       photos: await Promise.all(room.captures.map(async (capture) => ({
         id: capture.id,
         url: await createDownloadUrl(capture.storagePath),
+        // For the app's photo tiles; null until the poster cron has made it.
+        posterUrl: capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
         note: capture.note,
         annotations: toAnnotations(capture.annotations),
       }))),

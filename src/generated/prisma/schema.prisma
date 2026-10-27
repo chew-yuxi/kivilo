@@ -561,8 +561,9 @@ model Capture {
   /// author and time and never a confidence.
   annotations    Json?
   processedAt    DateTime?
-  /// A still from a video, stored next to it, so a list can show what a video is without
-  /// loading any of it. Made by the poster cron (src/lib/poster.ts); null until then.
+  /// A small still stored next to the capture, so a list can show it without loading the
+  /// original: a video's representative frame, or a photo resized to 640px WebP. Made by the
+  /// poster cron (src/lib/poster.ts); null until then.
   posterPath     String?     @unique
   /// Failed poster runs. The cron stops after a few, so one unreadable file cannot
   /// occupy every run.
