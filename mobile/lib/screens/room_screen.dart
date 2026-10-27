@@ -55,18 +55,39 @@ class _RoomScreenState extends State<RoomScreen> {
   late final _api = widget.api ?? Api();
   late final _evidenceBackend = RoutingEvidenceBackend(_api.dio);
 
-  /// Signed URLs kept across refreshes so thumbnails do not flash, but renewed before
-  /// their hour runs out, or every image and video on a long-open screen would break.
-  final Map<String, ({String url, DateTime at})> _captureUrls = {};
+  /// Signed URLs kept across refreshes so thumbnails do not flash, but only while the
+  /// kept URL itself has time left. Its expiry is read from the URL, never from when it
+  /// was shown: the copy saved on this phone opens the screen with links that died
+  /// hours ago, and timing those from the moment they appeared kept them over the
+  /// server's fresh ones, so every photo stayed broken after a restart.
+  final Map<String, String> _captureUrls = {};
 
   String _stable(String key, String fresh) {
     final kept = _captureUrls[key];
-    if (kept != null &&
-        DateTime.now().difference(kept.at) < const Duration(minutes: 45)) {
-      return kept.url;
+    final until = kept == null ? null : _signedUntil(kept);
+    if (until != null &&
+        until.isAfter(DateTime.now().add(const Duration(minutes: 10)))) {
+      return kept!;
     }
-    _captureUrls[key] = (url: fresh, at: DateTime.now());
+    _captureUrls[key] = fresh;
     return fresh;
+  }
+
+  /// The `exp` claim of a storage signed URL's token, or null when there is none to
+  /// read, in which case the URL is never kept.
+  static DateTime? _signedUntil(String url) {
+    final parts = Uri.tryParse(url)?.queryParameters['token']?.split('.');
+    if (parts == null || parts.length != 3) return null;
+    final Object? claims;
+    try {
+      claims = jsonDecode(
+        utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+      );
+    } on FormatException {
+      return null;
+    }
+    final exp = claims is Map<String, dynamic> ? claims['exp'] : null;
+    return exp is int ? DateTime.fromMillisecondsSinceEpoch(exp * 1000) : null;
   }
 
   late Loading<RoomDetail> _loading = _api.load(
