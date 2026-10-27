@@ -5,6 +5,27 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Photo tiles from a 640px WebP: 28 October 2026 Singapore time
+
+Source `51d2d6c`, pushed to `origin/main` and deployed by Vercel (READY, `sin1`) before
+patching. Every photo tile downloaded the 3 to 6 MB camera original. The poster cron now
+also makes each photo's poster, upright, within 640px, as WebP (15 to 80 KB), in
+`Capture.posterPath`; all 332 production photos were backfilled from the pinned source
+before the patch. The room, capture, check-in reference and report grid tiles draw
+`posterUrl` and fall back to `url`; viewers, Mark photo and the PDF keep the original.
+The inspection screen's room strip changed server side, so older builds gain it too.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **6** / `754900` | **stable**, active and latest |
+| iOS TestFlight `1.0.0+25` | **33** / `754912` | **stable**, active and latest for iOS |
+
+Both built from one pinned worktree with production defines. Flutter analysis was
+clean and all **469 mobile tests** passed. No icon is added against either base, so
+`--allow-asset-diffs` covered the known removal-only font difference. No native
+difference. iOS shared 78.1% of Dart code with its possible-slower-execution warning.
+Physical devices **NOT RUN**.
+
 ## Unmarked photos go to the report, and photos show as a grid: 27 October 2026 Singapore time
 
 Source `6ae1816`, pushed to `origin/main` before patching. Leaving the multi-shot camera
