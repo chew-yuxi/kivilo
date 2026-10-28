@@ -5,6 +5,30 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Repair photos can be marked, and a repair names any item: 28 October 2026 Singapore time
+
+Source `ff69689`, pushed to `origin/main` after `20261028120000_maintenance_item_name`
+and `20261028130000_evidence_marks` were applied to production (nullable columns on
+tables that already have RLS), and deployed by Vercel (READY, `sin1`; the new
+`PATCH /api/v1/maintenance/[caseId]/evidence/[evidenceId]` answers 401 signed out).
+Report a problem takes a typed item when it is not in the register; installed builds
+show it through the existing `asset` field. Mark photo opens after each repair photo,
+before upload, and the uploader can mark their own photos from the repair screen. The
+marks are copied into report updates, move-in notices and assessments, and drawn there
+on the web, PDF and app.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **9** / `755853` | **stable** |
+| iOS TestFlight `1.0.0+25` | **36** / `755862` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's "do it all". Flutter analysis was clean and all **475 mobile
+tests** passed. No icon added against either base (`Icons.draw_outlined` is in both);
+`--allow-asset-diffs` covered the icon font and, on iOS, `NOTICES.Z`. No native
+difference. iOS shared 77.6% of Dart code with its possible-slower-execution warning.
+Physical devices **NOT RUN**.
+
 ## Photos sent at 2048px, and opened on their small copy: 28 October 2026 Singapore time
 
 Source `8ad6bd2`, app only, pushed to `origin/main` before patching. Every evidence
