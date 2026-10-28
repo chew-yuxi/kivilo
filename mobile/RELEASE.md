@@ -5,6 +5,30 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Photos kept on the phone: 28 October 2026 Singapore time
+
+Source `7e5b516`, app only, pushed to `origin/main` before patching. Every tile
+downloaded its photo again on each visit: Flutter's image cache is memory only and
+keyed by the URL, which the server signs afresh on every response, so the saved-copy
+pass and the fresh answer each downloaded every thumbnail, and a restart started over.
+`StoredNetworkImage` (`lib/services/photo_cache.dart`) keeps each photo in the app's
+cache folder under its address without the signed token, capped at 200 MB oldest
+first and cleared on sign-out. Branding logos stay on `NetworkImage`, since they can
+be replaced in place. No plugin added (`path_provider` and `crypto` were already in
+both releases). `photo_cache_test.dart` pins one download per photo, reading back after
+a restart on an expired link, no caching of failures, the cap and sign-out.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **10** / `756201` | **stable** |
+| iOS TestFlight `1.0.0+25` | **37** / `756205` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **480 mobile tests**
+passed. No icon added against either base; `--allow-asset-diffs` covered the icon font
+and, on iOS, `NOTICES.Z`. No native difference. iOS shared 76.8% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Repair photos can be marked, and a repair names any item: 28 October 2026 Singapore time
 
 Source `ff69689`, pushed to `origin/main` after `20261028120000_maintenance_item_name`
