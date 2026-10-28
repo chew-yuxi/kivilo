@@ -19,6 +19,7 @@ import 'services/product_events.dart';
 import 'services/play_billing.dart';
 import 'screens/sign_in_screen.dart';
 import 'ui/kivilo_theme.dart';
+import 'services/photo_cache.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +50,12 @@ Future<void> main() async {
     // unhandled zone error and takes the app down. An inspector is offline by default,
     // so this is the ordinary case, not the exceptional one.
     Supabase.instance.client.auth.onAuthStateChange.listen(
-      (_) => _resumeUserServices(),
+      (state) {
+        if (state.event == AuthChangeEvent.signedOut) {
+          unawaited(PhotoCache.clear());
+        }
+        _resumeUserServices();
+      },
       onError: (Object error) => debugPrint('auth state error: $error'),
     );
     // Not awaited: reporting errors must never be what stops the app starting.

@@ -22,6 +22,7 @@ import '../ui/page_context_title.dart';
 import 'capture_screen.dart';
 import 'photo_mark_screen.dart';
 import 'video_screen.dart';
+import '../services/photo_cache.dart';
 
 class RoomScreen extends StatefulWidget {
   const RoomScreen({
@@ -321,10 +322,10 @@ class _RoomScreenState extends State<RoomScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => PhotoMarkScreen(
-            image: NetworkImage(capture.url),
+            image: StoredNetworkImage(capture.url),
             placeholder: capture.posterUrl == null
                 ? null
-                : NetworkImage(capture.posterUrl!),
+                : StoredNetworkImage(capture.posterUrl!),
             annotations: capture.annotations,
           ),
         ),

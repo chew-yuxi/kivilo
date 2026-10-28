@@ -13,6 +13,7 @@ import '../ui/marked_network_photo.dart';
 import '../ui/page_context_title.dart';
 import '../ui/tenant_handover.dart';
 import 'signature_screen.dart';
+import '../services/photo_cache.dart';
 
 /// The signed report, read-only: what the landlord and tenant agreed, laid out for a
 /// phone. It shows exactly what the shared link shows, because the server loads both
@@ -719,8 +720,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   onTap: () => _view(photo),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      photo.posterUrl ?? photo.url,
+                    child: Image(
+                      image: StoredNetworkImage(photo.posterUrl ?? photo.url),
                       fit: BoxFit.cover,
                       semanticLabel: photo.note ?? '${room.name} photo',
                       errorBuilder: (_, _, _) =>

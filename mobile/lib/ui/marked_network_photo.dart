@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/photo_mark_screen.dart';
 import 'kivilo_theme.dart';
+import '../services/photo_cache.dart';
 
 class MarkedNetworkPhoto extends StatelessWidget {
   const MarkedNetworkPhoto({
@@ -27,8 +28,10 @@ class MarkedNetworkPhoto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MarkedPhoto(
-    image: NetworkImage(url),
-    placeholder: placeholderUrl == null ? null : NetworkImage(placeholderUrl!),
+    image: StoredNetworkImage(url),
+    placeholder: placeholderUrl == null
+        ? null
+        : StoredNetworkImage(placeholderUrl!),
     annotations: annotations,
     fit: fit,
     semanticLabel: semanticLabel,

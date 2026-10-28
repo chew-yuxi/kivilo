@@ -18,6 +18,7 @@ import 'report_screen.dart';
 import 'video_screen.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/marked_network_photo.dart';
+import '../services/photo_cache.dart';
 
 class _MoveInDefectComposer extends StatefulWidget {
   const _MoveInDefectComposer({required this.item});
@@ -231,10 +232,10 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => PhotoMarkScreen(
-          image: NetworkImage(evidence.url),
+          image: StoredNetworkImage(evidence.url),
           placeholder: evidence.posterUrl == null
               ? null
-              : NetworkImage(evidence.posterUrl!),
+              : StoredNetworkImage(evidence.posterUrl!),
           annotations: evidence.annotations,
         ),
       ),

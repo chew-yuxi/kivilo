@@ -13,6 +13,7 @@ import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/capture_queue.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
+import 'package:kivilo/services/photo_cache.dart';
 
 class _PausedRoomApi extends Api {
   _PausedRoomApi(this.initial) : super(attachAuth: false, cache: ReadCache()) {
@@ -160,7 +161,7 @@ void main() {
     final image = ResizeImage.resizeIfNeeded(
       160, // The grid tile decodes at its largest cell, 160 at this ratio of 1.
       null,
-      NetworkImage(_saved(clientId).url),
+      StoredNetworkImage(_saved(clientId).url),
     );
     final key = await image.obtainKey(ImageConfiguration.empty);
     final frame = Completer<ImageInfo>();

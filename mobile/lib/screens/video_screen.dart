@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 
 import '../ui/kivilo_theme.dart';
+import '../services/photo_cache.dart';
 
 /// Plays one piece of video evidence inside the app. A signed storage URL is a bearer
 /// credential for footage of someone's home, so it is streamed here rather than handed
@@ -151,8 +152,8 @@ class VideoPoster extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.network(
-          posterUrl!,
+        Image(
+          image: StoredNetworkImage(posterUrl!),
           fit: BoxFit.contain,
           gaplessPlayback: true,
           errorBuilder: (_, _, _) => Center(child: icon),

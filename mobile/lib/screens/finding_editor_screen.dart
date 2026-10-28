@@ -14,6 +14,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
+import '../services/photo_cache.dart';
 
 /// Choose a line with its evidence in view, then write the finding on the same route.
 /// Selection changes and a failed save leave the agent's draft intact.
@@ -401,8 +402,10 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
     if (photo.localPath != null && await File(photo.localPath!).exists()) {
       image = MemoryImage(await File(photo.localPath!).readAsBytes());
     } else if (photo.url != null) {
-      image = NetworkImage(photo.url!);
-      if (photo.posterUrl != null) placeholder = NetworkImage(photo.posterUrl!);
+      image = StoredNetworkImage(photo.url!);
+      if (photo.posterUrl != null) {
+        placeholder = StoredNetworkImage(photo.posterUrl!);
+      }
     } else {
       throw const ApiFailure(
         'Connect and retry to open this photo. Its upload is kept on this phone.',

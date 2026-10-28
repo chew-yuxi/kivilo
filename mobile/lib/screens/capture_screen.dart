@@ -23,6 +23,7 @@ import '../ui/marked_network_photo.dart';
 import 'photo_mark_screen.dart';
 import 'multi_shot_camera_screen.dart';
 import 'video_screen.dart';
+import '../services/photo_cache.dart';
 
 class CaptureScreen extends StatefulWidget {
   const CaptureScreen({
@@ -772,7 +773,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         }
         return;
       }
-      image = NetworkImage(server.url);
+      image = StoredNetworkImage(server.url);
     }
     if (!mounted) return;
     final result = await Navigator.push<PhotoMarksResult>(
@@ -892,10 +893,10 @@ class _CaptureScreenState extends State<CaptureScreen> {
       context,
       MaterialPageRoute(
         builder: (_) => PhotoMarkScreen(
-          image: NetworkImage(capture.url),
+          image: StoredNetworkImage(capture.url),
           placeholder: capture.posterUrl == null
               ? null
-              : NetworkImage(capture.posterUrl!),
+              : StoredNetworkImage(capture.posterUrl!),
           annotations: capture.annotations,
         ),
       ),
@@ -1517,7 +1518,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       ? FileImage(
                           File('${_root!.path}/${pending.relativePath}'),
                         )
-                      : NetworkImage(saved!.posterUrl ?? saved.url),
+                      : StoredNetworkImage(saved!.posterUrl ?? saved.url),
                   annotations: annotations,
                   cacheWidth: (160 * MediaQuery.devicePixelRatioOf(context))
                       .ceil(),
