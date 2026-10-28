@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import { applyAddenda, type StateChange, type StateRoom } from '@/lib/addenda-state'
+import { storedAnnotationsSchema } from '@/lib/annotations'
 import type { Prisma } from '@/generated/prisma'
 
 /// Addenda: dated updates to a signed check-in. See plans/report-addenda.md.
@@ -52,6 +53,8 @@ export const addendumSnapshotSchema = z.object({
       mimeType: z.string(),
       note: z.string().nullable(),
       label: z.string().nullable(),
+      /// Copied from a repair photo. Absent on updates published before photos carried marks.
+      annotations: storedAnnotationsSchema.nullable().optional(),
     })),
   })),
 })
@@ -88,7 +91,7 @@ export function snapshotChanges(snapshot: AddendumSnapshot): StateChange[] {
     roomName: entry.roomName,
     targetKey: entry.target?.key ?? null,
     line: entry.line,
-    photos: entry.photos.map(({ id, storagePath, label, note }) => ({ id, storagePath, label, note })),
+    photos: entry.photos.map(({ id, storagePath, label, note, annotations }) => ({ id, storagePath, label, note, annotations })),
     conditionOnly: Boolean(snapshot.moveInDefect),
     // Older frozen notices included the target's existing notes in the new line.
     // Apply only their own contribution so parallel notices retain both descriptions.

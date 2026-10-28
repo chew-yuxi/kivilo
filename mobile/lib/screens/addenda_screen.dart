@@ -13,6 +13,7 @@ import '../ui/kivilo_theme.dart';
 import 'addendum_entry_screen.dart';
 import 'report_screen.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/marked_network_photo.dart';
 
 /// Updates since signing, on a countersigned check-in: what has been published and who
 /// has acknowledged it, the draft the agent is writing, and resolved repairs that can
@@ -483,16 +484,13 @@ class _AddendaScreenState extends State<AddendaScreen> {
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            photo.posterUrl ?? photo.url,
+                          child: SizedBox(
                             width: 88,
                             height: 88,
-                            fit: BoxFit.cover,
-                            semanticLabel: photo.note ?? photo.label,
-                            errorBuilder: (_, _, _) => const SizedBox(
-                              width: 88,
-                              height: 88,
-                              child: ColoredBox(color: KiviloColors.canvas),
+                            child: MarkedNetworkPhoto(
+                              url: photo.posterUrl ?? photo.url,
+                              annotations: photo.annotations,
+                              semanticLabel: photo.note ?? photo.label,
                             ),
                           ),
                         ),

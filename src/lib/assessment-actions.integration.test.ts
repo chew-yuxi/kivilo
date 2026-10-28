@@ -96,6 +96,10 @@ describe('post-signature assessment publication', () => {
         mimeType: 'image/jpeg',
         sizeBytes: 100,
         note: 'Repair completed',
+        annotations: {
+          v: 1, by: tenant.id, at: '2026-10-21T01:00:00.000Z', w: 800, h: 600,
+          marks: [{ shape: 'arrow', tx: .1, ty: .1, hx: .4, hy: .5, note: 'Filled chip' }],
+        },
       },
     })
     await db.finding.update({
@@ -140,7 +144,7 @@ describe('post-signature assessment publication', () => {
     expect(assessmentSnapshotSchema.parse(versions[0].snapshot).findings[0].maintenanceEvidence)
       .toMatchObject({
         title: 'Worktop repair history',
-        evidence: [{ purpose: 'AFTER', note: 'Repair completed' }],
+        evidence: [{ purpose: 'AFTER', note: 'Repair completed', annotations: { marks: [{ note: 'Filled chip' }] } }],
       })
     expect(assessmentSnapshotSchema.parse(versions[1].snapshot).findings[0].rationale)
       .toBe('A deeper chip verified against the photo')

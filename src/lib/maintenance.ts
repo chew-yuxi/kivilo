@@ -1,5 +1,7 @@
+import { isDeepStrictEqual } from 'node:util'
 import { z } from 'zod'
 import { db } from '@/lib/db'
+import { annotationInputSchema, toAnnotations, type AnnotationInput } from '@/lib/annotations'
 import { agentTenancies, authorizeTenancy, tenancyScope, notificationScope, type TenancyRole } from '@/lib/auth'
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { posterUrls } from '@/lib/poster-urls'
@@ -34,6 +36,10 @@ const basis = z.enum([
 export const createCaseInput = z.object({
   clientId: clientId.optional(),
   propertyAssetId: z.string().min(1).nullable().default(null),
+  itemName: z.preprocess(
+    (value) => typeof value === 'string' ? value.trim() || null : value,
+    z.string().max(120).nullable(),
+  ).default(null),
   category,
   priority: priority.default('ROUTINE'),
   title: z.string().trim().min(1).max(120),
@@ -67,7 +73,18 @@ export const evidenceInput = evidenceUploadInput.extend({
   storagePath: z.string().min(1),
   sizeBytes: z.number().int().positive().max(250_000_000),
   note: z.string().trim().max(1000).nullable().default(null),
+  annotations: annotationInputSchema.nullable().default(null),
 })
+
+const evidenceAnnotationsInput = z.object({ annotations: annotationInputSchema.nullable() }).strict()
+
+const MARKABLE_EVIDENCE = ['image/jpeg', 'image/png', 'image/webp']
+
+/// Marks sit beside the photograph, as on a capture; the stored bytes never change.
+function evidenceAnnotations(annotations: AnnotationInput | null, mimeType: string, actorId: string) {
+  if (annotations && !MARKABLE_EVIDENCE.includes(mimeType)) throw new Error('Only a photo can be marked')
+  return annotations ? { v: 1, ...annotations, by: actorId, at: new Date().toISOString() } : Prisma.DbNull
+}
 
 export const verificationInput = z.object({
   outcome: verificationOutcome,
@@ -372,7 +389,7 @@ export async function listMaintenanceCases(tenancyId: string, stakeholderId: str
   return cases.map((item) => ({
     id: item.id,
     tenancyId: item.tenancyId,
-    asset: item.propertyAsset?.name ?? null,
+    asset: item.propertyAsset?.name ?? item.itemName,
     category: item.category,
     priority: item.priority,
     title: item.title,
@@ -395,6 +412,8 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     mimeType: item.mimeType,
     sizeBytes: item.sizeBytes,
     note: item.note,
+    annotations: toAnnotations(item.annotations),
+    canMark: item.uploadedById === stakeholderId && MARKABLE_EVIDENCE.includes(item.mimeType),
     createdAt: item.createdAt.toISOString(),
     url: await createDownloadUrl(item.storagePath),
     posterUrl: posters.get(item.storagePath) ?? null,
@@ -521,6 +540,7 @@ export async function createMaintenanceCase(tenancyId: string, stakeholderId: st
     const item = await tx.maintenanceCase.create({
       data: {
         ...input, tenancyId, reportedById: stakeholderId, moveInDefectInspectionId,
+        itemName: input.propertyAssetId ? null : input.itemName,
         createdAt: input.wasPresentAtMoveIn ? new Date() : undefined,
       },
     })
@@ -909,12 +929,38 @@ export async function registerMaintenanceEvidence(caseId: string, stakeholderId:
     if (existing.caseId !== caseId || existing.storagePath !== input.storagePath) {
       throw new Error('Maintenance case not found')
     }
-    return { id: existing.id }
+    // A retry whose first response was lost. The phone sends any differing marks next.
+    const stored = toAnnotations(existing.annotations)
+    const geometry = stored ? { w: stored.w, h: stored.h, marks: stored.marks } : null
+    return { id: existing.id, annotationsApplied: isDeepStrictEqual(geometry, input.annotations) }
   }
   const created = await db.maintenanceEvidence.create({
-    data: { ...input, caseId, uploadedById: stakeholderId },
+    data: {
+      ...input, caseId, uploadedById: stakeholderId,
+      annotations: evidenceAnnotations(input.annotations, input.mimeType, stakeholderId),
+    },
   })
-  return { id: created.id }
+  return { id: created.id, annotationsApplied: true }
+}
+
+/// Only the person who took a photo marks it. Reports and updates that already used it
+/// keep the marks they copied, so a later change never rewrites what was published.
+export async function annotateMaintenanceEvidence(
+  caseId: string,
+  evidenceId: string,
+  stakeholderId: string,
+  raw: unknown,
+) {
+  const input = evidenceAnnotationsInput.parse(raw)
+  const { maintenanceCase } = await authorizeMaintenanceCase(caseId, stakeholderId)
+  const evidence = maintenanceCase.evidence.find((item) =>
+    item.id === evidenceId && item.uploadedById === stakeholderId)
+  if (!evidence) throw new Error('Maintenance evidence not found')
+  await db.maintenanceEvidence.update({
+    where: { id: evidence.id },
+    data: { annotations: evidenceAnnotations(input.annotations, evidence.mimeType, stakeholderId) },
+  })
+  return { ok: true }
 }
 
 export async function listPropertyAssets(propertyId: string, stakeholderId: string) {

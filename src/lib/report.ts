@@ -145,6 +145,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
           purpose: item.purpose,
           mimeType: item.mimeType,
           note: item.note,
+          annotations: item.annotations ?? null,
           url: await createDownloadUrl(item.storagePath),
           posterUrl: (await posterUrls([item.storagePath])).get(item.storagePath) ?? null,
         }))),

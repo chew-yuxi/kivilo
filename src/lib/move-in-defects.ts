@@ -6,6 +6,7 @@ import { addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapsh
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 import type { Prisma } from '@/generated/prisma'
+import { toAnnotations } from '@/lib/annotations'
 import { lockAgencyTenancy } from '@/lib/agency'
 
 export class MoveInDefectStaleTargetError extends Error {
@@ -193,6 +194,7 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
           create: photos.map((photo) => ({
             storagePath: photo.storagePath, mimeType: photo.mimeType, sizeBytes: photo.sizeBytes,
             note: photo.note, label: 'Reported at move-in', maintenanceEvidenceId: photo.id,
+            annotations: toAnnotations(photo.annotations) ?? undefined,
           })),
         },
       },
@@ -216,6 +218,7 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
         maintenanceCase: { id: item.id, title: item.title },
         photos: entry.photos.map((photo) => ({
           id: photo.id, storagePath: photo.storagePath, mimeType: photo.mimeType, note: photo.note, label: photo.label,
+          annotations: toAnnotations(photo.annotations),
         })),
       }],
     }

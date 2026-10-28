@@ -82,7 +82,7 @@ void main() {
           {'mimeType': 'application/pdf', 'url': '$original.pdf'},
         ],
       });
-      expect(finding.evidenceImageUrls, [poster, '$original-2']);
+      expect(finding.evidenceImages.map((image) => image.url), [poster, '$original-2']);
     },
   );
 }

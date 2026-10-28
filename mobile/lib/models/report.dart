@@ -317,7 +317,7 @@ class ReportFinding {
     this.estimatedCost,
     required this.rationale,
     this.maintenanceTitle,
-    required this.evidenceImageUrls,
+    required this.evidenceImages,
     this.photos = const [],
   });
   final String id;
@@ -327,8 +327,9 @@ class ReportFinding {
   final String rationale;
   final String? maintenanceTitle;
 
-  /// Drawn only as small tiles, so each image's poster where the server has made one.
-  final List<String> evidenceImageUrls;
+  /// Drawn only as small tiles, so each image's poster where the server has made one,
+  /// with the marks frozen with the assessment.
+  final List<({String url, Map<String, dynamic>? annotations})> evidenceImages;
   final List<ReportPhoto> photos;
 
   factory ReportFinding.fromJson(Map<String, dynamic> json) => ReportFinding(
@@ -341,10 +342,15 @@ class ReportFinding {
     photos: ((json['photos'] as List<dynamic>?) ?? const [])
         .map((photo) => ReportPhoto.fromJson(photo as Map<String, dynamic>))
         .toList(),
-    evidenceImageUrls: (json['evidence'] as List<dynamic>)
+    evidenceImages: (json['evidence'] as List<dynamic>)
         .cast<Map<String, dynamic>>()
         .where((e) => (e['mimeType'] as String).startsWith('image/'))
-        .map((e) => (e['posterUrl'] as String?) ?? e['url'] as String)
+        .map(
+          (e) => (
+            url: (e['posterUrl'] as String?) ?? e['url'] as String,
+            annotations: e['annotations'] as Map<String, dynamic>?,
+          ),
+        )
         .toList(),
   );
 }
@@ -515,6 +521,7 @@ class AddendumPhoto {
     required this.mimeType,
     this.note,
     this.label,
+    this.annotations,
   });
   final String id;
   final String url;
@@ -526,6 +533,9 @@ class AddendumPhoto {
   /// "Before" or "After" for a repair's evidence.
   final String? label;
 
+  /// Marks a repair photo carried into the update.
+  final Map<String, dynamic>? annotations;
+
   factory AddendumPhoto.fromJson(Map<String, dynamic> json) => AddendumPhoto(
     id: json['id'] as String,
     url: json['url'] as String,
@@ -533,6 +543,7 @@ class AddendumPhoto {
     mimeType: json['mimeType'] as String,
     note: json['note'] as String?,
     label: json['label'] as String?,
+    annotations: json['annotations'] as Map<String, dynamic>?,
   );
 }
 

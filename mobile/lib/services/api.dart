@@ -854,6 +854,17 @@ class Api {
         );
       });
 
+  Future<void> annotateMaintenanceEvidence(
+    String caseId,
+    String evidenceId,
+    Map<String, dynamic>? annotations,
+  ) => _call(() async {
+    await _dio.patch(
+      '/api/v1/maintenance/$caseId/evidence/$evidenceId',
+      data: {'annotations': annotations},
+    );
+  });
+
   Future<void> addMaintenanceComment(String caseId, String body) =>
       _call(() async {
         await _dio.post(

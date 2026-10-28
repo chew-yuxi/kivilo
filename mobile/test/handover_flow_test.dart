@@ -256,6 +256,9 @@ void main() {
   testWidgets(
     'move-in intent survives draft reopening and is submitted with the repair',
     (tester) async {
+      tester.view.physicalSize = const Size(1179, 4000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       final cache = _MemoryCache();
       final api = _Api();
       Widget screen() => MaterialApp(
@@ -288,9 +291,16 @@ void main() {
         tester.widget<CheckboxListTile>(find.byType(CheckboxListTile)).value,
         true,
       );
-      await tester.enterText(find.byType(TextField).at(0), 'Chipped basin');
       await tester.enterText(
-        find.byType(TextField).at(1),
+        find.widgetWithText(TextField, 'Item (optional)'),
+        'Basin',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Short title'),
+        'Chipped basin',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextField, 'What happened?'),
         'The chip was present at handover.',
       );
       await tester.scrollUntilVisible(
@@ -301,6 +311,8 @@ void main() {
       await tester.tap(find.text('Submit report'));
       await tester.pumpAndSettle();
       expect(api.created?['wasPresentAtMoveIn'], true);
+      expect(api.created?['itemName'], 'Basin');
+      expect(api.created?['propertyAssetId'], isNull);
       expect(cache.values, isEmpty);
     },
   );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import '../services/capture_queue.dart';
 import '../services/capture_store.dart';
 import '../services/uploader.dart';
 import '../ui/kivilo_layout.dart';
+import 'photo_mark_screen.dart';
 
 class MaintenanceEvidenceScreen extends StatefulWidget {
   const MaintenanceEvidenceScreen({
@@ -24,6 +26,7 @@ class MaintenanceEvidenceScreen extends StatefulWidget {
     this.picker,
     this.supportDirectory,
     this.canRecoverLostData,
+    this.ownerId,
   });
 
   final String caseId;
@@ -34,6 +37,9 @@ class MaintenanceEvidenceScreen extends StatefulWidget {
   final ImagePicker? picker;
   final Future<Directory> Function()? supportDirectory;
   final bool? canRecoverLostData;
+
+  /// The signed-in Supabase user, injected by tests.
+  final String? ownerId;
 
   @override
   State<MaintenanceEvidenceScreen> createState() =>
@@ -49,6 +55,8 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   String? _message;
 
   String get _queueOwner => 'maintenance:${widget.caseId}';
+  String get _authOwner =>
+      widget.ownerId ?? Supabase.instance.client.auth.currentUser!.id;
   String get _target =>
       '${widget.purpose}${widget.visitId == null ? '' : '|${widget.visitId}'}';
 
@@ -61,6 +69,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
   Future<void> _initialize() async {
     try {
       _root = await (widget.supportDirectory ?? getApplicationSupportDirectory)();
+      await _releaseUnmarked();
       await _recoverLostPhoto();
     } catch (error) {
       if (mounted) {
@@ -69,6 +78,19 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  /// A photo whose Mark screen was closed by the app being killed keeps any marks
+  /// already drawn and uploads with them, rather than waiting for a screen that is gone.
+  Future<void> _releaseUnmarked() async {
+    final rows = await _queue.forRoom(_target, _authOwner);
+    final stranded = rows
+        .where((row) => row.inspectionId == _queueOwner && row.awaitingMarkup)
+        .map((row) => row.id)
+        .toList();
+    if (stranded.isEmpty) return;
+    await _queue.finishMarkupMany(stranded);
+    await _drain();
   }
 
   Future<void> _recoverLostPhoto() async {
@@ -85,7 +107,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       );
     }
     for (final photo in response.files ?? const <XFile>[]) {
-      await _savePhoto(photo);
+      await _savePhoto(photo, mark: false);
     }
   }
 
@@ -119,7 +141,7 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
     }
   }
 
-  Future<void> _savePhoto(XFile photo) async {
+  Future<void> _savePhoto(XFile photo, {bool mark = true}) async {
     final root = _root!;
     final path = photo.path.toLowerCase();
     final extension = path.endsWith('.png')
@@ -140,22 +162,43 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
           'heif' => 'image/heif',
           _ => 'image/jpeg',
         };
-    final authOwner = Supabase.instance.client.auth.currentUser!.id;
-    await CaptureStore(queue: _queue, root: root).save(
+    // Held back from upload until the Mark screen closes, so the marks register with
+    // the photo. The original is already durable on this phone.
+    final id = await CaptureStore(queue: _queue, root: root).save(
       source: File(photo.path),
-      ownerId: authOwner,
+      ownerId: _authOwner,
       inspectionId: _queueOwner,
       roomId: _target,
       kind: widget.purpose,
       extension: extension,
       mimeType: mimeType,
+      awaitingMarkup: mark,
     );
-    final moved = await Uploader(
-      queue: _queue,
-      backend: RoutingEvidenceBackend(_api.dio),
-      root: root,
-      ownerId: authOwner,
-    ).drain();
+    if (mark) {
+      // The store moved the original into the queue; mark that copy.
+      final stored = await _queue.byId(id);
+      final image = MemoryImage(
+        await File('${root.path}/${stored!.relativePath}').readAsBytes(),
+      );
+      if (mounted) {
+        await Navigator.push<PhotoMarksResult>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PhotoMarkScreen(
+              image: image,
+              saveLabel: 'Save photo',
+              onChanged: (annotations) => _queue.setAnnotations(
+                id,
+                annotations == null ? null : jsonEncode(annotations),
+              ),
+            ),
+          ),
+        );
+      }
+      // Released however the screen closed: a photo is never left unsent.
+      await _queue.finishMarkup(id);
+    }
+    final moved = await _drain();
     if (mounted) {
       setState(
         () => _message = moved
@@ -164,6 +207,13 @@ class _MaintenanceEvidenceScreenState extends State<MaintenanceEvidenceScreen> {
       );
     }
   }
+
+  Future<bool> _drain() => Uploader(
+    queue: _queue,
+    backend: RoutingEvidenceBackend(_api.dio),
+    root: _root!,
+    ownerId: _authOwner,
+  ).drain();
 
   @override
   void dispose() {

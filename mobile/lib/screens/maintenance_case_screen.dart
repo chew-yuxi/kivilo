@@ -12,6 +12,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'addenda_screen.dart';
 import 'maintenance_evidence_screen.dart';
+import 'photo_mark_screen.dart';
 import 'responsibility_card.dart';
 import 'report_screen.dart';
 import 'video_screen.dart';
@@ -220,6 +221,32 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _markEvidence(
+    String caseId,
+    MaintenanceEvidenceModel evidence,
+  ) async {
+    final result = await Navigator.push<PhotoMarksResult>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PhotoMarkScreen(
+          image: NetworkImage(evidence.url),
+          placeholder: evidence.posterUrl == null
+              ? null
+              : NetworkImage(evidence.posterUrl!),
+          annotations: evidence.annotations,
+        ),
+      ),
+    );
+    if (result == null) return;
+    await _run(
+      () => _api.annotateMaintenanceEvidence(
+        caseId,
+        evidence.id,
+        result.annotations,
+      ),
+    );
   }
 
   /// Prefills a change on the draft update, then opens the draft to finish and publish.
@@ -639,7 +666,12 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                       'arguments later.',
                 ),
               for (final evidence in item.evidence) ...[
-                _EvidenceCard(evidence: evidence),
+                _EvidenceCard(
+                  evidence: evidence,
+                  onMark: evidence.canMark && !_busy
+                      ? () => _markEvidence(item.id, evidence)
+                      : null,
+                ),
                 const SizedBox(height: 10),
               ],
               const SizedBox(height: kiviloSectionGap),
@@ -980,8 +1012,9 @@ class _VisitRow extends StatelessWidget {
 }
 
 class _EvidenceCard extends StatelessWidget {
-  const _EvidenceCard({required this.evidence});
+  const _EvidenceCard({required this.evidence, this.onMark});
   final MaintenanceEvidenceModel evidence;
+  final VoidCallback? onMark;
 
   @override
   Widget build(BuildContext context) {
@@ -1011,6 +1044,7 @@ class _EvidenceCard extends StatelessWidget {
                               child: MarkedNetworkPhoto(
                                 url: evidence.url,
                                 placeholderUrl: evidence.posterUrl,
+                                annotations: evidence.annotations,
                                 fit: BoxFit.contain,
                               ),
                             ),
@@ -1029,12 +1063,10 @@ class _EvidenceCard extends StatelessWidget {
               Container(
                 color: KiviloColors.canvas,
                 height: 200,
-                child: Image.network(
-                  evidence.posterUrl ?? evidence.url,
+                child: MarkedNetworkPhoto(
+                  url: evidence.posterUrl ?? evidence.url,
+                  annotations: evidence.annotations,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, _, _) => const Center(
-                    child: Text('Could not load. Pull to refresh the link.'),
-                  ),
                 ),
               ),
             Padding(
@@ -1065,7 +1097,14 @@ class _EvidenceCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Icon(Icons.open_in_new, color: KiviloColors.subtle),
+                  if (onMark != null)
+                    TextButton.icon(
+                      onPressed: onMark,
+                      icon: const Icon(Icons.draw_outlined),
+                      label: const Text('Mark'),
+                    )
+                  else
+                    const Icon(Icons.open_in_new, color: KiviloColors.subtle),
                 ],
               ),
             ),

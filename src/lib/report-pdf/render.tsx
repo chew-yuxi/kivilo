@@ -60,14 +60,13 @@ async function recordIssued(inspectionId: string, storagePath: string, pdf: Uint
 
 async function fetchAssets(model: ReportModel): Promise<ReportAssets> {
   const photos = model.rooms.flatMap((room) => room.photos)
-  // Pictures outside the room grid. Finding photos carry the marks frozen with the
-  // assessment, drawn over the original bytes rather than a painted export.
+  // Pictures outside the room grid. Finding and repair photos carry the marks frozen with
+  // the assessment or update, drawn over the original bytes rather than a painted export.
   const evidence = [
     ...(model.assessment?.findings ?? []).flatMap((finding) => finding.photos ?? []),
     ...(model.assessment?.findings ?? []).flatMap((finding) =>
-      (finding.maintenanceEvidence?.evidence ?? []).map((photo) => ({ ...photo, annotations: null }))),
-    ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) =>
-      entry.photos.map((photo) => ({ ...photo, annotations: null })))),
+      finding.maintenanceEvidence?.evidence ?? []),
+    ...model.addenda.flatMap((addendum) => addendum.entries.flatMap((entry) => entry.photos)),
   ]
     .filter((item) => /^image\/(jpeg|png|webp)$/.test(item.mimeType))
 

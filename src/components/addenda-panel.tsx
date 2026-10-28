@@ -17,6 +17,7 @@ import {
   updateAddendumEntry,
 } from '@/lib/addendum-actions'
 import { downscale } from '@/lib/downscale'
+import { MarkOverlay } from '@/components/mark-overlay'
 import type { AddendaWorkspace } from '@/lib/addenda-workspace'
 import type { AddendumChange } from '@/generated/prisma'
 
@@ -404,8 +405,11 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
         <div className="mb-2 grid grid-cols-3 gap-2">
           {entry.photos.map((photo) => (
             <figure key={photo.id} className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.posterUrl ?? photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="h-24 w-full rounded border border-gray-200 object-contain" />
+              <div className="relative rounded border border-gray-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={photo.posterUrl ?? photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="block h-24 w-full object-contain" />
+                <MarkOverlay annotations={photo.annotations} />
+              </div>
               <figcaption className="flex flex-wrap items-center justify-between gap-1 text-xs text-gray-500">
                 <span>{photo.label ?? ''}</span>
                 <button

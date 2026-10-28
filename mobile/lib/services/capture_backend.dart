@@ -695,6 +695,7 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
           'mimeType': mimeType,
           'sizeBytes': sizeBytes,
           'note': note,
+          'annotations': annotations,
         },
         cancelToken: cancel,
       ),
@@ -702,11 +703,12 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     );
     return (
       id: response.data!['id'] as String,
-      annotationsApplied: true,
+      annotationsApplied: response.data!['annotationsApplied'] != false,
       itemApplied: true,
     );
   }
 
+  /// The photo itself never changes; only its marks, which sit beside it.
   Never _immutable() => throw StateError('Maintenance evidence is immutable.');
   @override
   Future<void> updateNote(
@@ -719,7 +721,14 @@ class HttpMaintenanceEvidenceBackend implements CaptureBackend {
     String inspectionId,
     String captureId,
     Map<String, dynamic>? annotations,
-  ) async => _immutable();
+  ) => _metadata(
+    (cancel) => _dio.patch<Map<String, dynamic>>(
+      '/api/v1/maintenance/${_caseId(inspectionId)}/evidence/$captureId',
+      data: {'annotations': annotations},
+      cancelToken: cancel,
+    ),
+    _metadataDeadline,
+  );
   @override
   Future<void> deleteCapture(String inspectionId, String captureId) async =>
       _immutable();

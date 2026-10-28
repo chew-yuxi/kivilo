@@ -77,7 +77,7 @@ void main() {
         ],
       });
       expect(finding.photos, isEmpty);
-      expect(finding.evidenceImageUrls, ['https://storage.test/repair.jpg']);
+      expect(finding.evidenceImages.map((image) => image.url), ['https://storage.test/repair.jpg']);
     },
   );
 
@@ -93,7 +93,7 @@ void main() {
       });
       expect(finding.photos.single.annotations, _marks);
       expect(finding.photos.single.note, 'Worktop edge at check-out');
-      expect(finding.evidenceImageUrls, ['https://storage.test/repair.jpg']);
+      expect(finding.evidenceImages.map((image) => image.url), ['https://storage.test/repair.jpg']);
     },
   );
 }

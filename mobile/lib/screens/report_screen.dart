@@ -900,16 +900,13 @@ class _ReportScreenState extends State<ReportScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              photo.posterUrl ?? photo.url,
+                            child: SizedBox(
                               width: 96,
                               height: 96,
-                              fit: BoxFit.cover,
-                              semanticLabel: photo.note ?? entry.heading,
-                              errorBuilder: (_, _, _) => const SizedBox(
-                                width: 96,
-                                height: 96,
-                                child: ColoredBox(color: KiviloColors.canvas),
+                              child: MarkedNetworkPhoto(
+                                url: photo.posterUrl ?? photo.url,
+                                annotations: photo.annotations,
+                                semanticLabel: photo.note ?? entry.heading,
                               ),
                             ),
                           ),
@@ -1106,14 +1103,16 @@ class _ReportScreenState extends State<ReportScreen> {
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        for (final url in finding.evidenceImageUrls)
+                        for (final image in finding.evidenceImages)
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              url,
+                            child: SizedBox(
                               width: 96,
                               height: 96,
-                              fit: BoxFit.cover,
+                              child: MarkedNetworkPhoto(
+                                url: image.url,
+                                annotations: image.annotations,
+                              ),
                             ),
                           ),
                       ],

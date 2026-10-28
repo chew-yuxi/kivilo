@@ -825,6 +825,9 @@ manages an existing subscription. Comps go through `pnpm plan:set`; buying is un
   Use `KiviloSegmentedControl` for a few options or `KiviloSelectField` for a list,
   both in `mobile/lib/ui/kivilo_components.dart`. `test/no_platform_menus_test.dart`
   fails on any of them.
+- `CaptureStore.save` moves the picked file into the queue's folder, so the picker's
+  path is gone once it returns. Read the queued copy (`root/<row.relativePath>`), as the
+  repair Mark step first failed to.
 - A web-only look at a feature misses what the Flutter app and the PDF already do. The
   2026-10-18 UX review called photo-to-line linking missing when the app's edit sheet
   and the PDF both had it, and called the list unreachable when the logo links to it.

@@ -18,6 +18,7 @@ import { propertyLabel } from '@/lib/format'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { ADDENDUM_PHOTO_TYPES, addendumHash, addendumSnapshotSchema, currentState, type AddendumSnapshot } from '@/lib/addenda'
 import { CATEGORIES, CONDITIONS } from '@/lib/inspection/schema'
+import { toAnnotations } from '@/lib/annotations'
 import type { StateLine } from '@/lib/addenda-state'
 import type { AcknowledgementMethod, ItemCategory, Prisma } from '@/generated/prisma'
 import { assertNoSignedCheckOut, lockMoveInDefectTenancy, MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
@@ -373,6 +374,7 @@ export async function addendumFromMaintenanceCase(caseId: string) {
               note: item.note,
               label: item.purpose === 'BEFORE' ? 'Before' : 'After',
               maintenanceEvidenceId: item.id,
+              annotations: toAnnotations(item.annotations) ?? undefined,
             })),
         },
       },
@@ -480,6 +482,7 @@ export async function publishAddendum(addendumId: string) {
           mimeType: photo.mimeType,
           note: photo.note,
           label: photo.label,
+          annotations: toAnnotations(photo.annotations),
         })),
       })
     }

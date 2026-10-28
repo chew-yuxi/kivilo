@@ -397,7 +397,7 @@ function PhotoTile({ photo, bitmap }: { photo: ReportPhoto; bitmap: Bitmap | nul
   return (
     <View id={photo.anchor} style={{ width: TILE }}>
       <View style={s.tileBox}>
-        {bitmap ? <MarkedImage photo={photo} bitmap={bitmap} /> : <Text style={s.small}>Photo unavailable</Text>}
+        {bitmap ? <MarkedImage annotations={photo.annotations} bitmap={bitmap} /> : <Text style={s.small}>Photo unavailable</Text>}
       </View>
       <View style={{ marginTop: 4 }}>
         <Text style={[s.small, s.bold]}>
@@ -411,11 +411,16 @@ function PhotoTile({ photo, bitmap }: { photo: ReportPhoto; bitmap: Bitmap | nul
   )
 }
 
-function MarkedImage({ photo, bitmap }: { photo: ReportPhoto; bitmap: Bitmap }) {
-  const scale = Math.min(TILE / bitmap.width, TILE_HEIGHT / bitmap.height)
+/// Contained in a box of `maxWidth` by `maxHeight`, the room grid's tile by default.
+function MarkedImage({ annotations: marks, bitmap, maxWidth = TILE, maxHeight = TILE_HEIGHT }: {
+  annotations: ReportPhoto['annotations']
+  bitmap: Bitmap
+  maxWidth?: number
+  maxHeight?: number
+}) {
+  const scale = Math.min(maxWidth / bitmap.width, maxHeight / bitmap.height)
   const width = bitmap.width * scale
   const height = bitmap.height * scale
-  const marks = photo.annotations
 
   return (
     <View style={{ width, height }}>
@@ -569,7 +574,9 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
                   const bitmap = assets.evidence.get(item.storagePath)
                   return bitmap ? (
                     <View key={item.id} style={{ width: 110 }}>
-                      <Image src={bitmap} style={{ width: 110, height: 82, objectFit: 'contain', backgroundColor: TILE_BG }} />
+                      <View style={[s.tileBox, { width: 110, height: 82 }]}>
+                        <MarkedImage annotations={item.annotations ?? null} bitmap={bitmap} maxWidth={110} maxHeight={82} />
+                      </View>
                       <Text style={s.small}>{item.purpose.toLowerCase()}{item.note && `: ${item.note}`}</Text>
                     </View>
                   ) : (
@@ -649,7 +656,7 @@ function Addendum({ addendum, assets }: { addendum: AddendumView; assets: Report
                   <View key={photo.id} style={{ width: TILE }}>
                     <View style={[s.tileBox, { height: 140 }]}>
                       {bitmap
-                        ? <Image src={bitmap} style={{ width: TILE, height: 140, objectFit: 'contain' }} />
+                        ? <MarkedImage annotations={photo.annotations ?? null} bitmap={bitmap} maxHeight={140} />
                         : <Text style={s.small}>Photo unavailable</Text>}
                     </View>
                     {(photo.label || photo.note) && (

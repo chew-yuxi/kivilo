@@ -1,3 +1,4 @@
+import type { StoredAnnotations } from '@/lib/annotations'
 import type { ItemCategory, ItemCondition } from '@/generated/prisma'
 
 /// One inventory line as it currently stands. `key` names it across addenda:
@@ -17,8 +18,11 @@ export type StateLine = {
   updatedByAddendum?: boolean
 }
 
-/// A photo an addendum entry was published with, with its label ("Before") and note.
-export type StatePhoto = { id: string; storagePath: string; label: string | null; note: string | null }
+/// A photo an addendum entry was published with, with its label ("Before") and note,
+/// and the marks a repair photo carried in.
+export type StatePhoto = {
+  id: string; storagePath: string; label: string | null; note: string | null; annotations?: StoredAnnotations | null
+}
 
 /// `roomId` is the signed check-in room this is, absent on a room only an addendum added.
 /// `addendumPhotos` are the photos of the entries that changed it, in the order applied;

@@ -279,6 +279,8 @@ class MaintenanceEvidenceModel {
     this.posterUrl,
     this.visitId,
     this.note,
+    this.annotations,
+    this.canMark = false,
   });
 
   final String id;
@@ -286,6 +288,10 @@ class MaintenanceEvidenceModel {
   final String mimeType;
   final String url;
   final String createdAt;
+  /// Marks drawn beside the photo; the stored bytes never change.
+  final Map<String, dynamic>? annotations;
+  /// Only the person who took a photo marks it.
+  final bool canMark;
   /// The photo resized to 640px, for tiles. Null until the server has made it.
   final String? posterUrl;
   final String? visitId;
@@ -304,6 +310,8 @@ class MaintenanceEvidenceModel {
         posterUrl: json['posterUrl'] as String?,
         visitId: json['visitId'] as String?,
         note: json['note'] as String?,
+        annotations: json['annotations'] as Map<String, dynamic>?,
+        canMark: json['canMark'] == true,
       );
 }
 

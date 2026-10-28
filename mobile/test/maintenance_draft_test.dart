@@ -35,7 +35,7 @@ void main() {
       ),
     );
 
-    final title = find.byType(TextField).at(0);
+    final title = find.widgetWithText(TextField, 'Short title');
     await tester.enterText(title, 'Leaking');
     await tester.enterText(title, 'Leaking tap');
     expect(cache.writes, hasLength(1));

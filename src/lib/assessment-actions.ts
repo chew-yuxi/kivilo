@@ -98,6 +98,7 @@ export async function publishAssessment(
                 storagePath: item.storagePath,
                 mimeType: item.mimeType,
                 note: item.note,
+                annotations: toAnnotations(item.annotations),
                 createdAt: item.createdAt.toISOString(),
               })),
             }

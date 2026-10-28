@@ -40,6 +40,8 @@ export const assessmentSnapshotSchema = z.object({
         storagePath: z.string(),
         mimeType: z.string(),
         note: z.string().nullable(),
+        /// Copied with the photo. Absent on versions published before repair photos had marks.
+        annotations: storedAnnotationsSchema.nullable().optional(),
         createdAt: z.string(),
       })),
     }).nullable().optional(),

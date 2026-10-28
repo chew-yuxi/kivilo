@@ -37628,6 +37628,7 @@ export namespace Prisma {
     clientId: string | null
     tenancyId: string | null
     propertyAssetId: string | null
+    itemName: string | null
     reportedById: string | null
     category: $Enums.MaintenanceCategory | null
     priority: $Enums.MaintenancePriority | null
@@ -37648,6 +37649,7 @@ export namespace Prisma {
     clientId: string | null
     tenancyId: string | null
     propertyAssetId: string | null
+    itemName: string | null
     reportedById: string | null
     category: $Enums.MaintenanceCategory | null
     priority: $Enums.MaintenancePriority | null
@@ -37668,6 +37670,7 @@ export namespace Prisma {
     clientId: number
     tenancyId: number
     propertyAssetId: number
+    itemName: number
     reportedById: number
     category: number
     priority: number
@@ -37690,6 +37693,7 @@ export namespace Prisma {
     clientId?: true
     tenancyId?: true
     propertyAssetId?: true
+    itemName?: true
     reportedById?: true
     category?: true
     priority?: true
@@ -37710,6 +37714,7 @@ export namespace Prisma {
     clientId?: true
     tenancyId?: true
     propertyAssetId?: true
+    itemName?: true
     reportedById?: true
     category?: true
     priority?: true
@@ -37730,6 +37735,7 @@ export namespace Prisma {
     clientId?: true
     tenancyId?: true
     propertyAssetId?: true
+    itemName?: true
     reportedById?: true
     category?: true
     priority?: true
@@ -37823,6 +37829,7 @@ export namespace Prisma {
     clientId: string | null
     tenancyId: string
     propertyAssetId: string | null
+    itemName: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority: $Enums.MaintenancePriority
@@ -37860,6 +37867,7 @@ export namespace Prisma {
     clientId?: boolean
     tenancyId?: boolean
     propertyAssetId?: boolean
+    itemName?: boolean
     reportedById?: boolean
     category?: boolean
     priority?: boolean
@@ -37892,6 +37900,7 @@ export namespace Prisma {
     clientId?: boolean
     tenancyId?: boolean
     propertyAssetId?: boolean
+    itemName?: boolean
     reportedById?: boolean
     category?: boolean
     priority?: boolean
@@ -37916,6 +37925,7 @@ export namespace Prisma {
     clientId?: boolean
     tenancyId?: boolean
     propertyAssetId?: boolean
+    itemName?: boolean
     reportedById?: boolean
     category?: boolean
     priority?: boolean
@@ -37940,6 +37950,7 @@ export namespace Prisma {
     clientId?: boolean
     tenancyId?: boolean
     propertyAssetId?: boolean
+    itemName?: boolean
     reportedById?: boolean
     category?: boolean
     priority?: boolean
@@ -37955,7 +37966,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type MaintenanceCaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "propertyAssetId" | "reportedById" | "category" | "priority" | "title" | "description" | "status" | "resolutionReason" | "acknowledgedAt" | "resolvedAt" | "wasPresentAtMoveIn" | "moveInDefectInspectionId" | "createdAt" | "updatedAt", ExtArgs["result"]["maintenanceCase"]>
+  export type MaintenanceCaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "propertyAssetId" | "itemName" | "reportedById" | "category" | "priority" | "title" | "description" | "status" | "resolutionReason" | "acknowledgedAt" | "resolvedAt" | "wasPresentAtMoveIn" | "moveInDefectInspectionId" | "createdAt" | "updatedAt", ExtArgs["result"]["maintenanceCase"]>
   export type MaintenanceCaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     propertyAsset?: boolean | MaintenanceCase$propertyAssetArgs<ExtArgs>
@@ -38003,6 +38014,10 @@ export namespace Prisma {
       clientId: string | null
       tenancyId: string
       propertyAssetId: string | null
+      /**
+       * What the reporter typed when the item is not in the register, such as a toilet bowl.
+       */
+      itemName: string | null
       reportedById: string
       category: $Enums.MaintenanceCategory
       priority: $Enums.MaintenancePriority
@@ -38460,6 +38475,7 @@ export namespace Prisma {
     readonly clientId: FieldRef<"MaintenanceCase", 'String'>
     readonly tenancyId: FieldRef<"MaintenanceCase", 'String'>
     readonly propertyAssetId: FieldRef<"MaintenanceCase", 'String'>
+    readonly itemName: FieldRef<"MaintenanceCase", 'String'>
     readonly reportedById: FieldRef<"MaintenanceCase", 'String'>
     readonly category: FieldRef<"MaintenanceCase", 'MaintenanceCategory'>
     readonly priority: FieldRef<"MaintenanceCase", 'MaintenancePriority'>
@@ -41493,6 +41509,7 @@ export namespace Prisma {
     mimeType: number
     sizeBytes: number
     note: number
+    annotations: number
     createdAt: number
     _all: number
   }
@@ -41545,6 +41562,7 @@ export namespace Prisma {
     mimeType?: true
     sizeBytes?: true
     note?: true
+    annotations?: true
     createdAt?: true
     _all?: true
   }
@@ -41646,6 +41664,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note: string | null
+    annotations: JsonValue | null
     createdAt: Date
     _count: MaintenanceEvidenceCountAggregateOutputType | null
     _avg: MaintenanceEvidenceAvgAggregateOutputType | null
@@ -41679,6 +41698,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -41696,6 +41716,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -41713,6 +41734,7 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -41730,10 +41752,11 @@ export namespace Prisma {
     mimeType?: boolean
     sizeBytes?: boolean
     note?: boolean
+    annotations?: boolean
     createdAt?: boolean
   }
 
-  export type MaintenanceEvidenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "caseId" | "visitId" | "uploadedById" | "purpose" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "createdAt", ExtArgs["result"]["maintenanceEvidence"]>
+  export type MaintenanceEvidenceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "caseId" | "visitId" | "uploadedById" | "purpose" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "annotations" | "createdAt", ExtArgs["result"]["maintenanceEvidence"]>
   export type MaintenanceEvidenceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     maintenanceCase?: boolean | MaintenanceCaseDefaultArgs<ExtArgs>
     visit?: boolean | MaintenanceEvidence$visitArgs<ExtArgs>
@@ -41768,6 +41791,10 @@ export namespace Prisma {
       mimeType: string
       sizeBytes: number
       note: string | null
+      /**
+       * Marks drawn by the uploader, in the shape of `Capture.annotations`.
+       */
+      annotations: Prisma.JsonValue | null
       createdAt: Date
     }, ExtArgs["result"]["maintenanceEvidence"]>
     composites: {}
@@ -42205,6 +42232,7 @@ export namespace Prisma {
     readonly mimeType: FieldRef<"MaintenanceEvidence", 'String'>
     readonly sizeBytes: FieldRef<"MaintenanceEvidence", 'Int'>
     readonly note: FieldRef<"MaintenanceEvidence", 'String'>
+    readonly annotations: FieldRef<"MaintenanceEvidence", 'Json'>
     readonly createdAt: FieldRef<"MaintenanceEvidence", 'DateTime'>
   }
     
@@ -62040,6 +62068,7 @@ export namespace Prisma {
     note: number
     label: number
     maintenanceEvidenceId: number
+    annotations: number
     createdAt: number
     _all: number
   }
@@ -62086,6 +62115,7 @@ export namespace Prisma {
     note?: true
     label?: true
     maintenanceEvidenceId?: true
+    annotations?: true
     createdAt?: true
     _all?: true
   }
@@ -62185,6 +62215,7 @@ export namespace Prisma {
     note: string | null
     label: string | null
     maintenanceEvidenceId: string | null
+    annotations: JsonValue | null
     createdAt: Date
     _count: ReportAddendumPhotoCountAggregateOutputType | null
     _avg: ReportAddendumPhotoAvgAggregateOutputType | null
@@ -62216,6 +62247,7 @@ export namespace Prisma {
     note?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
+    annotations?: boolean
     createdAt?: boolean
     entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendumPhoto"]>
@@ -62229,6 +62261,7 @@ export namespace Prisma {
     note?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
+    annotations?: boolean
     createdAt?: boolean
     entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendumPhoto"]>
@@ -62242,6 +62275,7 @@ export namespace Prisma {
     note?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
+    annotations?: boolean
     createdAt?: boolean
     entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["reportAddendumPhoto"]>
@@ -62255,10 +62289,11 @@ export namespace Prisma {
     note?: boolean
     label?: boolean
     maintenanceEvidenceId?: boolean
+    annotations?: boolean
     createdAt?: boolean
   }
 
-  export type ReportAddendumPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "entryId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "label" | "maintenanceEvidenceId" | "createdAt", ExtArgs["result"]["reportAddendumPhoto"]>
+  export type ReportAddendumPhotoOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "entryId" | "storagePath" | "mimeType" | "sizeBytes" | "note" | "label" | "maintenanceEvidenceId" | "annotations" | "createdAt", ExtArgs["result"]["reportAddendumPhoto"]>
   export type ReportAddendumPhotoInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     entry?: boolean | ReportAddendumEntryDefaultArgs<ExtArgs>
   }
@@ -62289,6 +62324,10 @@ export namespace Prisma {
        * Provenance only, so the same evidence is not attached twice.
        */
       maintenanceEvidenceId: string | null
+      /**
+       * Copied by value from the repair photo, so later marking there never changes it.
+       */
+      annotations: Prisma.JsonValue | null
       createdAt: Date
     }, ExtArgs["result"]["reportAddendumPhoto"]>
     composites: {}
@@ -62722,6 +62761,7 @@ export namespace Prisma {
     readonly note: FieldRef<"ReportAddendumPhoto", 'String'>
     readonly label: FieldRef<"ReportAddendumPhoto", 'String'>
     readonly maintenanceEvidenceId: FieldRef<"ReportAddendumPhoto", 'String'>
+    readonly annotations: FieldRef<"ReportAddendumPhoto", 'Json'>
     readonly createdAt: FieldRef<"ReportAddendumPhoto", 'DateTime'>
   }
     
@@ -72383,6 +72423,7 @@ export namespace Prisma {
     clientId: 'clientId',
     tenancyId: 'tenancyId',
     propertyAssetId: 'propertyAssetId',
+    itemName: 'itemName',
     reportedById: 'reportedById',
     category: 'category',
     priority: 'priority',
@@ -72440,6 +72481,7 @@ export namespace Prisma {
     mimeType: 'mimeType',
     sizeBytes: 'sizeBytes',
     note: 'note',
+    annotations: 'annotations',
     createdAt: 'createdAt'
   };
 
@@ -72725,6 +72767,7 @@ export namespace Prisma {
     note: 'note',
     label: 'label',
     maintenanceEvidenceId: 'maintenanceEvidenceId',
+    annotations: 'annotations',
     createdAt: 'createdAt'
   };
 
@@ -75754,6 +75797,7 @@ export namespace Prisma {
     clientId?: StringNullableFilter<"MaintenanceCase"> | string | null
     tenancyId?: StringFilter<"MaintenanceCase"> | string
     propertyAssetId?: StringNullableFilter<"MaintenanceCase"> | string | null
+    itemName?: StringNullableFilter<"MaintenanceCase"> | string | null
     reportedById?: StringFilter<"MaintenanceCase"> | string
     category?: EnumMaintenanceCategoryFilter<"MaintenanceCase"> | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFilter<"MaintenanceCase"> | $Enums.MaintenancePriority
@@ -75785,6 +75829,7 @@ export namespace Prisma {
     clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    itemName?: SortOrderInput | SortOrder
     reportedById?: SortOrder
     category?: SortOrder
     priority?: SortOrder
@@ -75819,6 +75864,7 @@ export namespace Prisma {
     NOT?: MaintenanceCaseWhereInput | MaintenanceCaseWhereInput[]
     tenancyId?: StringFilter<"MaintenanceCase"> | string
     propertyAssetId?: StringNullableFilter<"MaintenanceCase"> | string | null
+    itemName?: StringNullableFilter<"MaintenanceCase"> | string | null
     reportedById?: StringFilter<"MaintenanceCase"> | string
     category?: EnumMaintenanceCategoryFilter<"MaintenanceCase"> | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFilter<"MaintenanceCase"> | $Enums.MaintenancePriority
@@ -75850,6 +75896,7 @@ export namespace Prisma {
     clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
     propertyAssetId?: SortOrderInput | SortOrder
+    itemName?: SortOrderInput | SortOrder
     reportedById?: SortOrder
     category?: SortOrder
     priority?: SortOrder
@@ -75876,6 +75923,7 @@ export namespace Prisma {
     clientId?: StringNullableWithAggregatesFilter<"MaintenanceCase"> | string | null
     tenancyId?: StringWithAggregatesFilter<"MaintenanceCase"> | string
     propertyAssetId?: StringNullableWithAggregatesFilter<"MaintenanceCase"> | string | null
+    itemName?: StringNullableWithAggregatesFilter<"MaintenanceCase"> | string | null
     reportedById?: StringWithAggregatesFilter<"MaintenanceCase"> | string
     category?: EnumMaintenanceCategoryWithAggregatesFilter<"MaintenanceCase"> | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityWithAggregatesFilter<"MaintenanceCase"> | $Enums.MaintenancePriority
@@ -76059,6 +76107,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
     maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
     visit?: XOR<MaintenanceVisitNullableScalarRelationFilter, MaintenanceVisitWhereInput> | null
@@ -76076,6 +76125,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     maintenanceCase?: MaintenanceCaseOrderByWithRelationInput
     visit?: MaintenanceVisitOrderByWithRelationInput
@@ -76096,6 +76146,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
     maintenanceCase?: XOR<MaintenanceCaseScalarRelationFilter, MaintenanceCaseWhereInput>
     visit?: XOR<MaintenanceVisitNullableScalarRelationFilter, MaintenanceVisitWhereInput> | null
@@ -76113,6 +76164,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: MaintenanceEvidenceCountOrderByAggregateInput
     _avg?: MaintenanceEvidenceAvgOrderByAggregateInput
@@ -76135,6 +76187,7 @@ export namespace Prisma {
     mimeType?: StringWithAggregatesFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntWithAggregatesFilter<"MaintenanceEvidence"> | number
     note?: StringNullableWithAggregatesFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"MaintenanceEvidence">
     createdAt?: DateTimeWithAggregatesFilter<"MaintenanceEvidence"> | Date | string
   }
 
@@ -77622,6 +77675,7 @@ export namespace Prisma {
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
     entry?: XOR<ReportAddendumEntryScalarRelationFilter, ReportAddendumEntryWhereInput>
   }
@@ -77635,6 +77689,7 @@ export namespace Prisma {
     note?: SortOrderInput | SortOrder
     label?: SortOrderInput | SortOrder
     maintenanceEvidenceId?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     entry?: ReportAddendumEntryOrderByWithRelationInput
   }
@@ -77651,6 +77706,7 @@ export namespace Prisma {
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
     entry?: XOR<ReportAddendumEntryScalarRelationFilter, ReportAddendumEntryWhereInput>
   }, "id">
@@ -77664,6 +77720,7 @@ export namespace Prisma {
     note?: SortOrderInput | SortOrder
     label?: SortOrderInput | SortOrder
     maintenanceEvidenceId?: SortOrderInput | SortOrder
+    annotations?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: ReportAddendumPhotoCountOrderByAggregateInput
     _avg?: ReportAddendumPhotoAvgOrderByAggregateInput
@@ -77684,6 +77741,7 @@ export namespace Prisma {
     note?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
     label?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableWithAggregatesFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableWithAggregatesFilter<"ReportAddendumPhoto">
     createdAt?: DateTimeWithAggregatesFilter<"ReportAddendumPhoto"> | Date | string
   }
 
@@ -80734,6 +80792,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -80763,6 +80822,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -80788,6 +80848,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -80817,6 +80878,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -80844,6 +80906,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -80862,6 +80925,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -80880,6 +80944,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -81061,6 +81126,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
@@ -81078,6 +81144,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -81089,6 +81156,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
@@ -81106,6 +81174,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -81120,6 +81189,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -81131,6 +81201,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -81145,6 +81216,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -82717,6 +82789,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     entry: ReportAddendumEntryCreateNestedOneWithoutPhotosInput
   }
@@ -82730,6 +82803,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -82741,6 +82815,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     entry?: ReportAddendumEntryUpdateOneRequiredWithoutPhotosNestedInput
   }
@@ -82754,6 +82829,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -82766,6 +82842,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -82777,6 +82854,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -82789,6 +82867,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -85574,6 +85653,7 @@ export namespace Prisma {
     clientId?: SortOrder
     tenancyId?: SortOrder
     propertyAssetId?: SortOrder
+    itemName?: SortOrder
     reportedById?: SortOrder
     category?: SortOrder
     priority?: SortOrder
@@ -85594,6 +85674,7 @@ export namespace Prisma {
     clientId?: SortOrder
     tenancyId?: SortOrder
     propertyAssetId?: SortOrder
+    itemName?: SortOrder
     reportedById?: SortOrder
     category?: SortOrder
     priority?: SortOrder
@@ -85614,6 +85695,7 @@ export namespace Prisma {
     clientId?: SortOrder
     tenancyId?: SortOrder
     propertyAssetId?: SortOrder
+    itemName?: SortOrder
     reportedById?: SortOrder
     category?: SortOrder
     priority?: SortOrder
@@ -85786,6 +85868,7 @@ export namespace Prisma {
     mimeType?: SortOrder
     sizeBytes?: SortOrder
     note?: SortOrder
+    annotations?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -86960,6 +87043,7 @@ export namespace Prisma {
     note?: SortOrder
     label?: SortOrder
     maintenanceEvidenceId?: SortOrder
+    annotations?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -94672,6 +94756,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutReportedByInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -94700,6 +94785,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -94793,6 +94879,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
@@ -94808,6 +94895,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -95927,6 +96015,7 @@ export namespace Prisma {
     clientId?: StringNullableFilter<"MaintenanceCase"> | string | null
     tenancyId?: StringFilter<"MaintenanceCase"> | string
     propertyAssetId?: StringNullableFilter<"MaintenanceCase"> | string | null
+    itemName?: StringNullableFilter<"MaintenanceCase"> | string | null
     reportedById?: StringFilter<"MaintenanceCase"> | string
     category?: EnumMaintenanceCategoryFilter<"MaintenanceCase"> | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFilter<"MaintenanceCase"> | $Enums.MaintenancePriority
@@ -96029,6 +96118,7 @@ export namespace Prisma {
     mimeType?: StringFilter<"MaintenanceEvidence"> | string
     sizeBytes?: IntFilter<"MaintenanceEvidence"> | number
     note?: StringNullableFilter<"MaintenanceEvidence"> | string | null
+    annotations?: JsonNullableFilter<"MaintenanceEvidence">
     createdAt?: DateTimeFilter<"MaintenanceEvidence"> | Date | string
   }
 
@@ -100313,6 +100403,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutTenancyInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -100340,6 +100431,7 @@ export namespace Prisma {
     id?: string
     clientId?: string | null
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -102398,6 +102490,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutMoveInDefectInspectionInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -102426,6 +102519,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -104702,6 +104796,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutPropertyAssetInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -104729,6 +104824,7 @@ export namespace Prisma {
     id?: string
     clientId?: string | null
     tenancyId: string
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -105184,6 +105280,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     visit?: MaintenanceVisitCreateNestedOneWithoutEvidenceInput
     uploadedBy: StakeholderCreateNestedOneWithoutMaintenanceEvidenceUploadedInput
@@ -105199,6 +105296,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -105921,6 +106019,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutEventsInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -105949,6 +106048,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -106088,6 +106188,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutEventsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -106116,6 +106217,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -106245,6 +106347,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutVisitsInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -106273,6 +106376,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -106340,6 +106444,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     maintenanceCase: MaintenanceCaseCreateNestedOneWithoutEvidenceInput
     uploadedBy: StakeholderCreateNestedOneWithoutMaintenanceEvidenceUploadedInput
@@ -106355,6 +106460,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -106403,6 +106509,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutVisitsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -106431,6 +106538,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -106537,6 +106645,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutEvidenceInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -106565,6 +106674,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -106735,6 +106845,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutEvidenceInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -106763,6 +106874,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -107201,6 +107313,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -107229,6 +107342,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -107467,6 +107581,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutResponsibilityProposalsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -107495,6 +107610,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -109455,6 +109571,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutFindingsInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -109483,6 +109600,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -109782,6 +109900,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutFindingsInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -109810,6 +109929,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -111772,6 +111892,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutMoveInDefectAddendumInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -111800,6 +111921,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -112258,6 +112380,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutMoveInDefectAddendumInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -112286,6 +112409,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -112464,6 +112588,7 @@ export namespace Prisma {
   export type MaintenanceCaseCreateWithoutAddendumEntriesInput = {
     id?: string
     clientId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -112492,6 +112617,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -112559,6 +112685,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -112570,6 +112697,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -112652,6 +112780,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutAddendumEntriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -112680,6 +112809,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -112768,6 +112898,7 @@ export namespace Prisma {
     note?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     label?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
     maintenanceEvidenceId?: StringNullableFilter<"ReportAddendumPhoto"> | string | null
+    annotations?: JsonNullableFilter<"ReportAddendumPhoto">
     createdAt?: DateTimeFilter<"ReportAddendumPhoto"> | Date | string
   }
 
@@ -114472,6 +114603,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
     title: string
@@ -114513,6 +114645,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -115321,6 +115454,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutReportedByInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -115349,6 +115483,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -115375,6 +115510,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -115448,6 +115584,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
@@ -115463,6 +115600,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -115476,6 +115614,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -117151,6 +117290,7 @@ export namespace Prisma {
     id?: string
     clientId?: string | null
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -117343,6 +117483,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -117370,6 +117511,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -117396,6 +117538,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -117547,6 +117690,7 @@ export namespace Prisma {
     clientId?: string | null
     tenancyId: string
     propertyAssetId?: string | null
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -117886,6 +118030,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutMoveInDefectInspectionInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -117914,6 +118059,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -117940,6 +118086,7 @@ export namespace Prisma {
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     propertyAssetId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -118389,6 +118536,7 @@ export namespace Prisma {
     id?: string
     clientId?: string | null
     tenancyId: string
+    itemName?: string | null
     reportedById: string
     category: $Enums.MaintenanceCategory
     priority?: $Enums.MaintenancePriority
@@ -118487,6 +118635,7 @@ export namespace Prisma {
   export type MaintenanceCaseUpdateWithoutPropertyAssetInput = {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
     title?: StringFieldUpdateOperationsInput | string
@@ -118514,6 +118663,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -118540,6 +118690,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
+    itemName?: NullableStringFieldUpdateOperationsInput | string | null
     reportedById?: StringFieldUpdateOperationsInput | string
     category?: EnumMaintenanceCategoryFieldUpdateOperationsInput | $Enums.MaintenanceCategory
     priority?: EnumMaintenancePriorityFieldUpdateOperationsInput | $Enums.MaintenancePriority
@@ -118638,6 +118789,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -118762,6 +118914,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     visit?: MaintenanceVisitUpdateOneWithoutEvidenceNestedInput
     uploadedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceEvidenceUploadedNestedInput
@@ -118777,6 +118930,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -118790,6 +118944,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -118956,6 +119111,7 @@ export namespace Prisma {
     mimeType: string
     sizeBytes: number
     note?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -118967,6 +119123,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     maintenanceCase?: MaintenanceCaseUpdateOneRequiredWithoutEvidenceNestedInput
     uploadedBy?: StakeholderUpdateOneRequiredWithoutMaintenanceEvidenceUploadedNestedInput
@@ -118982,6 +119139,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -118995,6 +119153,7 @@ export namespace Prisma {
     mimeType?: StringFieldUpdateOperationsInput | string
     sizeBytes?: IntFieldUpdateOperationsInput | number
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -119502,6 +119661,7 @@ export namespace Prisma {
     note?: string | null
     label?: string | null
     maintenanceEvidenceId?: string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
   }
 
@@ -119513,6 +119673,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -119524,6 +119685,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -119535,6 +119697,7 @@ export namespace Prisma {
     note?: NullableStringFieldUpdateOperationsInput | string | null
     label?: NullableStringFieldUpdateOperationsInput | string | null
     maintenanceEvidenceId?: NullableStringFieldUpdateOperationsInput | string | null
+    annotations?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

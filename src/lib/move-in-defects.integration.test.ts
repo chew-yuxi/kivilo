@@ -17,7 +17,9 @@ import { db } from '@/lib/db'
 import { currentStakeholder, requireAgent, requireStakeholder } from '@/lib/auth'
 import { acknowledgeAddendum, acknowledgeAddendumInPerson, addAddendumEntry, publishAddendum, startAddendum, updateAddendum } from '@/lib/addendum-actions'
 import { addendumHash, addendumSnapshotSchema, currentState } from '@/lib/addenda'
-import { createMaintenanceCase, maintenanceCaseDetail, registerMaintenanceEvidence, tenancyDetail, updateTenancyTerms } from '@/lib/maintenance'
+import {
+  annotateMaintenanceEvidence, createMaintenanceCase, maintenanceCaseDetail, registerMaintenanceEvidence, tenancyDetail, updateTenancyTerms,
+} from '@/lib/maintenance'
 import { disputeMoveInDefect, publishMoveInDefect } from '@/lib/move-in-defects'
 import { moveInDefectWindow } from '@/lib/move-in-defect-window'
 import { signedReport } from '@/lib/report'
@@ -145,6 +147,51 @@ describe('tenant move-in notices', () => {
     expect(unchanged.contentHash).toBe(frozen.contentHash)
     const detail = await maintenanceCaseDetail(created.id, record.landlord.id)
     expect(detail.moveInDefect).toMatchObject({ addendumId: published.addendumId, status: 'ACKNOWLEDGED', canRespond: false })
+  })
+
+  it('carries the marks on a repair photo into the notice by value', async () => {
+    const record = await fixture()
+    const created = await report(record)
+    const clientId = randomUUID()
+    const ring = { w: 800, h: 600, marks: [{ shape: 'ring' as const, cx: .5, cy: .5, rx: .2, ry: .1, note: 'Dent' }] }
+    const registration = {
+      clientId, purpose: 'BEFORE', mimeType: 'image/jpeg', sizeBytes: 120,
+      storagePath: `maintenance/${created.id}/${clientId}.jpg`, annotations: ring,
+    }
+    const { id } = await registerMaintenanceEvidence(created.id, record.tenant.id, registration)
+    // A retry whose response was lost says whether its marks still need sending.
+    expect(await registerMaintenanceEvidence(created.id, record.tenant.id, registration)).toEqual({ id, annotationsApplied: true })
+    expect(await registerMaintenanceEvidence(created.id, record.tenant.id, { ...registration, annotations: null }))
+      .toEqual({ id, annotationsApplied: false })
+
+    const tenantView = await maintenanceCaseDetail(created.id, record.tenant.id)
+    expect(tenantView.evidence).toMatchObject([{ id, canMark: true, annotations: { ...ring, v: 1, by: record.tenant.id } }])
+    expect((await maintenanceCaseDetail(created.id, record.landlord.id)).evidence).toMatchObject([{ id, canMark: false }])
+    for (const person of [record.landlord, record.agent, record.stranger]) {
+      await expect(annotateMaintenanceEvidence(created.id, id, person.id, { annotations: null })).rejects.toThrow()
+    }
+    const receipt = await photo(created.id, record.tenant.id, { mimeType: 'application/pdf' })
+    await expect(annotateMaintenanceEvidence(created.id, receipt.id, record.tenant.id, { annotations: ring }))
+      .rejects.toThrow('Only a photo can be marked')
+
+    const published = await publishMoveInDefect(created.id, record.tenant.id, notice(record, [id]))
+    const frozen = await db.reportAddendum.findUniqueOrThrow({ where: { id: published.addendumId } })
+    expect(addendumSnapshotSchema.parse(frozen.snapshot).entries[0].photos).toMatchObject([{ annotations: { marks: [{ note: 'Dent' }] } }])
+    expect(addendumHash(frozen.snapshot)).toBe(frozen.contentHash)
+    expect((await signedReport(record.inspection.id, record.landlord.id)).addenda[0].entries[0].photos)
+      .toMatchObject([{ annotations: { marks: [{ note: 'Dent' }] } }])
+
+    // Marking the repair photo again never rewrites what was published.
+    await annotateMaintenanceEvidence(created.id, id, record.tenant.id, { annotations: null })
+    expect((await maintenanceCaseDetail(created.id, record.tenant.id)).evidence[0].annotations).toBeNull()
+    expect((await db.reportAddendum.findUniqueOrThrow({ where: { id: published.addendumId } })).snapshot).toEqual(frozen.snapshot)
+    expect(await db.reportAddendumPhoto.findFirstOrThrow({ where: { maintenanceEvidenceId: id } }))
+      .toMatchObject({ annotations: { marks: [{ note: 'Dent' }] } })
+
+    as(record.landlord)
+    await acknowledgeAddendum(published.addendumId)
+    const state = await currentState(record.inspection.id, { acknowledgedOnly: true })
+    expect(state[0].addendumPhotos).toMatchObject([{ annotations: { marks: [{ note: 'Dent' }] } }])
   })
 
   it('keeps disputing landlord-only, final and outside the agreed baseline', async () => {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../models/maintenance.dart';
 import '../models/handover.dart';
@@ -30,9 +31,14 @@ class NewMaintenanceCaseScreen extends StatefulWidget {
       _NewMaintenanceCaseScreenState();
 }
 
+// The item picker's choice for an item the register does not hold, such as a
+// toilet bowl. Asset ids are cuids, so it never collides with one.
+const _otherItem = 'other';
+
 class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
   late final _api = widget.api ?? Api();
   late final ReadCache _cache = widget.cache ?? ReadCache();
+  final _itemName = TextEditingController();
   final _title = TextEditingController();
   final _description = TextEditingController();
   String _clientId = newCaptureId();
@@ -47,6 +53,8 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
 
   String get _draftKey => 'maintenance-draft:${widget.tenancyId}';
 
+  bool get _typesItem => widget.assets.isEmpty || _assetId == _otherItem;
+
   @override
   void initState() {
     super.initState();
@@ -59,11 +67,14 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
     // Typing while the disk read is in flight takes precedence over old data.
     if (!mounted || revision != _draftRevision || value is! Map) return;
     final draft = value.cast<String, dynamic>();
+    _itemName.text = draft['itemName'] as String? ?? '';
     _title.text = draft['title'] as String? ?? '';
     _description.text = draft['description'] as String? ?? '';
     setState(() {
       final restoredAssetId = draft['propertyAssetId'] as String?;
-      _assetId = widget.assets.any((asset) => asset.id == restoredAssetId)
+      _assetId =
+          (restoredAssetId == _otherItem && widget.assets.isNotEmpty) ||
+              widget.assets.any((asset) => asset.id == restoredAssetId)
           ? restoredAssetId
           : null;
       _category = draft['category'] as String? ?? 'APPLIANCE';
@@ -81,6 +92,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
     final snapshot = {
       'clientId': _clientId,
       'propertyAssetId': _assetId,
+      'itemName': _itemName.text,
       'category': _category,
       'priority': _priority,
       'title': _title.text,
@@ -102,6 +114,7 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
 
   @override
   void dispose() {
+    _itemName.dispose();
     _title.dispose();
     _description.dispose();
     super.dispose();
@@ -116,7 +129,8 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
     try {
       final id = await _api.createMaintenanceCase(widget.tenancyId, {
         'clientId': _clientId,
-        'propertyAssetId': _assetId,
+        'propertyAssetId': _assetId == _otherItem ? null : _assetId,
+        'itemName': _typesItem ? _itemName.text.trim() : null,
         'category': _category,
         'priority': _priority,
         'title': _title.text.trim(),
@@ -152,27 +166,47 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
     body: KiviloContent(maxWidth: 720, child: ListView(
       padding: kiviloScreenPadding,
       children: [
-        KiviloSelectField<String?>(
-          label: 'Property item (optional)',
-          value: _assetId,
-          enabled: !_saving,
-          options: [
-            const KiviloSelectOption<String?>(
-              value: null,
-              label: 'No specific item',
-            ),
-            ...widget.assets.map(
-              (asset) => KiviloSelectOption<String?>(
-                value: asset.id,
-                label: asset.name,
+        if (widget.assets.isNotEmpty)
+          KiviloSelectField<String?>(
+            label: 'Property item (optional)',
+            value: _assetId,
+            enabled: !_saving,
+            options: [
+              const KiviloSelectOption<String?>(
+                value: null,
+                label: 'No specific item',
               ),
+              ...widget.assets.map(
+                (asset) => KiviloSelectOption<String?>(
+                  value: asset.id,
+                  label: asset.name,
+                ),
+              ),
+              const KiviloSelectOption<String?>(
+                value: _otherItem,
+                label: 'Something else',
+              ),
+            ],
+            onChanged: (value) {
+              setState(() => _assetId = value);
+              unawaited(_saveDraft());
+            },
+          ),
+        if (widget.assets.isNotEmpty && _typesItem)
+          const SizedBox(height: 12),
+        if (_typesItem)
+          TextField(
+            controller: _itemName,
+            readOnly: _saving,
+            decoration: InputDecoration(
+              labelText: widget.assets.isEmpty
+                  ? 'Item (optional)'
+                  : 'Which item? (optional)',
+              hintText: 'For example, toilet bowl',
             ),
-          ],
-          onChanged: (value) {
-            setState(() => _assetId = value);
-            unawaited(_saveDraft());
-          },
-        ),
+            inputFormatters: [LengthLimitingTextInputFormatter(120)],
+            onChanged: (_) => unawaited(_saveDraft()),
+          ),
         const SizedBox(height: 12),
         KiviloSelectField<String>(
           label: 'Category',

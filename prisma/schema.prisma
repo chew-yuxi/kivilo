@@ -761,6 +761,8 @@ model MaintenanceCase {
   clientId         String?             @unique
   tenancyId        String
   propertyAssetId  String?
+  /// What the reporter typed when the item is not in the register, such as a toilet bowl.
+  itemName         String?
   reportedById     String
   category         MaintenanceCategory
   priority         MaintenancePriority @default(ROUTINE)
@@ -857,6 +859,8 @@ model MaintenanceEvidence {
   mimeType    String
   sizeBytes   Int
   note        String?
+  /// Marks drawn by the uploader, in the shape of `Capture.annotations`.
+  annotations Json?
   createdAt   DateTime                   @default(now())
 
   maintenanceCase MaintenanceCase  @relation(fields: [caseId], references: [id], onDelete: Cascade)
@@ -1348,6 +1352,8 @@ model ReportAddendumPhoto {
   label       String?
   /// Provenance only, so the same evidence is not attached twice.
   maintenanceEvidenceId String?
+  /// Copied by value from the repair photo, so later marking there never changes it.
+  annotations Json?
   createdAt   DateTime @default(now())
 
   entry ReportAddendumEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)

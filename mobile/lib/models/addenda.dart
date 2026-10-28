@@ -182,6 +182,7 @@ class DraftEntry {
             posterUrl: p['posterUrl'] as String?,
             note: p['note'] as String?,
             label: p['label'] as String?,
+            annotations: p['annotations'] as Map<String, dynamic>?,
           ),
         )
         .toList(),
@@ -195,6 +196,7 @@ class DraftPhoto {
     this.posterUrl,
     this.note,
     this.label,
+    this.annotations,
   });
   final String id;
   final String url;
@@ -204,4 +206,7 @@ class DraftPhoto {
 
   /// "Before" or "After" for a repair's evidence.
   final String? label;
+
+  /// Marks a repair photo carried into the update.
+  final Map<String, dynamic>? annotations;
 }

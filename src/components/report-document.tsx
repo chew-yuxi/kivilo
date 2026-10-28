@@ -53,7 +53,9 @@ export async function ReportDocument({
 
   const published = inspection.assessments[0] ?? null
   const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
-  const maintenanceEvidenceUrls = new Map<string, { id: string; purpose: string; mimeType: string; note: string | null; url: string }[]>()
+  const maintenanceEvidenceUrls = new Map<string, {
+    id: string; purpose: string; mimeType: string; note: string | null; annotations: StoredAnnotations | null; url: string
+  }[]>()
   const findingPhotos = new Map<string, EvidencePhoto[]>()
   if (assessment) {
     await Promise.all(assessment.findings.map(async (finding, findingIndex) => {
@@ -70,6 +72,7 @@ export async function ReportDocument({
         purpose: item.purpose,
         mimeType: item.mimeType,
         note: item.note,
+        annotations: item.annotations ?? null,
         url: await createDownloadUrl(item.storagePath, 60 * 60 * 24),
       }))))
     }))
@@ -351,13 +354,15 @@ export async function ReportDocument({
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {(maintenanceEvidenceUrls.get(finding.id) ?? []).map((item) => (
                         item.mimeType.startsWith('image/') ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            key={item.id}
-                            src={item.url}
-                            alt={item.note ?? `${item.purpose.toLowerCase()} maintenance evidence`}
-                            className="h-32 w-full rounded border border-gray-200 object-contain"
-                          />
+                          <div key={item.id} className="relative self-start rounded border border-gray-200">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={item.url}
+                              alt={item.note ?? `${item.purpose.toLowerCase()} maintenance evidence`}
+                              className="block h-32 w-full object-contain"
+                            />
+                            <MarkOverlay annotations={item.annotations} />
+                          </div>
                         ) : (
                           <a
                             key={item.id}

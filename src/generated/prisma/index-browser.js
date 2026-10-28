@@ -440,6 +440,7 @@ exports.Prisma.MaintenanceCaseScalarFieldEnum = {
   clientId: 'clientId',
   tenancyId: 'tenancyId',
   propertyAssetId: 'propertyAssetId',
+  itemName: 'itemName',
   reportedById: 'reportedById',
   category: 'category',
   priority: 'priority',
@@ -488,6 +489,7 @@ exports.Prisma.MaintenanceEvidenceScalarFieldEnum = {
   mimeType: 'mimeType',
   sizeBytes: 'sizeBytes',
   note: 'note',
+  annotations: 'annotations',
   createdAt: 'createdAt'
 };
 
@@ -722,6 +724,7 @@ exports.Prisma.ReportAddendumPhotoScalarFieldEnum = {
   note: 'note',
   label: 'label',
   maintenanceEvidenceId: 'maintenanceEvidenceId',
+  annotations: 'annotations',
   createdAt: 'createdAt'
 };
 

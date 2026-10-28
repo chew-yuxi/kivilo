@@ -8,6 +8,7 @@ import {
   authorizeMaintenanceCase,
   createMaintenanceCase,
   createPropertyAsset,
+  listMaintenanceCases,
   listPropertyAssets,
   listNotifications,
   markNotificationRead,
@@ -124,6 +125,23 @@ describe('maintenance history', () => {
     const missing = await authorizeMaintenanceCase('not-a-case', mine.tenant.id)
       .catch((error: Error) => error.message)
     expect(forbidden).toBe(missing)
+  })
+
+  it('names an item typed by the reporter when it is not in the register', async () => {
+    const record = await fixture('typed-item')
+    await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      itemName: '  Toilet bowl ', category: 'PLUMBING', title: 'Cracked', description: 'Hairline crack at the base.',
+    })
+    await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      propertyAssetId: record.asset.id, itemName: 'Ignored', category: 'APPLIANCE', title: 'Noisy', description: 'Bangs on spin.',
+    })
+    await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      itemName: ' ', category: 'OTHER', title: 'Draught', description: 'Cold air under the door.',
+    })
+    const cases = await listMaintenanceCases(record.tenancy.id, record.tenant.id)
+    expect(Object.fromEntries(cases.map((row) => [row.title, row.asset]))).toEqual({
+      Cracked: 'Toilet bowl', Noisy: 'Washing machine', Draught: null,
+    })
   })
 
   it('reopens a failed repair and alerts once at four visits in 365 days', async () => {

@@ -8,7 +8,7 @@ import { addendumView, publishedAddenda } from '@/lib/addenda'
 import { reportAgent, reportBranding } from '@/lib/report-agent'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 7
+export const RENDER_VERSION = 8
 
 const reportInclude = {
   tenancy: {
