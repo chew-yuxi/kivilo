@@ -5,8 +5,10 @@ import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image/image.dart' as image;
 import 'package:kivilo/services/capture_backend.dart';
 import 'package:kivilo/services/capture_queue.dart';
+import 'package:kivilo/services/capture_store.dart';
 import 'package:kivilo/services/uploader.dart';
 
 class FakeBackend implements CaptureBackend {
@@ -219,6 +221,40 @@ void main() {
 
   Uploader uploader(CaptureBackend backend, {String owner = 'owner-a'}) =>
       Uploader(queue: queue, backend: backend, root: root, ownerId: owner);
+
+  test('a resized shot keeps its original through failure and lost registration', () async {
+    final bytes = image.encodeJpg(image.Image(width: 3840, height: 2160));
+    final source = File('${root.path}/camera.jpg')..writeAsBytesSync(bytes);
+    final id = await CaptureStore(queue: queue, root: root).save(
+      source: source,
+      ownerId: 'owner-a',
+      inspectionId: 'insp-1',
+      roomId: 'room-1',
+      kind: 'PHOTO',
+      extension: 'jpg',
+      mimeType: 'image/jpeg',
+      resizePhoto: true,
+    );
+    final row = (await queue.byId(id))!;
+    final upload = File('${root.path}/${row.relativePath}');
+    final original = File('${upload.path}.original');
+    final uploadBytes = await upload.readAsBytes();
+    expect(row.sizeBytes, uploadBytes.length);
+    expect(await uploader(FakeBackend(failPut: true)).drain(), isFalse);
+    expect(await original.readAsBytes(), bytes);
+    expect(await upload.readAsBytes(), uploadBytes);
+
+    final backend = FakeBackend(loseRegisterResponse: true);
+    expect(await uploader(backend).drain(), isFalse);
+    expect(await original.readAsBytes(), bytes);
+    expect(await upload.readAsBytes(), uploadBytes);
+    expect(await uploader(backend).drain(), isTrue);
+    expect(backend.uploads, 1);
+    expect(backend.registrations, 1);
+    expect(await queue.byId(id), isNull);
+    expect(upload.existsSync(), isFalse);
+    expect(original.existsSync(), isFalse);
+  });
 
   test('item photo uploads with completed marks only after Done', () async {
     final id = await queued(itemId: 'item-a', awaitingMarkup: true);

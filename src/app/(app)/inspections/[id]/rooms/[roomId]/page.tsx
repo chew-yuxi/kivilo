@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrls } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
 import { checkInReference } from '@/lib/check-in-reference'
@@ -37,20 +37,19 @@ export default async function RoomReviewPage({
     select: { id: true, status: true },
   })
 
-  const [captures, checkIn] = await Promise.all([
-    Promise.all(
-      room.captures.map(
-        async (capture): Promise<EvidenceCapture> => ({
-          id: capture.id,
-          kind: capture.kind,
-          url: await createDownloadUrl(capture.storagePath),
-          posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
-          annotations: toAnnotations(capture.annotations),
-        }),
-      ),
-    ),
+  const [urls, checkIn] = await Promise.all([
+    createDownloadUrls(room.captures.flatMap((capture) =>
+      capture.kind === 'PHOTO' && capture.posterPath ? [capture.storagePath, capture.posterPath] : [capture.storagePath],
+    )),
     checkInReference(room.id, agent.id),
   ])
+  const captures: EvidenceCapture[] = room.captures.map((capture) => ({
+    id: capture.id,
+    kind: capture.kind,
+    url: urls.get(capture.storagePath)!,
+    posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? urls.get(capture.posterPath)! : null,
+    annotations: toAnnotations(capture.annotations),
+  }))
 
   return (
     <div className="space-y-6">

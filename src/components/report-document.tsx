@@ -1,4 +1,5 @@
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrl, createDownloadUrls } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { propertyLabel, sgd } from '@/lib/format'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
@@ -35,34 +36,45 @@ export async function ReportDocument({
   // without the storage objects ever being public.
   // Numbered as the PDF numbers them, room then photo, so "photo 3.2" means the same
   // picture on the page, on paper and in a conversation about either.
+  const captureUrls = await createDownloadUrls(inspection.rooms.flatMap((room) =>
+    room.captures.flatMap((capture) => capture.posterPath
+      ? [capture.storagePath, capture.posterPath]
+      : [capture.storagePath]),
+  ), 60 * 60 * 24)
   const photosByRoom = new Map<string, EvidencePhoto[]>()
   for (const [roomIndex, room] of inspection.rooms.entries()) {
     photosByRoom.set(
       room.id,
-      await Promise.all(
-        room.captures.map(async (capture, index) => ({
-          id: capture.id,
-          ref: `${roomIndex + 1}.${index + 1}`,
-          url: await createDownloadUrl(capture.storagePath, 60 * 60 * 24),
-          note: capture.note,
-          annotations: toAnnotations(capture.annotations),
-        })),
-      ),
+      room.captures.map((capture, index) => ({
+        id: capture.id,
+        ref: `${roomIndex + 1}.${index + 1}`,
+        url: captureUrls.get(capture.storagePath)!,
+        posterUrl: capture.posterPath ? captureUrls.get(capture.posterPath)! : null,
+        note: capture.note,
+        annotations: toAnnotations(capture.annotations),
+      })),
     )
   }
 
   const published = inspection.assessments[0] ?? null
   const assessment = published ? assessmentSnapshotSchema.parse(published.snapshot) : null
   const maintenanceEvidenceUrls = new Map<string, {
-    id: string; purpose: string; mimeType: string; note: string | null; annotations: StoredAnnotations | null; url: string
+    id: string; purpose: string; mimeType: string; note: string | null; annotations: StoredAnnotations | null; url: string; posterUrl: string | null
   }[]>()
   const findingPhotos = new Map<string, EvidencePhoto[]>()
   if (assessment) {
+    const posters = await posterUrls(assessment.findings.flatMap((finding) => [
+      ...(finding.photos ?? []).map((photo) => photo.storagePath),
+      ...(finding.maintenanceEvidence?.evidence ?? [])
+        .filter((item) => item.mimeType.startsWith('image/'))
+        .map((item) => item.storagePath),
+    ]), 60 * 60 * 24)
     await Promise.all(assessment.findings.map(async (finding, findingIndex) => {
       findingPhotos.set(finding.id, await Promise.all((finding.photos ?? []).map(async (photo, photoIndex) => ({
         id: photo.id,
         ref: `F${findingIndex + 1}.${photoIndex + 1}`,
         url: await createDownloadUrl(photo.storagePath, 60 * 60 * 24),
+        posterUrl: posters.get(photo.storagePath) ?? null,
         note: photo.note,
         annotations: photo.annotations,
       }))))
@@ -74,6 +86,7 @@ export async function ReportDocument({
         note: item.note,
         annotations: item.annotations ?? null,
         url: await createDownloadUrl(item.storagePath, 60 * 60 * 24),
+        posterUrl: posters.get(item.storagePath) ?? null,
       }))))
     }))
   }
@@ -177,6 +190,9 @@ export async function ReportDocument({
         <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
           Inventory and condition
         </h2>
+        <p className="mt-1 text-xs text-gray-500 print:hidden">
+          Select a photo to open the original in a new tab.
+        </p>
 
         {inspection.rooms.map((room) => {
           const photos = photosByRoom.get(room.id) ?? []
@@ -354,15 +370,24 @@ export async function ReportDocument({
                     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
                       {(maintenanceEvidenceUrls.get(finding.id) ?? []).map((item) => (
                         item.mimeType.startsWith('image/') ? (
-                          <div key={item.id} className="relative self-start rounded border border-gray-200">
+                          <a
+                            key={item.id}
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Open original ${item.purpose.toLowerCase()} maintenance photo (opens in a new tab)`}
+                            className="relative block cursor-zoom-in self-start rounded border border-gray-200"
+                          >
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
-                              src={item.url}
+                              src={item.posterUrl ?? item.url}
                               alt={item.note ?? `${item.purpose.toLowerCase()} maintenance evidence`}
+                              loading="lazy"
+                              decoding="async"
                               className="block h-32 w-full object-contain"
                             />
                             <MarkOverlay annotations={item.annotations} />
-                          </div>
+                          </a>
                         ) : (
                           <a
                             key={item.id}
@@ -466,6 +491,7 @@ type EvidencePhoto = {
   id: string
   ref: string
   url: string
+  posterUrl: string | null
   note: string | null
   annotations: StoredAnnotations | null
 }
@@ -509,15 +535,23 @@ function ReportPhoto({
 
   return (
     <figure id={`photo-${photo.ref.replace('.', '-')}`} className="break-inside-avoid scroll-mt-4">
-      <div className="relative overflow-hidden rounded border border-gray-200">
+      <a
+        href={photo.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open original photo ${photo.ref} (opens in a new tab)`}
+        className="relative block cursor-zoom-in overflow-hidden rounded border border-gray-200"
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={photo.url}
+          src={photo.posterUrl ?? photo.url}
           alt={photo.note ?? `${roomName} evidence photo`}
+          loading="lazy"
+          decoding="async"
           className="block w-full"
         />
         <MarkOverlay annotations={photo.annotations} />
-      </div>
+      </a>
       {(caption || markNotes.length > 0) && (
         <figcaption className="mt-1 text-xs text-gray-500">
           {caption && <div>{caption}</div>}

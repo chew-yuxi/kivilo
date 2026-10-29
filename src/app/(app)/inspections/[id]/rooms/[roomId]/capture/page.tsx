@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireAgent, inspectionScope } from '@/lib/auth'
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrls } from '@/lib/storage'
 import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
 import { checkInReference } from '@/lib/check-in-reference'
@@ -46,18 +46,19 @@ export default async function RoomCapturePage({
     }),
     checkInReference(roomId, agent.id),
   ])
-  const captures: ServerCapture[] = await Promise.all(
-    stored.map(async (capture) => ({
-      id: capture.id,
-      kind: capture.kind,
-      note: capture.note,
-      durationSec: capture.durationSec,
-      url: await createDownloadUrl(capture.storagePath),
-      // Photos only: a video's poster is a still, and its tile plays the video itself.
-      posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
-      annotations: toAnnotations(capture.annotations),
-    })),
-  )
+  const urls = await createDownloadUrls(stored.flatMap((capture) =>
+    capture.kind === 'PHOTO' && capture.posterPath ? [capture.storagePath, capture.posterPath] : [capture.storagePath],
+  ))
+  const captures: ServerCapture[] = stored.map((capture) => ({
+    id: capture.id,
+    kind: capture.kind,
+    note: capture.note,
+    durationSec: capture.durationSec,
+    url: urls.get(capture.storagePath)!,
+    // Photos only: a video's poster is a still, and its tile plays the video itself.
+    posterUrl: capture.kind === 'PHOTO' && capture.posterPath ? urls.get(capture.posterPath)! : null,
+    annotations: toAnnotations(capture.annotations),
+  }))
 
   return (
     <RoomCaptureScreen

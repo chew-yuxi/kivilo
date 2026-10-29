@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrls } from '@/lib/storage'
 
 /// A signed URL for the small copy of each stored photo that has one, by the original's
 /// path: a capture's poster, or a finding, repair or update photo's (src/lib/poster.ts).
@@ -21,7 +21,6 @@ export async function posterUrls(paths: string[], expiresInSec = 3600) {
     ...captures.map((capture) => [capture.storagePath, capture.posterPath!] as const),
     ...others.map((poster) => [poster.sourcePath, poster.posterPath!] as const),
   ]
-  return new Map(await Promise.all(
-    posters.map(async ([source, poster]) => [source, await createDownloadUrl(poster, expiresInSec)] as const),
-  ))
+  const urls = await createDownloadUrls(posters.map(([, poster]) => poster), expiresInSec)
+  return new Map(posters.map(([source, poster]) => [source, urls.get(poster)!]))
 }

@@ -1,4 +1,5 @@
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrls } from '@/lib/storage'
+import { posterUrls } from '@/lib/poster-urls'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { entryHeading, type AddendumView } from '@/lib/addenda'
 
@@ -9,13 +10,19 @@ const dateTime = new Intl.DateTimeFormat('en-SG', { dateStyle: 'medium', timeSty
 /// draw it. Server-rendered: photo URLs are signed per render, never stored.
 export async function AddendumSection({ addendum }: { addendum: AddendumView }) {
   const isMoveInDefect = addendum.source === 'MOVE_IN_DEFECT'
-  const entries = await Promise.all(addendum.entries.map(async (entry) => ({
+  const photoPaths = addendum.entries.flatMap((entry) => entry.photos.map((photo) => photo.storagePath))
+  const [urls, posters] = await Promise.all([
+    createDownloadUrls(photoPaths, 60 * 60 * 24),
+    posterUrls(photoPaths, 60 * 60 * 24),
+  ])
+  const entries = addendum.entries.map((entry) => ({
     ...entry,
-    photos: await Promise.all(entry.photos.map(async (photo) => ({
+    photos: entry.photos.map((photo) => ({
       ...photo,
-      url: await createDownloadUrl(photo.storagePath, 60 * 60 * 24),
-    }))),
-  })))
+      url: urls.get(photo.storagePath)!,
+      posterUrl: posters.get(photo.storagePath) ?? null,
+    })),
+  }))
 
   return (
     <section className="break-inside-avoid border-t border-gray-300 pt-6" aria-label={`Update ${addendum.number}`}>
@@ -77,15 +84,23 @@ export async function AddendumSection({ addendum }: { addendum: AddendumView }) 
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {entry.photos.map((photo) => (
                   <figure key={photo.id}>
-                    <div className="relative rounded border border-gray-200">
+                    <a
+                      href={photo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Open original ${entryHeading(entry, addendum.source)} photo (opens in a new tab)`}
+                      className="relative block cursor-zoom-in rounded border border-gray-200"
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={photo.url}
+                        src={photo.posterUrl ?? photo.url}
                         alt={photo.note ?? `${entryHeading(entry, addendum.source)} photo`}
+                        loading="lazy"
+                        decoding="async"
                         className="block h-36 w-full object-contain"
                       />
                       <MarkOverlay annotations={photo.annotations ?? null} />
-                    </div>
+                    </a>
                     {(photo.label || photo.note) && (
                       <figcaption className="mt-1 text-xs text-gray-500">
                         {[photo.label, photo.note].filter(Boolean).join(': ')}

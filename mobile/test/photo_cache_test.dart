@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/painting.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivilo/services/api_failure.dart';
+import 'package:kivilo/services/error_reporter.dart';
 import 'package:kivilo/services/photo_cache.dart';
 
 void main() {
@@ -10,6 +13,7 @@ void main() {
   late Directory root;
   final requests = <Uri>[];
   var expired = false;
+  Completer<HttpResponse>? delayedResponse;
 
   setUpAll(() async {
     // The test binding answers every real request with 400; this test needs a server.
@@ -18,6 +22,11 @@ void main() {
     server.listen((request) {
       requests.add(request.uri);
       final response = request.response;
+      if (delayedResponse case final pending?) {
+        delayedResponse = null;
+        pending.complete(response);
+        return;
+      }
       if (expired) {
         response.statusCode = HttpStatus.badRequest;
       } else {
@@ -34,6 +43,7 @@ void main() {
     PhotoCache.maxBytes = 200 * 1024 * 1024;
     requests.clear();
     expired = false;
+    delayedResponse = null;
   });
   tearDown(() async {
     await PhotoCache.clear();
@@ -92,5 +102,52 @@ void main() {
     await PhotoCache.bytes(link('room/a.webp', 'one'));
     await PhotoCache.clear();
     expect((await PhotoCache.directory()).existsSync(), isFalse);
+  });
+
+  test('simultaneous links for one photo share the download', () async {
+    final pending = delayedResponse = Completer<HttpResponse>();
+    final first = PhotoCache.bytes(link('room/a.webp', 'one'));
+    final second = PhotoCache.bytes(link('room/a.webp', 'two'));
+    final response = await pending.future;
+    response.add([1, 2, 3]);
+    await response.close();
+    expect(await first, [1, 2, 3]);
+    expect(await second, [1, 2, 3]);
+    expect(requests, hasLength(1));
+  });
+
+  test('sign-out does not wait for or retain an unfinished download', () async {
+    final url = link('room/a.webp', 'one');
+    final oldImage = StoredNetworkImage(url);
+    final pending = delayedResponse = Completer<HttpResponse>();
+    final oldDownload = PhotoCache.bytes(url);
+    final rejected = expectLater(oldDownload, throwsA(
+      isA<ApiFailure>().having(ErrorReporter.isBug, 'is reported as a bug', false),
+    ));
+    final response = await pending.future;
+
+    await PhotoCache.clear();
+    expect(StoredNetworkImage(url), isNot(oldImage));
+    expect((await PhotoCache.directory()).existsSync(), isFalse);
+
+    // A new account's load must not join the old account's unfinished request.
+    final current = await PhotoCache.bytes(link('room/a.webp', 'two'));
+    response.add([1, 2, 3]);
+    await response.close();
+    await rejected;
+    expect(await PhotoCache.bytes(url), current);
+    expect(requests, hasLength(2));
+  });
+
+  test('later downloads enforce the limit within the same launch', () async {
+    PhotoCache.maxBytes = 2500;
+    await PhotoCache.bytes(link('room/a.webp', 'one'));
+    final folder = await PhotoCache.directory();
+    final oldest = folder.listSync().single as File;
+    oldest.setLastModifiedSync(DateTime(2026));
+    await PhotoCache.bytes(link('room/b.webp', 'one'));
+    await PhotoCache.bytes(link('room/c.webp', 'one'));
+    expect(oldest.existsSync(), isFalse);
+    expect(folder.listSync(), hasLength(2));
   });
 }

@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto'
 
 vi.mock('@/lib/storage', () => ({
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/${path}`]))),
 }))
 
 import { db } from '@/lib/db'

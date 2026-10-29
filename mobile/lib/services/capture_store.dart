@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:drift/drift.dart';
+import 'package:image/image.dart' as image;
 
 import 'capture_queue.dart';
 
@@ -22,6 +25,7 @@ class CaptureStore {
 
   final CaptureQueue queue;
   final Directory root;
+  static final _intakes = <String, Future<void>>{};
 
   Future<int> save({
     required File source,
@@ -35,7 +39,11 @@ class CaptureStore {
     String? clientId,
     String? itemId,
     bool awaitingMarkup = false,
+    bool resizePhoto = false,
   }) async {
+    if (resizePhoto && (kind != 'PHOTO' || mimeType != 'image/jpeg')) {
+      throw ArgumentError('Only camera JPEG photos can be resized.');
+    }
     final captureId = clientId ?? newCaptureId();
     final relativePath = 'captures/$ownerId/$captureId.$extension';
     final journal = _journal(captureId);
@@ -47,6 +55,7 @@ class CaptureStore {
       'itemId': itemId,
       'kind': kind,
       'awaitingMarkup': awaitingMarkup,
+      'resizePhoto': resizePhoto,
       'relativePath': relativePath,
       'sourcePath': source.path,
       'filename': '$captureId.$extension',
@@ -54,22 +63,27 @@ class CaptureStore {
       'durationSec': durationSec,
       'createdAt': DateTime.now().toUtc().toIso8601String(),
     };
-    await journal.parent.create(recursive: true);
-    await journal.writeAsString(jsonEncode(metadata), flush: true);
-    final destination = File('${root.path}/$relativePath');
-    if (!await destination.exists()) {
-      await _waitForReadableSource(source);
-      await _persistIntoSupport(source, destination);
-    } else {
-      // A previous attempt moved the camera file, then failed before its queue row.
-      final recovered = await destination.open(mode: FileMode.append);
-      try {
-        await recovered.flush();
-      } finally {
-        await recovered.close();
+    return _serializeIntake(journal, () async {
+      await journal.writeAsString(jsonEncode(metadata), flush: true);
+      // Preserve the camera bytes before doing any image work. The journal can rebuild
+      // the upload copy after a crash, and the original survives until upload hand-over.
+      final destination = File(
+        '${root.path}/$relativePath${resizePhoto ? '.original' : ''}',
+      );
+      if (!await destination.exists()) {
+        await _waitForReadableSource(source);
+        await _persistIntoSupport(source, destination);
+      } else {
+        // A previous attempt moved the camera file, then failed before its queue row.
+        final recovered = await destination.open(mode: FileMode.append);
+        try {
+          await recovered.flush();
+        } finally {
+          await recovered.close();
+        }
       }
-    }
-    return _importJournal(journal, metadata);
+      return _importJournal(journal, metadata);
+    });
   }
 
   /// Returns journals whose camera bytes cannot currently be found. The journal stays
@@ -81,36 +95,66 @@ class CaptureStore {
     await for (final entity in directory.list()) {
       if (entity is! File || !entity.path.endsWith('.json')) continue;
       try {
-        final metadata =
-            jsonDecode(await entity.readAsString()) as Map<String, dynamic>;
-        if (metadata['ownerId'] != ownerId) continue;
-        if (roomId != null && metadata['roomId'] != roomId) continue;
-        final handedOver = await queue.serverIdForClient(
-          ownerId,
-          metadata['inspectionId'] as String,
-          metadata['clientId'] as String,
-        );
-        if (handedOver != null) {
-          // A crash can leave the intake journal behind even though the queue has
-          // since registered and discarded this capture. Do not resurrect it.
-          await entity.delete();
-          continue;
-        }
-        final file = File('${root.path}/${metadata['relativePath']}');
-        if (!await file.exists()) {
-          final source = File(metadata['sourcePath'] as String);
-          if (await source.exists()) await _persistIntoSupport(source, file);
-        }
-        if (await file.exists()) {
-          await _importJournal(entity, metadata);
-        } else {
-          unresolved.add(metadata['clientId'] as String);
-        }
+        await _serializeIntake(entity, () async {
+          // The active save or another recovery may have finished while we waited.
+          if (!await entity.exists()) return;
+          final metadata =
+              jsonDecode(await entity.readAsString()) as Map<String, dynamic>;
+          if (metadata['ownerId'] != ownerId) return;
+          if (roomId != null && metadata['roomId'] != roomId) return;
+          final handedOver = await queue.serverIdForClient(
+            ownerId,
+            metadata['inspectionId'] as String,
+            metadata['clientId'] as String,
+          );
+          if (handedOver != null) {
+            // A crash can leave the intake journal behind even though the queue has
+            // since registered and discarded this capture. Do not resurrect it.
+            await entity.delete();
+            return;
+          }
+          final file = File(
+            '${root.path}/${metadata['relativePath']}'
+            '${metadata['resizePhoto'] == true ? '.original' : ''}',
+          );
+          if (!await file.exists()) {
+            final source = File(metadata['sourcePath'] as String);
+            if (await source.exists()) await _persistIntoSupport(source, file);
+          }
+          if (await file.exists()) {
+            await _importJournal(entity, metadata);
+          } else {
+            unresolved.add(metadata['clientId'] as String);
+          }
+        });
       } catch (_) {
         unresolved.add(entity.path);
       }
     }
     return unresolved;
+  }
+
+  /// Foreground recovery can run while the camera is persisting or shrinking a shot.
+  /// All store instances in this isolate share its intake guard; JPEG work runs in a
+  /// worker isolate without opening a store. A failed operation releases the guard so
+  /// a later recovery can retry from the unchanged journal and original.
+  static Future<T> _serializeIntake<T>(
+    File journal,
+    Future<T> Function() operation,
+  ) async {
+    await journal.parent.create(recursive: true);
+    final key = '${await journal.parent.resolveSymbolicLinks()}/'
+        '${journal.uri.pathSegments.last}';
+    final previous = _intakes[key];
+    final done = Completer<void>();
+    _intakes[key] = done.future;
+    try {
+      await previous;
+      return await operation();
+    } finally {
+      done.complete();
+      if (identical(_intakes[key], done.future)) _intakes.remove(key);
+    }
   }
 
   Future<int> _importJournal(
@@ -132,6 +176,11 @@ class CaptureStore {
       return existing.id;
     }
     final file = File('${root.path}/${metadata['relativePath']}');
+    if (metadata['resizePhoto'] == true && !await file.exists()) {
+      // Isolate work keeps the camera preview responsive while JPEGs are decoded.
+      final path = file.path;
+      await Isolate.run(() => _prepareCameraPhoto(path));
+    }
     final size = await file.length();
     if (size == 0) {
       throw StateError('Empty media file; capture retained for recovery.');
@@ -220,4 +269,34 @@ class CaptureStore {
       'The camera has not finished saving this video. Keep Kivilo open and retry.',
     );
   }
+}
+
+/// Creates a complete upload file beside the retained original. Reconciliation uses
+/// the same operation, and a partial output is never mistaken for a finished JPEG.
+Future<void> _prepareCameraPhoto(String path) async {
+  final original = File('$path.original');
+  final bytes = await original.readAsBytes();
+  final decoder = image.JpegDecoder();
+  final info = decoder.startDecode(bytes);
+  if (info == null) throw StateError('The camera photo could not be read.');
+  final edge = evidencePhotoEdge.toInt();
+  var uploadBytes = bytes;
+  if (info.width > edge || info.height > edge) {
+    // The JPEG decoder applies EXIF orientation; use its upright dimensions so a
+    // portrait shot and any marks drawn on it keep the same aspect and rotation.
+    final decoded = decoder.decodeFrame(0);
+    if (decoded == null) throw StateError('The camera photo could not be read.');
+    final resized = image.copyResize(
+      decoded,
+      width: decoded.width >= decoded.height ? edge : null,
+      height: decoded.height > decoded.width ? edge : null,
+      interpolation: image.Interpolation.average,
+    );
+    uploadBytes = image.encodeJpg(resized, quality: evidencePhotoQuality);
+  }
+  // Photos already within the cap keep their exact bytes, avoiding another lossy
+  // encode on Android. Both variants remain on the phone until upload succeeds.
+  final partial = File('$path.partial');
+  await partial.writeAsBytes(uploadBytes, flush: true);
+  await partial.rename(path);
 }

@@ -8,6 +8,7 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/${path}`]))),
 }))
 vi.mock('@/lib/auth', async (importActual) => {
   const actual = await importActual<typeof import('@/lib/auth')>()

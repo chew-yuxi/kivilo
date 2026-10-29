@@ -8,15 +8,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'api_failure.dart';
+
 /// Photos downloaded once and kept on this phone, so a property opened before shows its
 /// pictures at once, after a restart and offline.
 ///
 /// The server signs a new link for every photo on every response, so a link is never
 /// the same twice and Flutter's own cache, keyed by it, never hits. A stored object
 /// never changes after upload, so a photo is named here by its address without the
-/// signed token. It is only ever looked up with a link the server has just issued, so it
-/// never shows a photo this account can no longer open. Branding logos can be replaced
-/// at the same address and do not come through here.
+/// signed token. The account's API response (or its saved offline copy) supplies that
+/// link. Sign-out clears these bytes and invalidates unfinished loads. Branding logos
+/// can be replaced at the same address and do not come through here.
 class PhotoCache {
   PhotoCache._();
 
@@ -29,35 +31,71 @@ class PhotoCache {
       Directory('${(await getApplicationCacheDirectory()).path}/photos');
 
   static final _http = HttpClient();
-  static final _inFlight = <String, Future<Uint8List>>{};
-  static Future<void>? _pruned;
+  static final _inFlight = <(int, String), Future<Uint8List>>{};
+  static int _generation = 0;
+  static Future<void> _diskIdle = Future.value();
 
   static String key(String url) => url.split('?').first;
 
-  static Future<Uint8List> bytes(String url) {
+  static Future<Uint8List> bytes(String url) => _load(url, _generation);
+
+  static Future<Uint8List> _load(String url, int generation) {
     final name = sha256.convert(utf8.encode(key(url))).toString();
+    final request = (generation, name);
     return _inFlight.putIfAbsent(
-      name,
+      request,
       // A block body: `remove` returns this very future, which `whenComplete`
       // would otherwise wait on forever.
-      () => _bytes(url, name).whenComplete(() {
-        _inFlight.remove(name);
+      () => _bytes(url, name, generation).whenComplete(() {
+        _inFlight.remove(request);
       }),
     );
   }
 
-  static Future<Uint8List> _bytes(String url, String name) async {
-    final folder = await directory();
-    final file = File('${folder.path}/$name');
-    if (await file.exists()) return file.readAsBytes();
+  static Future<Uint8List> _bytes(String url, String name, int generation) async {
+    final saved = await _onDisk(() async {
+      _checkGeneration(generation);
+      final folder = await directory();
+      final file = File('${folder.path}/$name');
+      return await file.exists() ? await file.readAsBytes() : null;
+    });
+    _checkGeneration(generation);
+    if (saved != null) return saved;
     final bytes = await _download(url);
-    await folder.create(recursive: true);
-    // Renamed into place, so a photo cut off mid-write is never read back as whole.
-    final partial = File('${file.path}.part');
-    await partial.writeAsBytes(bytes, flush: true);
-    await partial.rename(file.path);
-    await (_pruned ??= _prune(folder));
+    await _onDisk(() async {
+      _checkGeneration(generation);
+      final folder = await directory();
+      final file = File('${folder.path}/$name');
+      await folder.create(recursive: true);
+      // Renamed into place, so a photo cut off mid-write is never read back as whole.
+      final partial = File('${file.path}.part');
+      await partial.writeAsBytes(bytes, flush: true);
+      await partial.rename(file.path);
+      await _prune(folder);
+    });
+    _checkGeneration(generation);
     return bytes;
+  }
+
+  static void _checkGeneration(int generation) {
+    if (generation != _generation) {
+      throw const ApiFailure('Photo load cancelled after sign-out.', 401);
+    }
+  }
+
+  /// Reads, writes, pruning and sign-out cannot race on the same files. Downloads
+  /// stay outside this short queue, so a slow network never holds up sign-out.
+  static Future<T> _onDisk<T>(Future<T> Function() operation) async {
+    final previous = _diskIdle;
+    final done = Completer<void>();
+    _diskIdle = done.future;
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      // The caller receives any failure; later disk operations must still run.
+      done.complete();
+    }
   }
 
   static Future<Uint8List> _download(String url) async {
@@ -70,7 +108,7 @@ class PhotoCache {
     return consolidateHttpClientResponseBytes(response);
   }
 
-  /// Once a launch, after the first download.
+  /// After each download, including long sessions without an app restart.
   static Future<void> _prune(Directory folder) async {
     final files = [
       for (final entry in await folder.list().toList())
@@ -85,11 +123,14 @@ class PhotoCache {
   }
 
   /// On sign-out, so the next account on this phone starts with none of them.
-  static Future<void> clear() async {
+  static Future<void> clear() {
+    _generation++;
     PaintingBinding.instance.imageCache.clear();
-    final folder = await directory();
-    if (await folder.exists()) await folder.delete(recursive: true);
-    _pruned = null;
+    PaintingBinding.instance.imageCache.clearLiveImages();
+    return _onDisk(() async {
+      final folder = await directory();
+      if (await folder.exists()) await folder.delete(recursive: true);
+    });
   }
 }
 
@@ -97,9 +138,10 @@ class PhotoCache {
 /// are the same image, so a refreshed response reuses what is already drawn.
 @immutable
 class StoredNetworkImage extends ImageProvider<StoredNetworkImage> {
-  const StoredNetworkImage(this.url);
+  StoredNetworkImage(this.url) : _generation = PhotoCache._generation;
 
   final String url;
+  final int _generation;
 
   @override
   Future<StoredNetworkImage> obtainKey(ImageConfiguration configuration) =>
@@ -120,7 +162,7 @@ class StoredNetworkImage extends ImageProvider<StoredNetworkImage> {
     ImageDecoderCallback decode,
   ) async {
     try {
-      final bytes = await PhotoCache.bytes(url);
+      final bytes = await PhotoCache._load(url, _generation);
       return await decode(await ui.ImmutableBuffer.fromUint8List(bytes));
     } catch (_) {
       // As NetworkImage does: a failure is not cached, so the next build retries.
@@ -132,10 +174,11 @@ class StoredNetworkImage extends ImageProvider<StoredNetworkImage> {
   @override
   bool operator ==(Object other) =>
       other is StoredNetworkImage &&
+      other._generation == _generation &&
       PhotoCache.key(other.url) == PhotoCache.key(url);
 
   @override
-  int get hashCode => PhotoCache.key(url).hashCode;
+  int get hashCode => Object.hash(_generation, PhotoCache.key(url));
 
   @override
   String toString() => 'StoredNetworkImage("${PhotoCache.key(url)}")';

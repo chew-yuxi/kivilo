@@ -1,4 +1,4 @@
-import { afterAll, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, describe, expect, it, vi } from 'vitest'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { randomUUID } from 'node:crypto'
@@ -9,16 +9,18 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/auth', async (importActual) => {
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn() }
+  return { ...actual, requireAgent: vi.fn(), currentStakeholder: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireAgent } from '@/lib/auth'
+import { requireAgent, currentStakeholder } from '@/lib/auth'
 import { CAPTURE_BUCKET, captureExists, downloadCapture, serviceClient, uploadBytes } from '@/lib/storage'
+import * as storage from '@/lib/storage'
 import { makePosters } from '@/lib/poster'
 import { posterUrls } from '@/lib/poster-urls'
 import { purgeStorageEntry } from '@/lib/storage-purge'
-import { deleteCapture } from '@/lib/actions'
+import { deleteCapture, registerCapture } from '@/lib/actions'
+import { GET as getRoom } from '@/app/api/v1/inspections/[id]/rooms/[roomId]/route'
 
 /// Runs the real ffmpeg against the local storage stack: the poster is read from a
 /// signed URL exactly as the cron does it in production.
@@ -28,10 +30,12 @@ const run = promisify(execFile)
 /// Everything this file puts in storage, so it leaves no objects and no pending purge
 /// tombstones behind: the account-deletion test waits for every tombstone to clear.
 const written: string[] = []
+afterEach(() => vi.restoreAllMocks())
 
 async function deal() {
   const agent = await db.stakeholder.create({ data: { name: 'Poster agent' } })
   vi.mocked(requireAgent).mockResolvedValue(agent)
+  vi.mocked(currentStakeholder).mockResolvedValue(agent)
   const property = await db.property.create({
     data: { line1: 'Poster test', postalCode: '992345', type: 'PRIVATE_NON_LANDED' },
   })
@@ -105,8 +109,8 @@ describe('video posters', () => {
     expect(tombstones).toHaveLength(2)
   })
 
-  it('stores a photo as WebP, upright within 640px, in the same proportions, beside the original', async () => {
-    const { room } = await deal()
+  it('has an upright WebP within 640px ready when photo registration returns, preserving the original', async () => {
+    const { inspection, room } = await deal()
     // A phone photo held upright: landscape pixels with EXIF orientation 6.
     const original = await sharp({ create: { width: 4000, height: 3000, channels: 3, background: '#c08040' } })
       .jpeg()
@@ -115,17 +119,60 @@ describe('video posters', () => {
     const storagePath = `${room.id}/${randomUUID()}.jpg`
     await uploadBytes(storagePath, new Uint8Array(original), 'image/jpeg')
     written.push(storagePath, `${room.id}/`)
-    const capture = await db.capture.create({
-      data: { roomId: room.id, kind: 'PHOTO', storagePath, mimeType: 'image/jpeg', sizeBytes: original.length },
+    const captureId = await registerCapture({
+      inspectionId: inspection.id, roomId: room.id, kind: 'PHOTO', storagePath,
+      mimeType: 'image/jpeg', sizeBytes: original.length, durationSec: null, note: null,
     })
 
-    const result = await makePosters(0)
-    expect(result.made).toContain(capture.id)
-    const saved = await db.capture.findUniqueOrThrow({ where: { id: capture.id } })
-    expect(saved.posterPath).toBe(`${room.id}/${capture.id}.poster.webp`)
+    const saved = await db.capture.findUniqueOrThrow({ where: { id: captureId } })
+    expect(saved.posterPath).toBe(`${room.id}/${captureId}.poster.webp`)
     const poster = await sharp(Buffer.from(await downloadCapture(saved.posterPath!))).metadata()
     expect([poster.format, poster.width, poster.height, poster.orientation ?? 1]).toEqual(['webp', 480, 640, 1])
     // The original is evidence and is never rewritten.
+    expect(Buffer.from(await downloadCapture(storagePath)).equals(original)).toBe(true)
+
+    // A room mixes ready posters with older photos the cron has not reached yet.
+    const olderPath = `${room.id}/${randomUUID()}.jpg`
+    await uploadBytes(olderPath, new Uint8Array(original), 'image/jpeg')
+    const older = await db.capture.create({
+      data: { roomId: room.id, kind: 'PHOTO', storagePath: olderPath, mimeType: 'image/jpeg', sizeBytes: original.length },
+    })
+    const signed = vi.spyOn(storage, 'createDownloadUrls')
+    const response = await getRoom(new Request('http://localhost/api/v1/room'), {
+      params: Promise.resolve({ id: inspection.id, roomId: room.id }),
+    })
+    expect(response.status).toBe(200)
+    expect(signed).toHaveBeenCalledExactlyOnceWith([storagePath, saved.posterPath, olderPath])
+    const view = await response.json()
+    expect(view.captures).toMatchObject([
+      { id: captureId, url: expect.any(String), posterUrl: expect.any(String) },
+      { id: older.id, url: expect.any(String), posterUrl: null },
+    ])
+    expect((await fetch(view.captures[0].posterUrl)).ok).toBe(true)
+  })
+
+  it('completes registration when the immediate poster fails and lets the cron retry it', async () => {
+    const { inspection, room } = await deal()
+    const original = await sharp({ create: { width: 1000, height: 700, channels: 3, background: '#4080c0' } }).jpeg().toBuffer()
+    const storagePath = `${room.id}/${randomUUID()}.jpg`
+    await uploadBytes(storagePath, new Uint8Array(original), 'image/jpeg')
+    written.push(storagePath, `${room.id}/`)
+    const failed = new Error('Temporary poster upload failure')
+    vi.spyOn(storage, 'uploadBytes').mockRejectedValueOnce(failed)
+    const logged = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    const captureId = await registerCapture({
+      inspectionId: inspection.id, roomId: room.id, kind: 'PHOTO', storagePath,
+      mimeType: 'image/jpeg', sizeBytes: original.length, durationSec: null, note: null,
+    })
+    expect(await db.capture.findUniqueOrThrow({ where: { id: captureId } })).toMatchObject({
+      posterPath: null, posterAttempts: 0, sizeBytes: original.length,
+    })
+    expect(logged).toHaveBeenCalledWith(expect.stringContaining('cron will retry'), failed)
+
+    expect((await makePosters(0)).made).toContain(captureId)
+    const saved = await db.capture.findUniqueOrThrow({ where: { id: captureId } })
+    expect(saved.posterPath).toBe(`${room.id}/${captureId}.poster.webp`)
     expect(Buffer.from(await downloadCapture(storagePath)).equals(original)).toBe(true)
   })
 

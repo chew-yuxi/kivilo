@@ -1,9 +1,9 @@
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import ffmpegPath from 'ffmpeg-static'
-import sharp from 'sharp'
 import { db } from '@/lib/db'
-import { CAPTURE_BUCKET, createDownloadUrl, downloadCapture, serviceClient, uploadBytes } from '@/lib/storage'
+import { createDownloadUrl, uploadBytes } from '@/lib/storage'
+import { makePhotoCapturePoster, photoPoster, saveCapturePoster } from '@/lib/capture-poster'
 
 const run = promisify(execFile)
 
@@ -42,43 +42,7 @@ async function videoPoster(storagePath: string) {
   return jpeg
 }
 
-/// A camera photo is 3 to 6 MB, so a grid of originals takes a phone minutes to draw.
-/// The poster is the same picture upright, within 640px, with its aspect kept: marks
-/// are normalized against the upright original, so they land in the same place on it.
-/// WebP is about 40% smaller than JPEG here (15 to 25 KB); AVIF would need a decoder
-/// plugin in the app.
-async function photoPoster(storagePath: string) {
-  return new Uint8Array(
-    await sharp(await downloadCapture(storagePath))
-      .rotate()
-      .resize(640, 640, { fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 75 })
-      .toBuffer(),
-  )
-}
-
 type Due = { id: string; roomId: string; kind: 'VIDEO' | 'PHOTO'; storagePath: string }
-
-async function makePoster(capture: Due) {
-  const [bytes, extension, contentType] = capture.kind === 'VIDEO'
-    ? [await videoPoster(capture.storagePath), 'jpg', 'image/jpeg']
-    : [await photoPoster(capture.storagePath), 'webp', 'image/webp']
-
-  // Flat under the room, beside the capture: the room-prefix purge refuses nested folders.
-  const posterPath = `${capture.roomId}/${capture.id}.poster.${extension}`
-  await uploadBytes(posterPath, bytes, contentType)
-  const saved = await db.capture.updateMany({
-    where: { id: capture.id, posterPath: null },
-    data: { posterPath },
-  })
-  // The capture was deleted while its poster was being made. deleteCapture could not
-  // have recorded a path it never saw, so remove the object here. If it still exists,
-  // an overlapping run saved this same path first and the object is the one it points to.
-  if (saved.count === 0 && !(await db.capture.findUnique({ where: { id: capture.id }, select: { id: true } }))) {
-    const removed = await serviceClient().storage.from(CAPTURE_BUCKET).remove([posterPath])
-    if (removed.error) throw removed.error
-  }
-}
 
 /// Finding, repair and update photos still in use with no poster yet, newest first. The
 /// three tables share nothing but a storage path, so one query unions them. A deleted
@@ -123,7 +87,8 @@ export async function makePosters(limit = 5, photoLimit = 60) {
   const failed: string[] = []
   const attempt = async (capture: Due) => {
     try {
-      await makePoster(capture)
+      if (capture.kind === 'PHOTO') await makePhotoCapturePoster(capture)
+      else await saveCapturePoster(capture, await videoPoster(capture.storagePath), 'jpg', 'image/jpeg')
       made.push(capture.id)
     } catch (error) {
       console.error(`Poster for capture ${capture.id} failed:`, error)

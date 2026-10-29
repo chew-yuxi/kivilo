@@ -12,6 +12,7 @@ vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
   CAPTURE_BUCKET: 'captures',
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/signed/${path}?token=test`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/signed/${path}?token=test`]))),
   serviceClient: () => ({ storage: { from: () => ({ createSignedUrls: signPhotos }) } }),
 }))
 vi.mock('@/lib/auth', async (importActual) => {

@@ -9,6 +9,7 @@ import { randomUUID } from 'node:crypto'
 
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
+vi.mock('@/lib/capture-poster', () => ({ makePhotoCapturePoster: vi.fn() }))
 vi.mock('@/lib/storage', () => ({
   createUploadUrl: vi.fn(async () => ({ signedUrl: 'https://x/y', token: 'tok' })),
   captureExists: vi.fn(async () => false),

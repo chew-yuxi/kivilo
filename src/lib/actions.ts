@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope, managedTenancies, tenancyScope } from '@/lib/auth'
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
+import { makePhotoCapturePoster } from '@/lib/capture-poster'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
 import { templateRows } from '@/lib/room-templates'
@@ -511,7 +512,7 @@ export async function registerCapture(input: {
     throw new Error('Capture has not reached storage')
   }
 
-  let created: { id: string }
+  let created: { id: string; roomId: string; kind: CaptureKind; storagePath: string }
   try {
     created = await db.$transaction(async (tx) => {
       const inspection = await lockAgentInspection(tx, input.inspectionId, agent.id)
@@ -603,6 +604,16 @@ export async function registerCapture(input: {
     throw error
   }
 
+  // Finish the small photo before returning so the first room refresh can show it.
+  // Registration has already committed: derivative failure cannot strand the phone's
+  // original in its queue. A null posterPath keeps the capture due for the cron.
+  if (created.kind === 'PHOTO') {
+    try {
+      await makePhotoCapturePoster(created)
+    } catch (error) {
+      console.error(`Immediate poster for capture ${created.id} failed; cron will retry:`, error)
+    }
+  }
   revalidate(input.inspectionId)
   return created.id
 }

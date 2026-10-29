@@ -44,6 +44,24 @@ export async function createDownloadUrl(storagePath: string, expiresInSec = 3600
   return data.signedUrl
 }
 
+/// Sign a screen's originals and posters in one storage request. Callers authorize
+/// the rows first; a missing or failed object must not become an undefined image URL.
+export async function createDownloadUrls(storagePaths: string[], expiresInSec = 3600) {
+  const paths = [...new Set(storagePaths)]
+  const signed = new Map<string, string>()
+  if (paths.length === 0) return signed
+  const { data, error } = await serviceClient()
+    .storage.from(CAPTURE_BUCKET)
+    .createSignedUrls(paths, expiresInSec)
+  if (error) throw error
+  for (const object of data) {
+    if (object.error || !object.path || !object.signedUrl) throw new Error('Could not sign capture')
+    signed.set(object.path, object.signedUrl)
+  }
+  if (paths.some((path) => !signed.has(path))) throw new Error('Could not sign capture')
+  return signed
+}
+
 /// Deletes every object directly under `prefix`, except `keep`. For prefixes that hold a
 /// handful of generated files, not capture folders.
 export async function removePrefix(prefix: string, { keep }: { keep?: string } = {}) {

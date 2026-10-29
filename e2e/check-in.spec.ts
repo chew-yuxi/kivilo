@@ -167,8 +167,12 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   const link = await page.locator('code').filter({ hasText: '/reports/' }).textContent()
   expect(link).toMatch(/\/reports\/[A-Za-z0-9_-]{40,}$/)
 
-  const outsider = await browser.newContext()
+  const outsider = await browser.newContext({ viewport: { width: 412, height: 915 } })
   const report = await outsider.newPage()
+  const requestedImages: string[] = []
+  report.on('request', (request) => {
+    if (request.resourceType() === 'image') requestedImages.push(request.url())
+  })
   await report.goto(link!)
   await expect(report.getByText('Kivilo condition report')).toBeVisible()
   await expect(report.getByText('#28-05')).toBeVisible()
@@ -177,6 +181,23 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(report.getByRole('link', { name: /^\d+\.1$/ })).toHaveCount(1)
   await expect(report.getByText('Nothing recorded in this room.')).toBeVisible()
   await expect(report.getByRole('button', { name: 'Install app' })).toHaveCount(0)
+
+  // The preview is the small upright copy. Loading a report must not fetch its
+  // originals until the reader opens one; that link still works without a session.
+  const originalLink = report.getByRole('link', { name: /^Open original photo \d+\.1 / }).first()
+  const preview = originalLink.locator('img')
+  await preview.scrollIntoViewIfNeeded()
+  await expect(preview).toHaveAttribute('src', /\.poster\.webp\?/)
+  await expect.poll(() => preview.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+  const originalUrl = (await originalLink.getAttribute('href'))!
+  expect(originalUrl).not.toContain('.poster.')
+  expect(requestedImages).not.toContain(originalUrl)
+  const originalPageReady = report.waitForEvent('popup')
+  await originalLink.click()
+  const originalPage = await originalPageReady
+  await expect(originalPage).toHaveURL(originalUrl)
+  await expect.poll(() => originalPage.locator('img').evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(640)
+  await originalPage.close()
 
   // The mark survived to the document both parties argue over, and it is still pointing
   // at the same 42.5 percent of the photo it was drawn against on the phone. This is the
@@ -257,7 +278,12 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   // the picture it was drawn against.
   await expect(reviewPanel.getByRole('img', { name: 'Check-in photo' })).toHaveCount(2)
   await expect(reviewPanel.getByText('Fridge rating plate')).toBeVisible()
-  const panelPhoto = (await reviewPanel.locator('div:has(> svg[data-marks="1"]) > img').boundingBox())!
+  const panelImage = reviewPanel.locator('div:has(> svg[data-marks="1"]) > img')
+  // Opening the reference first signs its links, then loads its images. The caption
+  // arrives with the links, before an auto-width photo has its intrinsic dimensions.
+  await expect.poll(() => panelImage.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+  await expect(panelImage).toBeVisible()
+  const panelPhoto = (await panelImage.boundingBox())!
   const panelRing = (await reviewPanel.locator('svg[data-marks="1"] path').first().boundingBox())!
   expect((panelRing.x + panelRing.width / 2 - panelPhoto.x) / panelPhoto.width).toBeCloseTo(0.425, 2)
   expect((panelRing.y + panelRing.height / 2 - panelPhoto.y) / panelPhoto.height).toBeCloseTo(

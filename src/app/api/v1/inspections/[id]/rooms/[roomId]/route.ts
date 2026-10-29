@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { authorizeInspection } from '@/lib/auth'
-import { createDownloadUrl } from '@/lib/storage'
+import { createDownloadUrls } from '@/lib/storage'
 import { toAnnotations } from '@/lib/annotations'
 import { signedCheckInReference } from '@/lib/check-in-reference'
 import { authed } from '@/lib/api/route'
@@ -35,6 +35,9 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
     }),
     signedCheckInReference(roomId, agent.id),
   ])
+  const urls = await createDownloadUrls(stored.flatMap((capture) =>
+    capture.posterPath ? [capture.storagePath, capture.posterPath] : [capture.storagePath],
+  ))
 
   return {
     room: rooms[index],
@@ -61,19 +64,17 @@ export const GET = authed(async (agent, { id, roomId }: { id: string; roomId: st
     // during the check-out, and for an agent who conducts the check-out but may not see
     // the check-in.
     checkIn,
-    captures: await Promise.all(
-      stored.map(async (capture) => ({
-        id: capture.id,
-        clientId: capture.clientId,
-        kind: capture.kind,
-        note: capture.note,
-        durationSec: capture.durationSec,
-        createdAt: capture.createdAt.toISOString(),
-        url: await createDownloadUrl(capture.storagePath),
-        posterUrl: capture.posterPath ? await createDownloadUrl(capture.posterPath) : null,
-        annotations: toAnnotations(capture.annotations),
-      })),
-    ),
+    captures: stored.map((capture) => ({
+      id: capture.id,
+      clientId: capture.clientId,
+      kind: capture.kind,
+      note: capture.note,
+      durationSec: capture.durationSec,
+      createdAt: capture.createdAt.toISOString(),
+      url: urls.get(capture.storagePath)!,
+      posterUrl: capture.posterPath ? urls.get(capture.posterPath)! : null,
+      annotations: toAnnotations(capture.annotations),
+    })),
   }
 })
 

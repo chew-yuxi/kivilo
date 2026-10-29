@@ -6,6 +6,7 @@ vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/storage', () => ({
   captureExists: vi.fn(async () => true),
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/${path}`]))),
   createUploadUrl: vi.fn(async () => ({ token: 'test', signedUrl: 'https://storage.test/upload' })),
 }))
 vi.mock('@/lib/auth', async (importActual) => {

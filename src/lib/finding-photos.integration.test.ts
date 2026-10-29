@@ -9,6 +9,7 @@ vi.mock('@/lib/storage', () => ({
   captureExists: vi.fn(async (path: string) => objects.has(path)),
   createUploadUrl: vi.fn(async (path: string) => ({ signedUrl: `https://storage.test/upload/${path}`, token: 'test' })),
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/download/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/download/${path}`]))),
   serviceClient: () => ({ storage: { from: () => ({ remove: async (paths: string[]) => { paths.forEach((path) => objects.delete(path)); return { error: null } } }) } }),
 }))
 vi.mock('@/lib/auth', async (importActual) => {

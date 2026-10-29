@@ -1,5 +1,66 @@
 # Kivilo work tracker
 
+## Photo capture and loading — 29 October (local implementation)
+
+The multi-shot camera now caps JPEGs at 2048px, with quality 85, after saving the
+camera original in app-support storage. Encoding runs in a Dart isolate through
+the existing intake journal; save and recovery serialize per journal so background
+retry cannot encode or insert the same shot concurrently. Its original stays beside
+the upload copy until
+registration and final queue handover succeed; failed writes/encoding and app
+restarts recover from that journal. Shots already within the cap retain their
+exact bytes. The `image` dependency adds no Flutter native plugin; patch build
+compatibility and real iPhone camera throughput, detail and orientation remain
+**NOT RUN**. No patch, native build or server deployment was published.
+
+Disk photo caching already existed, keyed by the immutable storage address without
+its changing signed token. It now enforces the 200 MiB limit throughout a session,
+serializes disk reads/writes/pruning against sign-out, and rejects old in-flight
+loads after sign-out without reporting the cancellation as a bug. Queued camera
+media is separate and is never pruned by this cache.
+
+Room photo registration generates its upright WebP thumbnail after the capture
+transaction commits and before returning. Failure leaves the original registered
+and the existing cron able to retry. Native and web room readers batch original
+and poster URL signing into one storage call. Shared/signing web reports use
+thumbnails for room, finding, maintenance and addendum photos, with a link to the
+signed original; pending thumbnails fall back to originals. Evidence filtering,
+mark geometry, fingerprints and PDF rendering are unchanged.
+
+Verification: TypeScript, ESLint, production build and 227 unit tests pass using
+Node 24.11.0 (the local pnpm shim's older Node fails PDF tests). Focused server
+coverage passes: 44 poster/reference/comparable/freeze tests, 15 finding-photo
+tests and six batch-signing unit tests. The broad integration run had 411 passes
+and 11 failures; its three missing batch-signing mocks were fixed and all 15
+finding-photo tests then passed. The remaining eight failures concern an existing
+23 October storage-purge tombstone blocking account-deletion tests and local
+schema permission errors differing from the security tests' expected table
+permission errors. That data and those privileges were left unchanged.
+
+Flutter analysis and all **510 mobile tests** pass on the final implementation.
+Coverage includes large JPEG dimensions and orientation, unchanged small photos,
+failed encoding/writes, crash recovery, overlapping live save/recovery, failed
+upload and lost registration responses, cache reuse with rotated/expired signed
+links, concurrent downloads, sign-out races and the disk size limit. The item
+camera/library widget tests now wait for the usable marking canvas rather than a
+fixed 200 ms delay.
+
+Browser verification passed the complete check-in/capture/review/sign/share/revoke
+and check-out flow, including a phone viewport, thumbnail-only initial image
+requests, tap-to-open-original, and screen/print mark alignment. The full browser
+run passed 24 of 26; the existing reference-image readiness race was fixed and
+that entire check-in test passed on rerun. Billing remains unverified because the
+local account page offers no Upgrade to Pro button.
+
+The real iPhone check must cover portrait/landscape multi-shot capture, readable
+label details, a sustained offline photo burst, restart before upload, failed upload
+then retry, and source cleanup only after handover. Confirm the uploaded longest
+edge is 2048px and revisit cached photos offline. These automated tests do not
+establish physical camera throughput or prove a Shorebird patch against a specific
+installed release.
+
+## Earlier release status — 26 October
+
 Updated 26 October 2026 Singapore time. Tenancy details are now always viewable and the
 Property page groups Continue check-in/check-out, Tenancy details and Documents in one
 action card (`c6792bd`). Editable details require confirmation; sent/signed values remain

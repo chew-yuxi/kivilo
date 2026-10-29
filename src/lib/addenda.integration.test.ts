@@ -12,6 +12,7 @@ vi.mock('@/lib/storage', () => ({
   createUploadUrl: vi.fn(async () => ({ signedUrl: 'https://storage.test/upload', token: 'tok' })),
   captureExists: vi.fn(async () => true),
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/${path}`]))),
 }))
 vi.mock('@/lib/auth', async (importActual) => {
   // Only the session lookup is faked; the authorization boundary is the real one.

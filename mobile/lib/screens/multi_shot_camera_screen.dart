@@ -183,6 +183,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
             mimeType: 'image/jpeg',
             clientId: clientId,
             awaitingMarkup: true,
+            resizePhoto: true,
           );
       if (_replacementNote case final note?) {
         if (note.isNotEmpty) await widget.queue.setNote(id, note);

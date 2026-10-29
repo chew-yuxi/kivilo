@@ -13,6 +13,7 @@ vi.mock('@/lib/storage', () => ({
   // Every report PDF is already stored, so nothing is drawn.
   captureExists: vi.fn(async () => true),
   createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}`),
+  createDownloadUrls: vi.fn(async (paths: string[]) => new Map(paths.map((path) => [path, `https://storage.test/${path}`]))),
   downloadCapture: vi.fn(async () => new Uint8Array([37, 80, 68, 70])),
 }))
 vi.mock('@/lib/report-pdf/render', async (importActual) => ({

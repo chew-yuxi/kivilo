@@ -146,6 +146,29 @@ void main() {
     }
   }
 
+  Future<void> waitForMarkup(WidgetTester tester) async {
+    final canvas = find.descendant(
+      of: find.byType(PhotoMarkScreen),
+      matching: find.byWidgetPredicate(
+        (widget) => widget is GestureDetector && widget.onPanStart != null,
+      ),
+    );
+    // Filesystem, SQLite and image decoding run outside the fake widget clock.
+    // Wait for the usable editor instead of assuming intake finishes in 200 ms.
+    for (var attempt = 0; attempt < 250 && canvas.evaluate().isEmpty; attempt++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(
+      canvas,
+      findsOneWidget,
+      reason: 'The saved photo should open for marking.',
+    );
+    await tester.pumpAndSettle();
+  }
+
   Future<void> open(WidgetTester tester, {String itemId = 'sofa'}) async {
     tester.view.physicalSize = const Size(393, 1200);
     tester.view.devicePixelRatio = 1;
@@ -203,7 +226,7 @@ void main() {
         isNotNull,
       );
       await tester.runAsync(() => tester.tap(find.text('Take another photo')));
-      await settle(tester);
+      await waitForMarkup(tester);
       expect(find.byType(PhotoMarkScreen), findsOneWidget);
       final capture = (await queue.forRoom('living', 'owner')).single;
       expect(capture.itemId, 'sofa');
@@ -251,7 +274,7 @@ void main() {
   ) async {
     await open(tester);
     await tester.runAsync(() => tester.tap(find.text('Choose photos')));
-    await settle(tester);
+    await waitForMarkup(tester);
     expect(find.byType(PhotoMarkScreen), findsOneWidget);
     final captures = await queue.forRoom('living', 'owner');
     expect(captures, hasLength(2));

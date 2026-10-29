@@ -788,6 +788,8 @@ class CaptureQueue extends _$CaptureQueue {
   Future<void> discardFile(Directory root, PendingCapture capture) async {
     final file = File('${root.path}/${capture.relativePath}');
     if (file.existsSync()) await file.delete();
+    final original = File('${file.path}.original');
+    if (original.existsSync()) await original.delete();
   }
 }
 
