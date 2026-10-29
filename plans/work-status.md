@@ -30,9 +30,10 @@ mark geometry, fingerprints and PDF rendering are unchanged.
 Source `3734be3` is pushed and live on both production domains through Vercel
 deployment `dpl_Cp4YrRzaLLUv5pUb9cPZmp8VpR6k` (READY, Singapore). The immediate
 photo path uses Sharp without importing the cron's video converter; final build
-traces include FFmpeg only in the poster cron. A read-only production smoke passed
-all 90 photos/posters in an existing synthetic room, signed downloads, private
-storage and authorization. It changed no report data and sent no email.
+traces include FFmpeg only in the poster cron. A read-only production smoke validated
+signed URLs for all 90 photos/posters in an existing synthetic room, downloaded one
+original/thumbnail pair, and checked private storage and authorization. It changed
+no report data and sent no email.
 
 Android `1.0.0+29` patch **18** / `761163` and iOS `1.0.0+25` patch **46** /
 `761175` are stable, active and latest, verified by fresh readbacks. Both were built

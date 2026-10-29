@@ -37,8 +37,9 @@ Flutter analysis and all **510 mobile tests** pass. Typecheck, zero-warning lint
 production build and **227 web unit tests** pass; focused server and complete
 check-in browser coverage pass. The broad integration/browser runs retain unrelated
 local data/permission and billing failures documented in `plans/work-status.md`.
-Production read-only smoke verified all 90 photos/posters in an existing synthetic
-room, signed downloads, private storage and authorization; no application data or
+Production read-only smoke validated signed URLs for all 90 photos/posters in an
+existing synthetic room, downloaded one original/thumbnail pair, and checked private
+storage and authorization; no application data or
 email changed. Only the poster cron bundles FFmpeg. Physical devices **NOT RUN**:
 the iPhone was offline, so camera speed, detail, orientation, offline bursts and
 update delivery still need a real-device check.
