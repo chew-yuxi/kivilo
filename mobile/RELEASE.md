@@ -5,6 +5,29 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Property cards with cover, lease, next step and badges: 29 October 2026 Singapore time
+
+Source `272325d`, pushed to `origin/main` and deployed by Vercel (READY) before the
+patches were set to stable; no migration. `propertyWork` rows gain `startDate`,
+`coverUrl` (first photo of the first room of the newest check-in, poster where made),
+`nextStep` and `attention` (open repairs on terms whose repairs the viewer may open,
+unacknowledged updates, missing deposit answers), all additive. The app card moved to
+`PropertyCard` (`lib/screens/property_card.dart`) and draws them; a copy saved before
+these fields shows the old card's content. `property_card_test.dart` and
+`property-work.integration.test.ts` pin the wording and scope.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **11** / `759176` | **stable** |
+| iOS TestFlight `1.0.0+25` | **38** / `759179` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **483 mobile tests**
+passed. No icon added against either base (`build_outlined`, `description_outlined`,
+`handshake_outlined`, `home_outlined` are in both); `--allow-asset-diffs` covered the
+icon font and, on iOS, `NOTICES.Z`. No native difference. iOS shared 77.3% of Dart
+code with its possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Photos kept on the phone: 28 October 2026 Singapore time
 
 Source `7e5b516`, app only, pushed to `origin/main` before patching. Every tile
