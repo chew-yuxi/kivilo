@@ -1,0 +1,299 @@
+<?xml version='1.0' encoding='utf-8'?>
+<CONSOLIDATED_LIST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.un.org/sc/resources/sc-sanctions.xsd" dateGenerated="2026-10-28T23:00:05.544Z"><INDIVIDUALS><INDIVIDUAL>
+      <DATAID>6908000</DATAID>
+      <VERSIONNUM>1</VERSIONNUM>
+      <FIRST_NAME>KHAWA PANGA</FIRST_NAME>
+      <SECOND_NAME>MANDRO</SECOND_NAME>
+      <UN_LIST_TYPE>DRC</UN_LIST_TYPE>
+      <REFERENCE_NUMBER>CDi.009</REFERENCE_NUMBER>
+      <LISTED_ON>2005-11-01</LISTED_ON>
+      <GENDER>Male</GENDER>
+      <COMMENTS1>Placed in prison in Bunia in April 2005 for sabotage of the Ituri peace
+process. Arrested by Congolese authorities in October 2005, acquitted by the Court of
+Appeal in Kisangani, subsequently transferred to the judicial authorities in Kinshasa on
+new charges of crimes against humanity, war crimes, murder, aggravated assault and
+battery. In August 2014, a DRC military court in Kisangani convicted him of war crimes and crimes against humanity, sentenced him to nine years in prison, and ordered him to pay approximately $85,000 to his victims. He served his sentence and resides in Uganda as of May 2016. INTERPOL-UN Security Council Special Notice:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+      <HAS_INTERPOL_LINK>YES</HAS_INTERPOL_LINK>
+      <INTERPOL_LINK>https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2013-16111</INTERPOL_LINK>
+      <NATIONALITY>
+        <VALUE>Democratic Republic of the Congo</VALUE>
+      </NATIONALITY>
+      <LIST_TYPE>
+        <VALUE>UN List</VALUE>
+      </LIST_TYPE>
+      <LAST_DAY_UPDATED>
+        <VALUE>2016-10-13</VALUE>
+      </LAST_DAY_UPDATED>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Kawa Panga</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Kawa Panga Mandro</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Kawa Mandro</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Yves Andoul Karim</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Mandro Panga Kahwa</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Yves Khawa Panga Mandro</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>“Chief Kahwa”</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>“Kawa”</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ADDRESS>
+        <COUNTRY>Uganda</COUNTRY>
+        <NOTE>as of May 2016</NOTE>
+      </INDIVIDUAL_ADDRESS>
+      <INDIVIDUAL_DATE_OF_BIRTH>
+        <TYPE_OF_DATE>EXACT</TYPE_OF_DATE>
+        <DATE>1973-08-20</DATE>
+      </INDIVIDUAL_DATE_OF_BIRTH>
+      <INDIVIDUAL_PLACE_OF_BIRTH>
+        <CITY>Bunia</CITY>
+        <COUNTRY>Democratic Republic of the Congo</COUNTRY>
+      </INDIVIDUAL_PLACE_OF_BIRTH>
+      <INDIVIDUAL_DOCUMENT />
+      <SORT_KEY />
+      <SORT_KEY_LAST_MOD />
+    </INDIVIDUAL>
+    <INDIVIDUAL>
+      <DATAID>6907995</DATAID>
+      <VERSIONNUM>1</VERSIONNUM>
+      <FIRST_NAME>GASTON</FIRST_NAME>
+      <SECOND_NAME>IYAMUREMYE</SECOND_NAME>
+      <UN_LIST_TYPE>DRC</UN_LIST_TYPE>
+      <REFERENCE_NUMBER>CDi.003</REFERENCE_NUMBER>
+      <LISTED_ON>2010-12-01</LISTED_ON>
+      <GENDER>Male</GENDER>
+      <COMMENTS1>INTERPOL-UN Security Council Special Notice:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+      <HAS_INTERPOL_LINK>YES</HAS_INTERPOL_LINK>
+      <INTERPOL_LINK>https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2013-16038</INTERPOL_LINK>
+      <DESIGNATION>
+        <VALUE>FDLR Interim President</VALUE>
+        <VALUE>FDLR-FOCA 1st Vice-President</VALUE>
+        <VALUE>FDLR-FOCA Major General</VALUE>
+      </DESIGNATION>
+      <NATIONALITY>
+        <VALUE>Rwanda</VALUE>
+      </NATIONALITY>
+      <LIST_TYPE>
+        <VALUE>UN List</VALUE>
+      </LIST_TYPE>
+      <LAST_DAY_UPDATED>
+        <VALUE>2016-10-13</VALUE>
+      </LAST_DAY_UPDATED>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Rumuli</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Byiringiro Victor Rumuli</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Victor Rumuri</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Michel Byiringiro</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ADDRESS>
+        <STATE_PROVINCE>North Kivu Province</STATE_PROVINCE>
+        <COUNTRY>Democratic Republic of the Congo</COUNTRY>
+        <NOTE>as of June 2016</NOTE>
+      </INDIVIDUAL_ADDRESS>
+      <INDIVIDUAL_DATE_OF_BIRTH>
+        <TYPE_OF_DATE>EXACT</TYPE_OF_DATE>
+        <YEAR>1948</YEAR>
+      </INDIVIDUAL_DATE_OF_BIRTH>
+      <INDIVIDUAL_PLACE_OF_BIRTH>
+        <CITY>Musanze District</CITY>
+        <STATE_PROVINCE>Northern Province</STATE_PROVINCE>
+        <COUNTRY>Rwanda</COUNTRY>
+      </INDIVIDUAL_PLACE_OF_BIRTH>
+      <INDIVIDUAL_PLACE_OF_BIRTH>
+        <CITY>Ruhengeri</CITY>
+        <COUNTRY>Rwanda</COUNTRY>
+      </INDIVIDUAL_PLACE_OF_BIRTH>
+      <INDIVIDUAL_DOCUMENT />
+      <SORT_KEY />
+      <SORT_KEY_LAST_MOD />
+    </INDIVIDUAL>
+    <INDIVIDUAL>
+      <DATAID>6908019</DATAID>
+      <VERSIONNUM>1</VERSIONNUM>
+      <FIRST_NAME>JEAN-MARIE LUGERERO</FIRST_NAME>
+      <SECOND_NAME>RUNIGA</SECOND_NAME>
+      <UN_LIST_TYPE>DRC</UN_LIST_TYPE>
+      <REFERENCE_NUMBER>CDi.028</REFERENCE_NUMBER>
+      <LISTED_ON>2012-12-31</LISTED_ON>
+      <GENDER>Male</GENDER>
+      <COMMENTS1>Entered the Republic of Rwanda on 16 March 2013. As of 2016, residing in Rwanda. Participated in the creation of a new Congolese political party in June 2016, the Alliance pour le Salut du Peuple (ASP). INTERPOL-UN Security Council Special Notice:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+      <HAS_INTERPOL_LINK>YES</HAS_INTERPOL_LINK>
+      <INTERPOL_LINK>https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2013-16227</INTERPOL_LINK>
+      <DESIGNATION>
+        <VALUE>M23, President</VALUE>
+      </DESIGNATION>
+      <LIST_TYPE>
+        <VALUE>UN List</VALUE>
+      </LIST_TYPE>
+      <LAST_DAY_UPDATED>
+        <VALUE>2016-10-13</VALUE>
+      </LAST_DAY_UPDATED>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Jean-Marie Rugerero</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ADDRESS>
+        <CITY>Rubavu / Mudende</CITY>
+        <COUNTRY>Rwanda</COUNTRY>
+      </INDIVIDUAL_ADDRESS>
+      <INDIVIDUAL_DATE_OF_BIRTH>
+        <TYPE_OF_DATE>APPROXIMATELY</TYPE_OF_DATE>
+        <YEAR>1960</YEAR>
+      </INDIVIDUAL_DATE_OF_BIRTH>
+      <INDIVIDUAL_DATE_OF_BIRTH>
+        <TYPE_OF_DATE>EXACT</TYPE_OF_DATE>
+        <DATE>1966-09-09</DATE>
+      </INDIVIDUAL_DATE_OF_BIRTH>
+      <INDIVIDUAL_PLACE_OF_BIRTH>
+        <CITY>Bukavu</CITY>
+        <COUNTRY>Democratic Republic of the Congo</COUNTRY>
+      </INDIVIDUAL_PLACE_OF_BIRTH>
+      <INDIVIDUAL_DOCUMENT />
+      <SORT_KEY />
+      <SORT_KEY_LAST_MOD />
+    </INDIVIDUAL>
+    <INDIVIDUAL>
+      <DATAID>6908021</DATAID>
+      <VERSIONNUM>1</VERSIONNUM>
+      <FIRST_NAME>BOSCO</FIRST_NAME>
+      <SECOND_NAME>TAGANDA</SECOND_NAME>
+      <UN_LIST_TYPE>DRC</UN_LIST_TYPE>
+      <REFERENCE_NUMBER>CDi.030</REFERENCE_NUMBER>
+      <LISTED_ON>2005-11-01</LISTED_ON>
+      <GENDER>Male</GENDER>
+      <COMMENTS1>Born in Rwanda, he moved to Nyamitaba, Masisi territory, North Kivu, when he was a child. Nominated FARDC Brigadier-General by Presidential Decree on 11 December 2004, following Ituri peace agreements. Formerly Chief of Staff in CNDP and became CNDP military commander since the arrest of Laurent Nkunda in January 2009. Since January 2009, de facto Deputy Commander of consecutive anti-FDLR operations ‘Umoja Wetu’, ‘Kimia II’, and ‘Amani Leo’ in North and South Kivu. Entered Rwanda in March 2013, and voluntarily surrender to ICC officials in Kigali on March 22. Transferred to the ICC in The Hague, Netherlands. On 9 June 2014, ICC confirmed 13 charges of war crimes and five charges of crimes against humanity against him; the trial started in September 2015. On 8 July 2019, the ICC found him guilty of 18 counts of war crimes and crimes against humanity, committed in Ituri in 2002-2003. On 7 November 2019, he was sentenced to a total of 30 years imprisonment.  He has appealed both his conviction and sentence. On 30 March 2021, the ICC Appeals Chamber confirmed his conviction and sentence. On 14 December 2022, he was transferred to the territory of Belgium for enforcement of sentence. INTERPOL-UN Security Council Special Notice:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals</COMMENTS1>
+      <HAS_INTERPOL_LINK>YES</HAS_INTERPOL_LINK>
+      <INTERPOL_LINK>https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Individuals#2013-16240</INTERPOL_LINK>
+      <NATIONALITY>
+        <VALUE>Democratic Republic of the Congo</VALUE>
+      </NATIONALITY>
+      <LIST_TYPE>
+        <VALUE>UN List</VALUE>
+      </LIST_TYPE>
+      <LAST_DAY_UPDATED>
+        <VALUE>2016-10-13</VALUE>
+        <VALUE>2020-08-19</VALUE>
+        <VALUE>2023-03-01</VALUE>
+      </LAST_DAY_UPDATED>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Bosco Ntaganda</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>Bosco Ntagenda</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Good</QUALITY>
+        <ALIAS_NAME>General Taganda</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Lydia</ALIAS_NAME>
+        <NOTE>When he was part of APR.</NOTE>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Terminator</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Tango Romeo</ALIAS_NAME>
+        <NOTE>Call sign</NOTE>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Romeo</ALIAS_NAME>
+        <NOTE>Call sign</NOTE>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ALIAS>
+        <QUALITY>Low</QUALITY>
+        <ALIAS_NAME>Major</ALIAS_NAME>
+      </INDIVIDUAL_ALIAS>
+      <INDIVIDUAL_ADDRESS>
+        <COUNTRY>Belgium</COUNTRY>
+        <NOTE>As of 14 December 2022</NOTE>
+      </INDIVIDUAL_ADDRESS>
+      <INDIVIDUAL_DATE_OF_BIRTH>
+        <TYPE_OF_DATE>BETWEEN</TYPE_OF_DATE>
+        <FROM_YEAR>1973</FROM_YEAR>
+        <TO_YEAR>1974</TO_YEAR>
+      </INDIVIDUAL_DATE_OF_BIRTH>
+      <INDIVIDUAL_PLACE_OF_BIRTH>
+        <CITY>Bigogwe</CITY>
+        <COUNTRY>Rwanda</COUNTRY>
+      </INDIVIDUAL_PLACE_OF_BIRTH>
+      <INDIVIDUAL_DOCUMENT />
+      <SORT_KEY />
+      <SORT_KEY_LAST_MOD />
+    </INDIVIDUAL>
+    </INDIVIDUALS><ENTITIES><ENTITY>
+      <DATAID>6908402</DATAID>
+      <VERSIONNUM>1</VERSIONNUM>
+      <FIRST_NAME>ADF</FIRST_NAME>
+      <UN_LIST_TYPE>DRC</UN_LIST_TYPE>
+      <REFERENCE_NUMBER>CDe.001</REFERENCE_NUMBER>
+      <LISTED_ON>2014-06-30</LISTED_ON>
+      <COMMENTS1>ADF founder and leader, Jamil Mukulu (CDi.015), was arrested in Dar es Salaam, Tanzania in April 2015. He was subsequently extradited to Kampala, Uganda in July 2015. As of June 2016, Mukulu is reportedly being held in a police detention cell awaiting his trial. Seka Baluku (CDi.036) succeeded Jamil Mukulu (CDi.015) as the overall leader of the ADF. As highlighted in several reports from the Group of Experts on the DRC (S/2015/19, S/2015/797, S/2016/1102, S/2017/672, S/2018/531, S/2019/469, S/2019/974, S/2020/482), the ADF, including under Seka Baluku’s leadership, continued to commit the repeated targeting, killing and maiming, rape and other sexual violence, abduction of civilians, including children, as well as attacks on villages and health facilities, in particular in Mamove, Beni territory, on 12 and 24 February 2019, and Mantumbi, Beni territory, on 5 December 2019 and 30 January 2020, as well as the continuous recruitment and use of children during attacks and for forced labour in Beni territory in the DRC since at least 2015. INTERPOL-UN Security Council Special Notice:https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Entities</COMMENTS1>
+      <HAS_INTERPOL_LINK>YES</HAS_INTERPOL_LINK>
+      <INTERPOL_LINK>https://www.interpol.int/en/How-we-work/Notices/View-UN-Notices-Entities#2015-28326</INTERPOL_LINK>
+      <LIST_TYPE>
+        <VALUE>UN List</VALUE>
+      </LIST_TYPE>
+      <LAST_DAY_UPDATED>
+        <VALUE>2016-10-19</VALUE>
+        <VALUE>2020-08-19</VALUE>
+      </LAST_DAY_UPDATED>
+      <ENTITY_ALIAS>
+        <QUALITY>a.k.a.</QUALITY>
+        <ALIAS_NAME>Allied Democratic Forces</ALIAS_NAME>
+      </ENTITY_ALIAS>
+      <ENTITY_ALIAS>
+        <QUALITY>f.k.a.</QUALITY>
+        <ALIAS_NAME>Forces Démocratiques Alliées-Armée Nationale de Libération de l’Ouganda</ALIAS_NAME>
+      </ENTITY_ALIAS>
+      <ENTITY_ALIAS>
+        <QUALITY>f.k.a.</QUALITY>
+        <ALIAS_NAME>ADF/NALU</ALIAS_NAME>
+      </ENTITY_ALIAS>
+      <ENTITY_ALIAS>
+        <QUALITY>f.k.a.</QUALITY>
+        <ALIAS_NAME>NALU</ALIAS_NAME>
+      </ENTITY_ALIAS>
+      <ENTITY_ADDRESS>
+        <STATE_PROVINCE>North Kivu </STATE_PROVINCE>
+        <COUNTRY>Democratic Republic of the Congo</COUNTRY>
+      </ENTITY_ADDRESS>
+      <SORT_KEY />
+      <SORT_KEY_LAST_MOD />
+    </ENTITY>
+    </ENTITIES></CONSOLIDATED_LIST>
