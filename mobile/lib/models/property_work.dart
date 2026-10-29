@@ -228,3 +228,53 @@ class PropertyOverview {
         .toList(),
   );
 }
+
+/// A property where this account may start a new tenancy, for New check-in's picker.
+/// [rooms] are the last check-in's room names, offered to start with; names only.
+class StartableProperty {
+  const StartableProperty({
+    required this.id,
+    required this.address,
+    required this.propertyType,
+    required this.lastTenant,
+    required this.lastEndDate,
+    this.agencyId,
+    this.agencyName,
+    this.furnishingLevel,
+    this.rooms = const [],
+  });
+  final String id;
+  final String address;
+  final String propertyType;
+  final String lastTenant;
+  final String lastEndDate;
+  final String? agencyId;
+  final String? agencyName;
+  final String? furnishingLevel;
+  final List<String> rooms;
+
+  factory StartableProperty.fromJson(Map<String, dynamic> json) =>
+      StartableProperty(
+        id: json['id'] as String,
+        address: json['address'] as String,
+        propertyType: json['propertyType'] as String,
+        lastTenant: json['lastTenant'] as String,
+        lastEndDate: json['lastEndDate'] as String,
+        agencyId: json['agencyId'] as String?,
+        agencyName: json['agencyName'] as String?,
+        furnishingLevel: json['furnishingLevel'] as String?,
+        rooms: ((json['rooms'] as List<dynamic>?) ?? const []).cast<String>(),
+      );
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'address': address,
+    'propertyType': propertyType,
+    'lastTenant': lastTenant,
+    'lastEndDate': lastEndDate,
+    'agencyId': agencyId,
+    'agencyName': agencyName,
+    'furnishingLevel': furnishingLevel,
+    'rooms': rooms,
+  };
+}

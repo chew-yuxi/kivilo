@@ -57,10 +57,12 @@ export const GET = authed(async (agent, _params, request) => {
 const newInspection = z.object({
   clientId: z.uuid().optional(),
   agencyId: z.string().min(1).optional(),
-  line1: z.string().trim().min(1),
+  /// An existing property: its own address and type are kept, so these may be empty.
+  propertyId: z.string().min(1).optional(),
+  line1: z.string().trim().default(''),
   unit: z.string().trim().nullable().default(null),
-  postalCode: z.string().trim().min(1),
-  propertyType: z.enum(['HDB', 'PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL']),
+  postalCode: z.string().trim().default(''),
+  propertyType: z.enum(['HDB', 'PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL']).default('PRIVATE_NON_LANDED'),
   // Older app builds send only this Boolean. The action maps it onto the new enum.
   fullyFurnished: z.boolean().default(true),
   furnishingLevel: z.enum(['FULLY_FURNISHED', 'PARTIALLY_FURNISHED', 'UNFURNISHED']).optional(),
@@ -73,6 +75,8 @@ const newInspection = z.object({
   monthlyRent: z.string().min(1),
   deposit: z.string().min(1),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
+}).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
+  message: 'Address and postal code are required',
 })
 
 /// Creates the property, both stakeholders, the tenancy and the check-in in one call,

@@ -5,11 +5,12 @@ import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope, tenancyScope } from '@/lib/auth'
+import { requireAgent, requireStakeholder, authorizeInspection, authorizeOwnSignature, authorizeRoom, inspectionScope, managedTenancies, tenancyScope } from '@/lib/auth'
 import { captureExists, createUploadUrl, removePrefix } from '@/lib/storage'
 import { reportPrefix } from '@/lib/report-pdf/model'
 import { annotationInputSchema } from '@/lib/annotations'
 import { templateRows } from '@/lib/room-templates'
+import { createStarterRooms } from '@/lib/starter-rooms'
 import { assertCanAddProperty } from '@/lib/plan'
 import { reportFingerprint } from '@/lib/report-fingerprint'
 import { queueSignatureRequests, queueSignedCopies, queueTenantHandover, signingParties } from '@/lib/report-email'
@@ -136,6 +137,9 @@ export async function createInspection(input: {
   /// Set by the app, so a create whose response was lost returns the same check-in.
   clientId?: string | null
   agencyId?: string
+  /// A property this agent already manages, for a new tenancy there. Its own address
+  /// and type are kept; the address fields sent are ignored.
+  propertyId?: string | null
   line1: string
   unit: string | null
   postalCode: string
@@ -165,7 +169,10 @@ export async function createInspection(input: {
     }
   }
 
-  const required = [input.line1, input.postalCode, input.landlordName, input.tenantName]
+  const required = [
+    ...(input.propertyId ? [] : [input.line1, input.postalCode]),
+    input.landlordName, input.tenantName,
+  ]
   if (required.some((value) => !value.trim())) {
     throw new Error('Address, postal code, landlord, and tenant are all required')
   }
@@ -196,7 +203,21 @@ export async function createInspection(input: {
       await lockAgency(input.agencyId, tx)
       await requireAgencyMembership(input.agencyId, agent.id, tx)
     }
-    await assertCanAddProperty(agent, input.agencyId ?? null, tx)
+    if (input.propertyId) {
+      // Agency, then property, as every action adding to a property locks them. The
+      // property's lifecycle takes an update lock, so it cannot be trashed meanwhile.
+      await tx.$queryRaw`SELECT "id" FROM "Property" WHERE "id" = ${input.propertyId} FOR KEY SHARE`
+      // Managing a tenancy there is what may start another, never an old report grant.
+      const managed = await tx.property.findFirst({
+        where: { id: input.propertyId, trashedAt: null, archivedAt: null, tenancies: { some: managedTenancies(agent.id) } },
+        select: { tenancies: { orderBy: [{ startDate: 'desc' }, { createdAt: 'desc' }], take: 1, select: { agencyId: true } } },
+      })
+      if (!managed) throw new Error('Property not found')
+      if (managed.tenancies[0].agencyId !== (input.agencyId ?? null)) {
+        throw new Error('A new tenancy stays in the property’s workspace')
+      }
+    }
+    await assertCanAddProperty(agent, input.agencyId ?? null, tx, input.propertyId ?? undefined)
     const created = await tx.inspection.create({
     data: {
       clientId: input.clientId || null,
@@ -216,45 +237,23 @@ export async function createInspection(input: {
           // with nested relation creates in the same input.
           agent: { connect: { id: agent.id } },
           ...(input.agencyId && { agency: { connect: { id: input.agencyId } } }),
-          property: {
-            create: {
-              line1: input.line1.trim(),
-              unit: input.unit?.trim() || null,
-              postalCode: input.postalCode.trim(),
-              type: input.propertyType,
+          property: input.propertyId
+            ? { connect: { id: input.propertyId } }
+            : {
+              create: {
+                line1: input.line1.trim(),
+                unit: input.unit?.trim() || null,
+                postalCode: input.postalCode.trim(),
+                type: input.propertyType,
+              },
             },
-          },
           landlord: party(input.landlordName, landlordEmail),
           tenant: party(input.tenantName, tenantEmail),
         },
       },
     },
     })
-    const rooms = (input.rooms ?? []).map((name) => name.trim()).filter(Boolean)
-    if (rooms.length > 0) {
-      const place = await inspectionPlace(tx, created.id)
-      // As addRoom makes each room: its standard rows, one millisecond apart so they
-      // keep the template's order, and a history line per room.
-      const now = Date.now()
-      for (const [order, name] of rooms.entries()) {
-        await tx.room.create({
-          data: {
-            inspectionId: created.id,
-            name,
-            order,
-            items: {
-              create: templateRows(name, furnishingLevel).map((row, index) => ({
-                ...row,
-                condition: 'GOOD',
-                editedByHuman: true,
-                createdAt: new Date(now + index),
-              })),
-            },
-          },
-        })
-        await recordEvent(tx, { ...place, actorId: agent.id, kind: 'ROOM_ADDED', summary: `added the room ${name}` })
-      }
-    }
+    await createStarterRooms(tx, created.id, input.rooms ?? [], furnishingLevel, agent.id)
     return created
   })
 

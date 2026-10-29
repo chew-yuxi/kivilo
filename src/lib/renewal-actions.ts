@@ -6,6 +6,7 @@ import { db } from '@/lib/db'
 import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { assertCanAddProperty } from '@/lib/plan'
+import { createStarterRooms } from '@/lib/starter-rooms'
 
 export async function respondToRenewal(tenancyId: string, choice: 'NOT_RENEWING' | 'DISMISSED' | 'LATER') {
   const agent = await requireAgent()
@@ -32,6 +33,9 @@ const renewalInput = z.object({
   monthlyRent: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
   deposit: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
   keepCollaborators: z.boolean().default(false),
+  /// The rooms the next term's check-in starts with, normally the last check-in's
+  /// names. Names only: the signed report's conditions are never carried forward.
+  rooms: z.array(z.string().trim().min(1).max(80)).max(40).default([]),
 })
 
 /// Reuse the property and the same parties. Confirming a next term creates its own
@@ -89,8 +93,9 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
           })) } : undefined,
         } },
       },
-      select: { id: true },
+      select: { id: true, furnishingLevel: true },
     })
+    await createStarterRooms(tx, renewal.id, input.rooms, renewal.furnishingLevel, agent.id)
     return renewal.id
   })
   revalidatePath('/inspections')

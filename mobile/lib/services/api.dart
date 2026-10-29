@@ -1025,6 +1025,14 @@ class Api {
     return RoomDetail.fromJson(data as Map<String, dynamic>);
   }
 
+  Future<List<StartableProperty>> startableProperties() async {
+    const route = '/api/v1/properties/startable';
+    final data = await _read(route, route);
+    return (data as List<dynamic>)
+        .map((json) => StartableProperty.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<String> createInspection(Map<String, dynamic> body) => _call(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/inspections',

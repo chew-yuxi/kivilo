@@ -9,13 +9,16 @@ vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 vi.mock('next/headers', () => ({ headers: async () => new Headers() }))
 vi.mock('@/lib/auth', async (importActual) => {
   const actual = await importActual<typeof import('@/lib/auth')>()
-  return { ...actual, requireAgent: vi.fn() }
+  return { ...actual, requireAgent: vi.fn(), currentStakeholder: vi.fn() }
 })
 
 import { db } from '@/lib/db'
-import { requireAgent } from '@/lib/auth'
+import { currentStakeholder, requireAgent } from '@/lib/auth'
 import { createInspection } from '@/lib/actions'
+import { createRenewal } from '@/lib/renewal-actions'
+import { startableProperties } from '@/lib/property-work'
 import { templateRows } from '@/lib/room-templates'
+import * as renewalRoute from '@/app/api/v1/renewals/[tenancyId]/route'
 
 const postalCode = '993344'
 const people: string[] = []
@@ -28,7 +31,7 @@ async function agent(name: string) {
   return person
 }
 
-function create(by: { id: string }, extra: { clientId?: string; rooms?: string[] }) {
+function create(by: { id: string }, extra: { clientId?: string; rooms?: string[]; propertyId?: string; agencyId?: string } = {}) {
   vi.mocked(requireAgent).mockResolvedValueOnce(by as never)
   return createInspection({
     line1: 'Setup Road', unit: '#04-11', postalCode, propertyType: 'HDB', furnishingLevel: 'PARTIALLY_FURNISHED',
@@ -78,5 +81,63 @@ describe('check-in setup', () => {
   it('still creates a check-in with no rooms, as older app builds send', async () => {
     const id = await create(await agent('Agent SETUP-NONE'), {})
     expect(await db.room.count({ where: { inspectionId: id } })).toBe(0)
+  })
+
+  it('starts a new tenancy at a property its lead or team manager manages, and nobody else', async () => {
+    const lead = await agent('Lead SETUP-EXISTING')
+    const manager = await agent('Manager SETUP-EXISTING')
+    const colleague = await agent('Colleague SETUP-EXISTING')
+    const viewer = await agent('Viewer SETUP-EXISTING')
+    const agency = await db.agency.create({ data: { name: 'SETUP-EXISTING team' } })
+    await db.agencyMembership.createMany({ data: [
+      { agencyId: agency.id, stakeholderId: lead.id, role: 'AGENT', status: 'ACTIVE' },
+      { agencyId: agency.id, stakeholderId: manager.id, role: 'MANAGER', status: 'ACTIVE' },
+      { agencyId: agency.id, stakeholderId: colleague.id, role: 'AGENT', status: 'ACTIVE' },
+    ] })
+    const first = await create(lead, { agencyId: agency.id, rooms: ['Kitchen', 'Bedroom'] })
+    const { tenancy } = await db.inspection.findUniqueOrThrow({ where: { id: first }, include: { tenancy: true } })
+    await db.tenancyCollaborator.create({ data: { tenancyId: tenancy.id, stakeholderId: colleague.id } })
+    await db.inspectionAccessGrant.create({ data: { inspectionId: first, stakeholderId: viewer.id } })
+
+    for (const person of [lead, manager]) {
+      expect((await startableProperties(person.id)).filter((row) => row.id === tenancy.propertyId)).toEqual([
+        expect.objectContaining({ agencyId: agency.id, rooms: ['Kitchen', 'Bedroom'], furnishingLevel: 'PARTIALLY_FURNISHED' }),
+      ])
+    }
+    // A full collaborator in the team, and an old-report grant outside it, manage nothing.
+    for (const [person, agencyId] of [[colleague, agency.id], [viewer, undefined]] as const) {
+      expect((await startableProperties(person.id)).map((row) => row.id)).not.toContain(tenancy.propertyId)
+      await expect(create(person, { propertyId: tenancy.propertyId, agencyId })).rejects.toThrow('Property not found')
+    }
+    // It stays in its team's workspace.
+    await expect(create(manager, { propertyId: tenancy.propertyId })).rejects.toThrow('workspace')
+
+    const next = await create(manager, { propertyId: tenancy.propertyId, agencyId: agency.id, rooms: ['Kitchen'] })
+    const created = await db.inspection.findUniqueOrThrow({ where: { id: next }, include: { tenancy: { include: { property: true } } } })
+    expect(created.tenancy.propertyId).toBe(tenancy.propertyId)
+    expect(created.tenancy.property).toMatchObject({ line1: 'Setup Road', unit: '#04-11' })
+    expect(await db.property.count({ where: { postalCode, id: tenancy.propertyId } })).toBe(1)
+
+    await db.property.update({ where: { id: tenancy.propertyId }, data: { archivedAt: new Date() } })
+    await expect(create(manager, { propertyId: tenancy.propertyId, agencyId: agency.id })).rejects.toThrow('Property not found')
+    expect((await startableProperties(manager.id)).map((row) => row.id)).not.toContain(tenancy.propertyId)
+  })
+
+  it('offers a renewal the last check-in\'s room names and starts it with those chosen', async () => {
+    const by = await agent('Agent SETUP-RENEW')
+    const first = await create(by, { rooms: ['Living room', 'Kitchen', 'Bedroom'] })
+    const { tenancy } = await db.inspection.findUniqueOrThrow({ where: { id: first }, include: { tenancy: true } })
+    vi.mocked(currentStakeholder).mockResolvedValue(by as never)
+    const offered = await renewalRoute.GET(new Request('http://test/'), { params: Promise.resolve({ tenancyId: tenancy.id }) })
+    expect((await offered.json()).rooms).toEqual(['Living room', 'Kitchen', 'Bedroom'])
+
+    vi.mocked(requireAgent).mockResolvedValue(by as never)
+    const renewal = await createRenewal(tenancy.id, {
+      startDate: '2028-11-01', endDate: '2030-10-31', monthlyRent: '3200', deposit: '6400', rooms: ['Living room', 'Kitchen'],
+    })
+    const rooms = await db.room.findMany({ where: { inspectionId: renewal }, orderBy: { order: 'asc' }, include: { items: true } })
+    expect(rooms.map((room) => room.name)).toEqual(['Living room', 'Kitchen'])
+    // Names only: a fresh room's standard lines, nothing from the earlier report.
+    expect(rooms.every((room) => room.items.every((item) => item.condition === 'GOOD'))).toBe(true)
   })
 })

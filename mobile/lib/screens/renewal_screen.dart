@@ -24,6 +24,11 @@ class _RenewalScreenState extends State<RenewalScreen> {
   DateTime? _earliestStart;
   bool _busy = false;
   bool _keepCollaborators = false;
+
+  /// The last check-in's room names, which the next term's check-in starts with
+  /// unless the agent unticks them or removes one.
+  final _rooms = <String>[];
+  bool _useRooms = true;
   String? _error;
   late Future<Map<String, dynamic>> _future = _load();
 
@@ -39,6 +44,9 @@ class _RenewalScreenState extends State<RenewalScreen> {
     _end = DateTime(_start!.year + 2, _start!.month, _start!.day - 1);
     _rent.text = data['monthlyRent'] as String;
     _deposit.text = data['deposit'] as String;
+    _rooms
+      ..clear()
+      ..addAll(((data['rooms'] as List<dynamic>?) ?? const []).cast<String>());
     return data;
   }
 
@@ -82,6 +90,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
         'monthlyRent': _rent.text.trim(),
         'deposit': _deposit.text.trim(),
         'keepCollaborators': _keepCollaborators,
+        if (_useRooms) 'rooms': _rooms,
       });
       if (mounted) Navigator.pop(context, id);
     } catch (error) {
@@ -161,6 +170,38 @@ class _RenewalScreenState extends State<RenewalScreen> {
                   const Text(
                     'Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.',
                   ),
+                  if (_rooms.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      value: _useRooms,
+                      onChanged: _busy
+                          ? null
+                          : (value) => setState(() => _useRooms = value!),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      title: const Text(
+                        'Start with the rooms from the last check-in',
+                      ),
+                      subtitle: const Text(
+                        'Names only; the new check-in records its own condition.',
+                      ),
+                    ),
+                    if (_useRooms)
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final (index, name) in _rooms.indexed)
+                            InputChip(
+                              label: Text(name),
+                              deleteIcon: const Icon(Icons.close, size: 18),
+                              onDeleted: _busy
+                                  ? null
+                                  : () => setState(() => _rooms.removeAt(index)),
+                            ),
+                        ],
+                      ),
+                  ],
                   if (collaborators.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     CheckboxListTile(

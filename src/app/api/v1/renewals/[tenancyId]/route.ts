@@ -4,6 +4,8 @@ import { createRenewal, respondToRenewal } from '@/lib/renewal-actions'
 import { authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
 import { tenancyAccess } from '@/lib/tenancy-access'
 import { propertyLabel } from '@/lib/format'
+import { db } from '@/lib/db'
+import { previousRoomNames } from '@/lib/starter-rooms'
 
 export const GET = authed<{ tenancyId: string }>(async (agent, { tenancyId }) => {
   await authorizeLeadTenancy(tenancyId, agent.id)
@@ -17,6 +19,8 @@ export const GET = authed<{ tenancyId: string }>(async (agent, { tenancyId }) =>
     monthlyRent: tenancy.monthlyRent.toString(),
     deposit: tenancy.deposit.toString(),
     collaborators: access.collaborators.map(({ stakeholderId, name, email }) => ({ stakeholderId, name, email })),
+    /// Offered for the next term's check-in; the agent chooses which to keep.
+    rooms: (await previousRoomNames(db, [tenancy.propertyId])).get(tenancy.propertyId) ?? [],
   }
 })
 

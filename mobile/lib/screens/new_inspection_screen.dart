@@ -6,6 +6,8 @@ import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
 import '../models/agency.dart';
+import '../models/property_work.dart';
+import 'property_picker_screen.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
@@ -45,6 +47,18 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     'Utility room': false,
   };
   final _custom = <String>[];
+
+  /// A property this account already manages, when the check-in is for a new tenancy
+  /// there. Its address and workspace are its own.
+  bool _choosingExisting = false;
+  StartableProperty? _existing;
+
+  /// The last check-in's room names at [_existing], offered and removable one by one.
+  final _previousRooms = <String>[];
+  bool _usePreviousRooms = true;
+
+  bool get _previousMode =>
+      _existing != null && _existing!.rooms.isNotEmpty && _usePreviousRooms;
   final _customRoom = TextEditingController();
   int _draftRevision = 0;
   Future<void> _pendingDraftWrite = Future.value();
@@ -53,7 +67,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
 
   /// The rooms the check-in starts with, in walking order. Each gets the standard
   /// editable lines for its name and the furnishing level, as a room added later does.
-  List<String> get _rooms => [
+  List<String> get _rooms => _previousMode
+      ? [..._previousRooms, ..._custom]
+      : [
     for (final name in ['Living room', 'Dining area', 'Kitchen'])
       if (_extras[name]!) name,
     for (var i = 1; i <= _bedrooms; i++)
@@ -64,6 +80,23 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       if (_extras[name]!) name,
     ..._custom,
   ];
+
+  Future<void> _chooseExisting() async {
+    final chosen = await Navigator.push<StartableProperty>(
+      context,
+      MaterialPageRoute(builder: (_) => PropertyPickerScreen(api: _api)),
+    );
+    if (chosen == null || !mounted) return;
+    _change(() {
+      _existing = chosen;
+      _previousRooms
+        ..clear()
+        ..addAll(chosen.rooms);
+      _usePreviousRooms = true;
+      _furnishingLevel ??= chosen.furnishingLevel;
+      _error = null;
+    });
+  }
   final _fields = <String, TextEditingController>{
     for (final name in [
       'line1',
@@ -135,6 +168,15 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       _custom
         ..clear()
         ..addAll(((draft['custom'] as List?) ?? const []).cast<String>());
+      _choosingExisting = draft['choosingExisting'] as bool? ?? false;
+      final existing = draft['existing'];
+      _existing = existing is Map
+          ? StartableProperty.fromJson(existing.cast<String, dynamic>())
+          : null;
+      _previousRooms
+        ..clear()
+        ..addAll(((draft['previousRooms'] as List?) ?? const []).cast<String>());
+      _usePreviousRooms = draft['usePreviousRooms'] as bool? ?? true;
     });
   }
 
@@ -153,6 +195,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       'bathrooms': _bathrooms,
       'extras': {..._extras},
       'custom': [..._custom],
+      'choosingExisting': _choosingExisting,
+      'existing': _existing?.toJson(),
+      'previousRooms': [..._previousRooms],
+      'usePreviousRooms': _usePreviousRooms,
     };
     // Each write waits for the one before, so an older copy never replaces a newer one.
     _pendingDraftWrite = _pendingDraftWrite.then((_) async {
@@ -259,6 +305,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   Future<void> _create() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!_form.currentState!.validate()) return;
+    if (_choosingExisting && _existing == null) {
+      setState(
+        () => _error = 'Choose the property, or switch to New property.',
+      );
+      return;
+    }
     if (_furnishingLevel == null) {
       setState(
         () => _error = 'Choose the property furnishing level.',
@@ -276,11 +328,17 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     try {
       String value(String key) => _fields[key]!.text.trim();
       final id = await _api.createInspection({
-        'agencyId': ?_agency?.id,
-        'line1': value('line1'),
-        'unit': value('unit').isEmpty ? null : value('unit'),
-        'postalCode': value('postalCode'),
-        'propertyType': _propertyType,
+        if (_existing case final property?) ...{
+          // The property keeps its own address, type and workspace.
+          'propertyId': property.id,
+          'agencyId': ?property.agencyId,
+        } else ...{
+          'agencyId': ?_agency?.id,
+          'line1': value('line1'),
+          'unit': value('unit').isEmpty ? null : value('unit'),
+          'postalCode': value('postalCode'),
+          'propertyType': _propertyType,
+        },
         'furnishingLevel': _furnishingLevel,
         'landlordName': value('landlordName'),
         'landlordEmail': value('landlordEmail').isEmpty
@@ -364,12 +422,16 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 20),
           OutlinedButton(
-            onPressed: _busy ? null : _chooseWorkspace,
-            child: Text('Workspace: ${_agency?.name ?? 'Personal'}'),
+            onPressed: _busy || _existing != null ? null : _chooseWorkspace,
+            child: Text(
+              'Workspace: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
+            ),
           ),
           const SizedBox(height: 8),
           Text(
-            _agency == null
+            _existing != null
+                ? 'A new tenancy stays in the property’s workspace.'
+                : _agency == null
                 ? 'Private to you until you share it.'
                 : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
           ),
@@ -379,49 +441,91 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             subtitle: 'Where the handover takes place',
           ),
           const SizedBox(height: kiviloHeadingGap),
-          _textField('line1', 'Address', required: true),
-          const SizedBox(height: 12),
-          _textField('unit', 'Unit'),
-          const SizedBox(height: 12),
-          _textField(
-            'postalCode',
-            'Postal code',
-            required: true,
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 12),
-          KiviloSelectField<String>(
-            label: 'Property type (required)',
-            sheetTitle: 'Choose a property type',
-            value: _propertyType,
+          KiviloSegmentedControl<bool>(
+            value: _choosingExisting,
             options: const [
-              KiviloSelectOption(
-                value: 'PRIVATE_NON_LANDED',
-                label: 'Private, non-landed',
-                description: 'Condominium or private apartment',
-                icon: Icons.apartment_rounded,
-              ),
-              KiviloSelectOption(
-                value: 'HDB',
-                label: 'HDB',
-                description: 'Public housing flat',
-                icon: Icons.location_city_rounded,
-              ),
-              KiviloSelectOption(
-                value: 'LANDED',
-                label: 'Landed',
-                description: 'Terrace, semi-detached or detached home',
-                icon: Icons.home_rounded,
-              ),
-              KiviloSelectOption(
-                value: 'COMMERCIAL',
-                label: 'Commercial',
-                description: 'Office, retail or other business premises',
-                icon: Icons.store_rounded,
-              ),
+              KiviloSegmentOption(value: false, label: 'New property'),
+              KiviloSegmentOption(value: true, label: 'Existing property'),
             ],
-            onChanged: (value) => _change(() => _propertyType = value),
+            onChanged: _busy
+                ? null
+                : (value) {
+                    _change(() {
+                      _choosingExisting = value!;
+                      if (!value) _existing = null;
+                    });
+                    if (value! && _existing == null) {
+                      unawaited(_chooseExisting());
+                    }
+                  },
           ),
+          const SizedBox(height: 12),
+          if (_choosingExisting) ...[
+            if (_existing case final property?)
+              Card(
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  title: Text(property.address),
+                  subtitle: Text('Last tenant: ${property.lastTenant}'),
+                  trailing: TextButton(
+                    onPressed: _busy ? null : _chooseExisting,
+                    child: const Text('Change'),
+                  ),
+                ),
+              )
+            else
+              OutlinedButton(
+                onPressed: _busy ? null : _chooseExisting,
+                child: const Text('Choose a property'),
+              ),
+          ] else ...[
+            _textField('line1', 'Address', required: true),
+            const SizedBox(height: 12),
+            _textField('unit', 'Unit'),
+            const SizedBox(height: 12),
+            _textField(
+              'postalCode',
+              'Postal code',
+              required: true,
+              keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 12),
+            KiviloSelectField<String>(
+              label: 'Property type (required)',
+              sheetTitle: 'Choose a property type',
+              value: _propertyType,
+              options: const [
+                KiviloSelectOption(
+                  value: 'PRIVATE_NON_LANDED',
+                  label: 'Private, non-landed',
+                  description: 'Condominium or private apartment',
+                  icon: Icons.apartment_rounded,
+                ),
+                KiviloSelectOption(
+                  value: 'HDB',
+                  label: 'HDB',
+                  description: 'Public housing flat',
+                  icon: Icons.location_city_rounded,
+                ),
+                KiviloSelectOption(
+                  value: 'LANDED',
+                  label: 'Landed',
+                  description: 'Terrace, semi-detached or detached home',
+                  icon: Icons.home_rounded,
+                ),
+                KiviloSelectOption(
+                  value: 'COMMERCIAL',
+                  label: 'Commercial',
+                  description: 'Office, retail or other business premises',
+                  icon: Icons.store_rounded,
+                ),
+              ],
+              onChanged: (value) => _change(() => _propertyType = value),
+            ),
+          ],
           const SizedBox(height: 20),
           Text(
             'Furnishing (required)',
@@ -562,41 +666,55 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         subtitle: 'Each starts with standard lines you can edit',
       ),
       const SizedBox(height: kiviloHeadingGap),
-      Text('Bedrooms', style: text.bodySmall),
-      const SizedBox(height: 6),
-      KiviloSegmentedControl<int>(
-        value: _bedrooms,
-        options: [
-          for (var count = 0; count <= 5; count++)
-            KiviloSegmentOption(value: count, label: '$count'),
-        ],
-        onChanged: _busy
-            ? null
-            : (value) => _change(() => _bedrooms = value!),
-      ),
-      const SizedBox(height: 12),
-      Text('Bathrooms', style: text.bodySmall),
-      const SizedBox(height: 6),
-      KiviloSegmentedControl<int>(
-        value: _bathrooms,
-        options: [
-          for (var count = 1; count <= 4; count++)
-            KiviloSegmentOption(value: count, label: '$count'),
-        ],
-        onChanged: _busy
-            ? null
-            : (value) => _change(() => _bathrooms = value!),
-      ),
-      const SizedBox(height: 8),
-      for (final name in _extras.keys)
+      if (_existing?.rooms.isNotEmpty == true)
         CheckboxListTile(
-          value: _extras[name],
-          title: Text(name),
+          value: _usePreviousRooms,
+          title: const Text('Start with the rooms from the last check-in'),
+          subtitle: const Text(
+            'Names only; this check-in records its own condition',
+          ),
           contentPadding: EdgeInsets.zero,
           onChanged: _busy
               ? null
-              : (value) => _change(() => _extras[name] = value!),
+              : (value) => _change(() => _usePreviousRooms = value!),
         ),
+      if (!_previousMode) ...[
+        Text('Bedrooms', style: text.bodySmall),
+        const SizedBox(height: 6),
+        KiviloSegmentedControl<int>(
+          value: _bedrooms,
+          options: [
+            for (var count = 0; count <= 5; count++)
+              KiviloSegmentOption(value: count, label: '$count'),
+          ],
+          onChanged: _busy
+              ? null
+              : (value) => _change(() => _bedrooms = value!),
+        ),
+        const SizedBox(height: 12),
+        Text('Bathrooms', style: text.bodySmall),
+        const SizedBox(height: 6),
+        KiviloSegmentedControl<int>(
+          value: _bathrooms,
+          options: [
+            for (var count = 1; count <= 4; count++)
+              KiviloSegmentOption(value: count, label: '$count'),
+          ],
+          onChanged: _busy
+              ? null
+              : (value) => _change(() => _bathrooms = value!),
+        ),
+        const SizedBox(height: 8),
+        for (final name in _extras.keys)
+          CheckboxListTile(
+            value: _extras[name],
+            title: Text(name),
+            contentPadding: EdgeInsets.zero,
+            onChanged: _busy
+                ? null
+                : (value) => _change(() => _extras[name] = value!),
+          ),
+      ],
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -637,7 +755,15 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           runSpacing: 8,
           children: [
             for (final (index, name) in rooms.indexed)
-              index >= rooms.length - _custom.length
+              _previousMode && index < _previousRooms.length
+                  ? InputChip(
+                      label: Text(name),
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                      onDeleted: _busy
+                          ? null
+                          : () => _change(() => _previousRooms.removeAt(index)),
+                    )
+                  : index >= rooms.length - _custom.length
                   ? InputChip(
                       label: Text(name),
                       deleteIcon: const Icon(Icons.close, size: 18),

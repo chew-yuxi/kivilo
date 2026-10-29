@@ -5,6 +5,7 @@ import { listTenancies } from '@/lib/maintenance'
 import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
 import { createDownloadUrl } from '@/lib/storage'
+import { previousRoomNames } from '@/lib/starter-rooms'
 import { Prisma, type InspectionStatus } from '@/generated/prisma'
 
 /// Where a property is, read from the newest tenancy the viewer can see. A renewal is a
@@ -264,6 +265,49 @@ async function cardDetails(actorId: string, rows: WorkRow[]) {
     pendingUpdates: new Map(updates.map((row) => [row.inspectionId, row._count._all])),
     depositAnswers,
   }
+}
+
+/// Properties where this account may start a new tenancy: those whose tenancies it
+/// manages (the lead, or an agency owner or manager), never through an old report
+/// grant, and not archived or recently deleted. `createInspection` rechecks the same
+/// rule under the property lock; this list is only what the picker offers.
+export async function startableProperties(actorId: string) {
+  const properties = await db.property.findMany({
+    where: { trashedAt: null, archivedAt: null, tenancies: { some: managedTenancies(actorId) } },
+    select: {
+      id: true, line1: true, unit: true, postalCode: true, type: true,
+      tenancies: {
+        orderBy: [{ startDate: 'desc' }, { createdAt: 'desc' }],
+        take: 1,
+        select: {
+          endDate: true,
+          tenant: { select: { name: true } },
+          agency: { select: { id: true, name: true } },
+          inspections: {
+            where: { kind: 'CHECK_IN' },
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+            select: { furnishingLevel: true },
+          },
+        },
+      },
+    },
+  })
+  const rooms = await previousRoomNames(db, properties.map((property) => property.id))
+  return properties.map((property) => {
+    const latest = property.tenancies[0]
+    return {
+      id: property.id,
+      address: propertyLabel(property),
+      propertyType: property.type,
+      agencyId: latest.agency?.id ?? null,
+      agencyName: latest.agency?.name ?? null,
+      lastTenant: latest.tenant.name,
+      lastEndDate: latest.endDate.toISOString().slice(0, 10),
+      furnishingLevel: latest.inspections[0]?.furnishingLevel ?? null,
+      rooms: rooms.get(property.id) ?? [],
+    }
+  }).sort((a, b) => a.address.localeCompare(b.address))
 }
 
 /// Everything at one address the viewer works: every term, newest first, with the
