@@ -75,6 +75,8 @@ model Stakeholder {
   subscriptionsManaged        Subscription[]              @relation("ManagedSubscriptions")
   googlePlayBillingAccounts   GooglePlayBillingAccount[]
   appleBillingAccounts        AppleBillingAccount[]
+  cddCasesAsAgent             CddCase[]                   @relation("CddCaseAgent")
+  cddCasesAsClient            CddCase[]                   @relation("CddCaseClient")
 
   @@index([name])
   @@index([teamId])
@@ -142,6 +144,7 @@ model Agency {
   branding          AgencyBranding?
   subscription      Subscription?
   reportInspections Inspection[]       @relation("InspectionReportAgency")
+  cddCases          CddCase[]
 }
 
 /// The shared identity on reports prepared in this operational team's workspace.
@@ -350,6 +353,7 @@ model Property {
   assets    PropertyAsset[]
   events    PropertyEvent[]
   bin       BinItem[]
+  cddCases  CddCase[]
 
   @@index([postalCode])
 }
@@ -448,6 +452,7 @@ model Tenancy {
   supportingDocumentRequests SupportingDocumentRequest[]
   renewedFrom                Tenancy?                    @relation("TenancyRenewal", fields: [renewedFromId], references: [id], onDelete: SetNull)
   renewedAs                  Tenancy?                    @relation("TenancyRenewal")
+  cddCases                   CddCase[]
 
   @@index([propertyId])
   @@index([agencyId])
@@ -1595,4 +1600,208 @@ model AssessmentResponse {
 enum StatementAnswer {
   AGREED
   DISPUTED
+}
+
+// ---------------------------------------------------------------------------------------
+// Compliance pack: CEA customer due diligence for rental deals (plans/compliance-pack.md).
+// Records are kept five years after the relationship ends and survive account deletion,
+// which anonymises the Stakeholder but never touches these rows.
+
+enum CddStatus {
+  WAITING_FOR_CLIENT
+  NEEDS_REVIEW
+  COMPLETE
+  ESCALATED
+}
+
+enum CddClientRole {
+  LANDLORD
+  TENANT
+}
+
+enum CddIdType {
+  NRIC
+  FIN
+  PASSPORT
+  COMPANY_REGISTRATION
+}
+
+enum CddRiskLevel {
+  STANDARD
+  HIGHER
+}
+
+enum ScreeningDecision {
+  NOT_A_MATCH
+  CONFIRMED_MATCH
+}
+
+enum SanctionsSource {
+  UN
+  SG
+}
+
+/// One client's due diligence for one deal. Starts before any tenancy exists ("Start a
+/// deal"), and is linked to the tenancy once the check-in creates it.
+model CddCase {
+  id          String        @id @default(cuid())
+  agentId     String
+  clientId    String
+  clientRole  CddClientRole
+  propertyId  String?
+  tenancyId   String?
+  agencyId    String?
+  country     String        @default("SG")
+  status      CddStatus     @default(WAITING_FOR_CLIENT)
+  riskLevel   CddRiskLevel?
+  /// Bumped when a completed case is reopened; earlier versions stay in CddEvent.
+  version     Int           @default(1)
+  /// SHA-256 over the completed record, like a signature's content fingerprint.
+  contentHash String?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  agent    Stakeholder @relation("CddCaseAgent", fields: [agentId], references: [id], onDelete: Restrict)
+  client   Stakeholder @relation("CddCaseClient", fields: [clientId], references: [id], onDelete: Restrict)
+  property Property?   @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  tenancy  Tenancy?    @relation(fields: [tenancyId], references: [id], onDelete: SetNull)
+  agency   Agency?     @relation(fields: [agencyId], references: [id], onDelete: SetNull)
+
+  particulars      CddParticulars?
+  beneficialOwners CddBeneficialOwner[]
+  screeningRuns    ScreeningRun[]
+  riskAssessment   CddRiskAssessment?
+  events           CddEvent[]
+
+  @@index([agentId])
+  @@index([clientId])
+  @@index([tenancyId])
+  @@index([agencyId])
+}
+
+/// What the client gave, as on their ID. The ID number is encrypted in the application
+/// (src/lib/cdd/crypto.ts) and only ever shown masked.
+model CddParticulars {
+  caseId            String          @id
+  kind              StakeholderKind
+  legalName         String
+  idType            CddIdType
+  idNumberEncrypted String
+  idNumberLast4     String
+  nationality       String
+  dateOfBirth       DateTime?       @db.Date
+  address           String
+  pepDeclared       Boolean
+  pepDetails        String?
+  submittedById     String
+  submittedInPerson Boolean
+  /// The agent's attestation that they saw the ID, in person or by video call.
+  idSightedById     String?
+  idSightedAt       DateTime?
+  submittedAt       DateTime        @default(now())
+
+  case CddCase @relation(fields: [caseId], references: [id], onDelete: Restrict)
+}
+
+/// A person owning or controlling a company client, screened like a client.
+model CddBeneficialOwner {
+  id                String    @id @default(cuid())
+  caseId            String
+  legalName         String
+  idType            CddIdType
+  idNumberEncrypted String
+  idNumberLast4     String
+  nationality       String
+  dateOfBirth       DateTime? @db.Date
+  ownershipPercent  Decimal?  @db.Decimal(5, 2)
+  pepDeclared       Boolean
+  createdAt         DateTime  @default(now())
+
+  case          CddCase        @relation(fields: [caseId], references: [id], onDelete: Restrict)
+  screeningRuns ScreeningRun[]
+
+  @@index([caseId])
+}
+
+/// One check of one person against the lists in force at that moment.
+model ScreeningRun {
+  id                String   @id @default(cuid())
+  caseId            String
+  beneficialOwnerId String?
+  subjectName       String
+  subjectBirthYear  Int?
+  provider          String
+  /// The source, publication date and checksum of every list checked.
+  listVersions      Json
+  ranAt             DateTime @default(now())
+
+  case            CddCase              @relation(fields: [caseId], references: [id], onDelete: Restrict)
+  beneficialOwner CddBeneficialOwner?  @relation(fields: [beneficialOwnerId], references: [id], onDelete: Restrict)
+  candidates      ScreeningCandidate[]
+
+  @@index([caseId])
+}
+
+/// A listed person close enough for the agent to decide on. Never edited after a decision.
+model ScreeningCandidate {
+  id          String             @id @default(cuid())
+  runId       String
+  source      SanctionsSource
+  reference   String
+  matchedName String
+  score       Float
+  details     Json
+  decision    ScreeningDecision?
+  reason      String?
+  decidedById String?
+  decidedAt   DateTime?
+
+  run ScreeningRun @relation(fields: [runId], references: [id], onDelete: Restrict)
+
+  @@index([runId])
+}
+
+model CddRiskAssessment {
+  caseId           String       @id
+  checklistVersion String
+  answers          Json
+  level            CddRiskLevel
+  assessedById     String
+  assessedAt       DateTime     @default(now())
+  /// Higher risk needs an agency owner's or manager's approval.
+  approvedById     String?
+  approvedAt       DateTime?
+
+  case CddCase @relation(fields: [caseId], references: [id], onDelete: Restrict)
+}
+
+/// Append-only audit trail. Actor ids are kept without a foreign key so the trail
+/// outlives anything it mentions.
+model CddEvent {
+  id        String   @id @default(cuid())
+  caseId    String
+  actorId   String?
+  kind      String
+  detail    Json?
+  createdAt DateTime @default(now())
+
+  case CddCase @relation(fields: [caseId], references: [id], onDelete: Restrict)
+
+  @@index([caseId, createdAt])
+}
+
+/// Each version of a sanctions list as loaded, parsed and checked. Screening reads the
+/// newest per source; older versions stay so a past check can say exactly what it used.
+model SanctionsList {
+  id          String          @id @default(cuid())
+  source      SanctionsSource
+  publishedAt String?
+  checksum    String
+  entryCount  Int
+  entries     Json
+  fetchedAt   DateTime        @default(now())
+
+  @@unique([source, checksum])
+  @@index([source, fetchedAt])
 }

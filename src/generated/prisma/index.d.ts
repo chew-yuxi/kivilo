@@ -346,6 +346,50 @@ export type IssuedReportFile = $Result.DefaultSelection<Prisma.$IssuedReportFile
  * ones stay against the old hash (`src/lib/statement-actions.ts`).
  */
 export type AssessmentResponse = $Result.DefaultSelection<Prisma.$AssessmentResponsePayload>
+/**
+ * Model CddCase
+ * One client's due diligence for one deal. Starts before any tenancy exists ("Start a
+ * deal"), and is linked to the tenancy once the check-in creates it.
+ */
+export type CddCase = $Result.DefaultSelection<Prisma.$CddCasePayload>
+/**
+ * Model CddParticulars
+ * What the client gave, as on their ID. The ID number is encrypted in the application
+ * (src/lib/cdd/crypto.ts) and only ever shown masked.
+ */
+export type CddParticulars = $Result.DefaultSelection<Prisma.$CddParticularsPayload>
+/**
+ * Model CddBeneficialOwner
+ * A person owning or controlling a company client, screened like a client.
+ */
+export type CddBeneficialOwner = $Result.DefaultSelection<Prisma.$CddBeneficialOwnerPayload>
+/**
+ * Model ScreeningRun
+ * One check of one person against the lists in force at that moment.
+ */
+export type ScreeningRun = $Result.DefaultSelection<Prisma.$ScreeningRunPayload>
+/**
+ * Model ScreeningCandidate
+ * A listed person close enough for the agent to decide on. Never edited after a decision.
+ */
+export type ScreeningCandidate = $Result.DefaultSelection<Prisma.$ScreeningCandidatePayload>
+/**
+ * Model CddRiskAssessment
+ * 
+ */
+export type CddRiskAssessment = $Result.DefaultSelection<Prisma.$CddRiskAssessmentPayload>
+/**
+ * Model CddEvent
+ * Append-only audit trail. Actor ids are kept without a foreign key so the trail
+ * outlives anything it mentions.
+ */
+export type CddEvent = $Result.DefaultSelection<Prisma.$CddEventPayload>
+/**
+ * Model SanctionsList
+ * Each version of a sanctions list as loaded, parsed and checked. Screening reads the
+ * newest per source; older versions stay so a past check can say exactly what it used.
+ */
+export type SanctionsList = $Result.DefaultSelection<Prisma.$SanctionsListPayload>
 
 /**
  * Enums
@@ -717,6 +761,58 @@ export const StatementAnswer: {
 
 export type StatementAnswer = (typeof StatementAnswer)[keyof typeof StatementAnswer]
 
+
+export const CddStatus: {
+  WAITING_FOR_CLIENT: 'WAITING_FOR_CLIENT',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  COMPLETE: 'COMPLETE',
+  ESCALATED: 'ESCALATED'
+};
+
+export type CddStatus = (typeof CddStatus)[keyof typeof CddStatus]
+
+
+export const CddClientRole: {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT'
+};
+
+export type CddClientRole = (typeof CddClientRole)[keyof typeof CddClientRole]
+
+
+export const CddIdType: {
+  NRIC: 'NRIC',
+  FIN: 'FIN',
+  PASSPORT: 'PASSPORT',
+  COMPANY_REGISTRATION: 'COMPANY_REGISTRATION'
+};
+
+export type CddIdType = (typeof CddIdType)[keyof typeof CddIdType]
+
+
+export const CddRiskLevel: {
+  STANDARD: 'STANDARD',
+  HIGHER: 'HIGHER'
+};
+
+export type CddRiskLevel = (typeof CddRiskLevel)[keyof typeof CddRiskLevel]
+
+
+export const ScreeningDecision: {
+  NOT_A_MATCH: 'NOT_A_MATCH',
+  CONFIRMED_MATCH: 'CONFIRMED_MATCH'
+};
+
+export type ScreeningDecision = (typeof ScreeningDecision)[keyof typeof ScreeningDecision]
+
+
+export const SanctionsSource: {
+  UN: 'UN',
+  SG: 'SG'
+};
+
+export type SanctionsSource = (typeof SanctionsSource)[keyof typeof SanctionsSource]
+
 }
 
 export type StakeholderKind = $Enums.StakeholderKind
@@ -866,6 +962,30 @@ export const ProductEventSource: typeof $Enums.ProductEventSource
 export type StatementAnswer = $Enums.StatementAnswer
 
 export const StatementAnswer: typeof $Enums.StatementAnswer
+
+export type CddStatus = $Enums.CddStatus
+
+export const CddStatus: typeof $Enums.CddStatus
+
+export type CddClientRole = $Enums.CddClientRole
+
+export const CddClientRole: typeof $Enums.CddClientRole
+
+export type CddIdType = $Enums.CddIdType
+
+export const CddIdType: typeof $Enums.CddIdType
+
+export type CddRiskLevel = $Enums.CddRiskLevel
+
+export const CddRiskLevel: typeof $Enums.CddRiskLevel
+
+export type ScreeningDecision = $Enums.ScreeningDecision
+
+export const ScreeningDecision: typeof $Enums.ScreeningDecision
+
+export type SanctionsSource = $Enums.SanctionsSource
+
+export const SanctionsSource: typeof $Enums.SanctionsSource
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1537,6 +1657,86 @@ export class PrismaClient<
     * ```
     */
   get assessmentResponse(): Prisma.AssessmentResponseDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cddCase`: Exposes CRUD operations for the **CddCase** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CddCases
+    * const cddCases = await prisma.cddCase.findMany()
+    * ```
+    */
+  get cddCase(): Prisma.CddCaseDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cddParticulars`: Exposes CRUD operations for the **CddParticulars** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CddParticulars
+    * const cddParticulars = await prisma.cddParticulars.findMany()
+    * ```
+    */
+  get cddParticulars(): Prisma.CddParticularsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cddBeneficialOwner`: Exposes CRUD operations for the **CddBeneficialOwner** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CddBeneficialOwners
+    * const cddBeneficialOwners = await prisma.cddBeneficialOwner.findMany()
+    * ```
+    */
+  get cddBeneficialOwner(): Prisma.CddBeneficialOwnerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.screeningRun`: Exposes CRUD operations for the **ScreeningRun** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ScreeningRuns
+    * const screeningRuns = await prisma.screeningRun.findMany()
+    * ```
+    */
+  get screeningRun(): Prisma.ScreeningRunDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.screeningCandidate`: Exposes CRUD operations for the **ScreeningCandidate** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ScreeningCandidates
+    * const screeningCandidates = await prisma.screeningCandidate.findMany()
+    * ```
+    */
+  get screeningCandidate(): Prisma.ScreeningCandidateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cddRiskAssessment`: Exposes CRUD operations for the **CddRiskAssessment** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CddRiskAssessments
+    * const cddRiskAssessments = await prisma.cddRiskAssessment.findMany()
+    * ```
+    */
+  get cddRiskAssessment(): Prisma.CddRiskAssessmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.cddEvent`: Exposes CRUD operations for the **CddEvent** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CddEvents
+    * const cddEvents = await prisma.cddEvent.findMany()
+    * ```
+    */
+  get cddEvent(): Prisma.CddEventDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sanctionsList`: Exposes CRUD operations for the **SanctionsList** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SanctionsLists
+    * const sanctionsLists = await prisma.sanctionsList.findMany()
+    * ```
+    */
+  get sanctionsList(): Prisma.SanctionsListDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -2038,7 +2238,15 @@ export namespace Prisma {
     ErrorEvent: 'ErrorEvent',
     ProductEvent: 'ProductEvent',
     IssuedReportFile: 'IssuedReportFile',
-    AssessmentResponse: 'AssessmentResponse'
+    AssessmentResponse: 'AssessmentResponse',
+    CddCase: 'CddCase',
+    CddParticulars: 'CddParticulars',
+    CddBeneficialOwner: 'CddBeneficialOwner',
+    ScreeningRun: 'ScreeningRun',
+    ScreeningCandidate: 'ScreeningCandidate',
+    CddRiskAssessment: 'CddRiskAssessment',
+    CddEvent: 'CddEvent',
+    SanctionsList: 'SanctionsList'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -2054,7 +2262,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "appleBillingAccount" | "applePurchase" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "photoPoster" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "appleBillingAccount" | "applePurchase" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "photoPoster" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse" | "cddCase" | "cddParticulars" | "cddBeneficialOwner" | "screeningRun" | "screeningCandidate" | "cddRiskAssessment" | "cddEvent" | "sanctionsList"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -6128,6 +6336,598 @@ export namespace Prisma {
           }
         }
       }
+      CddCase: {
+        payload: Prisma.$CddCasePayload<ExtArgs>
+        fields: Prisma.CddCaseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CddCaseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CddCaseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          findFirst: {
+            args: Prisma.CddCaseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CddCaseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          findMany: {
+            args: Prisma.CddCaseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>[]
+          }
+          create: {
+            args: Prisma.CddCaseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          createMany: {
+            args: Prisma.CddCaseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CddCaseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>[]
+          }
+          delete: {
+            args: Prisma.CddCaseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          update: {
+            args: Prisma.CddCaseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          deleteMany: {
+            args: Prisma.CddCaseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CddCaseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CddCaseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>[]
+          }
+          upsert: {
+            args: Prisma.CddCaseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddCasePayload>
+          }
+          aggregate: {
+            args: Prisma.CddCaseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCddCase>
+          }
+          groupBy: {
+            args: Prisma.CddCaseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CddCaseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CddCaseCountArgs<ExtArgs>
+            result: $Utils.Optional<CddCaseCountAggregateOutputType> | number
+          }
+        }
+      }
+      CddParticulars: {
+        payload: Prisma.$CddParticularsPayload<ExtArgs>
+        fields: Prisma.CddParticularsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CddParticularsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CddParticularsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          findFirst: {
+            args: Prisma.CddParticularsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CddParticularsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          findMany: {
+            args: Prisma.CddParticularsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>[]
+          }
+          create: {
+            args: Prisma.CddParticularsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          createMany: {
+            args: Prisma.CddParticularsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CddParticularsCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>[]
+          }
+          delete: {
+            args: Prisma.CddParticularsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          update: {
+            args: Prisma.CddParticularsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          deleteMany: {
+            args: Prisma.CddParticularsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CddParticularsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CddParticularsUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>[]
+          }
+          upsert: {
+            args: Prisma.CddParticularsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddParticularsPayload>
+          }
+          aggregate: {
+            args: Prisma.CddParticularsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCddParticulars>
+          }
+          groupBy: {
+            args: Prisma.CddParticularsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CddParticularsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CddParticularsCountArgs<ExtArgs>
+            result: $Utils.Optional<CddParticularsCountAggregateOutputType> | number
+          }
+        }
+      }
+      CddBeneficialOwner: {
+        payload: Prisma.$CddBeneficialOwnerPayload<ExtArgs>
+        fields: Prisma.CddBeneficialOwnerFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CddBeneficialOwnerFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CddBeneficialOwnerFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          findFirst: {
+            args: Prisma.CddBeneficialOwnerFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CddBeneficialOwnerFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          findMany: {
+            args: Prisma.CddBeneficialOwnerFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>[]
+          }
+          create: {
+            args: Prisma.CddBeneficialOwnerCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          createMany: {
+            args: Prisma.CddBeneficialOwnerCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CddBeneficialOwnerCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>[]
+          }
+          delete: {
+            args: Prisma.CddBeneficialOwnerDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          update: {
+            args: Prisma.CddBeneficialOwnerUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          deleteMany: {
+            args: Prisma.CddBeneficialOwnerDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CddBeneficialOwnerUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CddBeneficialOwnerUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>[]
+          }
+          upsert: {
+            args: Prisma.CddBeneficialOwnerUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddBeneficialOwnerPayload>
+          }
+          aggregate: {
+            args: Prisma.CddBeneficialOwnerAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCddBeneficialOwner>
+          }
+          groupBy: {
+            args: Prisma.CddBeneficialOwnerGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CddBeneficialOwnerGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CddBeneficialOwnerCountArgs<ExtArgs>
+            result: $Utils.Optional<CddBeneficialOwnerCountAggregateOutputType> | number
+          }
+        }
+      }
+      ScreeningRun: {
+        payload: Prisma.$ScreeningRunPayload<ExtArgs>
+        fields: Prisma.ScreeningRunFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ScreeningRunFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ScreeningRunFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          findFirst: {
+            args: Prisma.ScreeningRunFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ScreeningRunFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          findMany: {
+            args: Prisma.ScreeningRunFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>[]
+          }
+          create: {
+            args: Prisma.ScreeningRunCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          createMany: {
+            args: Prisma.ScreeningRunCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ScreeningRunCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>[]
+          }
+          delete: {
+            args: Prisma.ScreeningRunDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          update: {
+            args: Prisma.ScreeningRunUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          deleteMany: {
+            args: Prisma.ScreeningRunDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ScreeningRunUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ScreeningRunUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>[]
+          }
+          upsert: {
+            args: Prisma.ScreeningRunUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningRunPayload>
+          }
+          aggregate: {
+            args: Prisma.ScreeningRunAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateScreeningRun>
+          }
+          groupBy: {
+            args: Prisma.ScreeningRunGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ScreeningRunGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ScreeningRunCountArgs<ExtArgs>
+            result: $Utils.Optional<ScreeningRunCountAggregateOutputType> | number
+          }
+        }
+      }
+      ScreeningCandidate: {
+        payload: Prisma.$ScreeningCandidatePayload<ExtArgs>
+        fields: Prisma.ScreeningCandidateFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ScreeningCandidateFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ScreeningCandidateFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          findFirst: {
+            args: Prisma.ScreeningCandidateFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ScreeningCandidateFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          findMany: {
+            args: Prisma.ScreeningCandidateFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>[]
+          }
+          create: {
+            args: Prisma.ScreeningCandidateCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          createMany: {
+            args: Prisma.ScreeningCandidateCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ScreeningCandidateCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>[]
+          }
+          delete: {
+            args: Prisma.ScreeningCandidateDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          update: {
+            args: Prisma.ScreeningCandidateUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          deleteMany: {
+            args: Prisma.ScreeningCandidateDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ScreeningCandidateUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ScreeningCandidateUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>[]
+          }
+          upsert: {
+            args: Prisma.ScreeningCandidateUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ScreeningCandidatePayload>
+          }
+          aggregate: {
+            args: Prisma.ScreeningCandidateAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateScreeningCandidate>
+          }
+          groupBy: {
+            args: Prisma.ScreeningCandidateGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ScreeningCandidateGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ScreeningCandidateCountArgs<ExtArgs>
+            result: $Utils.Optional<ScreeningCandidateCountAggregateOutputType> | number
+          }
+        }
+      }
+      CddRiskAssessment: {
+        payload: Prisma.$CddRiskAssessmentPayload<ExtArgs>
+        fields: Prisma.CddRiskAssessmentFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CddRiskAssessmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CddRiskAssessmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          findFirst: {
+            args: Prisma.CddRiskAssessmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CddRiskAssessmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          findMany: {
+            args: Prisma.CddRiskAssessmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>[]
+          }
+          create: {
+            args: Prisma.CddRiskAssessmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          createMany: {
+            args: Prisma.CddRiskAssessmentCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CddRiskAssessmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>[]
+          }
+          delete: {
+            args: Prisma.CddRiskAssessmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          update: {
+            args: Prisma.CddRiskAssessmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          deleteMany: {
+            args: Prisma.CddRiskAssessmentDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CddRiskAssessmentUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CddRiskAssessmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>[]
+          }
+          upsert: {
+            args: Prisma.CddRiskAssessmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddRiskAssessmentPayload>
+          }
+          aggregate: {
+            args: Prisma.CddRiskAssessmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCddRiskAssessment>
+          }
+          groupBy: {
+            args: Prisma.CddRiskAssessmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CddRiskAssessmentGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CddRiskAssessmentCountArgs<ExtArgs>
+            result: $Utils.Optional<CddRiskAssessmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      CddEvent: {
+        payload: Prisma.$CddEventPayload<ExtArgs>
+        fields: Prisma.CddEventFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CddEventFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CddEventFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          findFirst: {
+            args: Prisma.CddEventFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CddEventFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          findMany: {
+            args: Prisma.CddEventFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>[]
+          }
+          create: {
+            args: Prisma.CddEventCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          createMany: {
+            args: Prisma.CddEventCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CddEventCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>[]
+          }
+          delete: {
+            args: Prisma.CddEventDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          update: {
+            args: Prisma.CddEventUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          deleteMany: {
+            args: Prisma.CddEventDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CddEventUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CddEventUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>[]
+          }
+          upsert: {
+            args: Prisma.CddEventUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CddEventPayload>
+          }
+          aggregate: {
+            args: Prisma.CddEventAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCddEvent>
+          }
+          groupBy: {
+            args: Prisma.CddEventGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CddEventGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CddEventCountArgs<ExtArgs>
+            result: $Utils.Optional<CddEventCountAggregateOutputType> | number
+          }
+        }
+      }
+      SanctionsList: {
+        payload: Prisma.$SanctionsListPayload<ExtArgs>
+        fields: Prisma.SanctionsListFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SanctionsListFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SanctionsListFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          findFirst: {
+            args: Prisma.SanctionsListFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SanctionsListFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          findMany: {
+            args: Prisma.SanctionsListFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>[]
+          }
+          create: {
+            args: Prisma.SanctionsListCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          createMany: {
+            args: Prisma.SanctionsListCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SanctionsListCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>[]
+          }
+          delete: {
+            args: Prisma.SanctionsListDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          update: {
+            args: Prisma.SanctionsListUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          deleteMany: {
+            args: Prisma.SanctionsListDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SanctionsListUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SanctionsListUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>[]
+          }
+          upsert: {
+            args: Prisma.SanctionsListUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SanctionsListPayload>
+          }
+          aggregate: {
+            args: Prisma.SanctionsListAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSanctionsList>
+          }
+          groupBy: {
+            args: Prisma.SanctionsListGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SanctionsListGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SanctionsListCountArgs<ExtArgs>
+            result: $Utils.Optional<SanctionsListCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -6306,6 +7106,14 @@ export namespace Prisma {
     productEvent?: ProductEventOmit
     issuedReportFile?: IssuedReportFileOmit
     assessmentResponse?: AssessmentResponseOmit
+    cddCase?: CddCaseOmit
+    cddParticulars?: CddParticularsOmit
+    cddBeneficialOwner?: CddBeneficialOwnerOmit
+    screeningRun?: ScreeningRunOmit
+    screeningCandidate?: ScreeningCandidateOmit
+    cddRiskAssessment?: CddRiskAssessmentOmit
+    cddEvent?: CddEventOmit
+    sanctionsList?: SanctionsListOmit
   }
 
   /* Types for Logging */
@@ -6419,6 +7227,8 @@ export namespace Prisma {
     subscriptionsManaged: number
     googlePlayBillingAccounts: number
     appleBillingAccounts: number
+    cddCasesAsAgent: number
+    cddCasesAsClient: number
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6455,6 +7265,8 @@ export namespace Prisma {
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
     googlePlayBillingAccounts?: boolean | StakeholderCountOutputTypeCountGooglePlayBillingAccountsArgs
     appleBillingAccounts?: boolean | StakeholderCountOutputTypeCountAppleBillingAccountsArgs
+    cddCasesAsAgent?: boolean | StakeholderCountOutputTypeCountCddCasesAsAgentArgs
+    cddCasesAsClient?: boolean | StakeholderCountOutputTypeCountCddCasesAsClientArgs
   }
 
   // Custom InputTypes
@@ -6699,6 +7511,20 @@ export namespace Prisma {
     where?: AppleBillingAccountWhereInput
   }
 
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountCddCasesAsAgentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
+  }
+
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountCddCasesAsClientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
+  }
+
 
   /**
    * Count Type TeamCountOutputType
@@ -6740,6 +7566,7 @@ export namespace Prisma {
     tenancies: number
     activity: number
     reportInspections: number
+    cddCases: number
   }
 
   export type AgencyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6747,6 +7574,7 @@ export namespace Prisma {
     tenancies?: boolean | AgencyCountOutputTypeCountTenanciesArgs
     activity?: boolean | AgencyCountOutputTypeCountActivityArgs
     reportInspections?: boolean | AgencyCountOutputTypeCountReportInspectionsArgs
+    cddCases?: boolean | AgencyCountOutputTypeCountCddCasesArgs
   }
 
   // Custom InputTypes
@@ -6786,6 +7614,13 @@ export namespace Prisma {
    */
   export type AgencyCountOutputTypeCountReportInspectionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: InspectionWhereInput
+  }
+
+  /**
+   * AgencyCountOutputType without action
+   */
+  export type AgencyCountOutputTypeCountCddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
   }
 
 
@@ -6891,6 +7726,7 @@ export namespace Prisma {
     assets: number
     events: number
     bin: number
+    cddCases: number
   }
 
   export type PropertyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6898,6 +7734,7 @@ export namespace Prisma {
     assets?: boolean | PropertyCountOutputTypeCountAssetsArgs
     events?: boolean | PropertyCountOutputTypeCountEventsArgs
     bin?: boolean | PropertyCountOutputTypeCountBinArgs
+    cddCases?: boolean | PropertyCountOutputTypeCountCddCasesArgs
   }
 
   // Custom InputTypes
@@ -6937,6 +7774,13 @@ export namespace Prisma {
    */
   export type PropertyCountOutputTypeCountBinArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BinItemWhereInput
+  }
+
+  /**
+   * PropertyCountOutputType without action
+   */
+  export type PropertyCountOutputTypeCountCddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
   }
 
 
@@ -6981,6 +7825,7 @@ export namespace Prisma {
     notifications: number
     maintenanceCases: number
     supportingDocumentRequests: number
+    cddCases: number
   }
 
   export type TenancyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6989,6 +7834,7 @@ export namespace Prisma {
     notifications?: boolean | TenancyCountOutputTypeCountNotificationsArgs
     maintenanceCases?: boolean | TenancyCountOutputTypeCountMaintenanceCasesArgs
     supportingDocumentRequests?: boolean | TenancyCountOutputTypeCountSupportingDocumentRequestsArgs
+    cddCases?: boolean | TenancyCountOutputTypeCountCddCasesArgs
   }
 
   // Custom InputTypes
@@ -7035,6 +7881,13 @@ export namespace Prisma {
    */
   export type TenancyCountOutputTypeCountSupportingDocumentRequestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SupportingDocumentRequestWhereInput
+  }
+
+  /**
+   * TenancyCountOutputType without action
+   */
+  export type TenancyCountOutputTypeCountCddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
   }
 
 
@@ -7764,6 +8617,117 @@ export namespace Prisma {
 
 
   /**
+   * Count Type CddCaseCountOutputType
+   */
+
+  export type CddCaseCountOutputType = {
+    beneficialOwners: number
+    screeningRuns: number
+    events: number
+  }
+
+  export type CddCaseCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    beneficialOwners?: boolean | CddCaseCountOutputTypeCountBeneficialOwnersArgs
+    screeningRuns?: boolean | CddCaseCountOutputTypeCountScreeningRunsArgs
+    events?: boolean | CddCaseCountOutputTypeCountEventsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CddCaseCountOutputType without action
+   */
+  export type CddCaseCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCaseCountOutputType
+     */
+    select?: CddCaseCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CddCaseCountOutputType without action
+   */
+  export type CddCaseCountOutputTypeCountBeneficialOwnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddBeneficialOwnerWhereInput
+  }
+
+  /**
+   * CddCaseCountOutputType without action
+   */
+  export type CddCaseCountOutputTypeCountScreeningRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScreeningRunWhereInput
+  }
+
+  /**
+   * CddCaseCountOutputType without action
+   */
+  export type CddCaseCountOutputTypeCountEventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddEventWhereInput
+  }
+
+
+  /**
+   * Count Type CddBeneficialOwnerCountOutputType
+   */
+
+  export type CddBeneficialOwnerCountOutputType = {
+    screeningRuns: number
+  }
+
+  export type CddBeneficialOwnerCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    screeningRuns?: boolean | CddBeneficialOwnerCountOutputTypeCountScreeningRunsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * CddBeneficialOwnerCountOutputType without action
+   */
+  export type CddBeneficialOwnerCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwnerCountOutputType
+     */
+    select?: CddBeneficialOwnerCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * CddBeneficialOwnerCountOutputType without action
+   */
+  export type CddBeneficialOwnerCountOutputTypeCountScreeningRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScreeningRunWhereInput
+  }
+
+
+  /**
+   * Count Type ScreeningRunCountOutputType
+   */
+
+  export type ScreeningRunCountOutputType = {
+    candidates: number
+  }
+
+  export type ScreeningRunCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    candidates?: boolean | ScreeningRunCountOutputTypeCountCandidatesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ScreeningRunCountOutputType without action
+   */
+  export type ScreeningRunCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRunCountOutputType
+     */
+    select?: ScreeningRunCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ScreeningRunCountOutputType without action
+   */
+  export type ScreeningRunCountOutputTypeCountCandidatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScreeningCandidateWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -8008,6 +8972,8 @@ export namespace Prisma {
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
     appleBillingAccounts?: boolean | Stakeholder$appleBillingAccountsArgs<ExtArgs>
+    cddCasesAsAgent?: boolean | Stakeholder$cddCasesAsAgentArgs<ExtArgs>
+    cddCasesAsClient?: boolean | Stakeholder$cddCasesAsClientArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -8091,6 +9057,8 @@ export namespace Prisma {
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
     appleBillingAccounts?: boolean | Stakeholder$appleBillingAccountsArgs<ExtArgs>
+    cddCasesAsAgent?: boolean | Stakeholder$cddCasesAsAgentArgs<ExtArgs>
+    cddCasesAsClient?: boolean | Stakeholder$cddCasesAsClientArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8143,6 +9111,8 @@ export namespace Prisma {
       subscriptionsManaged: Prisma.$SubscriptionPayload<ExtArgs>[]
       googlePlayBillingAccounts: Prisma.$GooglePlayBillingAccountPayload<ExtArgs>[]
       appleBillingAccounts: Prisma.$AppleBillingAccountPayload<ExtArgs>[]
+      cddCasesAsAgent: Prisma.$CddCasePayload<ExtArgs>[]
+      cddCasesAsClient: Prisma.$CddCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8598,6 +9568,8 @@ export namespace Prisma {
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     googlePlayBillingAccounts<T extends Stakeholder$googlePlayBillingAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     appleBillingAccounts<T extends Stakeholder$appleBillingAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$appleBillingAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    cddCasesAsAgent<T extends Stakeholder$cddCasesAsAgentArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$cddCasesAsAgentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    cddCasesAsClient<T extends Stakeholder$cddCasesAsClientArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$cddCasesAsClientArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9903,6 +10875,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: AppleBillingAccountScalarFieldEnum | AppleBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.cddCasesAsAgent
+   */
+  export type Stakeholder$cddCasesAsAgentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    cursor?: CddCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.cddCasesAsClient
+   */
+  export type Stakeholder$cddCasesAsClientArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    cursor?: CddCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
   }
 
   /**
@@ -12394,6 +13414,7 @@ export namespace Prisma {
     branding?: boolean | Agency$brandingArgs<ExtArgs>
     subscription?: boolean | Agency$subscriptionArgs<ExtArgs>
     reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
+    cddCases?: boolean | Agency$cddCasesArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["agency"]>
 
@@ -12426,6 +13447,7 @@ export namespace Prisma {
     branding?: boolean | Agency$brandingArgs<ExtArgs>
     subscription?: boolean | Agency$subscriptionArgs<ExtArgs>
     reportInspections?: boolean | Agency$reportInspectionsArgs<ExtArgs>
+    cddCases?: boolean | Agency$cddCasesArgs<ExtArgs>
     _count?: boolean | AgencyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AgencyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12440,6 +13462,7 @@ export namespace Prisma {
       branding: Prisma.$AgencyBrandingPayload<ExtArgs> | null
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       reportInspections: Prisma.$InspectionPayload<ExtArgs>[]
+      cddCases: Prisma.$CddCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12846,6 +13869,7 @@ export namespace Prisma {
     branding<T extends Agency$brandingArgs<ExtArgs> = {}>(args?: Subset<T, Agency$brandingArgs<ExtArgs>>): Prisma__AgencyBrandingClient<$Result.GetResult<Prisma.$AgencyBrandingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscription<T extends Agency$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Agency$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     reportInspections<T extends Agency$reportInspectionsArgs<ExtArgs> = {}>(args?: Subset<T, Agency$reportInspectionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    cddCases<T extends Agency$cddCasesArgs<ExtArgs> = {}>(args?: Subset<T, Agency$cddCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13403,6 +14427,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: InspectionScalarFieldEnum | InspectionScalarFieldEnum[]
+  }
+
+  /**
+   * Agency.cddCases
+   */
+  export type Agency$cddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    cursor?: CddCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
   }
 
   /**
@@ -24140,6 +25188,7 @@ export namespace Prisma {
     assets?: boolean | Property$assetsArgs<ExtArgs>
     events?: boolean | Property$eventsArgs<ExtArgs>
     bin?: boolean | Property$binArgs<ExtArgs>
+    cddCases?: boolean | Property$cddCasesArgs<ExtArgs>
     _count?: boolean | PropertyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["property"]>
 
@@ -24191,6 +25240,7 @@ export namespace Prisma {
     assets?: boolean | Property$assetsArgs<ExtArgs>
     events?: boolean | Property$eventsArgs<ExtArgs>
     bin?: boolean | Property$binArgs<ExtArgs>
+    cddCases?: boolean | Property$cddCasesArgs<ExtArgs>
     _count?: boolean | PropertyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type PropertyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -24203,6 +25253,7 @@ export namespace Prisma {
       assets: Prisma.$PropertyAssetPayload<ExtArgs>[]
       events: Prisma.$PropertyEventPayload<ExtArgs>[]
       bin: Prisma.$BinItemPayload<ExtArgs>[]
+      cddCases: Prisma.$CddCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -24614,6 +25665,7 @@ export namespace Prisma {
     assets<T extends Property$assetsArgs<ExtArgs> = {}>(args?: Subset<T, Property$assetsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyAssetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     events<T extends Property$eventsArgs<ExtArgs> = {}>(args?: Subset<T, Property$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PropertyEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     bin<T extends Property$binArgs<ExtArgs> = {}>(args?: Subset<T, Property$binArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BinItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    cddCases<T extends Property$cddCasesArgs<ExtArgs> = {}>(args?: Subset<T, Property$cddCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -25140,6 +26192,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: BinItemScalarFieldEnum | BinItemScalarFieldEnum[]
+  }
+
+  /**
+   * Property.cddCases
+   */
+  export type Property$cddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    cursor?: CddCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
   }
 
   /**
@@ -27867,6 +28943,7 @@ export namespace Prisma {
     supportingDocumentRequests?: boolean | Tenancy$supportingDocumentRequestsArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
     renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
+    cddCases?: boolean | Tenancy$cddCasesArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["tenancy"]>
 
@@ -27962,6 +29039,7 @@ export namespace Prisma {
     supportingDocumentRequests?: boolean | Tenancy$supportingDocumentRequestsArgs<ExtArgs>
     renewedFrom?: boolean | Tenancy$renewedFromArgs<ExtArgs>
     renewedAs?: boolean | Tenancy$renewedAsArgs<ExtArgs>
+    cddCases?: boolean | Tenancy$cddCasesArgs<ExtArgs>
     _count?: boolean | TenancyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TenancyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -27996,6 +29074,7 @@ export namespace Prisma {
       supportingDocumentRequests: Prisma.$SupportingDocumentRequestPayload<ExtArgs>[]
       renewedFrom: Prisma.$TenancyPayload<ExtArgs> | null
       renewedAs: Prisma.$TenancyPayload<ExtArgs> | null
+      cddCases: Prisma.$CddCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -28444,6 +29523,7 @@ export namespace Prisma {
     supportingDocumentRequests<T extends Tenancy$supportingDocumentRequestsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$supportingDocumentRequestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SupportingDocumentRequestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     renewedFrom<T extends Tenancy$renewedFromArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedFromArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     renewedAs<T extends Tenancy$renewedAsArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$renewedAsArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    cddCases<T extends Tenancy$cddCasesArgs<ExtArgs> = {}>(args?: Subset<T, Tenancy$cddCasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -29086,6 +30166,30 @@ export namespace Prisma {
      */
     include?: TenancyInclude<ExtArgs> | null
     where?: TenancyWhereInput
+  }
+
+  /**
+   * Tenancy.cddCases
+   */
+  export type Tenancy$cddCasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    cursor?: CddCaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
   }
 
   /**
@@ -74627,6 +75731,9466 @@ export namespace Prisma {
 
 
   /**
+   * Model CddCase
+   */
+
+  export type AggregateCddCase = {
+    _count: CddCaseCountAggregateOutputType | null
+    _avg: CddCaseAvgAggregateOutputType | null
+    _sum: CddCaseSumAggregateOutputType | null
+    _min: CddCaseMinAggregateOutputType | null
+    _max: CddCaseMaxAggregateOutputType | null
+  }
+
+  export type CddCaseAvgAggregateOutputType = {
+    version: number | null
+  }
+
+  export type CddCaseSumAggregateOutputType = {
+    version: number | null
+  }
+
+  export type CddCaseMinAggregateOutputType = {
+    id: string | null
+    agentId: string | null
+    clientId: string | null
+    clientRole: $Enums.CddClientRole | null
+    propertyId: string | null
+    tenancyId: string | null
+    agencyId: string | null
+    country: string | null
+    status: $Enums.CddStatus | null
+    riskLevel: $Enums.CddRiskLevel | null
+    version: number | null
+    contentHash: string | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CddCaseMaxAggregateOutputType = {
+    id: string | null
+    agentId: string | null
+    clientId: string | null
+    clientRole: $Enums.CddClientRole | null
+    propertyId: string | null
+    tenancyId: string | null
+    agencyId: string | null
+    country: string | null
+    status: $Enums.CddStatus | null
+    riskLevel: $Enums.CddRiskLevel | null
+    version: number | null
+    contentHash: string | null
+    completedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type CddCaseCountAggregateOutputType = {
+    id: number
+    agentId: number
+    clientId: number
+    clientRole: number
+    propertyId: number
+    tenancyId: number
+    agencyId: number
+    country: number
+    status: number
+    riskLevel: number
+    version: number
+    contentHash: number
+    completedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type CddCaseAvgAggregateInputType = {
+    version?: true
+  }
+
+  export type CddCaseSumAggregateInputType = {
+    version?: true
+  }
+
+  export type CddCaseMinAggregateInputType = {
+    id?: true
+    agentId?: true
+    clientId?: true
+    clientRole?: true
+    propertyId?: true
+    tenancyId?: true
+    agencyId?: true
+    country?: true
+    status?: true
+    riskLevel?: true
+    version?: true
+    contentHash?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CddCaseMaxAggregateInputType = {
+    id?: true
+    agentId?: true
+    clientId?: true
+    clientRole?: true
+    propertyId?: true
+    tenancyId?: true
+    agencyId?: true
+    country?: true
+    status?: true
+    riskLevel?: true
+    version?: true
+    contentHash?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type CddCaseCountAggregateInputType = {
+    id?: true
+    agentId?: true
+    clientId?: true
+    clientRole?: true
+    propertyId?: true
+    tenancyId?: true
+    agencyId?: true
+    country?: true
+    status?: true
+    riskLevel?: true
+    version?: true
+    contentHash?: true
+    completedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type CddCaseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddCase to aggregate.
+     */
+    where?: CddCaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddCases to fetch.
+     */
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CddCaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddCases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddCases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CddCases
+    **/
+    _count?: true | CddCaseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CddCaseAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CddCaseSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CddCaseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CddCaseMaxAggregateInputType
+  }
+
+  export type GetCddCaseAggregateType<T extends CddCaseAggregateArgs> = {
+        [P in keyof T & keyof AggregateCddCase]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCddCase[P]>
+      : GetScalarType<T[P], AggregateCddCase[P]>
+  }
+
+
+
+
+  export type CddCaseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddCaseWhereInput
+    orderBy?: CddCaseOrderByWithAggregationInput | CddCaseOrderByWithAggregationInput[]
+    by: CddCaseScalarFieldEnum[] | CddCaseScalarFieldEnum
+    having?: CddCaseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CddCaseCountAggregateInputType | true
+    _avg?: CddCaseAvgAggregateInputType
+    _sum?: CddCaseSumAggregateInputType
+    _min?: CddCaseMinAggregateInputType
+    _max?: CddCaseMaxAggregateInputType
+  }
+
+  export type CddCaseGroupByOutputType = {
+    id: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId: string | null
+    tenancyId: string | null
+    agencyId: string | null
+    country: string
+    status: $Enums.CddStatus
+    riskLevel: $Enums.CddRiskLevel | null
+    version: number
+    contentHash: string | null
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: CddCaseCountAggregateOutputType | null
+    _avg: CddCaseAvgAggregateOutputType | null
+    _sum: CddCaseSumAggregateOutputType | null
+    _min: CddCaseMinAggregateOutputType | null
+    _max: CddCaseMaxAggregateOutputType | null
+  }
+
+  type GetCddCaseGroupByPayload<T extends CddCaseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CddCaseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CddCaseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CddCaseGroupByOutputType[P]>
+            : GetScalarType<T[P], CddCaseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CddCaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agentId?: boolean
+    clientId?: boolean
+    clientRole?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    agencyId?: boolean
+    country?: boolean
+    status?: boolean
+    riskLevel?: boolean
+    version?: boolean
+    contentHash?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+    particulars?: boolean | CddCase$particularsArgs<ExtArgs>
+    beneficialOwners?: boolean | CddCase$beneficialOwnersArgs<ExtArgs>
+    screeningRuns?: boolean | CddCase$screeningRunsArgs<ExtArgs>
+    riskAssessment?: boolean | CddCase$riskAssessmentArgs<ExtArgs>
+    events?: boolean | CddCase$eventsArgs<ExtArgs>
+    _count?: boolean | CddCaseCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddCase"]>
+
+  export type CddCaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agentId?: boolean
+    clientId?: boolean
+    clientRole?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    agencyId?: boolean
+    country?: boolean
+    status?: boolean
+    riskLevel?: boolean
+    version?: boolean
+    contentHash?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+  }, ExtArgs["result"]["cddCase"]>
+
+  export type CddCaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    agentId?: boolean
+    clientId?: boolean
+    clientRole?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    agencyId?: boolean
+    country?: boolean
+    status?: boolean
+    riskLevel?: boolean
+    version?: boolean
+    contentHash?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+  }, ExtArgs["result"]["cddCase"]>
+
+  export type CddCaseSelectScalar = {
+    id?: boolean
+    agentId?: boolean
+    clientId?: boolean
+    clientRole?: boolean
+    propertyId?: boolean
+    tenancyId?: boolean
+    agencyId?: boolean
+    country?: boolean
+    status?: boolean
+    riskLevel?: boolean
+    version?: boolean
+    contentHash?: boolean
+    completedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type CddCaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agentId" | "clientId" | "clientRole" | "propertyId" | "tenancyId" | "agencyId" | "country" | "status" | "riskLevel" | "version" | "contentHash" | "completedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["cddCase"]>
+  export type CddCaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+    particulars?: boolean | CddCase$particularsArgs<ExtArgs>
+    beneficialOwners?: boolean | CddCase$beneficialOwnersArgs<ExtArgs>
+    screeningRuns?: boolean | CddCase$screeningRunsArgs<ExtArgs>
+    riskAssessment?: boolean | CddCase$riskAssessmentArgs<ExtArgs>
+    events?: boolean | CddCase$eventsArgs<ExtArgs>
+    _count?: boolean | CddCaseCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CddCaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+  }
+  export type CddCaseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    agent?: boolean | StakeholderDefaultArgs<ExtArgs>
+    client?: boolean | StakeholderDefaultArgs<ExtArgs>
+    property?: boolean | CddCase$propertyArgs<ExtArgs>
+    tenancy?: boolean | CddCase$tenancyArgs<ExtArgs>
+    agency?: boolean | CddCase$agencyArgs<ExtArgs>
+  }
+
+  export type $CddCasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CddCase"
+    objects: {
+      agent: Prisma.$StakeholderPayload<ExtArgs>
+      client: Prisma.$StakeholderPayload<ExtArgs>
+      property: Prisma.$PropertyPayload<ExtArgs> | null
+      tenancy: Prisma.$TenancyPayload<ExtArgs> | null
+      agency: Prisma.$AgencyPayload<ExtArgs> | null
+      particulars: Prisma.$CddParticularsPayload<ExtArgs> | null
+      beneficialOwners: Prisma.$CddBeneficialOwnerPayload<ExtArgs>[]
+      screeningRuns: Prisma.$ScreeningRunPayload<ExtArgs>[]
+      riskAssessment: Prisma.$CddRiskAssessmentPayload<ExtArgs> | null
+      events: Prisma.$CddEventPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      agentId: string
+      clientId: string
+      clientRole: $Enums.CddClientRole
+      propertyId: string | null
+      tenancyId: string | null
+      agencyId: string | null
+      country: string
+      status: $Enums.CddStatus
+      riskLevel: $Enums.CddRiskLevel | null
+      /**
+       * Bumped when a completed case is reopened; earlier versions stay in CddEvent.
+       */
+      version: number
+      /**
+       * SHA-256 over the completed record, like a signature's content fingerprint.
+       */
+      contentHash: string | null
+      completedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["cddCase"]>
+    composites: {}
+  }
+
+  type CddCaseGetPayload<S extends boolean | null | undefined | CddCaseDefaultArgs> = $Result.GetResult<Prisma.$CddCasePayload, S>
+
+  type CddCaseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CddCaseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CddCaseCountAggregateInputType | true
+    }
+
+  export interface CddCaseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CddCase'], meta: { name: 'CddCase' } }
+    /**
+     * Find zero or one CddCase that matches the filter.
+     * @param {CddCaseFindUniqueArgs} args - Arguments to find a CddCase
+     * @example
+     * // Get one CddCase
+     * const cddCase = await prisma.cddCase.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CddCaseFindUniqueArgs>(args: SelectSubset<T, CddCaseFindUniqueArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CddCase that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CddCaseFindUniqueOrThrowArgs} args - Arguments to find a CddCase
+     * @example
+     * // Get one CddCase
+     * const cddCase = await prisma.cddCase.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CddCaseFindUniqueOrThrowArgs>(args: SelectSubset<T, CddCaseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddCase that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseFindFirstArgs} args - Arguments to find a CddCase
+     * @example
+     * // Get one CddCase
+     * const cddCase = await prisma.cddCase.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CddCaseFindFirstArgs>(args?: SelectSubset<T, CddCaseFindFirstArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddCase that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseFindFirstOrThrowArgs} args - Arguments to find a CddCase
+     * @example
+     * // Get one CddCase
+     * const cddCase = await prisma.cddCase.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CddCaseFindFirstOrThrowArgs>(args?: SelectSubset<T, CddCaseFindFirstOrThrowArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CddCases that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CddCases
+     * const cddCases = await prisma.cddCase.findMany()
+     * 
+     * // Get first 10 CddCases
+     * const cddCases = await prisma.cddCase.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const cddCaseWithIdOnly = await prisma.cddCase.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CddCaseFindManyArgs>(args?: SelectSubset<T, CddCaseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CddCase.
+     * @param {CddCaseCreateArgs} args - Arguments to create a CddCase.
+     * @example
+     * // Create one CddCase
+     * const CddCase = await prisma.cddCase.create({
+     *   data: {
+     *     // ... data to create a CddCase
+     *   }
+     * })
+     * 
+     */
+    create<T extends CddCaseCreateArgs>(args: SelectSubset<T, CddCaseCreateArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CddCases.
+     * @param {CddCaseCreateManyArgs} args - Arguments to create many CddCases.
+     * @example
+     * // Create many CddCases
+     * const cddCase = await prisma.cddCase.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CddCaseCreateManyArgs>(args?: SelectSubset<T, CddCaseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CddCases and returns the data saved in the database.
+     * @param {CddCaseCreateManyAndReturnArgs} args - Arguments to create many CddCases.
+     * @example
+     * // Create many CddCases
+     * const cddCase = await prisma.cddCase.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CddCases and only return the `id`
+     * const cddCaseWithIdOnly = await prisma.cddCase.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CddCaseCreateManyAndReturnArgs>(args?: SelectSubset<T, CddCaseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CddCase.
+     * @param {CddCaseDeleteArgs} args - Arguments to delete one CddCase.
+     * @example
+     * // Delete one CddCase
+     * const CddCase = await prisma.cddCase.delete({
+     *   where: {
+     *     // ... filter to delete one CddCase
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CddCaseDeleteArgs>(args: SelectSubset<T, CddCaseDeleteArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CddCase.
+     * @param {CddCaseUpdateArgs} args - Arguments to update one CddCase.
+     * @example
+     * // Update one CddCase
+     * const cddCase = await prisma.cddCase.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CddCaseUpdateArgs>(args: SelectSubset<T, CddCaseUpdateArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CddCases.
+     * @param {CddCaseDeleteManyArgs} args - Arguments to filter CddCases to delete.
+     * @example
+     * // Delete a few CddCases
+     * const { count } = await prisma.cddCase.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CddCaseDeleteManyArgs>(args?: SelectSubset<T, CddCaseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddCases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CddCases
+     * const cddCase = await prisma.cddCase.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CddCaseUpdateManyArgs>(args: SelectSubset<T, CddCaseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddCases and returns the data updated in the database.
+     * @param {CddCaseUpdateManyAndReturnArgs} args - Arguments to update many CddCases.
+     * @example
+     * // Update many CddCases
+     * const cddCase = await prisma.cddCase.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CddCases and only return the `id`
+     * const cddCaseWithIdOnly = await prisma.cddCase.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CddCaseUpdateManyAndReturnArgs>(args: SelectSubset<T, CddCaseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CddCase.
+     * @param {CddCaseUpsertArgs} args - Arguments to update or create a CddCase.
+     * @example
+     * // Update or create a CddCase
+     * const cddCase = await prisma.cddCase.upsert({
+     *   create: {
+     *     // ... data to create a CddCase
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CddCase we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CddCaseUpsertArgs>(args: SelectSubset<T, CddCaseUpsertArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CddCases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseCountArgs} args - Arguments to filter CddCases to count.
+     * @example
+     * // Count the number of CddCases
+     * const count = await prisma.cddCase.count({
+     *   where: {
+     *     // ... the filter for the CddCases we want to count
+     *   }
+     * })
+    **/
+    count<T extends CddCaseCountArgs>(
+      args?: Subset<T, CddCaseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CddCaseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CddCase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CddCaseAggregateArgs>(args: Subset<T, CddCaseAggregateArgs>): Prisma.PrismaPromise<GetCddCaseAggregateType<T>>
+
+    /**
+     * Group by CddCase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddCaseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CddCaseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CddCaseGroupByArgs['orderBy'] }
+        : { orderBy?: CddCaseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CddCaseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCddCaseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CddCase model
+   */
+  readonly fields: CddCaseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CddCase.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CddCaseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    agent<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    client<T extends StakeholderDefaultArgs<ExtArgs> = {}>(args?: Subset<T, StakeholderDefaultArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    property<T extends CddCase$propertyArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$propertyArgs<ExtArgs>>): Prisma__PropertyClient<$Result.GetResult<Prisma.$PropertyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    tenancy<T extends CddCase$tenancyArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$tenancyArgs<ExtArgs>>): Prisma__TenancyClient<$Result.GetResult<Prisma.$TenancyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    agency<T extends CddCase$agencyArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$agencyArgs<ExtArgs>>): Prisma__AgencyClient<$Result.GetResult<Prisma.$AgencyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    particulars<T extends CddCase$particularsArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$particularsArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    beneficialOwners<T extends CddCase$beneficialOwnersArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$beneficialOwnersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    screeningRuns<T extends CddCase$screeningRunsArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$screeningRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    riskAssessment<T extends CddCase$riskAssessmentArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$riskAssessmentArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    events<T extends CddCase$eventsArgs<ExtArgs> = {}>(args?: Subset<T, CddCase$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CddCase model
+   */
+  interface CddCaseFieldRefs {
+    readonly id: FieldRef<"CddCase", 'String'>
+    readonly agentId: FieldRef<"CddCase", 'String'>
+    readonly clientId: FieldRef<"CddCase", 'String'>
+    readonly clientRole: FieldRef<"CddCase", 'CddClientRole'>
+    readonly propertyId: FieldRef<"CddCase", 'String'>
+    readonly tenancyId: FieldRef<"CddCase", 'String'>
+    readonly agencyId: FieldRef<"CddCase", 'String'>
+    readonly country: FieldRef<"CddCase", 'String'>
+    readonly status: FieldRef<"CddCase", 'CddStatus'>
+    readonly riskLevel: FieldRef<"CddCase", 'CddRiskLevel'>
+    readonly version: FieldRef<"CddCase", 'Int'>
+    readonly contentHash: FieldRef<"CddCase", 'String'>
+    readonly completedAt: FieldRef<"CddCase", 'DateTime'>
+    readonly createdAt: FieldRef<"CddCase", 'DateTime'>
+    readonly updatedAt: FieldRef<"CddCase", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CddCase findUnique
+   */
+  export type CddCaseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter, which CddCase to fetch.
+     */
+    where: CddCaseWhereUniqueInput
+  }
+
+  /**
+   * CddCase findUniqueOrThrow
+   */
+  export type CddCaseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter, which CddCase to fetch.
+     */
+    where: CddCaseWhereUniqueInput
+  }
+
+  /**
+   * CddCase findFirst
+   */
+  export type CddCaseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter, which CddCase to fetch.
+     */
+    where?: CddCaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddCases to fetch.
+     */
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddCases.
+     */
+    cursor?: CddCaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddCases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddCases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddCases.
+     */
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase findFirstOrThrow
+   */
+  export type CddCaseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter, which CddCase to fetch.
+     */
+    where?: CddCaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddCases to fetch.
+     */
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddCases.
+     */
+    cursor?: CddCaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddCases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddCases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddCases.
+     */
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase findMany
+   */
+  export type CddCaseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter, which CddCases to fetch.
+     */
+    where?: CddCaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddCases to fetch.
+     */
+    orderBy?: CddCaseOrderByWithRelationInput | CddCaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CddCases.
+     */
+    cursor?: CddCaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddCases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddCases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddCases.
+     */
+    distinct?: CddCaseScalarFieldEnum | CddCaseScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase create
+   */
+  export type CddCaseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CddCase.
+     */
+    data: XOR<CddCaseCreateInput, CddCaseUncheckedCreateInput>
+  }
+
+  /**
+   * CddCase createMany
+   */
+  export type CddCaseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CddCases.
+     */
+    data: CddCaseCreateManyInput | CddCaseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CddCase createManyAndReturn
+   */
+  export type CddCaseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * The data used to create many CddCases.
+     */
+    data: CddCaseCreateManyInput | CddCaseCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddCase update
+   */
+  export type CddCaseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CddCase.
+     */
+    data: XOR<CddCaseUpdateInput, CddCaseUncheckedUpdateInput>
+    /**
+     * Choose, which CddCase to update.
+     */
+    where: CddCaseWhereUniqueInput
+  }
+
+  /**
+   * CddCase updateMany
+   */
+  export type CddCaseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CddCases.
+     */
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyInput>
+    /**
+     * Filter which CddCases to update
+     */
+    where?: CddCaseWhereInput
+    /**
+     * Limit how many CddCases to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddCase updateManyAndReturn
+   */
+  export type CddCaseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * The data used to update CddCases.
+     */
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyInput>
+    /**
+     * Filter which CddCases to update
+     */
+    where?: CddCaseWhereInput
+    /**
+     * Limit how many CddCases to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddCase upsert
+   */
+  export type CddCaseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CddCase to update in case it exists.
+     */
+    where: CddCaseWhereUniqueInput
+    /**
+     * In case the CddCase found by the `where` argument doesn't exist, create a new CddCase with this data.
+     */
+    create: XOR<CddCaseCreateInput, CddCaseUncheckedCreateInput>
+    /**
+     * In case the CddCase was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CddCaseUpdateInput, CddCaseUncheckedUpdateInput>
+  }
+
+  /**
+   * CddCase delete
+   */
+  export type CddCaseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+    /**
+     * Filter which CddCase to delete.
+     */
+    where: CddCaseWhereUniqueInput
+  }
+
+  /**
+   * CddCase deleteMany
+   */
+  export type CddCaseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddCases to delete
+     */
+    where?: CddCaseWhereInput
+    /**
+     * Limit how many CddCases to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddCase.property
+   */
+  export type CddCase$propertyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Property
+     */
+    select?: PropertySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Property
+     */
+    omit?: PropertyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PropertyInclude<ExtArgs> | null
+    where?: PropertyWhereInput
+  }
+
+  /**
+   * CddCase.tenancy
+   */
+  export type CddCase$tenancyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tenancy
+     */
+    select?: TenancySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tenancy
+     */
+    omit?: TenancyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TenancyInclude<ExtArgs> | null
+    where?: TenancyWhereInput
+  }
+
+  /**
+   * CddCase.agency
+   */
+  export type CddCase$agencyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Agency
+     */
+    select?: AgencySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Agency
+     */
+    omit?: AgencyOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AgencyInclude<ExtArgs> | null
+    where?: AgencyWhereInput
+  }
+
+  /**
+   * CddCase.particulars
+   */
+  export type CddCase$particularsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    where?: CddParticularsWhereInput
+  }
+
+  /**
+   * CddCase.beneficialOwners
+   */
+  export type CddCase$beneficialOwnersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    where?: CddBeneficialOwnerWhereInput
+    orderBy?: CddBeneficialOwnerOrderByWithRelationInput | CddBeneficialOwnerOrderByWithRelationInput[]
+    cursor?: CddBeneficialOwnerWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddBeneficialOwnerScalarFieldEnum | CddBeneficialOwnerScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase.screeningRuns
+   */
+  export type CddCase$screeningRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    where?: ScreeningRunWhereInput
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    cursor?: ScreeningRunWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ScreeningRunScalarFieldEnum | ScreeningRunScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase.riskAssessment
+   */
+  export type CddCase$riskAssessmentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    where?: CddRiskAssessmentWhereInput
+  }
+
+  /**
+   * CddCase.events
+   */
+  export type CddCase$eventsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    where?: CddEventWhereInput
+    orderBy?: CddEventOrderByWithRelationInput | CddEventOrderByWithRelationInput[]
+    cursor?: CddEventWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CddEventScalarFieldEnum | CddEventScalarFieldEnum[]
+  }
+
+  /**
+   * CddCase without action
+   */
+  export type CddCaseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddCase
+     */
+    select?: CddCaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddCase
+     */
+    omit?: CddCaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddCaseInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CddParticulars
+   */
+
+  export type AggregateCddParticulars = {
+    _count: CddParticularsCountAggregateOutputType | null
+    _min: CddParticularsMinAggregateOutputType | null
+    _max: CddParticularsMaxAggregateOutputType | null
+  }
+
+  export type CddParticularsMinAggregateOutputType = {
+    caseId: string | null
+    kind: $Enums.StakeholderKind | null
+    legalName: string | null
+    idType: $Enums.CddIdType | null
+    idNumberEncrypted: string | null
+    idNumberLast4: string | null
+    nationality: string | null
+    dateOfBirth: Date | null
+    address: string | null
+    pepDeclared: boolean | null
+    pepDetails: string | null
+    submittedById: string | null
+    submittedInPerson: boolean | null
+    idSightedById: string | null
+    idSightedAt: Date | null
+    submittedAt: Date | null
+  }
+
+  export type CddParticularsMaxAggregateOutputType = {
+    caseId: string | null
+    kind: $Enums.StakeholderKind | null
+    legalName: string | null
+    idType: $Enums.CddIdType | null
+    idNumberEncrypted: string | null
+    idNumberLast4: string | null
+    nationality: string | null
+    dateOfBirth: Date | null
+    address: string | null
+    pepDeclared: boolean | null
+    pepDetails: string | null
+    submittedById: string | null
+    submittedInPerson: boolean | null
+    idSightedById: string | null
+    idSightedAt: Date | null
+    submittedAt: Date | null
+  }
+
+  export type CddParticularsCountAggregateOutputType = {
+    caseId: number
+    kind: number
+    legalName: number
+    idType: number
+    idNumberEncrypted: number
+    idNumberLast4: number
+    nationality: number
+    dateOfBirth: number
+    address: number
+    pepDeclared: number
+    pepDetails: number
+    submittedById: number
+    submittedInPerson: number
+    idSightedById: number
+    idSightedAt: number
+    submittedAt: number
+    _all: number
+  }
+
+
+  export type CddParticularsMinAggregateInputType = {
+    caseId?: true
+    kind?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    address?: true
+    pepDeclared?: true
+    pepDetails?: true
+    submittedById?: true
+    submittedInPerson?: true
+    idSightedById?: true
+    idSightedAt?: true
+    submittedAt?: true
+  }
+
+  export type CddParticularsMaxAggregateInputType = {
+    caseId?: true
+    kind?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    address?: true
+    pepDeclared?: true
+    pepDetails?: true
+    submittedById?: true
+    submittedInPerson?: true
+    idSightedById?: true
+    idSightedAt?: true
+    submittedAt?: true
+  }
+
+  export type CddParticularsCountAggregateInputType = {
+    caseId?: true
+    kind?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    address?: true
+    pepDeclared?: true
+    pepDetails?: true
+    submittedById?: true
+    submittedInPerson?: true
+    idSightedById?: true
+    idSightedAt?: true
+    submittedAt?: true
+    _all?: true
+  }
+
+  export type CddParticularsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddParticulars to aggregate.
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddParticulars to fetch.
+     */
+    orderBy?: CddParticularsOrderByWithRelationInput | CddParticularsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CddParticularsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddParticulars from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddParticulars.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CddParticulars
+    **/
+    _count?: true | CddParticularsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CddParticularsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CddParticularsMaxAggregateInputType
+  }
+
+  export type GetCddParticularsAggregateType<T extends CddParticularsAggregateArgs> = {
+        [P in keyof T & keyof AggregateCddParticulars]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCddParticulars[P]>
+      : GetScalarType<T[P], AggregateCddParticulars[P]>
+  }
+
+
+
+
+  export type CddParticularsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddParticularsWhereInput
+    orderBy?: CddParticularsOrderByWithAggregationInput | CddParticularsOrderByWithAggregationInput[]
+    by: CddParticularsScalarFieldEnum[] | CddParticularsScalarFieldEnum
+    having?: CddParticularsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CddParticularsCountAggregateInputType | true
+    _min?: CddParticularsMinAggregateInputType
+    _max?: CddParticularsMaxAggregateInputType
+  }
+
+  export type CddParticularsGroupByOutputType = {
+    caseId: string
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth: Date | null
+    address: string
+    pepDeclared: boolean
+    pepDetails: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById: string | null
+    idSightedAt: Date | null
+    submittedAt: Date
+    _count: CddParticularsCountAggregateOutputType | null
+    _min: CddParticularsMinAggregateOutputType | null
+    _max: CddParticularsMaxAggregateOutputType | null
+  }
+
+  type GetCddParticularsGroupByPayload<T extends CddParticularsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CddParticularsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CddParticularsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CddParticularsGroupByOutputType[P]>
+            : GetScalarType<T[P], CddParticularsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CddParticularsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    kind?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    address?: boolean
+    pepDeclared?: boolean
+    pepDetails?: boolean
+    submittedById?: boolean
+    submittedInPerson?: boolean
+    idSightedById?: boolean
+    idSightedAt?: boolean
+    submittedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddParticulars"]>
+
+  export type CddParticularsSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    kind?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    address?: boolean
+    pepDeclared?: boolean
+    pepDetails?: boolean
+    submittedById?: boolean
+    submittedInPerson?: boolean
+    idSightedById?: boolean
+    idSightedAt?: boolean
+    submittedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddParticulars"]>
+
+  export type CddParticularsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    kind?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    address?: boolean
+    pepDeclared?: boolean
+    pepDetails?: boolean
+    submittedById?: boolean
+    submittedInPerson?: boolean
+    idSightedById?: boolean
+    idSightedAt?: boolean
+    submittedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddParticulars"]>
+
+  export type CddParticularsSelectScalar = {
+    caseId?: boolean
+    kind?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    address?: boolean
+    pepDeclared?: boolean
+    pepDetails?: boolean
+    submittedById?: boolean
+    submittedInPerson?: boolean
+    idSightedById?: boolean
+    idSightedAt?: boolean
+    submittedAt?: boolean
+  }
+
+  export type CddParticularsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"caseId" | "kind" | "legalName" | "idType" | "idNumberEncrypted" | "idNumberLast4" | "nationality" | "dateOfBirth" | "address" | "pepDeclared" | "pepDetails" | "submittedById" | "submittedInPerson" | "idSightedById" | "idSightedAt" | "submittedAt", ExtArgs["result"]["cddParticulars"]>
+  export type CddParticularsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddParticularsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddParticularsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+
+  export type $CddParticularsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CddParticulars"
+    objects: {
+      case: Prisma.$CddCasePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      caseId: string
+      kind: $Enums.StakeholderKind
+      legalName: string
+      idType: $Enums.CddIdType
+      idNumberEncrypted: string
+      idNumberLast4: string
+      nationality: string
+      dateOfBirth: Date | null
+      address: string
+      pepDeclared: boolean
+      pepDetails: string | null
+      submittedById: string
+      submittedInPerson: boolean
+      /**
+       * The agent's attestation that they saw the ID, in person or by video call.
+       */
+      idSightedById: string | null
+      idSightedAt: Date | null
+      submittedAt: Date
+    }, ExtArgs["result"]["cddParticulars"]>
+    composites: {}
+  }
+
+  type CddParticularsGetPayload<S extends boolean | null | undefined | CddParticularsDefaultArgs> = $Result.GetResult<Prisma.$CddParticularsPayload, S>
+
+  type CddParticularsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CddParticularsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CddParticularsCountAggregateInputType | true
+    }
+
+  export interface CddParticularsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CddParticulars'], meta: { name: 'CddParticulars' } }
+    /**
+     * Find zero or one CddParticulars that matches the filter.
+     * @param {CddParticularsFindUniqueArgs} args - Arguments to find a CddParticulars
+     * @example
+     * // Get one CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CddParticularsFindUniqueArgs>(args: SelectSubset<T, CddParticularsFindUniqueArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CddParticulars that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CddParticularsFindUniqueOrThrowArgs} args - Arguments to find a CddParticulars
+     * @example
+     * // Get one CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CddParticularsFindUniqueOrThrowArgs>(args: SelectSubset<T, CddParticularsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddParticulars that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsFindFirstArgs} args - Arguments to find a CddParticulars
+     * @example
+     * // Get one CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CddParticularsFindFirstArgs>(args?: SelectSubset<T, CddParticularsFindFirstArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddParticulars that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsFindFirstOrThrowArgs} args - Arguments to find a CddParticulars
+     * @example
+     * // Get one CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CddParticularsFindFirstOrThrowArgs>(args?: SelectSubset<T, CddParticularsFindFirstOrThrowArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CddParticulars that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findMany()
+     * 
+     * // Get first 10 CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.findMany({ take: 10 })
+     * 
+     * // Only select the `caseId`
+     * const cddParticularsWithCaseIdOnly = await prisma.cddParticulars.findMany({ select: { caseId: true } })
+     * 
+     */
+    findMany<T extends CddParticularsFindManyArgs>(args?: SelectSubset<T, CddParticularsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CddParticulars.
+     * @param {CddParticularsCreateArgs} args - Arguments to create a CddParticulars.
+     * @example
+     * // Create one CddParticulars
+     * const CddParticulars = await prisma.cddParticulars.create({
+     *   data: {
+     *     // ... data to create a CddParticulars
+     *   }
+     * })
+     * 
+     */
+    create<T extends CddParticularsCreateArgs>(args: SelectSubset<T, CddParticularsCreateArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CddParticulars.
+     * @param {CddParticularsCreateManyArgs} args - Arguments to create many CddParticulars.
+     * @example
+     * // Create many CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CddParticularsCreateManyArgs>(args?: SelectSubset<T, CddParticularsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CddParticulars and returns the data saved in the database.
+     * @param {CddParticularsCreateManyAndReturnArgs} args - Arguments to create many CddParticulars.
+     * @example
+     * // Create many CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CddParticulars and only return the `caseId`
+     * const cddParticularsWithCaseIdOnly = await prisma.cddParticulars.createManyAndReturn({
+     *   select: { caseId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CddParticularsCreateManyAndReturnArgs>(args?: SelectSubset<T, CddParticularsCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CddParticulars.
+     * @param {CddParticularsDeleteArgs} args - Arguments to delete one CddParticulars.
+     * @example
+     * // Delete one CddParticulars
+     * const CddParticulars = await prisma.cddParticulars.delete({
+     *   where: {
+     *     // ... filter to delete one CddParticulars
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CddParticularsDeleteArgs>(args: SelectSubset<T, CddParticularsDeleteArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CddParticulars.
+     * @param {CddParticularsUpdateArgs} args - Arguments to update one CddParticulars.
+     * @example
+     * // Update one CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CddParticularsUpdateArgs>(args: SelectSubset<T, CddParticularsUpdateArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CddParticulars.
+     * @param {CddParticularsDeleteManyArgs} args - Arguments to filter CddParticulars to delete.
+     * @example
+     * // Delete a few CddParticulars
+     * const { count } = await prisma.cddParticulars.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CddParticularsDeleteManyArgs>(args?: SelectSubset<T, CddParticularsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddParticulars.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CddParticularsUpdateManyArgs>(args: SelectSubset<T, CddParticularsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddParticulars and returns the data updated in the database.
+     * @param {CddParticularsUpdateManyAndReturnArgs} args - Arguments to update many CddParticulars.
+     * @example
+     * // Update many CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CddParticulars and only return the `caseId`
+     * const cddParticularsWithCaseIdOnly = await prisma.cddParticulars.updateManyAndReturn({
+     *   select: { caseId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CddParticularsUpdateManyAndReturnArgs>(args: SelectSubset<T, CddParticularsUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CddParticulars.
+     * @param {CddParticularsUpsertArgs} args - Arguments to update or create a CddParticulars.
+     * @example
+     * // Update or create a CddParticulars
+     * const cddParticulars = await prisma.cddParticulars.upsert({
+     *   create: {
+     *     // ... data to create a CddParticulars
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CddParticulars we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CddParticularsUpsertArgs>(args: SelectSubset<T, CddParticularsUpsertArgs<ExtArgs>>): Prisma__CddParticularsClient<$Result.GetResult<Prisma.$CddParticularsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CddParticulars.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsCountArgs} args - Arguments to filter CddParticulars to count.
+     * @example
+     * // Count the number of CddParticulars
+     * const count = await prisma.cddParticulars.count({
+     *   where: {
+     *     // ... the filter for the CddParticulars we want to count
+     *   }
+     * })
+    **/
+    count<T extends CddParticularsCountArgs>(
+      args?: Subset<T, CddParticularsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CddParticularsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CddParticulars.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CddParticularsAggregateArgs>(args: Subset<T, CddParticularsAggregateArgs>): Prisma.PrismaPromise<GetCddParticularsAggregateType<T>>
+
+    /**
+     * Group by CddParticulars.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddParticularsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CddParticularsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CddParticularsGroupByArgs['orderBy'] }
+        : { orderBy?: CddParticularsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CddParticularsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCddParticularsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CddParticulars model
+   */
+  readonly fields: CddParticularsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CddParticulars.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CddParticularsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CddCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CddCaseDefaultArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CddParticulars model
+   */
+  interface CddParticularsFieldRefs {
+    readonly caseId: FieldRef<"CddParticulars", 'String'>
+    readonly kind: FieldRef<"CddParticulars", 'StakeholderKind'>
+    readonly legalName: FieldRef<"CddParticulars", 'String'>
+    readonly idType: FieldRef<"CddParticulars", 'CddIdType'>
+    readonly idNumberEncrypted: FieldRef<"CddParticulars", 'String'>
+    readonly idNumberLast4: FieldRef<"CddParticulars", 'String'>
+    readonly nationality: FieldRef<"CddParticulars", 'String'>
+    readonly dateOfBirth: FieldRef<"CddParticulars", 'DateTime'>
+    readonly address: FieldRef<"CddParticulars", 'String'>
+    readonly pepDeclared: FieldRef<"CddParticulars", 'Boolean'>
+    readonly pepDetails: FieldRef<"CddParticulars", 'String'>
+    readonly submittedById: FieldRef<"CddParticulars", 'String'>
+    readonly submittedInPerson: FieldRef<"CddParticulars", 'Boolean'>
+    readonly idSightedById: FieldRef<"CddParticulars", 'String'>
+    readonly idSightedAt: FieldRef<"CddParticulars", 'DateTime'>
+    readonly submittedAt: FieldRef<"CddParticulars", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CddParticulars findUnique
+   */
+  export type CddParticularsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter, which CddParticulars to fetch.
+     */
+    where: CddParticularsWhereUniqueInput
+  }
+
+  /**
+   * CddParticulars findUniqueOrThrow
+   */
+  export type CddParticularsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter, which CddParticulars to fetch.
+     */
+    where: CddParticularsWhereUniqueInput
+  }
+
+  /**
+   * CddParticulars findFirst
+   */
+  export type CddParticularsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter, which CddParticulars to fetch.
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddParticulars to fetch.
+     */
+    orderBy?: CddParticularsOrderByWithRelationInput | CddParticularsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddParticulars.
+     */
+    cursor?: CddParticularsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddParticulars from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddParticulars.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddParticulars.
+     */
+    distinct?: CddParticularsScalarFieldEnum | CddParticularsScalarFieldEnum[]
+  }
+
+  /**
+   * CddParticulars findFirstOrThrow
+   */
+  export type CddParticularsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter, which CddParticulars to fetch.
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddParticulars to fetch.
+     */
+    orderBy?: CddParticularsOrderByWithRelationInput | CddParticularsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddParticulars.
+     */
+    cursor?: CddParticularsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddParticulars from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddParticulars.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddParticulars.
+     */
+    distinct?: CddParticularsScalarFieldEnum | CddParticularsScalarFieldEnum[]
+  }
+
+  /**
+   * CddParticulars findMany
+   */
+  export type CddParticularsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter, which CddParticulars to fetch.
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddParticulars to fetch.
+     */
+    orderBy?: CddParticularsOrderByWithRelationInput | CddParticularsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CddParticulars.
+     */
+    cursor?: CddParticularsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddParticulars from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddParticulars.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddParticulars.
+     */
+    distinct?: CddParticularsScalarFieldEnum | CddParticularsScalarFieldEnum[]
+  }
+
+  /**
+   * CddParticulars create
+   */
+  export type CddParticularsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CddParticulars.
+     */
+    data: XOR<CddParticularsCreateInput, CddParticularsUncheckedCreateInput>
+  }
+
+  /**
+   * CddParticulars createMany
+   */
+  export type CddParticularsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CddParticulars.
+     */
+    data: CddParticularsCreateManyInput | CddParticularsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CddParticulars createManyAndReturn
+   */
+  export type CddParticularsCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * The data used to create many CddParticulars.
+     */
+    data: CddParticularsCreateManyInput | CddParticularsCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddParticulars update
+   */
+  export type CddParticularsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CddParticulars.
+     */
+    data: XOR<CddParticularsUpdateInput, CddParticularsUncheckedUpdateInput>
+    /**
+     * Choose, which CddParticulars to update.
+     */
+    where: CddParticularsWhereUniqueInput
+  }
+
+  /**
+   * CddParticulars updateMany
+   */
+  export type CddParticularsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CddParticulars.
+     */
+    data: XOR<CddParticularsUpdateManyMutationInput, CddParticularsUncheckedUpdateManyInput>
+    /**
+     * Filter which CddParticulars to update
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * Limit how many CddParticulars to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddParticulars updateManyAndReturn
+   */
+  export type CddParticularsUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * The data used to update CddParticulars.
+     */
+    data: XOR<CddParticularsUpdateManyMutationInput, CddParticularsUncheckedUpdateManyInput>
+    /**
+     * Filter which CddParticulars to update
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * Limit how many CddParticulars to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddParticulars upsert
+   */
+  export type CddParticularsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CddParticulars to update in case it exists.
+     */
+    where: CddParticularsWhereUniqueInput
+    /**
+     * In case the CddParticulars found by the `where` argument doesn't exist, create a new CddParticulars with this data.
+     */
+    create: XOR<CddParticularsCreateInput, CddParticularsUncheckedCreateInput>
+    /**
+     * In case the CddParticulars was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CddParticularsUpdateInput, CddParticularsUncheckedUpdateInput>
+  }
+
+  /**
+   * CddParticulars delete
+   */
+  export type CddParticularsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+    /**
+     * Filter which CddParticulars to delete.
+     */
+    where: CddParticularsWhereUniqueInput
+  }
+
+  /**
+   * CddParticulars deleteMany
+   */
+  export type CddParticularsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddParticulars to delete
+     */
+    where?: CddParticularsWhereInput
+    /**
+     * Limit how many CddParticulars to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddParticulars without action
+   */
+  export type CddParticularsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddParticulars
+     */
+    select?: CddParticularsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddParticulars
+     */
+    omit?: CddParticularsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddParticularsInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CddBeneficialOwner
+   */
+
+  export type AggregateCddBeneficialOwner = {
+    _count: CddBeneficialOwnerCountAggregateOutputType | null
+    _avg: CddBeneficialOwnerAvgAggregateOutputType | null
+    _sum: CddBeneficialOwnerSumAggregateOutputType | null
+    _min: CddBeneficialOwnerMinAggregateOutputType | null
+    _max: CddBeneficialOwnerMaxAggregateOutputType | null
+  }
+
+  export type CddBeneficialOwnerAvgAggregateOutputType = {
+    ownershipPercent: Decimal | null
+  }
+
+  export type CddBeneficialOwnerSumAggregateOutputType = {
+    ownershipPercent: Decimal | null
+  }
+
+  export type CddBeneficialOwnerMinAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    legalName: string | null
+    idType: $Enums.CddIdType | null
+    idNumberEncrypted: string | null
+    idNumberLast4: string | null
+    nationality: string | null
+    dateOfBirth: Date | null
+    ownershipPercent: Decimal | null
+    pepDeclared: boolean | null
+    createdAt: Date | null
+  }
+
+  export type CddBeneficialOwnerMaxAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    legalName: string | null
+    idType: $Enums.CddIdType | null
+    idNumberEncrypted: string | null
+    idNumberLast4: string | null
+    nationality: string | null
+    dateOfBirth: Date | null
+    ownershipPercent: Decimal | null
+    pepDeclared: boolean | null
+    createdAt: Date | null
+  }
+
+  export type CddBeneficialOwnerCountAggregateOutputType = {
+    id: number
+    caseId: number
+    legalName: number
+    idType: number
+    idNumberEncrypted: number
+    idNumberLast4: number
+    nationality: number
+    dateOfBirth: number
+    ownershipPercent: number
+    pepDeclared: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CddBeneficialOwnerAvgAggregateInputType = {
+    ownershipPercent?: true
+  }
+
+  export type CddBeneficialOwnerSumAggregateInputType = {
+    ownershipPercent?: true
+  }
+
+  export type CddBeneficialOwnerMinAggregateInputType = {
+    id?: true
+    caseId?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    ownershipPercent?: true
+    pepDeclared?: true
+    createdAt?: true
+  }
+
+  export type CddBeneficialOwnerMaxAggregateInputType = {
+    id?: true
+    caseId?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    ownershipPercent?: true
+    pepDeclared?: true
+    createdAt?: true
+  }
+
+  export type CddBeneficialOwnerCountAggregateInputType = {
+    id?: true
+    caseId?: true
+    legalName?: true
+    idType?: true
+    idNumberEncrypted?: true
+    idNumberLast4?: true
+    nationality?: true
+    dateOfBirth?: true
+    ownershipPercent?: true
+    pepDeclared?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CddBeneficialOwnerAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddBeneficialOwner to aggregate.
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddBeneficialOwners to fetch.
+     */
+    orderBy?: CddBeneficialOwnerOrderByWithRelationInput | CddBeneficialOwnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CddBeneficialOwnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddBeneficialOwners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddBeneficialOwners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CddBeneficialOwners
+    **/
+    _count?: true | CddBeneficialOwnerCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CddBeneficialOwnerAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CddBeneficialOwnerSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CddBeneficialOwnerMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CddBeneficialOwnerMaxAggregateInputType
+  }
+
+  export type GetCddBeneficialOwnerAggregateType<T extends CddBeneficialOwnerAggregateArgs> = {
+        [P in keyof T & keyof AggregateCddBeneficialOwner]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCddBeneficialOwner[P]>
+      : GetScalarType<T[P], AggregateCddBeneficialOwner[P]>
+  }
+
+
+
+
+  export type CddBeneficialOwnerGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddBeneficialOwnerWhereInput
+    orderBy?: CddBeneficialOwnerOrderByWithAggregationInput | CddBeneficialOwnerOrderByWithAggregationInput[]
+    by: CddBeneficialOwnerScalarFieldEnum[] | CddBeneficialOwnerScalarFieldEnum
+    having?: CddBeneficialOwnerScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CddBeneficialOwnerCountAggregateInputType | true
+    _avg?: CddBeneficialOwnerAvgAggregateInputType
+    _sum?: CddBeneficialOwnerSumAggregateInputType
+    _min?: CddBeneficialOwnerMinAggregateInputType
+    _max?: CddBeneficialOwnerMaxAggregateInputType
+  }
+
+  export type CddBeneficialOwnerGroupByOutputType = {
+    id: string
+    caseId: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth: Date | null
+    ownershipPercent: Decimal | null
+    pepDeclared: boolean
+    createdAt: Date
+    _count: CddBeneficialOwnerCountAggregateOutputType | null
+    _avg: CddBeneficialOwnerAvgAggregateOutputType | null
+    _sum: CddBeneficialOwnerSumAggregateOutputType | null
+    _min: CddBeneficialOwnerMinAggregateOutputType | null
+    _max: CddBeneficialOwnerMaxAggregateOutputType | null
+  }
+
+  type GetCddBeneficialOwnerGroupByPayload<T extends CddBeneficialOwnerGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CddBeneficialOwnerGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CddBeneficialOwnerGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CddBeneficialOwnerGroupByOutputType[P]>
+            : GetScalarType<T[P], CddBeneficialOwnerGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CddBeneficialOwnerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    ownershipPercent?: boolean
+    pepDeclared?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    screeningRuns?: boolean | CddBeneficialOwner$screeningRunsArgs<ExtArgs>
+    _count?: boolean | CddBeneficialOwnerCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddBeneficialOwner"]>
+
+  export type CddBeneficialOwnerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    ownershipPercent?: boolean
+    pepDeclared?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddBeneficialOwner"]>
+
+  export type CddBeneficialOwnerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    ownershipPercent?: boolean
+    pepDeclared?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddBeneficialOwner"]>
+
+  export type CddBeneficialOwnerSelectScalar = {
+    id?: boolean
+    caseId?: boolean
+    legalName?: boolean
+    idType?: boolean
+    idNumberEncrypted?: boolean
+    idNumberLast4?: boolean
+    nationality?: boolean
+    dateOfBirth?: boolean
+    ownershipPercent?: boolean
+    pepDeclared?: boolean
+    createdAt?: boolean
+  }
+
+  export type CddBeneficialOwnerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "legalName" | "idType" | "idNumberEncrypted" | "idNumberLast4" | "nationality" | "dateOfBirth" | "ownershipPercent" | "pepDeclared" | "createdAt", ExtArgs["result"]["cddBeneficialOwner"]>
+  export type CddBeneficialOwnerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    screeningRuns?: boolean | CddBeneficialOwner$screeningRunsArgs<ExtArgs>
+    _count?: boolean | CddBeneficialOwnerCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type CddBeneficialOwnerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddBeneficialOwnerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+
+  export type $CddBeneficialOwnerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CddBeneficialOwner"
+    objects: {
+      case: Prisma.$CddCasePayload<ExtArgs>
+      screeningRuns: Prisma.$ScreeningRunPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      caseId: string
+      legalName: string
+      idType: $Enums.CddIdType
+      idNumberEncrypted: string
+      idNumberLast4: string
+      nationality: string
+      dateOfBirth: Date | null
+      ownershipPercent: Prisma.Decimal | null
+      pepDeclared: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["cddBeneficialOwner"]>
+    composites: {}
+  }
+
+  type CddBeneficialOwnerGetPayload<S extends boolean | null | undefined | CddBeneficialOwnerDefaultArgs> = $Result.GetResult<Prisma.$CddBeneficialOwnerPayload, S>
+
+  type CddBeneficialOwnerCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CddBeneficialOwnerFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CddBeneficialOwnerCountAggregateInputType | true
+    }
+
+  export interface CddBeneficialOwnerDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CddBeneficialOwner'], meta: { name: 'CddBeneficialOwner' } }
+    /**
+     * Find zero or one CddBeneficialOwner that matches the filter.
+     * @param {CddBeneficialOwnerFindUniqueArgs} args - Arguments to find a CddBeneficialOwner
+     * @example
+     * // Get one CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CddBeneficialOwnerFindUniqueArgs>(args: SelectSubset<T, CddBeneficialOwnerFindUniqueArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CddBeneficialOwner that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CddBeneficialOwnerFindUniqueOrThrowArgs} args - Arguments to find a CddBeneficialOwner
+     * @example
+     * // Get one CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CddBeneficialOwnerFindUniqueOrThrowArgs>(args: SelectSubset<T, CddBeneficialOwnerFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddBeneficialOwner that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerFindFirstArgs} args - Arguments to find a CddBeneficialOwner
+     * @example
+     * // Get one CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CddBeneficialOwnerFindFirstArgs>(args?: SelectSubset<T, CddBeneficialOwnerFindFirstArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddBeneficialOwner that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerFindFirstOrThrowArgs} args - Arguments to find a CddBeneficialOwner
+     * @example
+     * // Get one CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CddBeneficialOwnerFindFirstOrThrowArgs>(args?: SelectSubset<T, CddBeneficialOwnerFindFirstOrThrowArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CddBeneficialOwners that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CddBeneficialOwners
+     * const cddBeneficialOwners = await prisma.cddBeneficialOwner.findMany()
+     * 
+     * // Get first 10 CddBeneficialOwners
+     * const cddBeneficialOwners = await prisma.cddBeneficialOwner.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const cddBeneficialOwnerWithIdOnly = await prisma.cddBeneficialOwner.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CddBeneficialOwnerFindManyArgs>(args?: SelectSubset<T, CddBeneficialOwnerFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CddBeneficialOwner.
+     * @param {CddBeneficialOwnerCreateArgs} args - Arguments to create a CddBeneficialOwner.
+     * @example
+     * // Create one CddBeneficialOwner
+     * const CddBeneficialOwner = await prisma.cddBeneficialOwner.create({
+     *   data: {
+     *     // ... data to create a CddBeneficialOwner
+     *   }
+     * })
+     * 
+     */
+    create<T extends CddBeneficialOwnerCreateArgs>(args: SelectSubset<T, CddBeneficialOwnerCreateArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CddBeneficialOwners.
+     * @param {CddBeneficialOwnerCreateManyArgs} args - Arguments to create many CddBeneficialOwners.
+     * @example
+     * // Create many CddBeneficialOwners
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CddBeneficialOwnerCreateManyArgs>(args?: SelectSubset<T, CddBeneficialOwnerCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CddBeneficialOwners and returns the data saved in the database.
+     * @param {CddBeneficialOwnerCreateManyAndReturnArgs} args - Arguments to create many CddBeneficialOwners.
+     * @example
+     * // Create many CddBeneficialOwners
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CddBeneficialOwners and only return the `id`
+     * const cddBeneficialOwnerWithIdOnly = await prisma.cddBeneficialOwner.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CddBeneficialOwnerCreateManyAndReturnArgs>(args?: SelectSubset<T, CddBeneficialOwnerCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CddBeneficialOwner.
+     * @param {CddBeneficialOwnerDeleteArgs} args - Arguments to delete one CddBeneficialOwner.
+     * @example
+     * // Delete one CddBeneficialOwner
+     * const CddBeneficialOwner = await prisma.cddBeneficialOwner.delete({
+     *   where: {
+     *     // ... filter to delete one CddBeneficialOwner
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CddBeneficialOwnerDeleteArgs>(args: SelectSubset<T, CddBeneficialOwnerDeleteArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CddBeneficialOwner.
+     * @param {CddBeneficialOwnerUpdateArgs} args - Arguments to update one CddBeneficialOwner.
+     * @example
+     * // Update one CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CddBeneficialOwnerUpdateArgs>(args: SelectSubset<T, CddBeneficialOwnerUpdateArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CddBeneficialOwners.
+     * @param {CddBeneficialOwnerDeleteManyArgs} args - Arguments to filter CddBeneficialOwners to delete.
+     * @example
+     * // Delete a few CddBeneficialOwners
+     * const { count } = await prisma.cddBeneficialOwner.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CddBeneficialOwnerDeleteManyArgs>(args?: SelectSubset<T, CddBeneficialOwnerDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddBeneficialOwners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CddBeneficialOwners
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CddBeneficialOwnerUpdateManyArgs>(args: SelectSubset<T, CddBeneficialOwnerUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddBeneficialOwners and returns the data updated in the database.
+     * @param {CddBeneficialOwnerUpdateManyAndReturnArgs} args - Arguments to update many CddBeneficialOwners.
+     * @example
+     * // Update many CddBeneficialOwners
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CddBeneficialOwners and only return the `id`
+     * const cddBeneficialOwnerWithIdOnly = await prisma.cddBeneficialOwner.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CddBeneficialOwnerUpdateManyAndReturnArgs>(args: SelectSubset<T, CddBeneficialOwnerUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CddBeneficialOwner.
+     * @param {CddBeneficialOwnerUpsertArgs} args - Arguments to update or create a CddBeneficialOwner.
+     * @example
+     * // Update or create a CddBeneficialOwner
+     * const cddBeneficialOwner = await prisma.cddBeneficialOwner.upsert({
+     *   create: {
+     *     // ... data to create a CddBeneficialOwner
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CddBeneficialOwner we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CddBeneficialOwnerUpsertArgs>(args: SelectSubset<T, CddBeneficialOwnerUpsertArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CddBeneficialOwners.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerCountArgs} args - Arguments to filter CddBeneficialOwners to count.
+     * @example
+     * // Count the number of CddBeneficialOwners
+     * const count = await prisma.cddBeneficialOwner.count({
+     *   where: {
+     *     // ... the filter for the CddBeneficialOwners we want to count
+     *   }
+     * })
+    **/
+    count<T extends CddBeneficialOwnerCountArgs>(
+      args?: Subset<T, CddBeneficialOwnerCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CddBeneficialOwnerCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CddBeneficialOwner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CddBeneficialOwnerAggregateArgs>(args: Subset<T, CddBeneficialOwnerAggregateArgs>): Prisma.PrismaPromise<GetCddBeneficialOwnerAggregateType<T>>
+
+    /**
+     * Group by CddBeneficialOwner.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddBeneficialOwnerGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CddBeneficialOwnerGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CddBeneficialOwnerGroupByArgs['orderBy'] }
+        : { orderBy?: CddBeneficialOwnerGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CddBeneficialOwnerGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCddBeneficialOwnerGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CddBeneficialOwner model
+   */
+  readonly fields: CddBeneficialOwnerFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CddBeneficialOwner.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CddBeneficialOwnerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CddCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CddCaseDefaultArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    screeningRuns<T extends CddBeneficialOwner$screeningRunsArgs<ExtArgs> = {}>(args?: Subset<T, CddBeneficialOwner$screeningRunsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CddBeneficialOwner model
+   */
+  interface CddBeneficialOwnerFieldRefs {
+    readonly id: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly caseId: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly legalName: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly idType: FieldRef<"CddBeneficialOwner", 'CddIdType'>
+    readonly idNumberEncrypted: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly idNumberLast4: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly nationality: FieldRef<"CddBeneficialOwner", 'String'>
+    readonly dateOfBirth: FieldRef<"CddBeneficialOwner", 'DateTime'>
+    readonly ownershipPercent: FieldRef<"CddBeneficialOwner", 'Decimal'>
+    readonly pepDeclared: FieldRef<"CddBeneficialOwner", 'Boolean'>
+    readonly createdAt: FieldRef<"CddBeneficialOwner", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CddBeneficialOwner findUnique
+   */
+  export type CddBeneficialOwnerFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter, which CddBeneficialOwner to fetch.
+     */
+    where: CddBeneficialOwnerWhereUniqueInput
+  }
+
+  /**
+   * CddBeneficialOwner findUniqueOrThrow
+   */
+  export type CddBeneficialOwnerFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter, which CddBeneficialOwner to fetch.
+     */
+    where: CddBeneficialOwnerWhereUniqueInput
+  }
+
+  /**
+   * CddBeneficialOwner findFirst
+   */
+  export type CddBeneficialOwnerFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter, which CddBeneficialOwner to fetch.
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddBeneficialOwners to fetch.
+     */
+    orderBy?: CddBeneficialOwnerOrderByWithRelationInput | CddBeneficialOwnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddBeneficialOwners.
+     */
+    cursor?: CddBeneficialOwnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddBeneficialOwners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddBeneficialOwners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddBeneficialOwners.
+     */
+    distinct?: CddBeneficialOwnerScalarFieldEnum | CddBeneficialOwnerScalarFieldEnum[]
+  }
+
+  /**
+   * CddBeneficialOwner findFirstOrThrow
+   */
+  export type CddBeneficialOwnerFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter, which CddBeneficialOwner to fetch.
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddBeneficialOwners to fetch.
+     */
+    orderBy?: CddBeneficialOwnerOrderByWithRelationInput | CddBeneficialOwnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddBeneficialOwners.
+     */
+    cursor?: CddBeneficialOwnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddBeneficialOwners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddBeneficialOwners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddBeneficialOwners.
+     */
+    distinct?: CddBeneficialOwnerScalarFieldEnum | CddBeneficialOwnerScalarFieldEnum[]
+  }
+
+  /**
+   * CddBeneficialOwner findMany
+   */
+  export type CddBeneficialOwnerFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter, which CddBeneficialOwners to fetch.
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddBeneficialOwners to fetch.
+     */
+    orderBy?: CddBeneficialOwnerOrderByWithRelationInput | CddBeneficialOwnerOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CddBeneficialOwners.
+     */
+    cursor?: CddBeneficialOwnerWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddBeneficialOwners from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddBeneficialOwners.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddBeneficialOwners.
+     */
+    distinct?: CddBeneficialOwnerScalarFieldEnum | CddBeneficialOwnerScalarFieldEnum[]
+  }
+
+  /**
+   * CddBeneficialOwner create
+   */
+  export type CddBeneficialOwnerCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CddBeneficialOwner.
+     */
+    data: XOR<CddBeneficialOwnerCreateInput, CddBeneficialOwnerUncheckedCreateInput>
+  }
+
+  /**
+   * CddBeneficialOwner createMany
+   */
+  export type CddBeneficialOwnerCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CddBeneficialOwners.
+     */
+    data: CddBeneficialOwnerCreateManyInput | CddBeneficialOwnerCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CddBeneficialOwner createManyAndReturn
+   */
+  export type CddBeneficialOwnerCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * The data used to create many CddBeneficialOwners.
+     */
+    data: CddBeneficialOwnerCreateManyInput | CddBeneficialOwnerCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddBeneficialOwner update
+   */
+  export type CddBeneficialOwnerUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CddBeneficialOwner.
+     */
+    data: XOR<CddBeneficialOwnerUpdateInput, CddBeneficialOwnerUncheckedUpdateInput>
+    /**
+     * Choose, which CddBeneficialOwner to update.
+     */
+    where: CddBeneficialOwnerWhereUniqueInput
+  }
+
+  /**
+   * CddBeneficialOwner updateMany
+   */
+  export type CddBeneficialOwnerUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CddBeneficialOwners.
+     */
+    data: XOR<CddBeneficialOwnerUpdateManyMutationInput, CddBeneficialOwnerUncheckedUpdateManyInput>
+    /**
+     * Filter which CddBeneficialOwners to update
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * Limit how many CddBeneficialOwners to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddBeneficialOwner updateManyAndReturn
+   */
+  export type CddBeneficialOwnerUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * The data used to update CddBeneficialOwners.
+     */
+    data: XOR<CddBeneficialOwnerUpdateManyMutationInput, CddBeneficialOwnerUncheckedUpdateManyInput>
+    /**
+     * Filter which CddBeneficialOwners to update
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * Limit how many CddBeneficialOwners to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddBeneficialOwner upsert
+   */
+  export type CddBeneficialOwnerUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CddBeneficialOwner to update in case it exists.
+     */
+    where: CddBeneficialOwnerWhereUniqueInput
+    /**
+     * In case the CddBeneficialOwner found by the `where` argument doesn't exist, create a new CddBeneficialOwner with this data.
+     */
+    create: XOR<CddBeneficialOwnerCreateInput, CddBeneficialOwnerUncheckedCreateInput>
+    /**
+     * In case the CddBeneficialOwner was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CddBeneficialOwnerUpdateInput, CddBeneficialOwnerUncheckedUpdateInput>
+  }
+
+  /**
+   * CddBeneficialOwner delete
+   */
+  export type CddBeneficialOwnerDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    /**
+     * Filter which CddBeneficialOwner to delete.
+     */
+    where: CddBeneficialOwnerWhereUniqueInput
+  }
+
+  /**
+   * CddBeneficialOwner deleteMany
+   */
+  export type CddBeneficialOwnerDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddBeneficialOwners to delete
+     */
+    where?: CddBeneficialOwnerWhereInput
+    /**
+     * Limit how many CddBeneficialOwners to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddBeneficialOwner.screeningRuns
+   */
+  export type CddBeneficialOwner$screeningRunsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    where?: ScreeningRunWhereInput
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    cursor?: ScreeningRunWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ScreeningRunScalarFieldEnum | ScreeningRunScalarFieldEnum[]
+  }
+
+  /**
+   * CddBeneficialOwner without action
+   */
+  export type CddBeneficialOwnerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ScreeningRun
+   */
+
+  export type AggregateScreeningRun = {
+    _count: ScreeningRunCountAggregateOutputType | null
+    _avg: ScreeningRunAvgAggregateOutputType | null
+    _sum: ScreeningRunSumAggregateOutputType | null
+    _min: ScreeningRunMinAggregateOutputType | null
+    _max: ScreeningRunMaxAggregateOutputType | null
+  }
+
+  export type ScreeningRunAvgAggregateOutputType = {
+    subjectBirthYear: number | null
+  }
+
+  export type ScreeningRunSumAggregateOutputType = {
+    subjectBirthYear: number | null
+  }
+
+  export type ScreeningRunMinAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    beneficialOwnerId: string | null
+    subjectName: string | null
+    subjectBirthYear: number | null
+    provider: string | null
+    ranAt: Date | null
+  }
+
+  export type ScreeningRunMaxAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    beneficialOwnerId: string | null
+    subjectName: string | null
+    subjectBirthYear: number | null
+    provider: string | null
+    ranAt: Date | null
+  }
+
+  export type ScreeningRunCountAggregateOutputType = {
+    id: number
+    caseId: number
+    beneficialOwnerId: number
+    subjectName: number
+    subjectBirthYear: number
+    provider: number
+    listVersions: number
+    ranAt: number
+    _all: number
+  }
+
+
+  export type ScreeningRunAvgAggregateInputType = {
+    subjectBirthYear?: true
+  }
+
+  export type ScreeningRunSumAggregateInputType = {
+    subjectBirthYear?: true
+  }
+
+  export type ScreeningRunMinAggregateInputType = {
+    id?: true
+    caseId?: true
+    beneficialOwnerId?: true
+    subjectName?: true
+    subjectBirthYear?: true
+    provider?: true
+    ranAt?: true
+  }
+
+  export type ScreeningRunMaxAggregateInputType = {
+    id?: true
+    caseId?: true
+    beneficialOwnerId?: true
+    subjectName?: true
+    subjectBirthYear?: true
+    provider?: true
+    ranAt?: true
+  }
+
+  export type ScreeningRunCountAggregateInputType = {
+    id?: true
+    caseId?: true
+    beneficialOwnerId?: true
+    subjectName?: true
+    subjectBirthYear?: true
+    provider?: true
+    listVersions?: true
+    ranAt?: true
+    _all?: true
+  }
+
+  export type ScreeningRunAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScreeningRun to aggregate.
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningRuns to fetch.
+     */
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ScreeningRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ScreeningRuns
+    **/
+    _count?: true | ScreeningRunCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ScreeningRunAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ScreeningRunSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ScreeningRunMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ScreeningRunMaxAggregateInputType
+  }
+
+  export type GetScreeningRunAggregateType<T extends ScreeningRunAggregateArgs> = {
+        [P in keyof T & keyof AggregateScreeningRun]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateScreeningRun[P]>
+      : GetScalarType<T[P], AggregateScreeningRun[P]>
+  }
+
+
+
+
+  export type ScreeningRunGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScreeningRunWhereInput
+    orderBy?: ScreeningRunOrderByWithAggregationInput | ScreeningRunOrderByWithAggregationInput[]
+    by: ScreeningRunScalarFieldEnum[] | ScreeningRunScalarFieldEnum
+    having?: ScreeningRunScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ScreeningRunCountAggregateInputType | true
+    _avg?: ScreeningRunAvgAggregateInputType
+    _sum?: ScreeningRunSumAggregateInputType
+    _min?: ScreeningRunMinAggregateInputType
+    _max?: ScreeningRunMaxAggregateInputType
+  }
+
+  export type ScreeningRunGroupByOutputType = {
+    id: string
+    caseId: string
+    beneficialOwnerId: string | null
+    subjectName: string
+    subjectBirthYear: number | null
+    provider: string
+    listVersions: JsonValue
+    ranAt: Date
+    _count: ScreeningRunCountAggregateOutputType | null
+    _avg: ScreeningRunAvgAggregateOutputType | null
+    _sum: ScreeningRunSumAggregateOutputType | null
+    _min: ScreeningRunMinAggregateOutputType | null
+    _max: ScreeningRunMaxAggregateOutputType | null
+  }
+
+  type GetScreeningRunGroupByPayload<T extends ScreeningRunGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ScreeningRunGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ScreeningRunGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ScreeningRunGroupByOutputType[P]>
+            : GetScalarType<T[P], ScreeningRunGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ScreeningRunSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    beneficialOwnerId?: boolean
+    subjectName?: boolean
+    subjectBirthYear?: boolean
+    provider?: boolean
+    listVersions?: boolean
+    ranAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+    candidates?: boolean | ScreeningRun$candidatesArgs<ExtArgs>
+    _count?: boolean | ScreeningRunCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningRun"]>
+
+  export type ScreeningRunSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    beneficialOwnerId?: boolean
+    subjectName?: boolean
+    subjectBirthYear?: boolean
+    provider?: boolean
+    listVersions?: boolean
+    ranAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningRun"]>
+
+  export type ScreeningRunSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    beneficialOwnerId?: boolean
+    subjectName?: boolean
+    subjectBirthYear?: boolean
+    provider?: boolean
+    listVersions?: boolean
+    ranAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningRun"]>
+
+  export type ScreeningRunSelectScalar = {
+    id?: boolean
+    caseId?: boolean
+    beneficialOwnerId?: boolean
+    subjectName?: boolean
+    subjectBirthYear?: boolean
+    provider?: boolean
+    listVersions?: boolean
+    ranAt?: boolean
+  }
+
+  export type ScreeningRunOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "beneficialOwnerId" | "subjectName" | "subjectBirthYear" | "provider" | "listVersions" | "ranAt", ExtArgs["result"]["screeningRun"]>
+  export type ScreeningRunInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+    candidates?: boolean | ScreeningRun$candidatesArgs<ExtArgs>
+    _count?: boolean | ScreeningRunCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type ScreeningRunIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+  }
+  export type ScreeningRunIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+    beneficialOwner?: boolean | ScreeningRun$beneficialOwnerArgs<ExtArgs>
+  }
+
+  export type $ScreeningRunPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ScreeningRun"
+    objects: {
+      case: Prisma.$CddCasePayload<ExtArgs>
+      beneficialOwner: Prisma.$CddBeneficialOwnerPayload<ExtArgs> | null
+      candidates: Prisma.$ScreeningCandidatePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      caseId: string
+      beneficialOwnerId: string | null
+      subjectName: string
+      subjectBirthYear: number | null
+      provider: string
+      /**
+       * The source, publication date and checksum of every list checked.
+       */
+      listVersions: Prisma.JsonValue
+      ranAt: Date
+    }, ExtArgs["result"]["screeningRun"]>
+    composites: {}
+  }
+
+  type ScreeningRunGetPayload<S extends boolean | null | undefined | ScreeningRunDefaultArgs> = $Result.GetResult<Prisma.$ScreeningRunPayload, S>
+
+  type ScreeningRunCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ScreeningRunFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ScreeningRunCountAggregateInputType | true
+    }
+
+  export interface ScreeningRunDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScreeningRun'], meta: { name: 'ScreeningRun' } }
+    /**
+     * Find zero or one ScreeningRun that matches the filter.
+     * @param {ScreeningRunFindUniqueArgs} args - Arguments to find a ScreeningRun
+     * @example
+     * // Get one ScreeningRun
+     * const screeningRun = await prisma.screeningRun.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ScreeningRunFindUniqueArgs>(args: SelectSubset<T, ScreeningRunFindUniqueArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ScreeningRun that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ScreeningRunFindUniqueOrThrowArgs} args - Arguments to find a ScreeningRun
+     * @example
+     * // Get one ScreeningRun
+     * const screeningRun = await prisma.screeningRun.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ScreeningRunFindUniqueOrThrowArgs>(args: SelectSubset<T, ScreeningRunFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScreeningRun that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunFindFirstArgs} args - Arguments to find a ScreeningRun
+     * @example
+     * // Get one ScreeningRun
+     * const screeningRun = await prisma.screeningRun.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ScreeningRunFindFirstArgs>(args?: SelectSubset<T, ScreeningRunFindFirstArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScreeningRun that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunFindFirstOrThrowArgs} args - Arguments to find a ScreeningRun
+     * @example
+     * // Get one ScreeningRun
+     * const screeningRun = await prisma.screeningRun.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ScreeningRunFindFirstOrThrowArgs>(args?: SelectSubset<T, ScreeningRunFindFirstOrThrowArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScreeningRuns that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ScreeningRuns
+     * const screeningRuns = await prisma.screeningRun.findMany()
+     * 
+     * // Get first 10 ScreeningRuns
+     * const screeningRuns = await prisma.screeningRun.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const screeningRunWithIdOnly = await prisma.screeningRun.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ScreeningRunFindManyArgs>(args?: SelectSubset<T, ScreeningRunFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ScreeningRun.
+     * @param {ScreeningRunCreateArgs} args - Arguments to create a ScreeningRun.
+     * @example
+     * // Create one ScreeningRun
+     * const ScreeningRun = await prisma.screeningRun.create({
+     *   data: {
+     *     // ... data to create a ScreeningRun
+     *   }
+     * })
+     * 
+     */
+    create<T extends ScreeningRunCreateArgs>(args: SelectSubset<T, ScreeningRunCreateArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ScreeningRuns.
+     * @param {ScreeningRunCreateManyArgs} args - Arguments to create many ScreeningRuns.
+     * @example
+     * // Create many ScreeningRuns
+     * const screeningRun = await prisma.screeningRun.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ScreeningRunCreateManyArgs>(args?: SelectSubset<T, ScreeningRunCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ScreeningRuns and returns the data saved in the database.
+     * @param {ScreeningRunCreateManyAndReturnArgs} args - Arguments to create many ScreeningRuns.
+     * @example
+     * // Create many ScreeningRuns
+     * const screeningRun = await prisma.screeningRun.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ScreeningRuns and only return the `id`
+     * const screeningRunWithIdOnly = await prisma.screeningRun.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ScreeningRunCreateManyAndReturnArgs>(args?: SelectSubset<T, ScreeningRunCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ScreeningRun.
+     * @param {ScreeningRunDeleteArgs} args - Arguments to delete one ScreeningRun.
+     * @example
+     * // Delete one ScreeningRun
+     * const ScreeningRun = await prisma.screeningRun.delete({
+     *   where: {
+     *     // ... filter to delete one ScreeningRun
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ScreeningRunDeleteArgs>(args: SelectSubset<T, ScreeningRunDeleteArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ScreeningRun.
+     * @param {ScreeningRunUpdateArgs} args - Arguments to update one ScreeningRun.
+     * @example
+     * // Update one ScreeningRun
+     * const screeningRun = await prisma.screeningRun.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ScreeningRunUpdateArgs>(args: SelectSubset<T, ScreeningRunUpdateArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ScreeningRuns.
+     * @param {ScreeningRunDeleteManyArgs} args - Arguments to filter ScreeningRuns to delete.
+     * @example
+     * // Delete a few ScreeningRuns
+     * const { count } = await prisma.screeningRun.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ScreeningRunDeleteManyArgs>(args?: SelectSubset<T, ScreeningRunDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScreeningRuns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ScreeningRuns
+     * const screeningRun = await prisma.screeningRun.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ScreeningRunUpdateManyArgs>(args: SelectSubset<T, ScreeningRunUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScreeningRuns and returns the data updated in the database.
+     * @param {ScreeningRunUpdateManyAndReturnArgs} args - Arguments to update many ScreeningRuns.
+     * @example
+     * // Update many ScreeningRuns
+     * const screeningRun = await prisma.screeningRun.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ScreeningRuns and only return the `id`
+     * const screeningRunWithIdOnly = await prisma.screeningRun.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ScreeningRunUpdateManyAndReturnArgs>(args: SelectSubset<T, ScreeningRunUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ScreeningRun.
+     * @param {ScreeningRunUpsertArgs} args - Arguments to update or create a ScreeningRun.
+     * @example
+     * // Update or create a ScreeningRun
+     * const screeningRun = await prisma.screeningRun.upsert({
+     *   create: {
+     *     // ... data to create a ScreeningRun
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ScreeningRun we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ScreeningRunUpsertArgs>(args: SelectSubset<T, ScreeningRunUpsertArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ScreeningRuns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunCountArgs} args - Arguments to filter ScreeningRuns to count.
+     * @example
+     * // Count the number of ScreeningRuns
+     * const count = await prisma.screeningRun.count({
+     *   where: {
+     *     // ... the filter for the ScreeningRuns we want to count
+     *   }
+     * })
+    **/
+    count<T extends ScreeningRunCountArgs>(
+      args?: Subset<T, ScreeningRunCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ScreeningRunCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ScreeningRun.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ScreeningRunAggregateArgs>(args: Subset<T, ScreeningRunAggregateArgs>): Prisma.PrismaPromise<GetScreeningRunAggregateType<T>>
+
+    /**
+     * Group by ScreeningRun.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningRunGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ScreeningRunGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ScreeningRunGroupByArgs['orderBy'] }
+        : { orderBy?: ScreeningRunGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ScreeningRunGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScreeningRunGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ScreeningRun model
+   */
+  readonly fields: ScreeningRunFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ScreeningRun.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ScreeningRunClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CddCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CddCaseDefaultArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    beneficialOwner<T extends ScreeningRun$beneficialOwnerArgs<ExtArgs> = {}>(args?: Subset<T, ScreeningRun$beneficialOwnerArgs<ExtArgs>>): Prisma__CddBeneficialOwnerClient<$Result.GetResult<Prisma.$CddBeneficialOwnerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    candidates<T extends ScreeningRun$candidatesArgs<ExtArgs> = {}>(args?: Subset<T, ScreeningRun$candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ScreeningRun model
+   */
+  interface ScreeningRunFieldRefs {
+    readonly id: FieldRef<"ScreeningRun", 'String'>
+    readonly caseId: FieldRef<"ScreeningRun", 'String'>
+    readonly beneficialOwnerId: FieldRef<"ScreeningRun", 'String'>
+    readonly subjectName: FieldRef<"ScreeningRun", 'String'>
+    readonly subjectBirthYear: FieldRef<"ScreeningRun", 'Int'>
+    readonly provider: FieldRef<"ScreeningRun", 'String'>
+    readonly listVersions: FieldRef<"ScreeningRun", 'Json'>
+    readonly ranAt: FieldRef<"ScreeningRun", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ScreeningRun findUnique
+   */
+  export type ScreeningRunFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningRun to fetch.
+     */
+    where: ScreeningRunWhereUniqueInput
+  }
+
+  /**
+   * ScreeningRun findUniqueOrThrow
+   */
+  export type ScreeningRunFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningRun to fetch.
+     */
+    where: ScreeningRunWhereUniqueInput
+  }
+
+  /**
+   * ScreeningRun findFirst
+   */
+  export type ScreeningRunFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningRun to fetch.
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningRuns to fetch.
+     */
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScreeningRuns.
+     */
+    cursor?: ScreeningRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningRuns.
+     */
+    distinct?: ScreeningRunScalarFieldEnum | ScreeningRunScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningRun findFirstOrThrow
+   */
+  export type ScreeningRunFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningRun to fetch.
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningRuns to fetch.
+     */
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScreeningRuns.
+     */
+    cursor?: ScreeningRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningRuns.
+     */
+    distinct?: ScreeningRunScalarFieldEnum | ScreeningRunScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningRun findMany
+   */
+  export type ScreeningRunFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningRuns to fetch.
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningRuns to fetch.
+     */
+    orderBy?: ScreeningRunOrderByWithRelationInput | ScreeningRunOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ScreeningRuns.
+     */
+    cursor?: ScreeningRunWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningRuns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningRuns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningRuns.
+     */
+    distinct?: ScreeningRunScalarFieldEnum | ScreeningRunScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningRun create
+   */
+  export type ScreeningRunCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ScreeningRun.
+     */
+    data: XOR<ScreeningRunCreateInput, ScreeningRunUncheckedCreateInput>
+  }
+
+  /**
+   * ScreeningRun createMany
+   */
+  export type ScreeningRunCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ScreeningRuns.
+     */
+    data: ScreeningRunCreateManyInput | ScreeningRunCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ScreeningRun createManyAndReturn
+   */
+  export type ScreeningRunCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * The data used to create many ScreeningRuns.
+     */
+    data: ScreeningRunCreateManyInput | ScreeningRunCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScreeningRun update
+   */
+  export type ScreeningRunUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ScreeningRun.
+     */
+    data: XOR<ScreeningRunUpdateInput, ScreeningRunUncheckedUpdateInput>
+    /**
+     * Choose, which ScreeningRun to update.
+     */
+    where: ScreeningRunWhereUniqueInput
+  }
+
+  /**
+   * ScreeningRun updateMany
+   */
+  export type ScreeningRunUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ScreeningRuns.
+     */
+    data: XOR<ScreeningRunUpdateManyMutationInput, ScreeningRunUncheckedUpdateManyInput>
+    /**
+     * Filter which ScreeningRuns to update
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * Limit how many ScreeningRuns to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScreeningRun updateManyAndReturn
+   */
+  export type ScreeningRunUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * The data used to update ScreeningRuns.
+     */
+    data: XOR<ScreeningRunUpdateManyMutationInput, ScreeningRunUncheckedUpdateManyInput>
+    /**
+     * Filter which ScreeningRuns to update
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * Limit how many ScreeningRuns to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScreeningRun upsert
+   */
+  export type ScreeningRunUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ScreeningRun to update in case it exists.
+     */
+    where: ScreeningRunWhereUniqueInput
+    /**
+     * In case the ScreeningRun found by the `where` argument doesn't exist, create a new ScreeningRun with this data.
+     */
+    create: XOR<ScreeningRunCreateInput, ScreeningRunUncheckedCreateInput>
+    /**
+     * In case the ScreeningRun was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ScreeningRunUpdateInput, ScreeningRunUncheckedUpdateInput>
+  }
+
+  /**
+   * ScreeningRun delete
+   */
+  export type ScreeningRunDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+    /**
+     * Filter which ScreeningRun to delete.
+     */
+    where: ScreeningRunWhereUniqueInput
+  }
+
+  /**
+   * ScreeningRun deleteMany
+   */
+  export type ScreeningRunDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScreeningRuns to delete
+     */
+    where?: ScreeningRunWhereInput
+    /**
+     * Limit how many ScreeningRuns to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScreeningRun.beneficialOwner
+   */
+  export type ScreeningRun$beneficialOwnerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddBeneficialOwner
+     */
+    select?: CddBeneficialOwnerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddBeneficialOwner
+     */
+    omit?: CddBeneficialOwnerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddBeneficialOwnerInclude<ExtArgs> | null
+    where?: CddBeneficialOwnerWhereInput
+  }
+
+  /**
+   * ScreeningRun.candidates
+   */
+  export type ScreeningRun$candidatesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    where?: ScreeningCandidateWhereInput
+    orderBy?: ScreeningCandidateOrderByWithRelationInput | ScreeningCandidateOrderByWithRelationInput[]
+    cursor?: ScreeningCandidateWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ScreeningCandidateScalarFieldEnum | ScreeningCandidateScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningRun without action
+   */
+  export type ScreeningRunDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningRun
+     */
+    select?: ScreeningRunSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningRun
+     */
+    omit?: ScreeningRunOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningRunInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ScreeningCandidate
+   */
+
+  export type AggregateScreeningCandidate = {
+    _count: ScreeningCandidateCountAggregateOutputType | null
+    _avg: ScreeningCandidateAvgAggregateOutputType | null
+    _sum: ScreeningCandidateSumAggregateOutputType | null
+    _min: ScreeningCandidateMinAggregateOutputType | null
+    _max: ScreeningCandidateMaxAggregateOutputType | null
+  }
+
+  export type ScreeningCandidateAvgAggregateOutputType = {
+    score: number | null
+  }
+
+  export type ScreeningCandidateSumAggregateOutputType = {
+    score: number | null
+  }
+
+  export type ScreeningCandidateMinAggregateOutputType = {
+    id: string | null
+    runId: string | null
+    source: $Enums.SanctionsSource | null
+    reference: string | null
+    matchedName: string | null
+    score: number | null
+    decision: $Enums.ScreeningDecision | null
+    reason: string | null
+    decidedById: string | null
+    decidedAt: Date | null
+  }
+
+  export type ScreeningCandidateMaxAggregateOutputType = {
+    id: string | null
+    runId: string | null
+    source: $Enums.SanctionsSource | null
+    reference: string | null
+    matchedName: string | null
+    score: number | null
+    decision: $Enums.ScreeningDecision | null
+    reason: string | null
+    decidedById: string | null
+    decidedAt: Date | null
+  }
+
+  export type ScreeningCandidateCountAggregateOutputType = {
+    id: number
+    runId: number
+    source: number
+    reference: number
+    matchedName: number
+    score: number
+    details: number
+    decision: number
+    reason: number
+    decidedById: number
+    decidedAt: number
+    _all: number
+  }
+
+
+  export type ScreeningCandidateAvgAggregateInputType = {
+    score?: true
+  }
+
+  export type ScreeningCandidateSumAggregateInputType = {
+    score?: true
+  }
+
+  export type ScreeningCandidateMinAggregateInputType = {
+    id?: true
+    runId?: true
+    source?: true
+    reference?: true
+    matchedName?: true
+    score?: true
+    decision?: true
+    reason?: true
+    decidedById?: true
+    decidedAt?: true
+  }
+
+  export type ScreeningCandidateMaxAggregateInputType = {
+    id?: true
+    runId?: true
+    source?: true
+    reference?: true
+    matchedName?: true
+    score?: true
+    decision?: true
+    reason?: true
+    decidedById?: true
+    decidedAt?: true
+  }
+
+  export type ScreeningCandidateCountAggregateInputType = {
+    id?: true
+    runId?: true
+    source?: true
+    reference?: true
+    matchedName?: true
+    score?: true
+    details?: true
+    decision?: true
+    reason?: true
+    decidedById?: true
+    decidedAt?: true
+    _all?: true
+  }
+
+  export type ScreeningCandidateAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScreeningCandidate to aggregate.
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningCandidates to fetch.
+     */
+    orderBy?: ScreeningCandidateOrderByWithRelationInput | ScreeningCandidateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ScreeningCandidateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningCandidates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningCandidates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ScreeningCandidates
+    **/
+    _count?: true | ScreeningCandidateCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ScreeningCandidateAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ScreeningCandidateSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ScreeningCandidateMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ScreeningCandidateMaxAggregateInputType
+  }
+
+  export type GetScreeningCandidateAggregateType<T extends ScreeningCandidateAggregateArgs> = {
+        [P in keyof T & keyof AggregateScreeningCandidate]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateScreeningCandidate[P]>
+      : GetScalarType<T[P], AggregateScreeningCandidate[P]>
+  }
+
+
+
+
+  export type ScreeningCandidateGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ScreeningCandidateWhereInput
+    orderBy?: ScreeningCandidateOrderByWithAggregationInput | ScreeningCandidateOrderByWithAggregationInput[]
+    by: ScreeningCandidateScalarFieldEnum[] | ScreeningCandidateScalarFieldEnum
+    having?: ScreeningCandidateScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ScreeningCandidateCountAggregateInputType | true
+    _avg?: ScreeningCandidateAvgAggregateInputType
+    _sum?: ScreeningCandidateSumAggregateInputType
+    _min?: ScreeningCandidateMinAggregateInputType
+    _max?: ScreeningCandidateMaxAggregateInputType
+  }
+
+  export type ScreeningCandidateGroupByOutputType = {
+    id: string
+    runId: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonValue
+    decision: $Enums.ScreeningDecision | null
+    reason: string | null
+    decidedById: string | null
+    decidedAt: Date | null
+    _count: ScreeningCandidateCountAggregateOutputType | null
+    _avg: ScreeningCandidateAvgAggregateOutputType | null
+    _sum: ScreeningCandidateSumAggregateOutputType | null
+    _min: ScreeningCandidateMinAggregateOutputType | null
+    _max: ScreeningCandidateMaxAggregateOutputType | null
+  }
+
+  type GetScreeningCandidateGroupByPayload<T extends ScreeningCandidateGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ScreeningCandidateGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ScreeningCandidateGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ScreeningCandidateGroupByOutputType[P]>
+            : GetScalarType<T[P], ScreeningCandidateGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ScreeningCandidateSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    source?: boolean
+    reference?: boolean
+    matchedName?: boolean
+    score?: boolean
+    details?: boolean
+    decision?: boolean
+    reason?: boolean
+    decidedById?: boolean
+    decidedAt?: boolean
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningCandidate"]>
+
+  export type ScreeningCandidateSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    source?: boolean
+    reference?: boolean
+    matchedName?: boolean
+    score?: boolean
+    details?: boolean
+    decision?: boolean
+    reason?: boolean
+    decidedById?: boolean
+    decidedAt?: boolean
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningCandidate"]>
+
+  export type ScreeningCandidateSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    runId?: boolean
+    source?: boolean
+    reference?: boolean
+    matchedName?: boolean
+    score?: boolean
+    details?: boolean
+    decision?: boolean
+    reason?: boolean
+    decidedById?: boolean
+    decidedAt?: boolean
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["screeningCandidate"]>
+
+  export type ScreeningCandidateSelectScalar = {
+    id?: boolean
+    runId?: boolean
+    source?: boolean
+    reference?: boolean
+    matchedName?: boolean
+    score?: boolean
+    details?: boolean
+    decision?: boolean
+    reason?: boolean
+    decidedById?: boolean
+    decidedAt?: boolean
+  }
+
+  export type ScreeningCandidateOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "runId" | "source" | "reference" | "matchedName" | "score" | "details" | "decision" | "reason" | "decidedById" | "decidedAt", ExtArgs["result"]["screeningCandidate"]>
+  export type ScreeningCandidateInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }
+  export type ScreeningCandidateIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }
+  export type ScreeningCandidateIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    run?: boolean | ScreeningRunDefaultArgs<ExtArgs>
+  }
+
+  export type $ScreeningCandidatePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ScreeningCandidate"
+    objects: {
+      run: Prisma.$ScreeningRunPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      runId: string
+      source: $Enums.SanctionsSource
+      reference: string
+      matchedName: string
+      score: number
+      details: Prisma.JsonValue
+      decision: $Enums.ScreeningDecision | null
+      reason: string | null
+      decidedById: string | null
+      decidedAt: Date | null
+    }, ExtArgs["result"]["screeningCandidate"]>
+    composites: {}
+  }
+
+  type ScreeningCandidateGetPayload<S extends boolean | null | undefined | ScreeningCandidateDefaultArgs> = $Result.GetResult<Prisma.$ScreeningCandidatePayload, S>
+
+  type ScreeningCandidateCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ScreeningCandidateFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ScreeningCandidateCountAggregateInputType | true
+    }
+
+  export interface ScreeningCandidateDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ScreeningCandidate'], meta: { name: 'ScreeningCandidate' } }
+    /**
+     * Find zero or one ScreeningCandidate that matches the filter.
+     * @param {ScreeningCandidateFindUniqueArgs} args - Arguments to find a ScreeningCandidate
+     * @example
+     * // Get one ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ScreeningCandidateFindUniqueArgs>(args: SelectSubset<T, ScreeningCandidateFindUniqueArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ScreeningCandidate that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ScreeningCandidateFindUniqueOrThrowArgs} args - Arguments to find a ScreeningCandidate
+     * @example
+     * // Get one ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ScreeningCandidateFindUniqueOrThrowArgs>(args: SelectSubset<T, ScreeningCandidateFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScreeningCandidate that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateFindFirstArgs} args - Arguments to find a ScreeningCandidate
+     * @example
+     * // Get one ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ScreeningCandidateFindFirstArgs>(args?: SelectSubset<T, ScreeningCandidateFindFirstArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ScreeningCandidate that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateFindFirstOrThrowArgs} args - Arguments to find a ScreeningCandidate
+     * @example
+     * // Get one ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ScreeningCandidateFindFirstOrThrowArgs>(args?: SelectSubset<T, ScreeningCandidateFindFirstOrThrowArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ScreeningCandidates that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ScreeningCandidates
+     * const screeningCandidates = await prisma.screeningCandidate.findMany()
+     * 
+     * // Get first 10 ScreeningCandidates
+     * const screeningCandidates = await prisma.screeningCandidate.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const screeningCandidateWithIdOnly = await prisma.screeningCandidate.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ScreeningCandidateFindManyArgs>(args?: SelectSubset<T, ScreeningCandidateFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ScreeningCandidate.
+     * @param {ScreeningCandidateCreateArgs} args - Arguments to create a ScreeningCandidate.
+     * @example
+     * // Create one ScreeningCandidate
+     * const ScreeningCandidate = await prisma.screeningCandidate.create({
+     *   data: {
+     *     // ... data to create a ScreeningCandidate
+     *   }
+     * })
+     * 
+     */
+    create<T extends ScreeningCandidateCreateArgs>(args: SelectSubset<T, ScreeningCandidateCreateArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ScreeningCandidates.
+     * @param {ScreeningCandidateCreateManyArgs} args - Arguments to create many ScreeningCandidates.
+     * @example
+     * // Create many ScreeningCandidates
+     * const screeningCandidate = await prisma.screeningCandidate.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ScreeningCandidateCreateManyArgs>(args?: SelectSubset<T, ScreeningCandidateCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ScreeningCandidates and returns the data saved in the database.
+     * @param {ScreeningCandidateCreateManyAndReturnArgs} args - Arguments to create many ScreeningCandidates.
+     * @example
+     * // Create many ScreeningCandidates
+     * const screeningCandidate = await prisma.screeningCandidate.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ScreeningCandidates and only return the `id`
+     * const screeningCandidateWithIdOnly = await prisma.screeningCandidate.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ScreeningCandidateCreateManyAndReturnArgs>(args?: SelectSubset<T, ScreeningCandidateCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ScreeningCandidate.
+     * @param {ScreeningCandidateDeleteArgs} args - Arguments to delete one ScreeningCandidate.
+     * @example
+     * // Delete one ScreeningCandidate
+     * const ScreeningCandidate = await prisma.screeningCandidate.delete({
+     *   where: {
+     *     // ... filter to delete one ScreeningCandidate
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ScreeningCandidateDeleteArgs>(args: SelectSubset<T, ScreeningCandidateDeleteArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ScreeningCandidate.
+     * @param {ScreeningCandidateUpdateArgs} args - Arguments to update one ScreeningCandidate.
+     * @example
+     * // Update one ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ScreeningCandidateUpdateArgs>(args: SelectSubset<T, ScreeningCandidateUpdateArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ScreeningCandidates.
+     * @param {ScreeningCandidateDeleteManyArgs} args - Arguments to filter ScreeningCandidates to delete.
+     * @example
+     * // Delete a few ScreeningCandidates
+     * const { count } = await prisma.screeningCandidate.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ScreeningCandidateDeleteManyArgs>(args?: SelectSubset<T, ScreeningCandidateDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScreeningCandidates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ScreeningCandidates
+     * const screeningCandidate = await prisma.screeningCandidate.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ScreeningCandidateUpdateManyArgs>(args: SelectSubset<T, ScreeningCandidateUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ScreeningCandidates and returns the data updated in the database.
+     * @param {ScreeningCandidateUpdateManyAndReturnArgs} args - Arguments to update many ScreeningCandidates.
+     * @example
+     * // Update many ScreeningCandidates
+     * const screeningCandidate = await prisma.screeningCandidate.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ScreeningCandidates and only return the `id`
+     * const screeningCandidateWithIdOnly = await prisma.screeningCandidate.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ScreeningCandidateUpdateManyAndReturnArgs>(args: SelectSubset<T, ScreeningCandidateUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ScreeningCandidate.
+     * @param {ScreeningCandidateUpsertArgs} args - Arguments to update or create a ScreeningCandidate.
+     * @example
+     * // Update or create a ScreeningCandidate
+     * const screeningCandidate = await prisma.screeningCandidate.upsert({
+     *   create: {
+     *     // ... data to create a ScreeningCandidate
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ScreeningCandidate we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ScreeningCandidateUpsertArgs>(args: SelectSubset<T, ScreeningCandidateUpsertArgs<ExtArgs>>): Prisma__ScreeningCandidateClient<$Result.GetResult<Prisma.$ScreeningCandidatePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ScreeningCandidates.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateCountArgs} args - Arguments to filter ScreeningCandidates to count.
+     * @example
+     * // Count the number of ScreeningCandidates
+     * const count = await prisma.screeningCandidate.count({
+     *   where: {
+     *     // ... the filter for the ScreeningCandidates we want to count
+     *   }
+     * })
+    **/
+    count<T extends ScreeningCandidateCountArgs>(
+      args?: Subset<T, ScreeningCandidateCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ScreeningCandidateCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ScreeningCandidate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ScreeningCandidateAggregateArgs>(args: Subset<T, ScreeningCandidateAggregateArgs>): Prisma.PrismaPromise<GetScreeningCandidateAggregateType<T>>
+
+    /**
+     * Group by ScreeningCandidate.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ScreeningCandidateGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ScreeningCandidateGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ScreeningCandidateGroupByArgs['orderBy'] }
+        : { orderBy?: ScreeningCandidateGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ScreeningCandidateGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetScreeningCandidateGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ScreeningCandidate model
+   */
+  readonly fields: ScreeningCandidateFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ScreeningCandidate.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ScreeningCandidateClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    run<T extends ScreeningRunDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ScreeningRunDefaultArgs<ExtArgs>>): Prisma__ScreeningRunClient<$Result.GetResult<Prisma.$ScreeningRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ScreeningCandidate model
+   */
+  interface ScreeningCandidateFieldRefs {
+    readonly id: FieldRef<"ScreeningCandidate", 'String'>
+    readonly runId: FieldRef<"ScreeningCandidate", 'String'>
+    readonly source: FieldRef<"ScreeningCandidate", 'SanctionsSource'>
+    readonly reference: FieldRef<"ScreeningCandidate", 'String'>
+    readonly matchedName: FieldRef<"ScreeningCandidate", 'String'>
+    readonly score: FieldRef<"ScreeningCandidate", 'Float'>
+    readonly details: FieldRef<"ScreeningCandidate", 'Json'>
+    readonly decision: FieldRef<"ScreeningCandidate", 'ScreeningDecision'>
+    readonly reason: FieldRef<"ScreeningCandidate", 'String'>
+    readonly decidedById: FieldRef<"ScreeningCandidate", 'String'>
+    readonly decidedAt: FieldRef<"ScreeningCandidate", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ScreeningCandidate findUnique
+   */
+  export type ScreeningCandidateFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningCandidate to fetch.
+     */
+    where: ScreeningCandidateWhereUniqueInput
+  }
+
+  /**
+   * ScreeningCandidate findUniqueOrThrow
+   */
+  export type ScreeningCandidateFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningCandidate to fetch.
+     */
+    where: ScreeningCandidateWhereUniqueInput
+  }
+
+  /**
+   * ScreeningCandidate findFirst
+   */
+  export type ScreeningCandidateFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningCandidate to fetch.
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningCandidates to fetch.
+     */
+    orderBy?: ScreeningCandidateOrderByWithRelationInput | ScreeningCandidateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScreeningCandidates.
+     */
+    cursor?: ScreeningCandidateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningCandidates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningCandidates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningCandidates.
+     */
+    distinct?: ScreeningCandidateScalarFieldEnum | ScreeningCandidateScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningCandidate findFirstOrThrow
+   */
+  export type ScreeningCandidateFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningCandidate to fetch.
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningCandidates to fetch.
+     */
+    orderBy?: ScreeningCandidateOrderByWithRelationInput | ScreeningCandidateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ScreeningCandidates.
+     */
+    cursor?: ScreeningCandidateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningCandidates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningCandidates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningCandidates.
+     */
+    distinct?: ScreeningCandidateScalarFieldEnum | ScreeningCandidateScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningCandidate findMany
+   */
+  export type ScreeningCandidateFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter, which ScreeningCandidates to fetch.
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ScreeningCandidates to fetch.
+     */
+    orderBy?: ScreeningCandidateOrderByWithRelationInput | ScreeningCandidateOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ScreeningCandidates.
+     */
+    cursor?: ScreeningCandidateWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ScreeningCandidates from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ScreeningCandidates.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ScreeningCandidates.
+     */
+    distinct?: ScreeningCandidateScalarFieldEnum | ScreeningCandidateScalarFieldEnum[]
+  }
+
+  /**
+   * ScreeningCandidate create
+   */
+  export type ScreeningCandidateCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ScreeningCandidate.
+     */
+    data: XOR<ScreeningCandidateCreateInput, ScreeningCandidateUncheckedCreateInput>
+  }
+
+  /**
+   * ScreeningCandidate createMany
+   */
+  export type ScreeningCandidateCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ScreeningCandidates.
+     */
+    data: ScreeningCandidateCreateManyInput | ScreeningCandidateCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ScreeningCandidate createManyAndReturn
+   */
+  export type ScreeningCandidateCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * The data used to create many ScreeningCandidates.
+     */
+    data: ScreeningCandidateCreateManyInput | ScreeningCandidateCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScreeningCandidate update
+   */
+  export type ScreeningCandidateUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ScreeningCandidate.
+     */
+    data: XOR<ScreeningCandidateUpdateInput, ScreeningCandidateUncheckedUpdateInput>
+    /**
+     * Choose, which ScreeningCandidate to update.
+     */
+    where: ScreeningCandidateWhereUniqueInput
+  }
+
+  /**
+   * ScreeningCandidate updateMany
+   */
+  export type ScreeningCandidateUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ScreeningCandidates.
+     */
+    data: XOR<ScreeningCandidateUpdateManyMutationInput, ScreeningCandidateUncheckedUpdateManyInput>
+    /**
+     * Filter which ScreeningCandidates to update
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * Limit how many ScreeningCandidates to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScreeningCandidate updateManyAndReturn
+   */
+  export type ScreeningCandidateUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * The data used to update ScreeningCandidates.
+     */
+    data: XOR<ScreeningCandidateUpdateManyMutationInput, ScreeningCandidateUncheckedUpdateManyInput>
+    /**
+     * Filter which ScreeningCandidates to update
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * Limit how many ScreeningCandidates to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ScreeningCandidate upsert
+   */
+  export type ScreeningCandidateUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ScreeningCandidate to update in case it exists.
+     */
+    where: ScreeningCandidateWhereUniqueInput
+    /**
+     * In case the ScreeningCandidate found by the `where` argument doesn't exist, create a new ScreeningCandidate with this data.
+     */
+    create: XOR<ScreeningCandidateCreateInput, ScreeningCandidateUncheckedCreateInput>
+    /**
+     * In case the ScreeningCandidate was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ScreeningCandidateUpdateInput, ScreeningCandidateUncheckedUpdateInput>
+  }
+
+  /**
+   * ScreeningCandidate delete
+   */
+  export type ScreeningCandidateDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+    /**
+     * Filter which ScreeningCandidate to delete.
+     */
+    where: ScreeningCandidateWhereUniqueInput
+  }
+
+  /**
+   * ScreeningCandidate deleteMany
+   */
+  export type ScreeningCandidateDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ScreeningCandidates to delete
+     */
+    where?: ScreeningCandidateWhereInput
+    /**
+     * Limit how many ScreeningCandidates to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ScreeningCandidate without action
+   */
+  export type ScreeningCandidateDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ScreeningCandidate
+     */
+    select?: ScreeningCandidateSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ScreeningCandidate
+     */
+    omit?: ScreeningCandidateOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ScreeningCandidateInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CddRiskAssessment
+   */
+
+  export type AggregateCddRiskAssessment = {
+    _count: CddRiskAssessmentCountAggregateOutputType | null
+    _min: CddRiskAssessmentMinAggregateOutputType | null
+    _max: CddRiskAssessmentMaxAggregateOutputType | null
+  }
+
+  export type CddRiskAssessmentMinAggregateOutputType = {
+    caseId: string | null
+    checklistVersion: string | null
+    level: $Enums.CddRiskLevel | null
+    assessedById: string | null
+    assessedAt: Date | null
+    approvedById: string | null
+    approvedAt: Date | null
+  }
+
+  export type CddRiskAssessmentMaxAggregateOutputType = {
+    caseId: string | null
+    checklistVersion: string | null
+    level: $Enums.CddRiskLevel | null
+    assessedById: string | null
+    assessedAt: Date | null
+    approvedById: string | null
+    approvedAt: Date | null
+  }
+
+  export type CddRiskAssessmentCountAggregateOutputType = {
+    caseId: number
+    checklistVersion: number
+    answers: number
+    level: number
+    assessedById: number
+    assessedAt: number
+    approvedById: number
+    approvedAt: number
+    _all: number
+  }
+
+
+  export type CddRiskAssessmentMinAggregateInputType = {
+    caseId?: true
+    checklistVersion?: true
+    level?: true
+    assessedById?: true
+    assessedAt?: true
+    approvedById?: true
+    approvedAt?: true
+  }
+
+  export type CddRiskAssessmentMaxAggregateInputType = {
+    caseId?: true
+    checklistVersion?: true
+    level?: true
+    assessedById?: true
+    assessedAt?: true
+    approvedById?: true
+    approvedAt?: true
+  }
+
+  export type CddRiskAssessmentCountAggregateInputType = {
+    caseId?: true
+    checklistVersion?: true
+    answers?: true
+    level?: true
+    assessedById?: true
+    assessedAt?: true
+    approvedById?: true
+    approvedAt?: true
+    _all?: true
+  }
+
+  export type CddRiskAssessmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddRiskAssessment to aggregate.
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddRiskAssessments to fetch.
+     */
+    orderBy?: CddRiskAssessmentOrderByWithRelationInput | CddRiskAssessmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CddRiskAssessmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddRiskAssessments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddRiskAssessments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CddRiskAssessments
+    **/
+    _count?: true | CddRiskAssessmentCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CddRiskAssessmentMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CddRiskAssessmentMaxAggregateInputType
+  }
+
+  export type GetCddRiskAssessmentAggregateType<T extends CddRiskAssessmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateCddRiskAssessment]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCddRiskAssessment[P]>
+      : GetScalarType<T[P], AggregateCddRiskAssessment[P]>
+  }
+
+
+
+
+  export type CddRiskAssessmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddRiskAssessmentWhereInput
+    orderBy?: CddRiskAssessmentOrderByWithAggregationInput | CddRiskAssessmentOrderByWithAggregationInput[]
+    by: CddRiskAssessmentScalarFieldEnum[] | CddRiskAssessmentScalarFieldEnum
+    having?: CddRiskAssessmentScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CddRiskAssessmentCountAggregateInputType | true
+    _min?: CddRiskAssessmentMinAggregateInputType
+    _max?: CddRiskAssessmentMaxAggregateInputType
+  }
+
+  export type CddRiskAssessmentGroupByOutputType = {
+    caseId: string
+    checklistVersion: string
+    answers: JsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt: Date
+    approvedById: string | null
+    approvedAt: Date | null
+    _count: CddRiskAssessmentCountAggregateOutputType | null
+    _min: CddRiskAssessmentMinAggregateOutputType | null
+    _max: CddRiskAssessmentMaxAggregateOutputType | null
+  }
+
+  type GetCddRiskAssessmentGroupByPayload<T extends CddRiskAssessmentGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CddRiskAssessmentGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CddRiskAssessmentGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CddRiskAssessmentGroupByOutputType[P]>
+            : GetScalarType<T[P], CddRiskAssessmentGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CddRiskAssessmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    checklistVersion?: boolean
+    answers?: boolean
+    level?: boolean
+    assessedById?: boolean
+    assessedAt?: boolean
+    approvedById?: boolean
+    approvedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddRiskAssessment"]>
+
+  export type CddRiskAssessmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    checklistVersion?: boolean
+    answers?: boolean
+    level?: boolean
+    assessedById?: boolean
+    assessedAt?: boolean
+    approvedById?: boolean
+    approvedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddRiskAssessment"]>
+
+  export type CddRiskAssessmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    caseId?: boolean
+    checklistVersion?: boolean
+    answers?: boolean
+    level?: boolean
+    assessedById?: boolean
+    assessedAt?: boolean
+    approvedById?: boolean
+    approvedAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddRiskAssessment"]>
+
+  export type CddRiskAssessmentSelectScalar = {
+    caseId?: boolean
+    checklistVersion?: boolean
+    answers?: boolean
+    level?: boolean
+    assessedById?: boolean
+    assessedAt?: boolean
+    approvedById?: boolean
+    approvedAt?: boolean
+  }
+
+  export type CddRiskAssessmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"caseId" | "checklistVersion" | "answers" | "level" | "assessedById" | "assessedAt" | "approvedById" | "approvedAt", ExtArgs["result"]["cddRiskAssessment"]>
+  export type CddRiskAssessmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddRiskAssessmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddRiskAssessmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+
+  export type $CddRiskAssessmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CddRiskAssessment"
+    objects: {
+      case: Prisma.$CddCasePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      caseId: string
+      checklistVersion: string
+      answers: Prisma.JsonValue
+      level: $Enums.CddRiskLevel
+      assessedById: string
+      assessedAt: Date
+      /**
+       * Higher risk needs an agency owner's or manager's approval.
+       */
+      approvedById: string | null
+      approvedAt: Date | null
+    }, ExtArgs["result"]["cddRiskAssessment"]>
+    composites: {}
+  }
+
+  type CddRiskAssessmentGetPayload<S extends boolean | null | undefined | CddRiskAssessmentDefaultArgs> = $Result.GetResult<Prisma.$CddRiskAssessmentPayload, S>
+
+  type CddRiskAssessmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CddRiskAssessmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CddRiskAssessmentCountAggregateInputType | true
+    }
+
+  export interface CddRiskAssessmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CddRiskAssessment'], meta: { name: 'CddRiskAssessment' } }
+    /**
+     * Find zero or one CddRiskAssessment that matches the filter.
+     * @param {CddRiskAssessmentFindUniqueArgs} args - Arguments to find a CddRiskAssessment
+     * @example
+     * // Get one CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CddRiskAssessmentFindUniqueArgs>(args: SelectSubset<T, CddRiskAssessmentFindUniqueArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CddRiskAssessment that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CddRiskAssessmentFindUniqueOrThrowArgs} args - Arguments to find a CddRiskAssessment
+     * @example
+     * // Get one CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CddRiskAssessmentFindUniqueOrThrowArgs>(args: SelectSubset<T, CddRiskAssessmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddRiskAssessment that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentFindFirstArgs} args - Arguments to find a CddRiskAssessment
+     * @example
+     * // Get one CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CddRiskAssessmentFindFirstArgs>(args?: SelectSubset<T, CddRiskAssessmentFindFirstArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddRiskAssessment that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentFindFirstOrThrowArgs} args - Arguments to find a CddRiskAssessment
+     * @example
+     * // Get one CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CddRiskAssessmentFindFirstOrThrowArgs>(args?: SelectSubset<T, CddRiskAssessmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CddRiskAssessments that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CddRiskAssessments
+     * const cddRiskAssessments = await prisma.cddRiskAssessment.findMany()
+     * 
+     * // Get first 10 CddRiskAssessments
+     * const cddRiskAssessments = await prisma.cddRiskAssessment.findMany({ take: 10 })
+     * 
+     * // Only select the `caseId`
+     * const cddRiskAssessmentWithCaseIdOnly = await prisma.cddRiskAssessment.findMany({ select: { caseId: true } })
+     * 
+     */
+    findMany<T extends CddRiskAssessmentFindManyArgs>(args?: SelectSubset<T, CddRiskAssessmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CddRiskAssessment.
+     * @param {CddRiskAssessmentCreateArgs} args - Arguments to create a CddRiskAssessment.
+     * @example
+     * // Create one CddRiskAssessment
+     * const CddRiskAssessment = await prisma.cddRiskAssessment.create({
+     *   data: {
+     *     // ... data to create a CddRiskAssessment
+     *   }
+     * })
+     * 
+     */
+    create<T extends CddRiskAssessmentCreateArgs>(args: SelectSubset<T, CddRiskAssessmentCreateArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CddRiskAssessments.
+     * @param {CddRiskAssessmentCreateManyArgs} args - Arguments to create many CddRiskAssessments.
+     * @example
+     * // Create many CddRiskAssessments
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CddRiskAssessmentCreateManyArgs>(args?: SelectSubset<T, CddRiskAssessmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CddRiskAssessments and returns the data saved in the database.
+     * @param {CddRiskAssessmentCreateManyAndReturnArgs} args - Arguments to create many CddRiskAssessments.
+     * @example
+     * // Create many CddRiskAssessments
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CddRiskAssessments and only return the `caseId`
+     * const cddRiskAssessmentWithCaseIdOnly = await prisma.cddRiskAssessment.createManyAndReturn({
+     *   select: { caseId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CddRiskAssessmentCreateManyAndReturnArgs>(args?: SelectSubset<T, CddRiskAssessmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CddRiskAssessment.
+     * @param {CddRiskAssessmentDeleteArgs} args - Arguments to delete one CddRiskAssessment.
+     * @example
+     * // Delete one CddRiskAssessment
+     * const CddRiskAssessment = await prisma.cddRiskAssessment.delete({
+     *   where: {
+     *     // ... filter to delete one CddRiskAssessment
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CddRiskAssessmentDeleteArgs>(args: SelectSubset<T, CddRiskAssessmentDeleteArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CddRiskAssessment.
+     * @param {CddRiskAssessmentUpdateArgs} args - Arguments to update one CddRiskAssessment.
+     * @example
+     * // Update one CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CddRiskAssessmentUpdateArgs>(args: SelectSubset<T, CddRiskAssessmentUpdateArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CddRiskAssessments.
+     * @param {CddRiskAssessmentDeleteManyArgs} args - Arguments to filter CddRiskAssessments to delete.
+     * @example
+     * // Delete a few CddRiskAssessments
+     * const { count } = await prisma.cddRiskAssessment.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CddRiskAssessmentDeleteManyArgs>(args?: SelectSubset<T, CddRiskAssessmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddRiskAssessments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CddRiskAssessments
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CddRiskAssessmentUpdateManyArgs>(args: SelectSubset<T, CddRiskAssessmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddRiskAssessments and returns the data updated in the database.
+     * @param {CddRiskAssessmentUpdateManyAndReturnArgs} args - Arguments to update many CddRiskAssessments.
+     * @example
+     * // Update many CddRiskAssessments
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CddRiskAssessments and only return the `caseId`
+     * const cddRiskAssessmentWithCaseIdOnly = await prisma.cddRiskAssessment.updateManyAndReturn({
+     *   select: { caseId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CddRiskAssessmentUpdateManyAndReturnArgs>(args: SelectSubset<T, CddRiskAssessmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CddRiskAssessment.
+     * @param {CddRiskAssessmentUpsertArgs} args - Arguments to update or create a CddRiskAssessment.
+     * @example
+     * // Update or create a CddRiskAssessment
+     * const cddRiskAssessment = await prisma.cddRiskAssessment.upsert({
+     *   create: {
+     *     // ... data to create a CddRiskAssessment
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CddRiskAssessment we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CddRiskAssessmentUpsertArgs>(args: SelectSubset<T, CddRiskAssessmentUpsertArgs<ExtArgs>>): Prisma__CddRiskAssessmentClient<$Result.GetResult<Prisma.$CddRiskAssessmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CddRiskAssessments.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentCountArgs} args - Arguments to filter CddRiskAssessments to count.
+     * @example
+     * // Count the number of CddRiskAssessments
+     * const count = await prisma.cddRiskAssessment.count({
+     *   where: {
+     *     // ... the filter for the CddRiskAssessments we want to count
+     *   }
+     * })
+    **/
+    count<T extends CddRiskAssessmentCountArgs>(
+      args?: Subset<T, CddRiskAssessmentCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CddRiskAssessmentCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CddRiskAssessment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CddRiskAssessmentAggregateArgs>(args: Subset<T, CddRiskAssessmentAggregateArgs>): Prisma.PrismaPromise<GetCddRiskAssessmentAggregateType<T>>
+
+    /**
+     * Group by CddRiskAssessment.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddRiskAssessmentGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CddRiskAssessmentGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CddRiskAssessmentGroupByArgs['orderBy'] }
+        : { orderBy?: CddRiskAssessmentGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CddRiskAssessmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCddRiskAssessmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CddRiskAssessment model
+   */
+  readonly fields: CddRiskAssessmentFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CddRiskAssessment.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CddRiskAssessmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CddCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CddCaseDefaultArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CddRiskAssessment model
+   */
+  interface CddRiskAssessmentFieldRefs {
+    readonly caseId: FieldRef<"CddRiskAssessment", 'String'>
+    readonly checklistVersion: FieldRef<"CddRiskAssessment", 'String'>
+    readonly answers: FieldRef<"CddRiskAssessment", 'Json'>
+    readonly level: FieldRef<"CddRiskAssessment", 'CddRiskLevel'>
+    readonly assessedById: FieldRef<"CddRiskAssessment", 'String'>
+    readonly assessedAt: FieldRef<"CddRiskAssessment", 'DateTime'>
+    readonly approvedById: FieldRef<"CddRiskAssessment", 'String'>
+    readonly approvedAt: FieldRef<"CddRiskAssessment", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CddRiskAssessment findUnique
+   */
+  export type CddRiskAssessmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter, which CddRiskAssessment to fetch.
+     */
+    where: CddRiskAssessmentWhereUniqueInput
+  }
+
+  /**
+   * CddRiskAssessment findUniqueOrThrow
+   */
+  export type CddRiskAssessmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter, which CddRiskAssessment to fetch.
+     */
+    where: CddRiskAssessmentWhereUniqueInput
+  }
+
+  /**
+   * CddRiskAssessment findFirst
+   */
+  export type CddRiskAssessmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter, which CddRiskAssessment to fetch.
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddRiskAssessments to fetch.
+     */
+    orderBy?: CddRiskAssessmentOrderByWithRelationInput | CddRiskAssessmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddRiskAssessments.
+     */
+    cursor?: CddRiskAssessmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddRiskAssessments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddRiskAssessments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddRiskAssessments.
+     */
+    distinct?: CddRiskAssessmentScalarFieldEnum | CddRiskAssessmentScalarFieldEnum[]
+  }
+
+  /**
+   * CddRiskAssessment findFirstOrThrow
+   */
+  export type CddRiskAssessmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter, which CddRiskAssessment to fetch.
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddRiskAssessments to fetch.
+     */
+    orderBy?: CddRiskAssessmentOrderByWithRelationInput | CddRiskAssessmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddRiskAssessments.
+     */
+    cursor?: CddRiskAssessmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddRiskAssessments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddRiskAssessments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddRiskAssessments.
+     */
+    distinct?: CddRiskAssessmentScalarFieldEnum | CddRiskAssessmentScalarFieldEnum[]
+  }
+
+  /**
+   * CddRiskAssessment findMany
+   */
+  export type CddRiskAssessmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter, which CddRiskAssessments to fetch.
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddRiskAssessments to fetch.
+     */
+    orderBy?: CddRiskAssessmentOrderByWithRelationInput | CddRiskAssessmentOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CddRiskAssessments.
+     */
+    cursor?: CddRiskAssessmentWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddRiskAssessments from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddRiskAssessments.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddRiskAssessments.
+     */
+    distinct?: CddRiskAssessmentScalarFieldEnum | CddRiskAssessmentScalarFieldEnum[]
+  }
+
+  /**
+   * CddRiskAssessment create
+   */
+  export type CddRiskAssessmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CddRiskAssessment.
+     */
+    data: XOR<CddRiskAssessmentCreateInput, CddRiskAssessmentUncheckedCreateInput>
+  }
+
+  /**
+   * CddRiskAssessment createMany
+   */
+  export type CddRiskAssessmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CddRiskAssessments.
+     */
+    data: CddRiskAssessmentCreateManyInput | CddRiskAssessmentCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CddRiskAssessment createManyAndReturn
+   */
+  export type CddRiskAssessmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * The data used to create many CddRiskAssessments.
+     */
+    data: CddRiskAssessmentCreateManyInput | CddRiskAssessmentCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddRiskAssessment update
+   */
+  export type CddRiskAssessmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CddRiskAssessment.
+     */
+    data: XOR<CddRiskAssessmentUpdateInput, CddRiskAssessmentUncheckedUpdateInput>
+    /**
+     * Choose, which CddRiskAssessment to update.
+     */
+    where: CddRiskAssessmentWhereUniqueInput
+  }
+
+  /**
+   * CddRiskAssessment updateMany
+   */
+  export type CddRiskAssessmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CddRiskAssessments.
+     */
+    data: XOR<CddRiskAssessmentUpdateManyMutationInput, CddRiskAssessmentUncheckedUpdateManyInput>
+    /**
+     * Filter which CddRiskAssessments to update
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * Limit how many CddRiskAssessments to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddRiskAssessment updateManyAndReturn
+   */
+  export type CddRiskAssessmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * The data used to update CddRiskAssessments.
+     */
+    data: XOR<CddRiskAssessmentUpdateManyMutationInput, CddRiskAssessmentUncheckedUpdateManyInput>
+    /**
+     * Filter which CddRiskAssessments to update
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * Limit how many CddRiskAssessments to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddRiskAssessment upsert
+   */
+  export type CddRiskAssessmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CddRiskAssessment to update in case it exists.
+     */
+    where: CddRiskAssessmentWhereUniqueInput
+    /**
+     * In case the CddRiskAssessment found by the `where` argument doesn't exist, create a new CddRiskAssessment with this data.
+     */
+    create: XOR<CddRiskAssessmentCreateInput, CddRiskAssessmentUncheckedCreateInput>
+    /**
+     * In case the CddRiskAssessment was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CddRiskAssessmentUpdateInput, CddRiskAssessmentUncheckedUpdateInput>
+  }
+
+  /**
+   * CddRiskAssessment delete
+   */
+  export type CddRiskAssessmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+    /**
+     * Filter which CddRiskAssessment to delete.
+     */
+    where: CddRiskAssessmentWhereUniqueInput
+  }
+
+  /**
+   * CddRiskAssessment deleteMany
+   */
+  export type CddRiskAssessmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddRiskAssessments to delete
+     */
+    where?: CddRiskAssessmentWhereInput
+    /**
+     * Limit how many CddRiskAssessments to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddRiskAssessment without action
+   */
+  export type CddRiskAssessmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddRiskAssessment
+     */
+    select?: CddRiskAssessmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddRiskAssessment
+     */
+    omit?: CddRiskAssessmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddRiskAssessmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model CddEvent
+   */
+
+  export type AggregateCddEvent = {
+    _count: CddEventCountAggregateOutputType | null
+    _min: CddEventMinAggregateOutputType | null
+    _max: CddEventMaxAggregateOutputType | null
+  }
+
+  export type CddEventMinAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    actorId: string | null
+    kind: string | null
+    createdAt: Date | null
+  }
+
+  export type CddEventMaxAggregateOutputType = {
+    id: string | null
+    caseId: string | null
+    actorId: string | null
+    kind: string | null
+    createdAt: Date | null
+  }
+
+  export type CddEventCountAggregateOutputType = {
+    id: number
+    caseId: number
+    actorId: number
+    kind: number
+    detail: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type CddEventMinAggregateInputType = {
+    id?: true
+    caseId?: true
+    actorId?: true
+    kind?: true
+    createdAt?: true
+  }
+
+  export type CddEventMaxAggregateInputType = {
+    id?: true
+    caseId?: true
+    actorId?: true
+    kind?: true
+    createdAt?: true
+  }
+
+  export type CddEventCountAggregateInputType = {
+    id?: true
+    caseId?: true
+    actorId?: true
+    kind?: true
+    detail?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type CddEventAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddEvent to aggregate.
+     */
+    where?: CddEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddEvents to fetch.
+     */
+    orderBy?: CddEventOrderByWithRelationInput | CddEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CddEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CddEvents
+    **/
+    _count?: true | CddEventCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CddEventMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CddEventMaxAggregateInputType
+  }
+
+  export type GetCddEventAggregateType<T extends CddEventAggregateArgs> = {
+        [P in keyof T & keyof AggregateCddEvent]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCddEvent[P]>
+      : GetScalarType<T[P], AggregateCddEvent[P]>
+  }
+
+
+
+
+  export type CddEventGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CddEventWhereInput
+    orderBy?: CddEventOrderByWithAggregationInput | CddEventOrderByWithAggregationInput[]
+    by: CddEventScalarFieldEnum[] | CddEventScalarFieldEnum
+    having?: CddEventScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CddEventCountAggregateInputType | true
+    _min?: CddEventMinAggregateInputType
+    _max?: CddEventMaxAggregateInputType
+  }
+
+  export type CddEventGroupByOutputType = {
+    id: string
+    caseId: string
+    actorId: string | null
+    kind: string
+    detail: JsonValue | null
+    createdAt: Date
+    _count: CddEventCountAggregateOutputType | null
+    _min: CddEventMinAggregateOutputType | null
+    _max: CddEventMaxAggregateOutputType | null
+  }
+
+  type GetCddEventGroupByPayload<T extends CddEventGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CddEventGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CddEventGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CddEventGroupByOutputType[P]>
+            : GetScalarType<T[P], CddEventGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CddEventSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    actorId?: boolean
+    kind?: boolean
+    detail?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddEvent"]>
+
+  export type CddEventSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    actorId?: boolean
+    kind?: boolean
+    detail?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddEvent"]>
+
+  export type CddEventSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    caseId?: boolean
+    actorId?: boolean
+    kind?: boolean
+    detail?: boolean
+    createdAt?: boolean
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["cddEvent"]>
+
+  export type CddEventSelectScalar = {
+    id?: boolean
+    caseId?: boolean
+    actorId?: boolean
+    kind?: boolean
+    detail?: boolean
+    createdAt?: boolean
+  }
+
+  export type CddEventOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "caseId" | "actorId" | "kind" | "detail" | "createdAt", ExtArgs["result"]["cddEvent"]>
+  export type CddEventInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddEventIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+  export type CddEventIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    case?: boolean | CddCaseDefaultArgs<ExtArgs>
+  }
+
+  export type $CddEventPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CddEvent"
+    objects: {
+      case: Prisma.$CddCasePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      caseId: string
+      actorId: string | null
+      kind: string
+      detail: Prisma.JsonValue | null
+      createdAt: Date
+    }, ExtArgs["result"]["cddEvent"]>
+    composites: {}
+  }
+
+  type CddEventGetPayload<S extends boolean | null | undefined | CddEventDefaultArgs> = $Result.GetResult<Prisma.$CddEventPayload, S>
+
+  type CddEventCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CddEventFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CddEventCountAggregateInputType | true
+    }
+
+  export interface CddEventDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CddEvent'], meta: { name: 'CddEvent' } }
+    /**
+     * Find zero or one CddEvent that matches the filter.
+     * @param {CddEventFindUniqueArgs} args - Arguments to find a CddEvent
+     * @example
+     * // Get one CddEvent
+     * const cddEvent = await prisma.cddEvent.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CddEventFindUniqueArgs>(args: SelectSubset<T, CddEventFindUniqueArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one CddEvent that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CddEventFindUniqueOrThrowArgs} args - Arguments to find a CddEvent
+     * @example
+     * // Get one CddEvent
+     * const cddEvent = await prisma.cddEvent.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CddEventFindUniqueOrThrowArgs>(args: SelectSubset<T, CddEventFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddEvent that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventFindFirstArgs} args - Arguments to find a CddEvent
+     * @example
+     * // Get one CddEvent
+     * const cddEvent = await prisma.cddEvent.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CddEventFindFirstArgs>(args?: SelectSubset<T, CddEventFindFirstArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first CddEvent that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventFindFirstOrThrowArgs} args - Arguments to find a CddEvent
+     * @example
+     * // Get one CddEvent
+     * const cddEvent = await prisma.cddEvent.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CddEventFindFirstOrThrowArgs>(args?: SelectSubset<T, CddEventFindFirstOrThrowArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more CddEvents that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CddEvents
+     * const cddEvents = await prisma.cddEvent.findMany()
+     * 
+     * // Get first 10 CddEvents
+     * const cddEvents = await prisma.cddEvent.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const cddEventWithIdOnly = await prisma.cddEvent.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CddEventFindManyArgs>(args?: SelectSubset<T, CddEventFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a CddEvent.
+     * @param {CddEventCreateArgs} args - Arguments to create a CddEvent.
+     * @example
+     * // Create one CddEvent
+     * const CddEvent = await prisma.cddEvent.create({
+     *   data: {
+     *     // ... data to create a CddEvent
+     *   }
+     * })
+     * 
+     */
+    create<T extends CddEventCreateArgs>(args: SelectSubset<T, CddEventCreateArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many CddEvents.
+     * @param {CddEventCreateManyArgs} args - Arguments to create many CddEvents.
+     * @example
+     * // Create many CddEvents
+     * const cddEvent = await prisma.cddEvent.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CddEventCreateManyArgs>(args?: SelectSubset<T, CddEventCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CddEvents and returns the data saved in the database.
+     * @param {CddEventCreateManyAndReturnArgs} args - Arguments to create many CddEvents.
+     * @example
+     * // Create many CddEvents
+     * const cddEvent = await prisma.cddEvent.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CddEvents and only return the `id`
+     * const cddEventWithIdOnly = await prisma.cddEvent.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CddEventCreateManyAndReturnArgs>(args?: SelectSubset<T, CddEventCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a CddEvent.
+     * @param {CddEventDeleteArgs} args - Arguments to delete one CddEvent.
+     * @example
+     * // Delete one CddEvent
+     * const CddEvent = await prisma.cddEvent.delete({
+     *   where: {
+     *     // ... filter to delete one CddEvent
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CddEventDeleteArgs>(args: SelectSubset<T, CddEventDeleteArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one CddEvent.
+     * @param {CddEventUpdateArgs} args - Arguments to update one CddEvent.
+     * @example
+     * // Update one CddEvent
+     * const cddEvent = await prisma.cddEvent.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CddEventUpdateArgs>(args: SelectSubset<T, CddEventUpdateArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more CddEvents.
+     * @param {CddEventDeleteManyArgs} args - Arguments to filter CddEvents to delete.
+     * @example
+     * // Delete a few CddEvents
+     * const { count } = await prisma.cddEvent.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CddEventDeleteManyArgs>(args?: SelectSubset<T, CddEventDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CddEvents
+     * const cddEvent = await prisma.cddEvent.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CddEventUpdateManyArgs>(args: SelectSubset<T, CddEventUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CddEvents and returns the data updated in the database.
+     * @param {CddEventUpdateManyAndReturnArgs} args - Arguments to update many CddEvents.
+     * @example
+     * // Update many CddEvents
+     * const cddEvent = await prisma.cddEvent.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more CddEvents and only return the `id`
+     * const cddEventWithIdOnly = await prisma.cddEvent.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CddEventUpdateManyAndReturnArgs>(args: SelectSubset<T, CddEventUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one CddEvent.
+     * @param {CddEventUpsertArgs} args - Arguments to update or create a CddEvent.
+     * @example
+     * // Update or create a CddEvent
+     * const cddEvent = await prisma.cddEvent.upsert({
+     *   create: {
+     *     // ... data to create a CddEvent
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CddEvent we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CddEventUpsertArgs>(args: SelectSubset<T, CddEventUpsertArgs<ExtArgs>>): Prisma__CddEventClient<$Result.GetResult<Prisma.$CddEventPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of CddEvents.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventCountArgs} args - Arguments to filter CddEvents to count.
+     * @example
+     * // Count the number of CddEvents
+     * const count = await prisma.cddEvent.count({
+     *   where: {
+     *     // ... the filter for the CddEvents we want to count
+     *   }
+     * })
+    **/
+    count<T extends CddEventCountArgs>(
+      args?: Subset<T, CddEventCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CddEventCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CddEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CddEventAggregateArgs>(args: Subset<T, CddEventAggregateArgs>): Prisma.PrismaPromise<GetCddEventAggregateType<T>>
+
+    /**
+     * Group by CddEvent.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CddEventGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CddEventGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CddEventGroupByArgs['orderBy'] }
+        : { orderBy?: CddEventGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CddEventGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCddEventGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CddEvent model
+   */
+  readonly fields: CddEventFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CddEvent.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CddEventClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    case<T extends CddCaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CddCaseDefaultArgs<ExtArgs>>): Prisma__CddCaseClient<$Result.GetResult<Prisma.$CddCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CddEvent model
+   */
+  interface CddEventFieldRefs {
+    readonly id: FieldRef<"CddEvent", 'String'>
+    readonly caseId: FieldRef<"CddEvent", 'String'>
+    readonly actorId: FieldRef<"CddEvent", 'String'>
+    readonly kind: FieldRef<"CddEvent", 'String'>
+    readonly detail: FieldRef<"CddEvent", 'Json'>
+    readonly createdAt: FieldRef<"CddEvent", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CddEvent findUnique
+   */
+  export type CddEventFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CddEvent to fetch.
+     */
+    where: CddEventWhereUniqueInput
+  }
+
+  /**
+   * CddEvent findUniqueOrThrow
+   */
+  export type CddEventFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CddEvent to fetch.
+     */
+    where: CddEventWhereUniqueInput
+  }
+
+  /**
+   * CddEvent findFirst
+   */
+  export type CddEventFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CddEvent to fetch.
+     */
+    where?: CddEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddEvents to fetch.
+     */
+    orderBy?: CddEventOrderByWithRelationInput | CddEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddEvents.
+     */
+    cursor?: CddEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddEvents.
+     */
+    distinct?: CddEventScalarFieldEnum | CddEventScalarFieldEnum[]
+  }
+
+  /**
+   * CddEvent findFirstOrThrow
+   */
+  export type CddEventFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CddEvent to fetch.
+     */
+    where?: CddEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddEvents to fetch.
+     */
+    orderBy?: CddEventOrderByWithRelationInput | CddEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CddEvents.
+     */
+    cursor?: CddEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddEvents.
+     */
+    distinct?: CddEventScalarFieldEnum | CddEventScalarFieldEnum[]
+  }
+
+  /**
+   * CddEvent findMany
+   */
+  export type CddEventFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter, which CddEvents to fetch.
+     */
+    where?: CddEventWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CddEvents to fetch.
+     */
+    orderBy?: CddEventOrderByWithRelationInput | CddEventOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CddEvents.
+     */
+    cursor?: CddEventWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CddEvents from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CddEvents.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CddEvents.
+     */
+    distinct?: CddEventScalarFieldEnum | CddEventScalarFieldEnum[]
+  }
+
+  /**
+   * CddEvent create
+   */
+  export type CddEventCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CddEvent.
+     */
+    data: XOR<CddEventCreateInput, CddEventUncheckedCreateInput>
+  }
+
+  /**
+   * CddEvent createMany
+   */
+  export type CddEventCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CddEvents.
+     */
+    data: CddEventCreateManyInput | CddEventCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CddEvent createManyAndReturn
+   */
+  export type CddEventCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * The data used to create many CddEvents.
+     */
+    data: CddEventCreateManyInput | CddEventCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddEvent update
+   */
+  export type CddEventUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CddEvent.
+     */
+    data: XOR<CddEventUpdateInput, CddEventUncheckedUpdateInput>
+    /**
+     * Choose, which CddEvent to update.
+     */
+    where: CddEventWhereUniqueInput
+  }
+
+  /**
+   * CddEvent updateMany
+   */
+  export type CddEventUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CddEvents.
+     */
+    data: XOR<CddEventUpdateManyMutationInput, CddEventUncheckedUpdateManyInput>
+    /**
+     * Filter which CddEvents to update
+     */
+    where?: CddEventWhereInput
+    /**
+     * Limit how many CddEvents to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddEvent updateManyAndReturn
+   */
+  export type CddEventUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * The data used to update CddEvents.
+     */
+    data: XOR<CddEventUpdateManyMutationInput, CddEventUncheckedUpdateManyInput>
+    /**
+     * Filter which CddEvents to update
+     */
+    where?: CddEventWhereInput
+    /**
+     * Limit how many CddEvents to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CddEvent upsert
+   */
+  export type CddEventUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CddEvent to update in case it exists.
+     */
+    where: CddEventWhereUniqueInput
+    /**
+     * In case the CddEvent found by the `where` argument doesn't exist, create a new CddEvent with this data.
+     */
+    create: XOR<CddEventCreateInput, CddEventUncheckedCreateInput>
+    /**
+     * In case the CddEvent was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CddEventUpdateInput, CddEventUncheckedUpdateInput>
+  }
+
+  /**
+   * CddEvent delete
+   */
+  export type CddEventDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+    /**
+     * Filter which CddEvent to delete.
+     */
+    where: CddEventWhereUniqueInput
+  }
+
+  /**
+   * CddEvent deleteMany
+   */
+  export type CddEventDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CddEvents to delete
+     */
+    where?: CddEventWhereInput
+    /**
+     * Limit how many CddEvents to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * CddEvent without action
+   */
+  export type CddEventDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CddEvent
+     */
+    select?: CddEventSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the CddEvent
+     */
+    omit?: CddEventOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CddEventInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model SanctionsList
+   */
+
+  export type AggregateSanctionsList = {
+    _count: SanctionsListCountAggregateOutputType | null
+    _avg: SanctionsListAvgAggregateOutputType | null
+    _sum: SanctionsListSumAggregateOutputType | null
+    _min: SanctionsListMinAggregateOutputType | null
+    _max: SanctionsListMaxAggregateOutputType | null
+  }
+
+  export type SanctionsListAvgAggregateOutputType = {
+    entryCount: number | null
+  }
+
+  export type SanctionsListSumAggregateOutputType = {
+    entryCount: number | null
+  }
+
+  export type SanctionsListMinAggregateOutputType = {
+    id: string | null
+    source: $Enums.SanctionsSource | null
+    publishedAt: string | null
+    checksum: string | null
+    entryCount: number | null
+    fetchedAt: Date | null
+  }
+
+  export type SanctionsListMaxAggregateOutputType = {
+    id: string | null
+    source: $Enums.SanctionsSource | null
+    publishedAt: string | null
+    checksum: string | null
+    entryCount: number | null
+    fetchedAt: Date | null
+  }
+
+  export type SanctionsListCountAggregateOutputType = {
+    id: number
+    source: number
+    publishedAt: number
+    checksum: number
+    entryCount: number
+    entries: number
+    fetchedAt: number
+    _all: number
+  }
+
+
+  export type SanctionsListAvgAggregateInputType = {
+    entryCount?: true
+  }
+
+  export type SanctionsListSumAggregateInputType = {
+    entryCount?: true
+  }
+
+  export type SanctionsListMinAggregateInputType = {
+    id?: true
+    source?: true
+    publishedAt?: true
+    checksum?: true
+    entryCount?: true
+    fetchedAt?: true
+  }
+
+  export type SanctionsListMaxAggregateInputType = {
+    id?: true
+    source?: true
+    publishedAt?: true
+    checksum?: true
+    entryCount?: true
+    fetchedAt?: true
+  }
+
+  export type SanctionsListCountAggregateInputType = {
+    id?: true
+    source?: true
+    publishedAt?: true
+    checksum?: true
+    entryCount?: true
+    entries?: true
+    fetchedAt?: true
+    _all?: true
+  }
+
+  export type SanctionsListAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SanctionsList to aggregate.
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SanctionsLists to fetch.
+     */
+    orderBy?: SanctionsListOrderByWithRelationInput | SanctionsListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SanctionsListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SanctionsLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SanctionsLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SanctionsLists
+    **/
+    _count?: true | SanctionsListCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SanctionsListAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SanctionsListSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SanctionsListMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SanctionsListMaxAggregateInputType
+  }
+
+  export type GetSanctionsListAggregateType<T extends SanctionsListAggregateArgs> = {
+        [P in keyof T & keyof AggregateSanctionsList]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSanctionsList[P]>
+      : GetScalarType<T[P], AggregateSanctionsList[P]>
+  }
+
+
+
+
+  export type SanctionsListGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SanctionsListWhereInput
+    orderBy?: SanctionsListOrderByWithAggregationInput | SanctionsListOrderByWithAggregationInput[]
+    by: SanctionsListScalarFieldEnum[] | SanctionsListScalarFieldEnum
+    having?: SanctionsListScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SanctionsListCountAggregateInputType | true
+    _avg?: SanctionsListAvgAggregateInputType
+    _sum?: SanctionsListSumAggregateInputType
+    _min?: SanctionsListMinAggregateInputType
+    _max?: SanctionsListMaxAggregateInputType
+  }
+
+  export type SanctionsListGroupByOutputType = {
+    id: string
+    source: $Enums.SanctionsSource
+    publishedAt: string | null
+    checksum: string
+    entryCount: number
+    entries: JsonValue
+    fetchedAt: Date
+    _count: SanctionsListCountAggregateOutputType | null
+    _avg: SanctionsListAvgAggregateOutputType | null
+    _sum: SanctionsListSumAggregateOutputType | null
+    _min: SanctionsListMinAggregateOutputType | null
+    _max: SanctionsListMaxAggregateOutputType | null
+  }
+
+  type GetSanctionsListGroupByPayload<T extends SanctionsListGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SanctionsListGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SanctionsListGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SanctionsListGroupByOutputType[P]>
+            : GetScalarType<T[P], SanctionsListGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SanctionsListSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    publishedAt?: boolean
+    checksum?: boolean
+    entryCount?: boolean
+    entries?: boolean
+    fetchedAt?: boolean
+  }, ExtArgs["result"]["sanctionsList"]>
+
+  export type SanctionsListSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    publishedAt?: boolean
+    checksum?: boolean
+    entryCount?: boolean
+    entries?: boolean
+    fetchedAt?: boolean
+  }, ExtArgs["result"]["sanctionsList"]>
+
+  export type SanctionsListSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    source?: boolean
+    publishedAt?: boolean
+    checksum?: boolean
+    entryCount?: boolean
+    entries?: boolean
+    fetchedAt?: boolean
+  }, ExtArgs["result"]["sanctionsList"]>
+
+  export type SanctionsListSelectScalar = {
+    id?: boolean
+    source?: boolean
+    publishedAt?: boolean
+    checksum?: boolean
+    entryCount?: boolean
+    entries?: boolean
+    fetchedAt?: boolean
+  }
+
+  export type SanctionsListOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "source" | "publishedAt" | "checksum" | "entryCount" | "entries" | "fetchedAt", ExtArgs["result"]["sanctionsList"]>
+
+  export type $SanctionsListPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SanctionsList"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      source: $Enums.SanctionsSource
+      publishedAt: string | null
+      checksum: string
+      entryCount: number
+      entries: Prisma.JsonValue
+      fetchedAt: Date
+    }, ExtArgs["result"]["sanctionsList"]>
+    composites: {}
+  }
+
+  type SanctionsListGetPayload<S extends boolean | null | undefined | SanctionsListDefaultArgs> = $Result.GetResult<Prisma.$SanctionsListPayload, S>
+
+  type SanctionsListCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SanctionsListFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SanctionsListCountAggregateInputType | true
+    }
+
+  export interface SanctionsListDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SanctionsList'], meta: { name: 'SanctionsList' } }
+    /**
+     * Find zero or one SanctionsList that matches the filter.
+     * @param {SanctionsListFindUniqueArgs} args - Arguments to find a SanctionsList
+     * @example
+     * // Get one SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SanctionsListFindUniqueArgs>(args: SelectSubset<T, SanctionsListFindUniqueArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SanctionsList that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SanctionsListFindUniqueOrThrowArgs} args - Arguments to find a SanctionsList
+     * @example
+     * // Get one SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SanctionsListFindUniqueOrThrowArgs>(args: SelectSubset<T, SanctionsListFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SanctionsList that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListFindFirstArgs} args - Arguments to find a SanctionsList
+     * @example
+     * // Get one SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SanctionsListFindFirstArgs>(args?: SelectSubset<T, SanctionsListFindFirstArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SanctionsList that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListFindFirstOrThrowArgs} args - Arguments to find a SanctionsList
+     * @example
+     * // Get one SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SanctionsListFindFirstOrThrowArgs>(args?: SelectSubset<T, SanctionsListFindFirstOrThrowArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SanctionsLists that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SanctionsLists
+     * const sanctionsLists = await prisma.sanctionsList.findMany()
+     * 
+     * // Get first 10 SanctionsLists
+     * const sanctionsLists = await prisma.sanctionsList.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sanctionsListWithIdOnly = await prisma.sanctionsList.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SanctionsListFindManyArgs>(args?: SelectSubset<T, SanctionsListFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SanctionsList.
+     * @param {SanctionsListCreateArgs} args - Arguments to create a SanctionsList.
+     * @example
+     * // Create one SanctionsList
+     * const SanctionsList = await prisma.sanctionsList.create({
+     *   data: {
+     *     // ... data to create a SanctionsList
+     *   }
+     * })
+     * 
+     */
+    create<T extends SanctionsListCreateArgs>(args: SelectSubset<T, SanctionsListCreateArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SanctionsLists.
+     * @param {SanctionsListCreateManyArgs} args - Arguments to create many SanctionsLists.
+     * @example
+     * // Create many SanctionsLists
+     * const sanctionsList = await prisma.sanctionsList.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SanctionsListCreateManyArgs>(args?: SelectSubset<T, SanctionsListCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SanctionsLists and returns the data saved in the database.
+     * @param {SanctionsListCreateManyAndReturnArgs} args - Arguments to create many SanctionsLists.
+     * @example
+     * // Create many SanctionsLists
+     * const sanctionsList = await prisma.sanctionsList.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SanctionsLists and only return the `id`
+     * const sanctionsListWithIdOnly = await prisma.sanctionsList.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SanctionsListCreateManyAndReturnArgs>(args?: SelectSubset<T, SanctionsListCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SanctionsList.
+     * @param {SanctionsListDeleteArgs} args - Arguments to delete one SanctionsList.
+     * @example
+     * // Delete one SanctionsList
+     * const SanctionsList = await prisma.sanctionsList.delete({
+     *   where: {
+     *     // ... filter to delete one SanctionsList
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SanctionsListDeleteArgs>(args: SelectSubset<T, SanctionsListDeleteArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SanctionsList.
+     * @param {SanctionsListUpdateArgs} args - Arguments to update one SanctionsList.
+     * @example
+     * // Update one SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SanctionsListUpdateArgs>(args: SelectSubset<T, SanctionsListUpdateArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SanctionsLists.
+     * @param {SanctionsListDeleteManyArgs} args - Arguments to filter SanctionsLists to delete.
+     * @example
+     * // Delete a few SanctionsLists
+     * const { count } = await prisma.sanctionsList.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SanctionsListDeleteManyArgs>(args?: SelectSubset<T, SanctionsListDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SanctionsLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SanctionsLists
+     * const sanctionsList = await prisma.sanctionsList.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SanctionsListUpdateManyArgs>(args: SelectSubset<T, SanctionsListUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SanctionsLists and returns the data updated in the database.
+     * @param {SanctionsListUpdateManyAndReturnArgs} args - Arguments to update many SanctionsLists.
+     * @example
+     * // Update many SanctionsLists
+     * const sanctionsList = await prisma.sanctionsList.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SanctionsLists and only return the `id`
+     * const sanctionsListWithIdOnly = await prisma.sanctionsList.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SanctionsListUpdateManyAndReturnArgs>(args: SelectSubset<T, SanctionsListUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SanctionsList.
+     * @param {SanctionsListUpsertArgs} args - Arguments to update or create a SanctionsList.
+     * @example
+     * // Update or create a SanctionsList
+     * const sanctionsList = await prisma.sanctionsList.upsert({
+     *   create: {
+     *     // ... data to create a SanctionsList
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SanctionsList we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SanctionsListUpsertArgs>(args: SelectSubset<T, SanctionsListUpsertArgs<ExtArgs>>): Prisma__SanctionsListClient<$Result.GetResult<Prisma.$SanctionsListPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SanctionsLists.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListCountArgs} args - Arguments to filter SanctionsLists to count.
+     * @example
+     * // Count the number of SanctionsLists
+     * const count = await prisma.sanctionsList.count({
+     *   where: {
+     *     // ... the filter for the SanctionsLists we want to count
+     *   }
+     * })
+    **/
+    count<T extends SanctionsListCountArgs>(
+      args?: Subset<T, SanctionsListCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SanctionsListCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SanctionsList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SanctionsListAggregateArgs>(args: Subset<T, SanctionsListAggregateArgs>): Prisma.PrismaPromise<GetSanctionsListAggregateType<T>>
+
+    /**
+     * Group by SanctionsList.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SanctionsListGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SanctionsListGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SanctionsListGroupByArgs['orderBy'] }
+        : { orderBy?: SanctionsListGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SanctionsListGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSanctionsListGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SanctionsList model
+   */
+  readonly fields: SanctionsListFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SanctionsList.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SanctionsListClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SanctionsList model
+   */
+  interface SanctionsListFieldRefs {
+    readonly id: FieldRef<"SanctionsList", 'String'>
+    readonly source: FieldRef<"SanctionsList", 'SanctionsSource'>
+    readonly publishedAt: FieldRef<"SanctionsList", 'String'>
+    readonly checksum: FieldRef<"SanctionsList", 'String'>
+    readonly entryCount: FieldRef<"SanctionsList", 'Int'>
+    readonly entries: FieldRef<"SanctionsList", 'Json'>
+    readonly fetchedAt: FieldRef<"SanctionsList", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SanctionsList findUnique
+   */
+  export type SanctionsListFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter, which SanctionsList to fetch.
+     */
+    where: SanctionsListWhereUniqueInput
+  }
+
+  /**
+   * SanctionsList findUniqueOrThrow
+   */
+  export type SanctionsListFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter, which SanctionsList to fetch.
+     */
+    where: SanctionsListWhereUniqueInput
+  }
+
+  /**
+   * SanctionsList findFirst
+   */
+  export type SanctionsListFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter, which SanctionsList to fetch.
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SanctionsLists to fetch.
+     */
+    orderBy?: SanctionsListOrderByWithRelationInput | SanctionsListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SanctionsLists.
+     */
+    cursor?: SanctionsListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SanctionsLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SanctionsLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SanctionsLists.
+     */
+    distinct?: SanctionsListScalarFieldEnum | SanctionsListScalarFieldEnum[]
+  }
+
+  /**
+   * SanctionsList findFirstOrThrow
+   */
+  export type SanctionsListFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter, which SanctionsList to fetch.
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SanctionsLists to fetch.
+     */
+    orderBy?: SanctionsListOrderByWithRelationInput | SanctionsListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SanctionsLists.
+     */
+    cursor?: SanctionsListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SanctionsLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SanctionsLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SanctionsLists.
+     */
+    distinct?: SanctionsListScalarFieldEnum | SanctionsListScalarFieldEnum[]
+  }
+
+  /**
+   * SanctionsList findMany
+   */
+  export type SanctionsListFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter, which SanctionsLists to fetch.
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SanctionsLists to fetch.
+     */
+    orderBy?: SanctionsListOrderByWithRelationInput | SanctionsListOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SanctionsLists.
+     */
+    cursor?: SanctionsListWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SanctionsLists from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SanctionsLists.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SanctionsLists.
+     */
+    distinct?: SanctionsListScalarFieldEnum | SanctionsListScalarFieldEnum[]
+  }
+
+  /**
+   * SanctionsList create
+   */
+  export type SanctionsListCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SanctionsList.
+     */
+    data: XOR<SanctionsListCreateInput, SanctionsListUncheckedCreateInput>
+  }
+
+  /**
+   * SanctionsList createMany
+   */
+  export type SanctionsListCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SanctionsLists.
+     */
+    data: SanctionsListCreateManyInput | SanctionsListCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SanctionsList createManyAndReturn
+   */
+  export type SanctionsListCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * The data used to create many SanctionsLists.
+     */
+    data: SanctionsListCreateManyInput | SanctionsListCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SanctionsList update
+   */
+  export type SanctionsListUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SanctionsList.
+     */
+    data: XOR<SanctionsListUpdateInput, SanctionsListUncheckedUpdateInput>
+    /**
+     * Choose, which SanctionsList to update.
+     */
+    where: SanctionsListWhereUniqueInput
+  }
+
+  /**
+   * SanctionsList updateMany
+   */
+  export type SanctionsListUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SanctionsLists.
+     */
+    data: XOR<SanctionsListUpdateManyMutationInput, SanctionsListUncheckedUpdateManyInput>
+    /**
+     * Filter which SanctionsLists to update
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * Limit how many SanctionsLists to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SanctionsList updateManyAndReturn
+   */
+  export type SanctionsListUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * The data used to update SanctionsLists.
+     */
+    data: XOR<SanctionsListUpdateManyMutationInput, SanctionsListUncheckedUpdateManyInput>
+    /**
+     * Filter which SanctionsLists to update
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * Limit how many SanctionsLists to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SanctionsList upsert
+   */
+  export type SanctionsListUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SanctionsList to update in case it exists.
+     */
+    where: SanctionsListWhereUniqueInput
+    /**
+     * In case the SanctionsList found by the `where` argument doesn't exist, create a new SanctionsList with this data.
+     */
+    create: XOR<SanctionsListCreateInput, SanctionsListUncheckedCreateInput>
+    /**
+     * In case the SanctionsList was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SanctionsListUpdateInput, SanctionsListUncheckedUpdateInput>
+  }
+
+  /**
+   * SanctionsList delete
+   */
+  export type SanctionsListDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+    /**
+     * Filter which SanctionsList to delete.
+     */
+    where: SanctionsListWhereUniqueInput
+  }
+
+  /**
+   * SanctionsList deleteMany
+   */
+  export type SanctionsListDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SanctionsLists to delete
+     */
+    where?: SanctionsListWhereInput
+    /**
+     * Limit how many SanctionsLists to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SanctionsList without action
+   */
+  export type SanctionsListDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SanctionsList
+     */
+    select?: SanctionsListSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SanctionsList
+     */
+    omit?: SanctionsListOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -75527,6 +86091,136 @@ export namespace Prisma {
   export type AssessmentResponseScalarFieldEnum = (typeof AssessmentResponseScalarFieldEnum)[keyof typeof AssessmentResponseScalarFieldEnum]
 
 
+  export const CddCaseScalarFieldEnum: {
+    id: 'id',
+    agentId: 'agentId',
+    clientId: 'clientId',
+    clientRole: 'clientRole',
+    propertyId: 'propertyId',
+    tenancyId: 'tenancyId',
+    agencyId: 'agencyId',
+    country: 'country',
+    status: 'status',
+    riskLevel: 'riskLevel',
+    version: 'version',
+    contentHash: 'contentHash',
+    completedAt: 'completedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type CddCaseScalarFieldEnum = (typeof CddCaseScalarFieldEnum)[keyof typeof CddCaseScalarFieldEnum]
+
+
+  export const CddParticularsScalarFieldEnum: {
+    caseId: 'caseId',
+    kind: 'kind',
+    legalName: 'legalName',
+    idType: 'idType',
+    idNumberEncrypted: 'idNumberEncrypted',
+    idNumberLast4: 'idNumberLast4',
+    nationality: 'nationality',
+    dateOfBirth: 'dateOfBirth',
+    address: 'address',
+    pepDeclared: 'pepDeclared',
+    pepDetails: 'pepDetails',
+    submittedById: 'submittedById',
+    submittedInPerson: 'submittedInPerson',
+    idSightedById: 'idSightedById',
+    idSightedAt: 'idSightedAt',
+    submittedAt: 'submittedAt'
+  };
+
+  export type CddParticularsScalarFieldEnum = (typeof CddParticularsScalarFieldEnum)[keyof typeof CddParticularsScalarFieldEnum]
+
+
+  export const CddBeneficialOwnerScalarFieldEnum: {
+    id: 'id',
+    caseId: 'caseId',
+    legalName: 'legalName',
+    idType: 'idType',
+    idNumberEncrypted: 'idNumberEncrypted',
+    idNumberLast4: 'idNumberLast4',
+    nationality: 'nationality',
+    dateOfBirth: 'dateOfBirth',
+    ownershipPercent: 'ownershipPercent',
+    pepDeclared: 'pepDeclared',
+    createdAt: 'createdAt'
+  };
+
+  export type CddBeneficialOwnerScalarFieldEnum = (typeof CddBeneficialOwnerScalarFieldEnum)[keyof typeof CddBeneficialOwnerScalarFieldEnum]
+
+
+  export const ScreeningRunScalarFieldEnum: {
+    id: 'id',
+    caseId: 'caseId',
+    beneficialOwnerId: 'beneficialOwnerId',
+    subjectName: 'subjectName',
+    subjectBirthYear: 'subjectBirthYear',
+    provider: 'provider',
+    listVersions: 'listVersions',
+    ranAt: 'ranAt'
+  };
+
+  export type ScreeningRunScalarFieldEnum = (typeof ScreeningRunScalarFieldEnum)[keyof typeof ScreeningRunScalarFieldEnum]
+
+
+  export const ScreeningCandidateScalarFieldEnum: {
+    id: 'id',
+    runId: 'runId',
+    source: 'source',
+    reference: 'reference',
+    matchedName: 'matchedName',
+    score: 'score',
+    details: 'details',
+    decision: 'decision',
+    reason: 'reason',
+    decidedById: 'decidedById',
+    decidedAt: 'decidedAt'
+  };
+
+  export type ScreeningCandidateScalarFieldEnum = (typeof ScreeningCandidateScalarFieldEnum)[keyof typeof ScreeningCandidateScalarFieldEnum]
+
+
+  export const CddRiskAssessmentScalarFieldEnum: {
+    caseId: 'caseId',
+    checklistVersion: 'checklistVersion',
+    answers: 'answers',
+    level: 'level',
+    assessedById: 'assessedById',
+    assessedAt: 'assessedAt',
+    approvedById: 'approvedById',
+    approvedAt: 'approvedAt'
+  };
+
+  export type CddRiskAssessmentScalarFieldEnum = (typeof CddRiskAssessmentScalarFieldEnum)[keyof typeof CddRiskAssessmentScalarFieldEnum]
+
+
+  export const CddEventScalarFieldEnum: {
+    id: 'id',
+    caseId: 'caseId',
+    actorId: 'actorId',
+    kind: 'kind',
+    detail: 'detail',
+    createdAt: 'createdAt'
+  };
+
+  export type CddEventScalarFieldEnum = (typeof CddEventScalarFieldEnum)[keyof typeof CddEventScalarFieldEnum]
+
+
+  export const SanctionsListScalarFieldEnum: {
+    id: 'id',
+    source: 'source',
+    publishedAt: 'publishedAt',
+    checksum: 'checksum',
+    entryCount: 'entryCount',
+    entries: 'entries',
+    fetchedAt: 'fetchedAt'
+  };
+
+  export type SanctionsListScalarFieldEnum = (typeof SanctionsListScalarFieldEnum)[keyof typeof SanctionsListScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -76187,6 +86881,90 @@ export namespace Prisma {
    */
   export type ListEnumStatementAnswerFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StatementAnswer[]'>
     
+
+
+  /**
+   * Reference to a field of type 'CddClientRole'
+   */
+  export type EnumCddClientRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddClientRole'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddClientRole[]'
+   */
+  export type ListEnumCddClientRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddClientRole[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddStatus'
+   */
+  export type EnumCddStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddStatus[]'
+   */
+  export type ListEnumCddStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddStatus[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddRiskLevel'
+   */
+  export type EnumCddRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddRiskLevel'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddRiskLevel[]'
+   */
+  export type ListEnumCddRiskLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddRiskLevel[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddIdType'
+   */
+  export type EnumCddIdTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddIdType'>
+    
+
+
+  /**
+   * Reference to a field of type 'CddIdType[]'
+   */
+  export type ListEnumCddIdTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CddIdType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SanctionsSource'
+   */
+  export type EnumSanctionsSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SanctionsSource'>
+    
+
+
+  /**
+   * Reference to a field of type 'SanctionsSource[]'
+   */
+  export type ListEnumSanctionsSourceFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SanctionsSource[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'ScreeningDecision'
+   */
+  export type EnumScreeningDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScreeningDecision'>
+    
+
+
+  /**
+   * Reference to a field of type 'ScreeningDecision[]'
+   */
+  export type ListEnumScreeningDecisionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ScreeningDecision[]'>
+    
   /**
    * Deep Input Types
    */
@@ -76243,6 +87021,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionListRelationFilter
     googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
     appleBillingAccounts?: AppleBillingAccountListRelationFilter
+    cddCasesAsAgent?: CddCaseListRelationFilter
+    cddCasesAsClient?: CddCaseListRelationFilter
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -76293,6 +87073,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountOrderByRelationAggregateInput
     appleBillingAccounts?: AppleBillingAccountOrderByRelationAggregateInput
+    cddCasesAsAgent?: CddCaseOrderByRelationAggregateInput
+    cddCasesAsClient?: CddCaseOrderByRelationAggregateInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -76346,6 +87128,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionListRelationFilter
     googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
     appleBillingAccounts?: AppleBillingAccountListRelationFilter
+    cddCasesAsAgent?: CddCaseListRelationFilter
+    cddCasesAsClient?: CddCaseListRelationFilter
   }, "id" | "email" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -76549,6 +87333,7 @@ export namespace Prisma {
     branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     reportInspections?: InspectionListRelationFilter
+    cddCases?: CddCaseListRelationFilter
   }
 
   export type AgencyOrderByWithRelationInput = {
@@ -76562,6 +87347,7 @@ export namespace Prisma {
     branding?: AgencyBrandingOrderByWithRelationInput
     subscription?: SubscriptionOrderByWithRelationInput
     reportInspections?: InspectionOrderByRelationAggregateInput
+    cddCases?: CddCaseOrderByRelationAggregateInput
   }
 
   export type AgencyWhereUniqueInput = Prisma.AtLeast<{
@@ -76578,6 +87364,7 @@ export namespace Prisma {
     branding?: XOR<AgencyBrandingNullableScalarRelationFilter, AgencyBrandingWhereInput> | null
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     reportInspections?: InspectionListRelationFilter
+    cddCases?: CddCaseListRelationFilter
   }, "id">
 
   export type AgencyOrderByWithAggregationInput = {
@@ -77361,6 +88148,7 @@ export namespace Prisma {
     assets?: PropertyAssetListRelationFilter
     events?: PropertyEventListRelationFilter
     bin?: BinItemListRelationFilter
+    cddCases?: CddCaseListRelationFilter
   }
 
   export type PropertyOrderByWithRelationInput = {
@@ -77379,6 +88167,7 @@ export namespace Prisma {
     assets?: PropertyAssetOrderByRelationAggregateInput
     events?: PropertyEventOrderByRelationAggregateInput
     bin?: BinItemOrderByRelationAggregateInput
+    cddCases?: CddCaseOrderByRelationAggregateInput
   }
 
   export type PropertyWhereUniqueInput = Prisma.AtLeast<{
@@ -77400,6 +88189,7 @@ export namespace Prisma {
     assets?: PropertyAssetListRelationFilter
     events?: PropertyEventListRelationFilter
     bin?: BinItemListRelationFilter
+    cddCases?: CddCaseListRelationFilter
   }, "id">
 
   export type PropertyOrderByWithAggregationInput = {
@@ -77662,6 +88452,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
     renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
     renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    cddCases?: CddCaseListRelationFilter
   }
 
   export type TenancyOrderByWithRelationInput = {
@@ -77696,6 +88487,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestOrderByRelationAggregateInput
     renewedFrom?: TenancyOrderByWithRelationInput
     renewedAs?: TenancyOrderByWithRelationInput
+    cddCases?: CddCaseOrderByRelationAggregateInput
   }
 
   export type TenancyWhereUniqueInput = Prisma.AtLeast<{
@@ -77733,6 +88525,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestListRelationFilter
     renewedFrom?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
     renewedAs?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    cddCases?: CddCaseListRelationFilter
   }, "id" | "renewedFromId">
 
   export type TenancyOrderByWithAggregationInput = {
@@ -81127,6 +91920,700 @@ export namespace Prisma {
     respondedAt?: DateTimeWithAggregatesFilter<"AssessmentResponse"> | Date | string
   }
 
+  export type CddCaseWhereInput = {
+    AND?: CddCaseWhereInput | CddCaseWhereInput[]
+    OR?: CddCaseWhereInput[]
+    NOT?: CddCaseWhereInput | CddCaseWhereInput[]
+    id?: StringFilter<"CddCase"> | string
+    agentId?: StringFilter<"CddCase"> | string
+    clientId?: StringFilter<"CddCase"> | string
+    clientRole?: EnumCddClientRoleFilter<"CddCase"> | $Enums.CddClientRole
+    propertyId?: StringNullableFilter<"CddCase"> | string | null
+    tenancyId?: StringNullableFilter<"CddCase"> | string | null
+    agencyId?: StringNullableFilter<"CddCase"> | string | null
+    country?: StringFilter<"CddCase"> | string
+    status?: EnumCddStatusFilter<"CddCase"> | $Enums.CddStatus
+    riskLevel?: EnumCddRiskLevelNullableFilter<"CddCase"> | $Enums.CddRiskLevel | null
+    version?: IntFilter<"CddCase"> | number
+    contentHash?: StringNullableFilter<"CddCase"> | string | null
+    completedAt?: DateTimeNullableFilter<"CddCase"> | Date | string | null
+    createdAt?: DateTimeFilter<"CddCase"> | Date | string
+    updatedAt?: DateTimeFilter<"CddCase"> | Date | string
+    agent?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    client?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    property?: XOR<PropertyNullableScalarRelationFilter, PropertyWhereInput> | null
+    tenancy?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
+    particulars?: XOR<CddParticularsNullableScalarRelationFilter, CddParticularsWhereInput> | null
+    beneficialOwners?: CddBeneficialOwnerListRelationFilter
+    screeningRuns?: ScreeningRunListRelationFilter
+    riskAssessment?: XOR<CddRiskAssessmentNullableScalarRelationFilter, CddRiskAssessmentWhereInput> | null
+    events?: CddEventListRelationFilter
+  }
+
+  export type CddCaseOrderByWithRelationInput = {
+    id?: SortOrder
+    agentId?: SortOrder
+    clientId?: SortOrder
+    clientRole?: SortOrder
+    propertyId?: SortOrderInput | SortOrder
+    tenancyId?: SortOrderInput | SortOrder
+    agencyId?: SortOrderInput | SortOrder
+    country?: SortOrder
+    status?: SortOrder
+    riskLevel?: SortOrderInput | SortOrder
+    version?: SortOrder
+    contentHash?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    agent?: StakeholderOrderByWithRelationInput
+    client?: StakeholderOrderByWithRelationInput
+    property?: PropertyOrderByWithRelationInput
+    tenancy?: TenancyOrderByWithRelationInput
+    agency?: AgencyOrderByWithRelationInput
+    particulars?: CddParticularsOrderByWithRelationInput
+    beneficialOwners?: CddBeneficialOwnerOrderByRelationAggregateInput
+    screeningRuns?: ScreeningRunOrderByRelationAggregateInput
+    riskAssessment?: CddRiskAssessmentOrderByWithRelationInput
+    events?: CddEventOrderByRelationAggregateInput
+  }
+
+  export type CddCaseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CddCaseWhereInput | CddCaseWhereInput[]
+    OR?: CddCaseWhereInput[]
+    NOT?: CddCaseWhereInput | CddCaseWhereInput[]
+    agentId?: StringFilter<"CddCase"> | string
+    clientId?: StringFilter<"CddCase"> | string
+    clientRole?: EnumCddClientRoleFilter<"CddCase"> | $Enums.CddClientRole
+    propertyId?: StringNullableFilter<"CddCase"> | string | null
+    tenancyId?: StringNullableFilter<"CddCase"> | string | null
+    agencyId?: StringNullableFilter<"CddCase"> | string | null
+    country?: StringFilter<"CddCase"> | string
+    status?: EnumCddStatusFilter<"CddCase"> | $Enums.CddStatus
+    riskLevel?: EnumCddRiskLevelNullableFilter<"CddCase"> | $Enums.CddRiskLevel | null
+    version?: IntFilter<"CddCase"> | number
+    contentHash?: StringNullableFilter<"CddCase"> | string | null
+    completedAt?: DateTimeNullableFilter<"CddCase"> | Date | string | null
+    createdAt?: DateTimeFilter<"CddCase"> | Date | string
+    updatedAt?: DateTimeFilter<"CddCase"> | Date | string
+    agent?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    client?: XOR<StakeholderScalarRelationFilter, StakeholderWhereInput>
+    property?: XOR<PropertyNullableScalarRelationFilter, PropertyWhereInput> | null
+    tenancy?: XOR<TenancyNullableScalarRelationFilter, TenancyWhereInput> | null
+    agency?: XOR<AgencyNullableScalarRelationFilter, AgencyWhereInput> | null
+    particulars?: XOR<CddParticularsNullableScalarRelationFilter, CddParticularsWhereInput> | null
+    beneficialOwners?: CddBeneficialOwnerListRelationFilter
+    screeningRuns?: ScreeningRunListRelationFilter
+    riskAssessment?: XOR<CddRiskAssessmentNullableScalarRelationFilter, CddRiskAssessmentWhereInput> | null
+    events?: CddEventListRelationFilter
+  }, "id">
+
+  export type CddCaseOrderByWithAggregationInput = {
+    id?: SortOrder
+    agentId?: SortOrder
+    clientId?: SortOrder
+    clientRole?: SortOrder
+    propertyId?: SortOrderInput | SortOrder
+    tenancyId?: SortOrderInput | SortOrder
+    agencyId?: SortOrderInput | SortOrder
+    country?: SortOrder
+    status?: SortOrder
+    riskLevel?: SortOrderInput | SortOrder
+    version?: SortOrder
+    contentHash?: SortOrderInput | SortOrder
+    completedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: CddCaseCountOrderByAggregateInput
+    _avg?: CddCaseAvgOrderByAggregateInput
+    _max?: CddCaseMaxOrderByAggregateInput
+    _min?: CddCaseMinOrderByAggregateInput
+    _sum?: CddCaseSumOrderByAggregateInput
+  }
+
+  export type CddCaseScalarWhereWithAggregatesInput = {
+    AND?: CddCaseScalarWhereWithAggregatesInput | CddCaseScalarWhereWithAggregatesInput[]
+    OR?: CddCaseScalarWhereWithAggregatesInput[]
+    NOT?: CddCaseScalarWhereWithAggregatesInput | CddCaseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CddCase"> | string
+    agentId?: StringWithAggregatesFilter<"CddCase"> | string
+    clientId?: StringWithAggregatesFilter<"CddCase"> | string
+    clientRole?: EnumCddClientRoleWithAggregatesFilter<"CddCase"> | $Enums.CddClientRole
+    propertyId?: StringNullableWithAggregatesFilter<"CddCase"> | string | null
+    tenancyId?: StringNullableWithAggregatesFilter<"CddCase"> | string | null
+    agencyId?: StringNullableWithAggregatesFilter<"CddCase"> | string | null
+    country?: StringWithAggregatesFilter<"CddCase"> | string
+    status?: EnumCddStatusWithAggregatesFilter<"CddCase"> | $Enums.CddStatus
+    riskLevel?: EnumCddRiskLevelNullableWithAggregatesFilter<"CddCase"> | $Enums.CddRiskLevel | null
+    version?: IntWithAggregatesFilter<"CddCase"> | number
+    contentHash?: StringNullableWithAggregatesFilter<"CddCase"> | string | null
+    completedAt?: DateTimeNullableWithAggregatesFilter<"CddCase"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CddCase"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"CddCase"> | Date | string
+  }
+
+  export type CddParticularsWhereInput = {
+    AND?: CddParticularsWhereInput | CddParticularsWhereInput[]
+    OR?: CddParticularsWhereInput[]
+    NOT?: CddParticularsWhereInput | CddParticularsWhereInput[]
+    caseId?: StringFilter<"CddParticulars"> | string
+    kind?: EnumStakeholderKindFilter<"CddParticulars"> | $Enums.StakeholderKind
+    legalName?: StringFilter<"CddParticulars"> | string
+    idType?: EnumCddIdTypeFilter<"CddParticulars"> | $Enums.CddIdType
+    idNumberEncrypted?: StringFilter<"CddParticulars"> | string
+    idNumberLast4?: StringFilter<"CddParticulars"> | string
+    nationality?: StringFilter<"CddParticulars"> | string
+    dateOfBirth?: DateTimeNullableFilter<"CddParticulars"> | Date | string | null
+    address?: StringFilter<"CddParticulars"> | string
+    pepDeclared?: BoolFilter<"CddParticulars"> | boolean
+    pepDetails?: StringNullableFilter<"CddParticulars"> | string | null
+    submittedById?: StringFilter<"CddParticulars"> | string
+    submittedInPerson?: BoolFilter<"CddParticulars"> | boolean
+    idSightedById?: StringNullableFilter<"CddParticulars"> | string | null
+    idSightedAt?: DateTimeNullableFilter<"CddParticulars"> | Date | string | null
+    submittedAt?: DateTimeFilter<"CddParticulars"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }
+
+  export type CddParticularsOrderByWithRelationInput = {
+    caseId?: SortOrder
+    kind?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    address?: SortOrder
+    pepDeclared?: SortOrder
+    pepDetails?: SortOrderInput | SortOrder
+    submittedById?: SortOrder
+    submittedInPerson?: SortOrder
+    idSightedById?: SortOrderInput | SortOrder
+    idSightedAt?: SortOrderInput | SortOrder
+    submittedAt?: SortOrder
+    case?: CddCaseOrderByWithRelationInput
+  }
+
+  export type CddParticularsWhereUniqueInput = Prisma.AtLeast<{
+    caseId?: string
+    AND?: CddParticularsWhereInput | CddParticularsWhereInput[]
+    OR?: CddParticularsWhereInput[]
+    NOT?: CddParticularsWhereInput | CddParticularsWhereInput[]
+    kind?: EnumStakeholderKindFilter<"CddParticulars"> | $Enums.StakeholderKind
+    legalName?: StringFilter<"CddParticulars"> | string
+    idType?: EnumCddIdTypeFilter<"CddParticulars"> | $Enums.CddIdType
+    idNumberEncrypted?: StringFilter<"CddParticulars"> | string
+    idNumberLast4?: StringFilter<"CddParticulars"> | string
+    nationality?: StringFilter<"CddParticulars"> | string
+    dateOfBirth?: DateTimeNullableFilter<"CddParticulars"> | Date | string | null
+    address?: StringFilter<"CddParticulars"> | string
+    pepDeclared?: BoolFilter<"CddParticulars"> | boolean
+    pepDetails?: StringNullableFilter<"CddParticulars"> | string | null
+    submittedById?: StringFilter<"CddParticulars"> | string
+    submittedInPerson?: BoolFilter<"CddParticulars"> | boolean
+    idSightedById?: StringNullableFilter<"CddParticulars"> | string | null
+    idSightedAt?: DateTimeNullableFilter<"CddParticulars"> | Date | string | null
+    submittedAt?: DateTimeFilter<"CddParticulars"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }, "caseId">
+
+  export type CddParticularsOrderByWithAggregationInput = {
+    caseId?: SortOrder
+    kind?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    address?: SortOrder
+    pepDeclared?: SortOrder
+    pepDetails?: SortOrderInput | SortOrder
+    submittedById?: SortOrder
+    submittedInPerson?: SortOrder
+    idSightedById?: SortOrderInput | SortOrder
+    idSightedAt?: SortOrderInput | SortOrder
+    submittedAt?: SortOrder
+    _count?: CddParticularsCountOrderByAggregateInput
+    _max?: CddParticularsMaxOrderByAggregateInput
+    _min?: CddParticularsMinOrderByAggregateInput
+  }
+
+  export type CddParticularsScalarWhereWithAggregatesInput = {
+    AND?: CddParticularsScalarWhereWithAggregatesInput | CddParticularsScalarWhereWithAggregatesInput[]
+    OR?: CddParticularsScalarWhereWithAggregatesInput[]
+    NOT?: CddParticularsScalarWhereWithAggregatesInput | CddParticularsScalarWhereWithAggregatesInput[]
+    caseId?: StringWithAggregatesFilter<"CddParticulars"> | string
+    kind?: EnumStakeholderKindWithAggregatesFilter<"CddParticulars"> | $Enums.StakeholderKind
+    legalName?: StringWithAggregatesFilter<"CddParticulars"> | string
+    idType?: EnumCddIdTypeWithAggregatesFilter<"CddParticulars"> | $Enums.CddIdType
+    idNumberEncrypted?: StringWithAggregatesFilter<"CddParticulars"> | string
+    idNumberLast4?: StringWithAggregatesFilter<"CddParticulars"> | string
+    nationality?: StringWithAggregatesFilter<"CddParticulars"> | string
+    dateOfBirth?: DateTimeNullableWithAggregatesFilter<"CddParticulars"> | Date | string | null
+    address?: StringWithAggregatesFilter<"CddParticulars"> | string
+    pepDeclared?: BoolWithAggregatesFilter<"CddParticulars"> | boolean
+    pepDetails?: StringNullableWithAggregatesFilter<"CddParticulars"> | string | null
+    submittedById?: StringWithAggregatesFilter<"CddParticulars"> | string
+    submittedInPerson?: BoolWithAggregatesFilter<"CddParticulars"> | boolean
+    idSightedById?: StringNullableWithAggregatesFilter<"CddParticulars"> | string | null
+    idSightedAt?: DateTimeNullableWithAggregatesFilter<"CddParticulars"> | Date | string | null
+    submittedAt?: DateTimeWithAggregatesFilter<"CddParticulars"> | Date | string
+  }
+
+  export type CddBeneficialOwnerWhereInput = {
+    AND?: CddBeneficialOwnerWhereInput | CddBeneficialOwnerWhereInput[]
+    OR?: CddBeneficialOwnerWhereInput[]
+    NOT?: CddBeneficialOwnerWhereInput | CddBeneficialOwnerWhereInput[]
+    id?: StringFilter<"CddBeneficialOwner"> | string
+    caseId?: StringFilter<"CddBeneficialOwner"> | string
+    legalName?: StringFilter<"CddBeneficialOwner"> | string
+    idType?: EnumCddIdTypeFilter<"CddBeneficialOwner"> | $Enums.CddIdType
+    idNumberEncrypted?: StringFilter<"CddBeneficialOwner"> | string
+    idNumberLast4?: StringFilter<"CddBeneficialOwner"> | string
+    nationality?: StringFilter<"CddBeneficialOwner"> | string
+    dateOfBirth?: DateTimeNullableFilter<"CddBeneficialOwner"> | Date | string | null
+    ownershipPercent?: DecimalNullableFilter<"CddBeneficialOwner"> | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFilter<"CddBeneficialOwner"> | boolean
+    createdAt?: DateTimeFilter<"CddBeneficialOwner"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+    screeningRuns?: ScreeningRunListRelationFilter
+  }
+
+  export type CddBeneficialOwnerOrderByWithRelationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    ownershipPercent?: SortOrderInput | SortOrder
+    pepDeclared?: SortOrder
+    createdAt?: SortOrder
+    case?: CddCaseOrderByWithRelationInput
+    screeningRuns?: ScreeningRunOrderByRelationAggregateInput
+  }
+
+  export type CddBeneficialOwnerWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CddBeneficialOwnerWhereInput | CddBeneficialOwnerWhereInput[]
+    OR?: CddBeneficialOwnerWhereInput[]
+    NOT?: CddBeneficialOwnerWhereInput | CddBeneficialOwnerWhereInput[]
+    caseId?: StringFilter<"CddBeneficialOwner"> | string
+    legalName?: StringFilter<"CddBeneficialOwner"> | string
+    idType?: EnumCddIdTypeFilter<"CddBeneficialOwner"> | $Enums.CddIdType
+    idNumberEncrypted?: StringFilter<"CddBeneficialOwner"> | string
+    idNumberLast4?: StringFilter<"CddBeneficialOwner"> | string
+    nationality?: StringFilter<"CddBeneficialOwner"> | string
+    dateOfBirth?: DateTimeNullableFilter<"CddBeneficialOwner"> | Date | string | null
+    ownershipPercent?: DecimalNullableFilter<"CddBeneficialOwner"> | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFilter<"CddBeneficialOwner"> | boolean
+    createdAt?: DateTimeFilter<"CddBeneficialOwner"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+    screeningRuns?: ScreeningRunListRelationFilter
+  }, "id">
+
+  export type CddBeneficialOwnerOrderByWithAggregationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrderInput | SortOrder
+    ownershipPercent?: SortOrderInput | SortOrder
+    pepDeclared?: SortOrder
+    createdAt?: SortOrder
+    _count?: CddBeneficialOwnerCountOrderByAggregateInput
+    _avg?: CddBeneficialOwnerAvgOrderByAggregateInput
+    _max?: CddBeneficialOwnerMaxOrderByAggregateInput
+    _min?: CddBeneficialOwnerMinOrderByAggregateInput
+    _sum?: CddBeneficialOwnerSumOrderByAggregateInput
+  }
+
+  export type CddBeneficialOwnerScalarWhereWithAggregatesInput = {
+    AND?: CddBeneficialOwnerScalarWhereWithAggregatesInput | CddBeneficialOwnerScalarWhereWithAggregatesInput[]
+    OR?: CddBeneficialOwnerScalarWhereWithAggregatesInput[]
+    NOT?: CddBeneficialOwnerScalarWhereWithAggregatesInput | CddBeneficialOwnerScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    caseId?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    legalName?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    idType?: EnumCddIdTypeWithAggregatesFilter<"CddBeneficialOwner"> | $Enums.CddIdType
+    idNumberEncrypted?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    idNumberLast4?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    nationality?: StringWithAggregatesFilter<"CddBeneficialOwner"> | string
+    dateOfBirth?: DateTimeNullableWithAggregatesFilter<"CddBeneficialOwner"> | Date | string | null
+    ownershipPercent?: DecimalNullableWithAggregatesFilter<"CddBeneficialOwner"> | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolWithAggregatesFilter<"CddBeneficialOwner"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"CddBeneficialOwner"> | Date | string
+  }
+
+  export type ScreeningRunWhereInput = {
+    AND?: ScreeningRunWhereInput | ScreeningRunWhereInput[]
+    OR?: ScreeningRunWhereInput[]
+    NOT?: ScreeningRunWhereInput | ScreeningRunWhereInput[]
+    id?: StringFilter<"ScreeningRun"> | string
+    caseId?: StringFilter<"ScreeningRun"> | string
+    beneficialOwnerId?: StringNullableFilter<"ScreeningRun"> | string | null
+    subjectName?: StringFilter<"ScreeningRun"> | string
+    subjectBirthYear?: IntNullableFilter<"ScreeningRun"> | number | null
+    provider?: StringFilter<"ScreeningRun"> | string
+    listVersions?: JsonFilter<"ScreeningRun">
+    ranAt?: DateTimeFilter<"ScreeningRun"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+    beneficialOwner?: XOR<CddBeneficialOwnerNullableScalarRelationFilter, CddBeneficialOwnerWhereInput> | null
+    candidates?: ScreeningCandidateListRelationFilter
+  }
+
+  export type ScreeningRunOrderByWithRelationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    beneficialOwnerId?: SortOrderInput | SortOrder
+    subjectName?: SortOrder
+    subjectBirthYear?: SortOrderInput | SortOrder
+    provider?: SortOrder
+    listVersions?: SortOrder
+    ranAt?: SortOrder
+    case?: CddCaseOrderByWithRelationInput
+    beneficialOwner?: CddBeneficialOwnerOrderByWithRelationInput
+    candidates?: ScreeningCandidateOrderByRelationAggregateInput
+  }
+
+  export type ScreeningRunWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ScreeningRunWhereInput | ScreeningRunWhereInput[]
+    OR?: ScreeningRunWhereInput[]
+    NOT?: ScreeningRunWhereInput | ScreeningRunWhereInput[]
+    caseId?: StringFilter<"ScreeningRun"> | string
+    beneficialOwnerId?: StringNullableFilter<"ScreeningRun"> | string | null
+    subjectName?: StringFilter<"ScreeningRun"> | string
+    subjectBirthYear?: IntNullableFilter<"ScreeningRun"> | number | null
+    provider?: StringFilter<"ScreeningRun"> | string
+    listVersions?: JsonFilter<"ScreeningRun">
+    ranAt?: DateTimeFilter<"ScreeningRun"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+    beneficialOwner?: XOR<CddBeneficialOwnerNullableScalarRelationFilter, CddBeneficialOwnerWhereInput> | null
+    candidates?: ScreeningCandidateListRelationFilter
+  }, "id">
+
+  export type ScreeningRunOrderByWithAggregationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    beneficialOwnerId?: SortOrderInput | SortOrder
+    subjectName?: SortOrder
+    subjectBirthYear?: SortOrderInput | SortOrder
+    provider?: SortOrder
+    listVersions?: SortOrder
+    ranAt?: SortOrder
+    _count?: ScreeningRunCountOrderByAggregateInput
+    _avg?: ScreeningRunAvgOrderByAggregateInput
+    _max?: ScreeningRunMaxOrderByAggregateInput
+    _min?: ScreeningRunMinOrderByAggregateInput
+    _sum?: ScreeningRunSumOrderByAggregateInput
+  }
+
+  export type ScreeningRunScalarWhereWithAggregatesInput = {
+    AND?: ScreeningRunScalarWhereWithAggregatesInput | ScreeningRunScalarWhereWithAggregatesInput[]
+    OR?: ScreeningRunScalarWhereWithAggregatesInput[]
+    NOT?: ScreeningRunScalarWhereWithAggregatesInput | ScreeningRunScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ScreeningRun"> | string
+    caseId?: StringWithAggregatesFilter<"ScreeningRun"> | string
+    beneficialOwnerId?: StringNullableWithAggregatesFilter<"ScreeningRun"> | string | null
+    subjectName?: StringWithAggregatesFilter<"ScreeningRun"> | string
+    subjectBirthYear?: IntNullableWithAggregatesFilter<"ScreeningRun"> | number | null
+    provider?: StringWithAggregatesFilter<"ScreeningRun"> | string
+    listVersions?: JsonWithAggregatesFilter<"ScreeningRun">
+    ranAt?: DateTimeWithAggregatesFilter<"ScreeningRun"> | Date | string
+  }
+
+  export type ScreeningCandidateWhereInput = {
+    AND?: ScreeningCandidateWhereInput | ScreeningCandidateWhereInput[]
+    OR?: ScreeningCandidateWhereInput[]
+    NOT?: ScreeningCandidateWhereInput | ScreeningCandidateWhereInput[]
+    id?: StringFilter<"ScreeningCandidate"> | string
+    runId?: StringFilter<"ScreeningCandidate"> | string
+    source?: EnumSanctionsSourceFilter<"ScreeningCandidate"> | $Enums.SanctionsSource
+    reference?: StringFilter<"ScreeningCandidate"> | string
+    matchedName?: StringFilter<"ScreeningCandidate"> | string
+    score?: FloatFilter<"ScreeningCandidate"> | number
+    details?: JsonFilter<"ScreeningCandidate">
+    decision?: EnumScreeningDecisionNullableFilter<"ScreeningCandidate"> | $Enums.ScreeningDecision | null
+    reason?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedById?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedAt?: DateTimeNullableFilter<"ScreeningCandidate"> | Date | string | null
+    run?: XOR<ScreeningRunScalarRelationFilter, ScreeningRunWhereInput>
+  }
+
+  export type ScreeningCandidateOrderByWithRelationInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    source?: SortOrder
+    reference?: SortOrder
+    matchedName?: SortOrder
+    score?: SortOrder
+    details?: SortOrder
+    decision?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    decidedById?: SortOrderInput | SortOrder
+    decidedAt?: SortOrderInput | SortOrder
+    run?: ScreeningRunOrderByWithRelationInput
+  }
+
+  export type ScreeningCandidateWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: ScreeningCandidateWhereInput | ScreeningCandidateWhereInput[]
+    OR?: ScreeningCandidateWhereInput[]
+    NOT?: ScreeningCandidateWhereInput | ScreeningCandidateWhereInput[]
+    runId?: StringFilter<"ScreeningCandidate"> | string
+    source?: EnumSanctionsSourceFilter<"ScreeningCandidate"> | $Enums.SanctionsSource
+    reference?: StringFilter<"ScreeningCandidate"> | string
+    matchedName?: StringFilter<"ScreeningCandidate"> | string
+    score?: FloatFilter<"ScreeningCandidate"> | number
+    details?: JsonFilter<"ScreeningCandidate">
+    decision?: EnumScreeningDecisionNullableFilter<"ScreeningCandidate"> | $Enums.ScreeningDecision | null
+    reason?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedById?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedAt?: DateTimeNullableFilter<"ScreeningCandidate"> | Date | string | null
+    run?: XOR<ScreeningRunScalarRelationFilter, ScreeningRunWhereInput>
+  }, "id">
+
+  export type ScreeningCandidateOrderByWithAggregationInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    source?: SortOrder
+    reference?: SortOrder
+    matchedName?: SortOrder
+    score?: SortOrder
+    details?: SortOrder
+    decision?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    decidedById?: SortOrderInput | SortOrder
+    decidedAt?: SortOrderInput | SortOrder
+    _count?: ScreeningCandidateCountOrderByAggregateInput
+    _avg?: ScreeningCandidateAvgOrderByAggregateInput
+    _max?: ScreeningCandidateMaxOrderByAggregateInput
+    _min?: ScreeningCandidateMinOrderByAggregateInput
+    _sum?: ScreeningCandidateSumOrderByAggregateInput
+  }
+
+  export type ScreeningCandidateScalarWhereWithAggregatesInput = {
+    AND?: ScreeningCandidateScalarWhereWithAggregatesInput | ScreeningCandidateScalarWhereWithAggregatesInput[]
+    OR?: ScreeningCandidateScalarWhereWithAggregatesInput[]
+    NOT?: ScreeningCandidateScalarWhereWithAggregatesInput | ScreeningCandidateScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ScreeningCandidate"> | string
+    runId?: StringWithAggregatesFilter<"ScreeningCandidate"> | string
+    source?: EnumSanctionsSourceWithAggregatesFilter<"ScreeningCandidate"> | $Enums.SanctionsSource
+    reference?: StringWithAggregatesFilter<"ScreeningCandidate"> | string
+    matchedName?: StringWithAggregatesFilter<"ScreeningCandidate"> | string
+    score?: FloatWithAggregatesFilter<"ScreeningCandidate"> | number
+    details?: JsonWithAggregatesFilter<"ScreeningCandidate">
+    decision?: EnumScreeningDecisionNullableWithAggregatesFilter<"ScreeningCandidate"> | $Enums.ScreeningDecision | null
+    reason?: StringNullableWithAggregatesFilter<"ScreeningCandidate"> | string | null
+    decidedById?: StringNullableWithAggregatesFilter<"ScreeningCandidate"> | string | null
+    decidedAt?: DateTimeNullableWithAggregatesFilter<"ScreeningCandidate"> | Date | string | null
+  }
+
+  export type CddRiskAssessmentWhereInput = {
+    AND?: CddRiskAssessmentWhereInput | CddRiskAssessmentWhereInput[]
+    OR?: CddRiskAssessmentWhereInput[]
+    NOT?: CddRiskAssessmentWhereInput | CddRiskAssessmentWhereInput[]
+    caseId?: StringFilter<"CddRiskAssessment"> | string
+    checklistVersion?: StringFilter<"CddRiskAssessment"> | string
+    answers?: JsonFilter<"CddRiskAssessment">
+    level?: EnumCddRiskLevelFilter<"CddRiskAssessment"> | $Enums.CddRiskLevel
+    assessedById?: StringFilter<"CddRiskAssessment"> | string
+    assessedAt?: DateTimeFilter<"CddRiskAssessment"> | Date | string
+    approvedById?: StringNullableFilter<"CddRiskAssessment"> | string | null
+    approvedAt?: DateTimeNullableFilter<"CddRiskAssessment"> | Date | string | null
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }
+
+  export type CddRiskAssessmentOrderByWithRelationInput = {
+    caseId?: SortOrder
+    checklistVersion?: SortOrder
+    answers?: SortOrder
+    level?: SortOrder
+    assessedById?: SortOrder
+    assessedAt?: SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    case?: CddCaseOrderByWithRelationInput
+  }
+
+  export type CddRiskAssessmentWhereUniqueInput = Prisma.AtLeast<{
+    caseId?: string
+    AND?: CddRiskAssessmentWhereInput | CddRiskAssessmentWhereInput[]
+    OR?: CddRiskAssessmentWhereInput[]
+    NOT?: CddRiskAssessmentWhereInput | CddRiskAssessmentWhereInput[]
+    checklistVersion?: StringFilter<"CddRiskAssessment"> | string
+    answers?: JsonFilter<"CddRiskAssessment">
+    level?: EnumCddRiskLevelFilter<"CddRiskAssessment"> | $Enums.CddRiskLevel
+    assessedById?: StringFilter<"CddRiskAssessment"> | string
+    assessedAt?: DateTimeFilter<"CddRiskAssessment"> | Date | string
+    approvedById?: StringNullableFilter<"CddRiskAssessment"> | string | null
+    approvedAt?: DateTimeNullableFilter<"CddRiskAssessment"> | Date | string | null
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }, "caseId">
+
+  export type CddRiskAssessmentOrderByWithAggregationInput = {
+    caseId?: SortOrder
+    checklistVersion?: SortOrder
+    answers?: SortOrder
+    level?: SortOrder
+    assessedById?: SortOrder
+    assessedAt?: SortOrder
+    approvedById?: SortOrderInput | SortOrder
+    approvedAt?: SortOrderInput | SortOrder
+    _count?: CddRiskAssessmentCountOrderByAggregateInput
+    _max?: CddRiskAssessmentMaxOrderByAggregateInput
+    _min?: CddRiskAssessmentMinOrderByAggregateInput
+  }
+
+  export type CddRiskAssessmentScalarWhereWithAggregatesInput = {
+    AND?: CddRiskAssessmentScalarWhereWithAggregatesInput | CddRiskAssessmentScalarWhereWithAggregatesInput[]
+    OR?: CddRiskAssessmentScalarWhereWithAggregatesInput[]
+    NOT?: CddRiskAssessmentScalarWhereWithAggregatesInput | CddRiskAssessmentScalarWhereWithAggregatesInput[]
+    caseId?: StringWithAggregatesFilter<"CddRiskAssessment"> | string
+    checklistVersion?: StringWithAggregatesFilter<"CddRiskAssessment"> | string
+    answers?: JsonWithAggregatesFilter<"CddRiskAssessment">
+    level?: EnumCddRiskLevelWithAggregatesFilter<"CddRiskAssessment"> | $Enums.CddRiskLevel
+    assessedById?: StringWithAggregatesFilter<"CddRiskAssessment"> | string
+    assessedAt?: DateTimeWithAggregatesFilter<"CddRiskAssessment"> | Date | string
+    approvedById?: StringNullableWithAggregatesFilter<"CddRiskAssessment"> | string | null
+    approvedAt?: DateTimeNullableWithAggregatesFilter<"CddRiskAssessment"> | Date | string | null
+  }
+
+  export type CddEventWhereInput = {
+    AND?: CddEventWhereInput | CddEventWhereInput[]
+    OR?: CddEventWhereInput[]
+    NOT?: CddEventWhereInput | CddEventWhereInput[]
+    id?: StringFilter<"CddEvent"> | string
+    caseId?: StringFilter<"CddEvent"> | string
+    actorId?: StringNullableFilter<"CddEvent"> | string | null
+    kind?: StringFilter<"CddEvent"> | string
+    detail?: JsonNullableFilter<"CddEvent">
+    createdAt?: DateTimeFilter<"CddEvent"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }
+
+  export type CddEventOrderByWithRelationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    actorId?: SortOrderInput | SortOrder
+    kind?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    case?: CddCaseOrderByWithRelationInput
+  }
+
+  export type CddEventWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CddEventWhereInput | CddEventWhereInput[]
+    OR?: CddEventWhereInput[]
+    NOT?: CddEventWhereInput | CddEventWhereInput[]
+    caseId?: StringFilter<"CddEvent"> | string
+    actorId?: StringNullableFilter<"CddEvent"> | string | null
+    kind?: StringFilter<"CddEvent"> | string
+    detail?: JsonNullableFilter<"CddEvent">
+    createdAt?: DateTimeFilter<"CddEvent"> | Date | string
+    case?: XOR<CddCaseScalarRelationFilter, CddCaseWhereInput>
+  }, "id">
+
+  export type CddEventOrderByWithAggregationInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    actorId?: SortOrderInput | SortOrder
+    kind?: SortOrder
+    detail?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: CddEventCountOrderByAggregateInput
+    _max?: CddEventMaxOrderByAggregateInput
+    _min?: CddEventMinOrderByAggregateInput
+  }
+
+  export type CddEventScalarWhereWithAggregatesInput = {
+    AND?: CddEventScalarWhereWithAggregatesInput | CddEventScalarWhereWithAggregatesInput[]
+    OR?: CddEventScalarWhereWithAggregatesInput[]
+    NOT?: CddEventScalarWhereWithAggregatesInput | CddEventScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CddEvent"> | string
+    caseId?: StringWithAggregatesFilter<"CddEvent"> | string
+    actorId?: StringNullableWithAggregatesFilter<"CddEvent"> | string | null
+    kind?: StringWithAggregatesFilter<"CddEvent"> | string
+    detail?: JsonNullableWithAggregatesFilter<"CddEvent">
+    createdAt?: DateTimeWithAggregatesFilter<"CddEvent"> | Date | string
+  }
+
+  export type SanctionsListWhereInput = {
+    AND?: SanctionsListWhereInput | SanctionsListWhereInput[]
+    OR?: SanctionsListWhereInput[]
+    NOT?: SanctionsListWhereInput | SanctionsListWhereInput[]
+    id?: StringFilter<"SanctionsList"> | string
+    source?: EnumSanctionsSourceFilter<"SanctionsList"> | $Enums.SanctionsSource
+    publishedAt?: StringNullableFilter<"SanctionsList"> | string | null
+    checksum?: StringFilter<"SanctionsList"> | string
+    entryCount?: IntFilter<"SanctionsList"> | number
+    entries?: JsonFilter<"SanctionsList">
+    fetchedAt?: DateTimeFilter<"SanctionsList"> | Date | string
+  }
+
+  export type SanctionsListOrderByWithRelationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    checksum?: SortOrder
+    entryCount?: SortOrder
+    entries?: SortOrder
+    fetchedAt?: SortOrder
+  }
+
+  export type SanctionsListWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    source_checksum?: SanctionsListSourceChecksumCompoundUniqueInput
+    AND?: SanctionsListWhereInput | SanctionsListWhereInput[]
+    OR?: SanctionsListWhereInput[]
+    NOT?: SanctionsListWhereInput | SanctionsListWhereInput[]
+    source?: EnumSanctionsSourceFilter<"SanctionsList"> | $Enums.SanctionsSource
+    publishedAt?: StringNullableFilter<"SanctionsList"> | string | null
+    checksum?: StringFilter<"SanctionsList"> | string
+    entryCount?: IntFilter<"SanctionsList"> | number
+    entries?: JsonFilter<"SanctionsList">
+    fetchedAt?: DateTimeFilter<"SanctionsList"> | Date | string
+  }, "id" | "source_checksum">
+
+  export type SanctionsListOrderByWithAggregationInput = {
+    id?: SortOrder
+    source?: SortOrder
+    publishedAt?: SortOrderInput | SortOrder
+    checksum?: SortOrder
+    entryCount?: SortOrder
+    entries?: SortOrder
+    fetchedAt?: SortOrder
+    _count?: SanctionsListCountOrderByAggregateInput
+    _avg?: SanctionsListAvgOrderByAggregateInput
+    _max?: SanctionsListMaxOrderByAggregateInput
+    _min?: SanctionsListMinOrderByAggregateInput
+    _sum?: SanctionsListSumOrderByAggregateInput
+  }
+
+  export type SanctionsListScalarWhereWithAggregatesInput = {
+    AND?: SanctionsListScalarWhereWithAggregatesInput | SanctionsListScalarWhereWithAggregatesInput[]
+    OR?: SanctionsListScalarWhereWithAggregatesInput[]
+    NOT?: SanctionsListScalarWhereWithAggregatesInput | SanctionsListScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SanctionsList"> | string
+    source?: EnumSanctionsSourceWithAggregatesFilter<"SanctionsList"> | $Enums.SanctionsSource
+    publishedAt?: StringNullableWithAggregatesFilter<"SanctionsList"> | string | null
+    checksum?: StringWithAggregatesFilter<"SanctionsList"> | string
+    entryCount?: IntWithAggregatesFilter<"SanctionsList"> | number
+    entries?: JsonWithAggregatesFilter<"SanctionsList">
+    fetchedAt?: DateTimeWithAggregatesFilter<"SanctionsList"> | Date | string
+  }
+
   export type StakeholderCreateInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -81174,6 +92661,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -81223,6 +92712,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUpdateInput = {
@@ -81272,6 +92763,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -81321,6 +92814,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -81547,6 +93042,7 @@ export namespace Prisma {
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateInput = {
@@ -81560,6 +93056,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUpdateInput = {
@@ -81573,6 +93070,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateInput = {
@@ -81586,6 +93084,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyCreateManyInput = {
@@ -82428,6 +93927,7 @@ export namespace Prisma {
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
     events?: PropertyEventCreateNestedManyWithoutPropertyInput
     bin?: BinItemCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateInput = {
@@ -82446,6 +93946,7 @@ export namespace Prisma {
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
     events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
     bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUpdateInput = {
@@ -82464,6 +93965,7 @@ export namespace Prisma {
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateInput = {
@@ -82482,6 +93984,7 @@ export namespace Prisma {
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyCreateManyInput = {
@@ -82770,6 +94273,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateInput = {
@@ -82798,6 +94302,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUpdateInput = {
@@ -82826,6 +94331,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateInput = {
@@ -82854,6 +94360,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyCreateManyInput = {
@@ -86487,6 +97994,764 @@ export namespace Prisma {
     respondedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CddCaseCreateInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseCreateManyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CddCaseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddCaseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddParticularsCreateInput = {
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    address: string
+    pepDeclared: boolean
+    pepDetails?: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById?: string | null
+    idSightedAt?: Date | string | null
+    submittedAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutParticularsInput
+  }
+
+  export type CddParticularsUncheckedCreateInput = {
+    caseId: string
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    address: string
+    pepDeclared: boolean
+    pepDetails?: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById?: string | null
+    idSightedAt?: Date | string | null
+    submittedAt?: Date | string
+  }
+
+  export type CddParticularsUpdateInput = {
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutParticularsNestedInput
+  }
+
+  export type CddParticularsUncheckedUpdateInput = {
+    caseId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddParticularsCreateManyInput = {
+    caseId: string
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    address: string
+    pepDeclared: boolean
+    pepDetails?: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById?: string | null
+    idSightedAt?: Date | string | null
+    submittedAt?: Date | string
+  }
+
+  export type CddParticularsUpdateManyMutationInput = {
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddParticularsUncheckedUpdateManyInput = {
+    caseId?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddBeneficialOwnerCreateInput = {
+    id?: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutBeneficialOwnersInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutBeneficialOwnerInput
+  }
+
+  export type CddBeneficialOwnerUncheckedCreateInput = {
+    id?: string
+    caseId: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutBeneficialOwnerInput
+  }
+
+  export type CddBeneficialOwnerUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutBeneficialOwnersNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutBeneficialOwnerNestedInput
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutBeneficialOwnerNestedInput
+  }
+
+  export type CddBeneficialOwnerCreateManyInput = {
+    id?: string
+    caseId: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+  }
+
+  export type CddBeneficialOwnerUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningRunCreateInput = {
+    id?: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutScreeningRunsInput
+    beneficialOwner?: CddBeneficialOwnerCreateNestedOneWithoutScreeningRunsInput
+    candidates?: ScreeningCandidateCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunUncheckedCreateInput = {
+    id?: string
+    caseId: string
+    beneficialOwnerId?: string | null
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    candidates?: ScreeningCandidateUncheckedCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutScreeningRunsNestedInput
+    beneficialOwner?: CddBeneficialOwnerUpdateOneWithoutScreeningRunsNestedInput
+    candidates?: ScreeningCandidateUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    beneficialOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidates?: ScreeningCandidateUncheckedUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunCreateManyInput = {
+    id?: string
+    caseId: string
+    beneficialOwnerId?: string | null
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+  }
+
+  export type ScreeningRunUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningRunUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    beneficialOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningCandidateCreateInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+    run: ScreeningRunCreateNestedOneWithoutCandidatesInput
+  }
+
+  export type ScreeningCandidateUncheckedCreateInput = {
+    id?: string
+    runId: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+  }
+
+  export type ScreeningCandidateUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    run?: ScreeningRunUpdateOneRequiredWithoutCandidatesNestedInput
+  }
+
+  export type ScreeningCandidateUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    runId?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ScreeningCandidateCreateManyInput = {
+    id?: string
+    runId: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+  }
+
+  export type ScreeningCandidateUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ScreeningCandidateUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    runId?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddRiskAssessmentCreateInput = {
+    checklistVersion: string
+    answers: JsonNullValueInput | InputJsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt?: Date | string
+    approvedById?: string | null
+    approvedAt?: Date | string | null
+    case: CddCaseCreateNestedOneWithoutRiskAssessmentInput
+  }
+
+  export type CddRiskAssessmentUncheckedCreateInput = {
+    caseId: string
+    checklistVersion: string
+    answers: JsonNullValueInput | InputJsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt?: Date | string
+    approvedById?: string | null
+    approvedAt?: Date | string | null
+  }
+
+  export type CddRiskAssessmentUpdateInput = {
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    case?: CddCaseUpdateOneRequiredWithoutRiskAssessmentNestedInput
+  }
+
+  export type CddRiskAssessmentUncheckedUpdateInput = {
+    caseId?: StringFieldUpdateOperationsInput | string
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddRiskAssessmentCreateManyInput = {
+    caseId: string
+    checklistVersion: string
+    answers: JsonNullValueInput | InputJsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt?: Date | string
+    approvedById?: string | null
+    approvedAt?: Date | string | null
+  }
+
+  export type CddRiskAssessmentUpdateManyMutationInput = {
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddRiskAssessmentUncheckedUpdateManyInput = {
+    caseId?: StringFieldUpdateOperationsInput | string
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddEventCreateInput = {
+    id?: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutEventsInput
+  }
+
+  export type CddEventUncheckedCreateInput = {
+    id?: string
+    caseId: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CddEventUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutEventsNestedInput
+  }
+
+  export type CddEventUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddEventCreateManyInput = {
+    id?: string
+    caseId: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CddEventUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddEventUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SanctionsListCreateInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    publishedAt?: string | null
+    checksum: string
+    entryCount: number
+    entries: JsonNullValueInput | InputJsonValue
+    fetchedAt?: Date | string
+  }
+
+  export type SanctionsListUncheckedCreateInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    publishedAt?: string | null
+    checksum: string
+    entryCount: number
+    entries: JsonNullValueInput | InputJsonValue
+    fetchedAt?: Date | string
+  }
+
+  export type SanctionsListUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    publishedAt?: NullableStringFieldUpdateOperationsInput | string | null
+    checksum?: StringFieldUpdateOperationsInput | string
+    entryCount?: IntFieldUpdateOperationsInput | number
+    entries?: JsonNullValueInput | InputJsonValue
+    fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SanctionsListUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    publishedAt?: NullableStringFieldUpdateOperationsInput | string | null
+    checksum?: StringFieldUpdateOperationsInput | string
+    entryCount?: IntFieldUpdateOperationsInput | number
+    entries?: JsonNullValueInput | InputJsonValue
+    fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SanctionsListCreateManyInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    publishedAt?: string | null
+    checksum: string
+    entryCount: number
+    entries: JsonNullValueInput | InputJsonValue
+    fetchedAt?: Date | string
+  }
+
+  export type SanctionsListUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    publishedAt?: NullableStringFieldUpdateOperationsInput | string | null
+    checksum?: StringFieldUpdateOperationsInput | string
+    entryCount?: IntFieldUpdateOperationsInput | number
+    entries?: JsonNullValueInput | InputJsonValue
+    fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SanctionsListUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    publishedAt?: NullableStringFieldUpdateOperationsInput | string | null
+    checksum?: StringFieldUpdateOperationsInput | string
+    entryCount?: IntFieldUpdateOperationsInput | number
+    entries?: JsonNullValueInput | InputJsonValue
+    fetchedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -86711,6 +98976,12 @@ export namespace Prisma {
     none?: AppleBillingAccountWhereInput
   }
 
+  export type CddCaseListRelationFilter = {
+    every?: CddCaseWhereInput
+    some?: CddCaseWhereInput
+    none?: CddCaseWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -86817,6 +99088,10 @@ export namespace Prisma {
   }
 
   export type AppleBillingAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CddCaseOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -90591,6 +102866,575 @@ export namespace Prisma {
     _max?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
   }
 
+  export type EnumCddClientRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddClientRole | EnumCddClientRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddClientRoleFilter<$PrismaModel> | $Enums.CddClientRole
+  }
+
+  export type EnumCddStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddStatus | EnumCddStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddStatusFilter<$PrismaModel> | $Enums.CddStatus
+  }
+
+  export type EnumCddRiskLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel> | $Enums.CddRiskLevel | null
+  }
+
+  export type PropertyNullableScalarRelationFilter = {
+    is?: PropertyWhereInput | null
+    isNot?: PropertyWhereInput | null
+  }
+
+  export type CddParticularsNullableScalarRelationFilter = {
+    is?: CddParticularsWhereInput | null
+    isNot?: CddParticularsWhereInput | null
+  }
+
+  export type CddBeneficialOwnerListRelationFilter = {
+    every?: CddBeneficialOwnerWhereInput
+    some?: CddBeneficialOwnerWhereInput
+    none?: CddBeneficialOwnerWhereInput
+  }
+
+  export type ScreeningRunListRelationFilter = {
+    every?: ScreeningRunWhereInput
+    some?: ScreeningRunWhereInput
+    none?: ScreeningRunWhereInput
+  }
+
+  export type CddRiskAssessmentNullableScalarRelationFilter = {
+    is?: CddRiskAssessmentWhereInput | null
+    isNot?: CddRiskAssessmentWhereInput | null
+  }
+
+  export type CddEventListRelationFilter = {
+    every?: CddEventWhereInput
+    some?: CddEventWhereInput
+    none?: CddEventWhereInput
+  }
+
+  export type CddBeneficialOwnerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ScreeningRunOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CddEventOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CddCaseCountOrderByAggregateInput = {
+    id?: SortOrder
+    agentId?: SortOrder
+    clientId?: SortOrder
+    clientRole?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    agencyId?: SortOrder
+    country?: SortOrder
+    status?: SortOrder
+    riskLevel?: SortOrder
+    version?: SortOrder
+    contentHash?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CddCaseAvgOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type CddCaseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    agentId?: SortOrder
+    clientId?: SortOrder
+    clientRole?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    agencyId?: SortOrder
+    country?: SortOrder
+    status?: SortOrder
+    riskLevel?: SortOrder
+    version?: SortOrder
+    contentHash?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CddCaseMinOrderByAggregateInput = {
+    id?: SortOrder
+    agentId?: SortOrder
+    clientId?: SortOrder
+    clientRole?: SortOrder
+    propertyId?: SortOrder
+    tenancyId?: SortOrder
+    agencyId?: SortOrder
+    country?: SortOrder
+    status?: SortOrder
+    riskLevel?: SortOrder
+    version?: SortOrder
+    contentHash?: SortOrder
+    completedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type CddCaseSumOrderByAggregateInput = {
+    version?: SortOrder
+  }
+
+  export type EnumCddClientRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddClientRole | EnumCddClientRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddClientRoleWithAggregatesFilter<$PrismaModel> | $Enums.CddClientRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddClientRoleFilter<$PrismaModel>
+    _max?: NestedEnumCddClientRoleFilter<$PrismaModel>
+  }
+
+  export type EnumCddStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddStatus | EnumCddStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddStatusWithAggregatesFilter<$PrismaModel> | $Enums.CddStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddStatusFilter<$PrismaModel>
+    _max?: NestedEnumCddStatusFilter<$PrismaModel>
+  }
+
+  export type EnumCddRiskLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCddRiskLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.CddRiskLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel>
+  }
+
+  export type EnumCddIdTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddIdType | EnumCddIdTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddIdTypeFilter<$PrismaModel> | $Enums.CddIdType
+  }
+
+  export type CddCaseScalarRelationFilter = {
+    is?: CddCaseWhereInput
+    isNot?: CddCaseWhereInput
+  }
+
+  export type CddParticularsCountOrderByAggregateInput = {
+    caseId?: SortOrder
+    kind?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    address?: SortOrder
+    pepDeclared?: SortOrder
+    pepDetails?: SortOrder
+    submittedById?: SortOrder
+    submittedInPerson?: SortOrder
+    idSightedById?: SortOrder
+    idSightedAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type CddParticularsMaxOrderByAggregateInput = {
+    caseId?: SortOrder
+    kind?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    address?: SortOrder
+    pepDeclared?: SortOrder
+    pepDetails?: SortOrder
+    submittedById?: SortOrder
+    submittedInPerson?: SortOrder
+    idSightedById?: SortOrder
+    idSightedAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type CddParticularsMinOrderByAggregateInput = {
+    caseId?: SortOrder
+    kind?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    address?: SortOrder
+    pepDeclared?: SortOrder
+    pepDetails?: SortOrder
+    submittedById?: SortOrder
+    submittedInPerson?: SortOrder
+    idSightedById?: SortOrder
+    idSightedAt?: SortOrder
+    submittedAt?: SortOrder
+  }
+
+  export type EnumCddIdTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddIdType | EnumCddIdTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddIdTypeWithAggregatesFilter<$PrismaModel> | $Enums.CddIdType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddIdTypeFilter<$PrismaModel>
+    _max?: NestedEnumCddIdTypeFilter<$PrismaModel>
+  }
+
+  export type CddBeneficialOwnerCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    ownershipPercent?: SortOrder
+    pepDeclared?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CddBeneficialOwnerAvgOrderByAggregateInput = {
+    ownershipPercent?: SortOrder
+  }
+
+  export type CddBeneficialOwnerMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    ownershipPercent?: SortOrder
+    pepDeclared?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CddBeneficialOwnerMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    legalName?: SortOrder
+    idType?: SortOrder
+    idNumberEncrypted?: SortOrder
+    idNumberLast4?: SortOrder
+    nationality?: SortOrder
+    dateOfBirth?: SortOrder
+    ownershipPercent?: SortOrder
+    pepDeclared?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CddBeneficialOwnerSumOrderByAggregateInput = {
+    ownershipPercent?: SortOrder
+  }
+
+  export type CddBeneficialOwnerNullableScalarRelationFilter = {
+    is?: CddBeneficialOwnerWhereInput | null
+    isNot?: CddBeneficialOwnerWhereInput | null
+  }
+
+  export type ScreeningCandidateListRelationFilter = {
+    every?: ScreeningCandidateWhereInput
+    some?: ScreeningCandidateWhereInput
+    none?: ScreeningCandidateWhereInput
+  }
+
+  export type ScreeningCandidateOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ScreeningRunCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    beneficialOwnerId?: SortOrder
+    subjectName?: SortOrder
+    subjectBirthYear?: SortOrder
+    provider?: SortOrder
+    listVersions?: SortOrder
+    ranAt?: SortOrder
+  }
+
+  export type ScreeningRunAvgOrderByAggregateInput = {
+    subjectBirthYear?: SortOrder
+  }
+
+  export type ScreeningRunMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    beneficialOwnerId?: SortOrder
+    subjectName?: SortOrder
+    subjectBirthYear?: SortOrder
+    provider?: SortOrder
+    ranAt?: SortOrder
+  }
+
+  export type ScreeningRunMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    beneficialOwnerId?: SortOrder
+    subjectName?: SortOrder
+    subjectBirthYear?: SortOrder
+    provider?: SortOrder
+    ranAt?: SortOrder
+  }
+
+  export type ScreeningRunSumOrderByAggregateInput = {
+    subjectBirthYear?: SortOrder
+  }
+
+  export type EnumSanctionsSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.SanctionsSource | EnumSanctionsSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumSanctionsSourceFilter<$PrismaModel> | $Enums.SanctionsSource
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type EnumScreeningDecisionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ScreeningDecision | EnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel> | $Enums.ScreeningDecision | null
+  }
+
+  export type ScreeningRunScalarRelationFilter = {
+    is?: ScreeningRunWhereInput
+    isNot?: ScreeningRunWhereInput
+  }
+
+  export type ScreeningCandidateCountOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    source?: SortOrder
+    reference?: SortOrder
+    matchedName?: SortOrder
+    score?: SortOrder
+    details?: SortOrder
+    decision?: SortOrder
+    reason?: SortOrder
+    decidedById?: SortOrder
+    decidedAt?: SortOrder
+  }
+
+  export type ScreeningCandidateAvgOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
+  export type ScreeningCandidateMaxOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    source?: SortOrder
+    reference?: SortOrder
+    matchedName?: SortOrder
+    score?: SortOrder
+    decision?: SortOrder
+    reason?: SortOrder
+    decidedById?: SortOrder
+    decidedAt?: SortOrder
+  }
+
+  export type ScreeningCandidateMinOrderByAggregateInput = {
+    id?: SortOrder
+    runId?: SortOrder
+    source?: SortOrder
+    reference?: SortOrder
+    matchedName?: SortOrder
+    score?: SortOrder
+    decision?: SortOrder
+    reason?: SortOrder
+    decidedById?: SortOrder
+    decidedAt?: SortOrder
+  }
+
+  export type ScreeningCandidateSumOrderByAggregateInput = {
+    score?: SortOrder
+  }
+
+  export type EnumSanctionsSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SanctionsSource | EnumSanctionsSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumSanctionsSourceWithAggregatesFilter<$PrismaModel> | $Enums.SanctionsSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSanctionsSourceFilter<$PrismaModel>
+    _max?: NestedEnumSanctionsSourceFilter<$PrismaModel>
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type EnumScreeningDecisionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ScreeningDecision | EnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumScreeningDecisionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ScreeningDecision | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel>
+    _max?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel>
+  }
+
+  export type EnumCddRiskLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddRiskLevelFilter<$PrismaModel> | $Enums.CddRiskLevel
+  }
+
+  export type CddRiskAssessmentCountOrderByAggregateInput = {
+    caseId?: SortOrder
+    checklistVersion?: SortOrder
+    answers?: SortOrder
+    level?: SortOrder
+    assessedById?: SortOrder
+    assessedAt?: SortOrder
+    approvedById?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type CddRiskAssessmentMaxOrderByAggregateInput = {
+    caseId?: SortOrder
+    checklistVersion?: SortOrder
+    level?: SortOrder
+    assessedById?: SortOrder
+    assessedAt?: SortOrder
+    approvedById?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type CddRiskAssessmentMinOrderByAggregateInput = {
+    caseId?: SortOrder
+    checklistVersion?: SortOrder
+    level?: SortOrder
+    assessedById?: SortOrder
+    assessedAt?: SortOrder
+    approvedById?: SortOrder
+    approvedAt?: SortOrder
+  }
+
+  export type EnumCddRiskLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddRiskLevelWithAggregatesFilter<$PrismaModel> | $Enums.CddRiskLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddRiskLevelFilter<$PrismaModel>
+    _max?: NestedEnumCddRiskLevelFilter<$PrismaModel>
+  }
+
+  export type CddEventCountOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    actorId?: SortOrder
+    kind?: SortOrder
+    detail?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CddEventMaxOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    actorId?: SortOrder
+    kind?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type CddEventMinOrderByAggregateInput = {
+    id?: SortOrder
+    caseId?: SortOrder
+    actorId?: SortOrder
+    kind?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type SanctionsListSourceChecksumCompoundUniqueInput = {
+    source: $Enums.SanctionsSource
+    checksum: string
+  }
+
+  export type SanctionsListCountOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    publishedAt?: SortOrder
+    checksum?: SortOrder
+    entryCount?: SortOrder
+    entries?: SortOrder
+    fetchedAt?: SortOrder
+  }
+
+  export type SanctionsListAvgOrderByAggregateInput = {
+    entryCount?: SortOrder
+  }
+
+  export type SanctionsListMaxOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    publishedAt?: SortOrder
+    checksum?: SortOrder
+    entryCount?: SortOrder
+    fetchedAt?: SortOrder
+  }
+
+  export type SanctionsListMinOrderByAggregateInput = {
+    id?: SortOrder
+    source?: SortOrder
+    publishedAt?: SortOrder
+    checksum?: SortOrder
+    entryCount?: SortOrder
+    fetchedAt?: SortOrder
+  }
+
+  export type SanctionsListSumOrderByAggregateInput = {
+    entryCount?: SortOrder
+  }
+
   export type TeamCreateNestedOneWithoutMembersInput = {
     create?: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
     connectOrCreate?: TeamCreateOrConnectWithoutMembersInput
@@ -90846,6 +103690,20 @@ export namespace Prisma {
     connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
   }
 
+  export type CddCaseCreateNestedManyWithoutAgentInput = {
+    create?: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput> | CddCaseCreateWithoutAgentInput[] | CddCaseUncheckedCreateWithoutAgentInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgentInput | CddCaseCreateOrConnectWithoutAgentInput[]
+    createMany?: CddCaseCreateManyAgentInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
+  export type CddCaseCreateNestedManyWithoutClientInput = {
+    create?: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput> | CddCaseCreateWithoutClientInput[] | CddCaseUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutClientInput | CddCaseCreateOrConnectWithoutClientInput[]
+    createMany?: CddCaseCreateManyClientInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
   export type AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -91093,6 +103951,20 @@ export namespace Prisma {
     connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutStakeholderInput | AppleBillingAccountCreateOrConnectWithoutStakeholderInput[]
     createMany?: AppleBillingAccountCreateManyStakeholderInputEnvelope
     connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+  }
+
+  export type CddCaseUncheckedCreateNestedManyWithoutAgentInput = {
+    create?: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput> | CddCaseCreateWithoutAgentInput[] | CddCaseUncheckedCreateWithoutAgentInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgentInput | CddCaseCreateOrConnectWithoutAgentInput[]
+    createMany?: CddCaseCreateManyAgentInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
+  export type CddCaseUncheckedCreateNestedManyWithoutClientInput = {
+    create?: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput> | CddCaseCreateWithoutClientInput[] | CddCaseUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutClientInput | CddCaseCreateOrConnectWithoutClientInput[]
+    createMany?: CddCaseCreateManyClientInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -91613,6 +104485,34 @@ export namespace Prisma {
     deleteMany?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
   }
 
+  export type CddCaseUpdateManyWithoutAgentNestedInput = {
+    create?: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput> | CddCaseCreateWithoutAgentInput[] | CddCaseUncheckedCreateWithoutAgentInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgentInput | CddCaseCreateOrConnectWithoutAgentInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutAgentInput | CddCaseUpsertWithWhereUniqueWithoutAgentInput[]
+    createMany?: CddCaseCreateManyAgentInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutAgentInput | CddCaseUpdateWithWhereUniqueWithoutAgentInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutAgentInput | CddCaseUpdateManyWithWhereWithoutAgentInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
+  export type CddCaseUpdateManyWithoutClientNestedInput = {
+    create?: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput> | CddCaseCreateWithoutClientInput[] | CddCaseUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutClientInput | CddCaseCreateOrConnectWithoutClientInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutClientInput | CddCaseUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: CddCaseCreateManyClientInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutClientInput | CddCaseUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutClientInput | CddCaseUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
   export type AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -92105,6 +105005,34 @@ export namespace Prisma {
     deleteMany?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
   }
 
+  export type CddCaseUncheckedUpdateManyWithoutAgentNestedInput = {
+    create?: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput> | CddCaseCreateWithoutAgentInput[] | CddCaseUncheckedCreateWithoutAgentInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgentInput | CddCaseCreateOrConnectWithoutAgentInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutAgentInput | CddCaseUpsertWithWhereUniqueWithoutAgentInput[]
+    createMany?: CddCaseCreateManyAgentInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutAgentInput | CddCaseUpdateWithWhereUniqueWithoutAgentInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutAgentInput | CddCaseUpdateManyWithWhereWithoutAgentInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutClientNestedInput = {
+    create?: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput> | CddCaseCreateWithoutClientInput[] | CddCaseUncheckedCreateWithoutClientInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutClientInput | CddCaseCreateOrConnectWithoutClientInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutClientInput | CddCaseUpsertWithWhereUniqueWithoutClientInput[]
+    createMany?: CddCaseCreateManyClientInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutClientInput | CddCaseUpdateWithWhereUniqueWithoutClientInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutClientInput | CddCaseUpdateManyWithWhereWithoutClientInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
   export type StakeholderCreateNestedOneWithoutAcquisitionInput = {
     create?: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutAcquisitionInput
@@ -92249,6 +105177,13 @@ export namespace Prisma {
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
   }
 
+  export type CddCaseCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput> | CddCaseCreateWithoutAgencyInput[] | CddCaseUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgencyInput | CddCaseCreateOrConnectWithoutAgencyInput[]
+    createMany?: CddCaseCreateManyAgencyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
   export type AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput = {
     create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
@@ -92287,6 +105222,13 @@ export namespace Prisma {
     connectOrCreate?: InspectionCreateOrConnectWithoutReportAgencyInput | InspectionCreateOrConnectWithoutReportAgencyInput[]
     createMany?: InspectionCreateManyReportAgencyInputEnvelope
     connect?: InspectionWhereUniqueInput | InspectionWhereUniqueInput[]
+  }
+
+  export type CddCaseUncheckedCreateNestedManyWithoutAgencyInput = {
+    create?: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput> | CddCaseCreateWithoutAgencyInput[] | CddCaseUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgencyInput | CddCaseCreateOrConnectWithoutAgencyInput[]
+    createMany?: CddCaseCreateManyAgencyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
   }
 
   export type AgencyMembershipUpdateManyWithoutAgencyNestedInput = {
@@ -92365,6 +105307,20 @@ export namespace Prisma {
     deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
   }
 
+  export type CddCaseUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput> | CddCaseCreateWithoutAgencyInput[] | CddCaseUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgencyInput | CddCaseCreateOrConnectWithoutAgencyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutAgencyInput | CddCaseUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: CddCaseCreateManyAgencyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutAgencyInput | CddCaseUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutAgencyInput | CddCaseUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
   export type AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput = {
     create?: XOR<AgencyMembershipCreateWithoutAgencyInput, AgencyMembershipUncheckedCreateWithoutAgencyInput> | AgencyMembershipCreateWithoutAgencyInput[] | AgencyMembershipUncheckedCreateWithoutAgencyInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutAgencyInput | AgencyMembershipCreateOrConnectWithoutAgencyInput[]
@@ -92439,6 +105395,20 @@ export namespace Prisma {
     update?: InspectionUpdateWithWhereUniqueWithoutReportAgencyInput | InspectionUpdateWithWhereUniqueWithoutReportAgencyInput[]
     updateMany?: InspectionUpdateManyWithWhereWithoutReportAgencyInput | InspectionUpdateManyWithWhereWithoutReportAgencyInput[]
     deleteMany?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutAgencyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput> | CddCaseCreateWithoutAgencyInput[] | CddCaseUncheckedCreateWithoutAgencyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutAgencyInput | CddCaseCreateOrConnectWithoutAgencyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutAgencyInput | CddCaseUpsertWithWhereUniqueWithoutAgencyInput[]
+    createMany?: CddCaseCreateManyAgencyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutAgencyInput | CddCaseUpdateWithWhereUniqueWithoutAgencyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutAgencyInput | CddCaseUpdateManyWithWhereWithoutAgencyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
   }
 
   export type AgencyCreateNestedOneWithoutBrandingInput = {
@@ -92905,6 +105875,13 @@ export namespace Prisma {
     connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
   }
 
+  export type CddCaseCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput> | CddCaseCreateWithoutPropertyInput[] | CddCaseUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutPropertyInput | CddCaseCreateOrConnectWithoutPropertyInput[]
+    createMany?: CddCaseCreateManyPropertyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
   export type TenancyUncheckedCreateNestedManyWithoutPropertyInput = {
     create?: XOR<TenancyCreateWithoutPropertyInput, TenancyUncheckedCreateWithoutPropertyInput> | TenancyCreateWithoutPropertyInput[] | TenancyUncheckedCreateWithoutPropertyInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutPropertyInput | TenancyCreateOrConnectWithoutPropertyInput[]
@@ -92931,6 +105908,13 @@ export namespace Prisma {
     connectOrCreate?: BinItemCreateOrConnectWithoutPropertyInput | BinItemCreateOrConnectWithoutPropertyInput[]
     createMany?: BinItemCreateManyPropertyInputEnvelope
     connect?: BinItemWhereUniqueInput | BinItemWhereUniqueInput[]
+  }
+
+  export type CddCaseUncheckedCreateNestedManyWithoutPropertyInput = {
+    create?: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput> | CddCaseCreateWithoutPropertyInput[] | CddCaseUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutPropertyInput | CddCaseCreateOrConnectWithoutPropertyInput[]
+    createMany?: CddCaseCreateManyPropertyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
   }
 
   export type EnumPropertyTypeFieldUpdateOperationsInput = {
@@ -92993,6 +105977,20 @@ export namespace Prisma {
     deleteMany?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
   }
 
+  export type CddCaseUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput> | CddCaseCreateWithoutPropertyInput[] | CddCaseUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutPropertyInput | CddCaseCreateOrConnectWithoutPropertyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutPropertyInput | CddCaseUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: CddCaseCreateManyPropertyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutPropertyInput | CddCaseUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutPropertyInput | CddCaseUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
   export type TenancyUncheckedUpdateManyWithoutPropertyNestedInput = {
     create?: XOR<TenancyCreateWithoutPropertyInput, TenancyUncheckedCreateWithoutPropertyInput> | TenancyCreateWithoutPropertyInput[] | TenancyUncheckedCreateWithoutPropertyInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutPropertyInput | TenancyCreateOrConnectWithoutPropertyInput[]
@@ -93047,6 +106045,20 @@ export namespace Prisma {
     update?: BinItemUpdateWithWhereUniqueWithoutPropertyInput | BinItemUpdateWithWhereUniqueWithoutPropertyInput[]
     updateMany?: BinItemUpdateManyWithWhereWithoutPropertyInput | BinItemUpdateManyWithWhereWithoutPropertyInput[]
     deleteMany?: BinItemScalarWhereInput | BinItemScalarWhereInput[]
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutPropertyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput> | CddCaseCreateWithoutPropertyInput[] | CddCaseUncheckedCreateWithoutPropertyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutPropertyInput | CddCaseCreateOrConnectWithoutPropertyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutPropertyInput | CddCaseUpsertWithWhereUniqueWithoutPropertyInput[]
+    createMany?: CddCaseCreateManyPropertyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutPropertyInput | CddCaseUpdateWithWhereUniqueWithoutPropertyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutPropertyInput | CddCaseUpdateManyWithWhereWithoutPropertyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
   }
 
   export type PropertyCreateNestedOneWithoutEventsInput = {
@@ -93212,6 +106224,13 @@ export namespace Prisma {
     connect?: TenancyWhereUniqueInput
   }
 
+  export type CddCaseCreateNestedManyWithoutTenancyInput = {
+    create?: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput> | CddCaseCreateWithoutTenancyInput[] | CddCaseUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutTenancyInput | CddCaseCreateOrConnectWithoutTenancyInput[]
+    createMany?: CddCaseCreateManyTenancyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+  }
+
   export type InspectionUncheckedCreateNestedManyWithoutTenancyInput = {
     create?: XOR<InspectionCreateWithoutTenancyInput, InspectionUncheckedCreateWithoutTenancyInput> | InspectionCreateWithoutTenancyInput[] | InspectionUncheckedCreateWithoutTenancyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutTenancyInput | InspectionCreateOrConnectWithoutTenancyInput[]
@@ -93251,6 +106270,13 @@ export namespace Prisma {
     create?: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
     connectOrCreate?: TenancyCreateOrConnectWithoutRenewedFromInput
     connect?: TenancyWhereUniqueInput
+  }
+
+  export type CddCaseUncheckedCreateNestedManyWithoutTenancyInput = {
+    create?: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput> | CddCaseCreateWithoutTenancyInput[] | CddCaseUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutTenancyInput | CddCaseCreateOrConnectWithoutTenancyInput[]
+    createMany?: CddCaseCreateManyTenancyInputEnvelope
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
   }
 
   export type DecimalFieldUpdateOperationsInput = {
@@ -93407,6 +106433,20 @@ export namespace Prisma {
     update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutRenewedFromInput, TenancyUpdateWithoutRenewedFromInput>, TenancyUncheckedUpdateWithoutRenewedFromInput>
   }
 
+  export type CddCaseUpdateManyWithoutTenancyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput> | CddCaseCreateWithoutTenancyInput[] | CddCaseUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutTenancyInput | CddCaseCreateOrConnectWithoutTenancyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutTenancyInput | CddCaseUpsertWithWhereUniqueWithoutTenancyInput[]
+    createMany?: CddCaseCreateManyTenancyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutTenancyInput | CddCaseUpdateWithWhereUniqueWithoutTenancyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutTenancyInput | CddCaseUpdateManyWithWhereWithoutTenancyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+  }
+
   export type InspectionUncheckedUpdateManyWithoutTenancyNestedInput = {
     create?: XOR<InspectionCreateWithoutTenancyInput, InspectionUncheckedCreateWithoutTenancyInput> | InspectionCreateWithoutTenancyInput[] | InspectionUncheckedCreateWithoutTenancyInput[]
     connectOrCreate?: InspectionCreateOrConnectWithoutTenancyInput | InspectionCreateOrConnectWithoutTenancyInput[]
@@ -93485,6 +106525,20 @@ export namespace Prisma {
     delete?: TenancyWhereInput | boolean
     connect?: TenancyWhereUniqueInput
     update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutRenewedFromInput, TenancyUpdateWithoutRenewedFromInput>, TenancyUncheckedUpdateWithoutRenewedFromInput>
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutTenancyNestedInput = {
+    create?: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput> | CddCaseCreateWithoutTenancyInput[] | CddCaseUncheckedCreateWithoutTenancyInput[]
+    connectOrCreate?: CddCaseCreateOrConnectWithoutTenancyInput | CddCaseCreateOrConnectWithoutTenancyInput[]
+    upsert?: CddCaseUpsertWithWhereUniqueWithoutTenancyInput | CddCaseUpsertWithWhereUniqueWithoutTenancyInput[]
+    createMany?: CddCaseCreateManyTenancyInputEnvelope
+    set?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    disconnect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    delete?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    connect?: CddCaseWhereUniqueInput | CddCaseWhereUniqueInput[]
+    update?: CddCaseUpdateWithWhereUniqueWithoutTenancyInput | CddCaseUpdateWithWhereUniqueWithoutTenancyInput[]
+    updateMany?: CddCaseUpdateManyWithWhereWithoutTenancyInput | CddCaseUpdateManyWithWhereWithoutTenancyInput[]
+    deleteMany?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
   }
 
   export type TenancyCreateNestedOneWithoutCollaboratorsInput = {
@@ -96499,6 +109553,492 @@ export namespace Prisma {
     update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAssessmentResponsesInput, StakeholderUpdateWithoutAssessmentResponsesInput>, StakeholderUncheckedUpdateWithoutAssessmentResponsesInput>
   }
 
+  export type StakeholderCreateNestedOneWithoutCddCasesAsAgentInput = {
+    create?: XOR<StakeholderCreateWithoutCddCasesAsAgentInput, StakeholderUncheckedCreateWithoutCddCasesAsAgentInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutCddCasesAsAgentInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type StakeholderCreateNestedOneWithoutCddCasesAsClientInput = {
+    create?: XOR<StakeholderCreateWithoutCddCasesAsClientInput, StakeholderUncheckedCreateWithoutCddCasesAsClientInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutCddCasesAsClientInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type PropertyCreateNestedOneWithoutCddCasesInput = {
+    create?: XOR<PropertyCreateWithoutCddCasesInput, PropertyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutCddCasesInput
+    connect?: PropertyWhereUniqueInput
+  }
+
+  export type TenancyCreateNestedOneWithoutCddCasesInput = {
+    create?: XOR<TenancyCreateWithoutCddCasesInput, TenancyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutCddCasesInput
+    connect?: TenancyWhereUniqueInput
+  }
+
+  export type AgencyCreateNestedOneWithoutCddCasesInput = {
+    create?: XOR<AgencyCreateWithoutCddCasesInput, AgencyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutCddCasesInput
+    connect?: AgencyWhereUniqueInput
+  }
+
+  export type CddParticularsCreateNestedOneWithoutCaseInput = {
+    create?: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddParticularsCreateOrConnectWithoutCaseInput
+    connect?: CddParticularsWhereUniqueInput
+  }
+
+  export type CddBeneficialOwnerCreateNestedManyWithoutCaseInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput> | CddBeneficialOwnerCreateWithoutCaseInput[] | CddBeneficialOwnerUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutCaseInput | CddBeneficialOwnerCreateOrConnectWithoutCaseInput[]
+    createMany?: CddBeneficialOwnerCreateManyCaseInputEnvelope
+    connect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+  }
+
+  export type ScreeningRunCreateNestedManyWithoutCaseInput = {
+    create?: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput> | ScreeningRunCreateWithoutCaseInput[] | ScreeningRunUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCaseInput | ScreeningRunCreateOrConnectWithoutCaseInput[]
+    createMany?: ScreeningRunCreateManyCaseInputEnvelope
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+  }
+
+  export type CddRiskAssessmentCreateNestedOneWithoutCaseInput = {
+    create?: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddRiskAssessmentCreateOrConnectWithoutCaseInput
+    connect?: CddRiskAssessmentWhereUniqueInput
+  }
+
+  export type CddEventCreateNestedManyWithoutCaseInput = {
+    create?: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput> | CddEventCreateWithoutCaseInput[] | CddEventUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddEventCreateOrConnectWithoutCaseInput | CddEventCreateOrConnectWithoutCaseInput[]
+    createMany?: CddEventCreateManyCaseInputEnvelope
+    connect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+  }
+
+  export type CddParticularsUncheckedCreateNestedOneWithoutCaseInput = {
+    create?: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddParticularsCreateOrConnectWithoutCaseInput
+    connect?: CddParticularsWhereUniqueInput
+  }
+
+  export type CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput> | CddBeneficialOwnerCreateWithoutCaseInput[] | CddBeneficialOwnerUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutCaseInput | CddBeneficialOwnerCreateOrConnectWithoutCaseInput[]
+    createMany?: CddBeneficialOwnerCreateManyCaseInputEnvelope
+    connect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+  }
+
+  export type ScreeningRunUncheckedCreateNestedManyWithoutCaseInput = {
+    create?: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput> | ScreeningRunCreateWithoutCaseInput[] | ScreeningRunUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCaseInput | ScreeningRunCreateOrConnectWithoutCaseInput[]
+    createMany?: ScreeningRunCreateManyCaseInputEnvelope
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+  }
+
+  export type CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput = {
+    create?: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddRiskAssessmentCreateOrConnectWithoutCaseInput
+    connect?: CddRiskAssessmentWhereUniqueInput
+  }
+
+  export type CddEventUncheckedCreateNestedManyWithoutCaseInput = {
+    create?: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput> | CddEventCreateWithoutCaseInput[] | CddEventUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddEventCreateOrConnectWithoutCaseInput | CddEventCreateOrConnectWithoutCaseInput[]
+    createMany?: CddEventCreateManyCaseInputEnvelope
+    connect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+  }
+
+  export type EnumCddClientRoleFieldUpdateOperationsInput = {
+    set?: $Enums.CddClientRole
+  }
+
+  export type EnumCddStatusFieldUpdateOperationsInput = {
+    set?: $Enums.CddStatus
+  }
+
+  export type NullableEnumCddRiskLevelFieldUpdateOperationsInput = {
+    set?: $Enums.CddRiskLevel | null
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput = {
+    create?: XOR<StakeholderCreateWithoutCddCasesAsAgentInput, StakeholderUncheckedCreateWithoutCddCasesAsAgentInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutCddCasesAsAgentInput
+    upsert?: StakeholderUpsertWithoutCddCasesAsAgentInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutCddCasesAsAgentInput, StakeholderUpdateWithoutCddCasesAsAgentInput>, StakeholderUncheckedUpdateWithoutCddCasesAsAgentInput>
+  }
+
+  export type StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput = {
+    create?: XOR<StakeholderCreateWithoutCddCasesAsClientInput, StakeholderUncheckedCreateWithoutCddCasesAsClientInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutCddCasesAsClientInput
+    upsert?: StakeholderUpsertWithoutCddCasesAsClientInput
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutCddCasesAsClientInput, StakeholderUpdateWithoutCddCasesAsClientInput>, StakeholderUncheckedUpdateWithoutCddCasesAsClientInput>
+  }
+
+  export type PropertyUpdateOneWithoutCddCasesNestedInput = {
+    create?: XOR<PropertyCreateWithoutCddCasesInput, PropertyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: PropertyCreateOrConnectWithoutCddCasesInput
+    upsert?: PropertyUpsertWithoutCddCasesInput
+    disconnect?: PropertyWhereInput | boolean
+    delete?: PropertyWhereInput | boolean
+    connect?: PropertyWhereUniqueInput
+    update?: XOR<XOR<PropertyUpdateToOneWithWhereWithoutCddCasesInput, PropertyUpdateWithoutCddCasesInput>, PropertyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type TenancyUpdateOneWithoutCddCasesNestedInput = {
+    create?: XOR<TenancyCreateWithoutCddCasesInput, TenancyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: TenancyCreateOrConnectWithoutCddCasesInput
+    upsert?: TenancyUpsertWithoutCddCasesInput
+    disconnect?: TenancyWhereInput | boolean
+    delete?: TenancyWhereInput | boolean
+    connect?: TenancyWhereUniqueInput
+    update?: XOR<XOR<TenancyUpdateToOneWithWhereWithoutCddCasesInput, TenancyUpdateWithoutCddCasesInput>, TenancyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type AgencyUpdateOneWithoutCddCasesNestedInput = {
+    create?: XOR<AgencyCreateWithoutCddCasesInput, AgencyUncheckedCreateWithoutCddCasesInput>
+    connectOrCreate?: AgencyCreateOrConnectWithoutCddCasesInput
+    upsert?: AgencyUpsertWithoutCddCasesInput
+    disconnect?: AgencyWhereInput | boolean
+    delete?: AgencyWhereInput | boolean
+    connect?: AgencyWhereUniqueInput
+    update?: XOR<XOR<AgencyUpdateToOneWithWhereWithoutCddCasesInput, AgencyUpdateWithoutCddCasesInput>, AgencyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type CddParticularsUpdateOneWithoutCaseNestedInput = {
+    create?: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddParticularsCreateOrConnectWithoutCaseInput
+    upsert?: CddParticularsUpsertWithoutCaseInput
+    disconnect?: CddParticularsWhereInput | boolean
+    delete?: CddParticularsWhereInput | boolean
+    connect?: CddParticularsWhereUniqueInput
+    update?: XOR<XOR<CddParticularsUpdateToOneWithWhereWithoutCaseInput, CddParticularsUpdateWithoutCaseInput>, CddParticularsUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput> | CddBeneficialOwnerCreateWithoutCaseInput[] | CddBeneficialOwnerUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutCaseInput | CddBeneficialOwnerCreateOrConnectWithoutCaseInput[]
+    upsert?: CddBeneficialOwnerUpsertWithWhereUniqueWithoutCaseInput | CddBeneficialOwnerUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: CddBeneficialOwnerCreateManyCaseInputEnvelope
+    set?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    disconnect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    delete?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    connect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    update?: CddBeneficialOwnerUpdateWithWhereUniqueWithoutCaseInput | CddBeneficialOwnerUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: CddBeneficialOwnerUpdateManyWithWhereWithoutCaseInput | CddBeneficialOwnerUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: CddBeneficialOwnerScalarWhereInput | CddBeneficialOwnerScalarWhereInput[]
+  }
+
+  export type ScreeningRunUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput> | ScreeningRunCreateWithoutCaseInput[] | ScreeningRunUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCaseInput | ScreeningRunCreateOrConnectWithoutCaseInput[]
+    upsert?: ScreeningRunUpsertWithWhereUniqueWithoutCaseInput | ScreeningRunUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: ScreeningRunCreateManyCaseInputEnvelope
+    set?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    disconnect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    delete?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    update?: ScreeningRunUpdateWithWhereUniqueWithoutCaseInput | ScreeningRunUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: ScreeningRunUpdateManyWithWhereWithoutCaseInput | ScreeningRunUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+  }
+
+  export type CddRiskAssessmentUpdateOneWithoutCaseNestedInput = {
+    create?: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddRiskAssessmentCreateOrConnectWithoutCaseInput
+    upsert?: CddRiskAssessmentUpsertWithoutCaseInput
+    disconnect?: CddRiskAssessmentWhereInput | boolean
+    delete?: CddRiskAssessmentWhereInput | boolean
+    connect?: CddRiskAssessmentWhereUniqueInput
+    update?: XOR<XOR<CddRiskAssessmentUpdateToOneWithWhereWithoutCaseInput, CddRiskAssessmentUpdateWithoutCaseInput>, CddRiskAssessmentUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddEventUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput> | CddEventCreateWithoutCaseInput[] | CddEventUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddEventCreateOrConnectWithoutCaseInput | CddEventCreateOrConnectWithoutCaseInput[]
+    upsert?: CddEventUpsertWithWhereUniqueWithoutCaseInput | CddEventUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: CddEventCreateManyCaseInputEnvelope
+    set?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    disconnect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    delete?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    connect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    update?: CddEventUpdateWithWhereUniqueWithoutCaseInput | CddEventUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: CddEventUpdateManyWithWhereWithoutCaseInput | CddEventUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: CddEventScalarWhereInput | CddEventScalarWhereInput[]
+  }
+
+  export type CddParticularsUncheckedUpdateOneWithoutCaseNestedInput = {
+    create?: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddParticularsCreateOrConnectWithoutCaseInput
+    upsert?: CddParticularsUpsertWithoutCaseInput
+    disconnect?: CddParticularsWhereInput | boolean
+    delete?: CddParticularsWhereInput | boolean
+    connect?: CddParticularsWhereUniqueInput
+    update?: XOR<XOR<CddParticularsUpdateToOneWithWhereWithoutCaseInput, CddParticularsUpdateWithoutCaseInput>, CddParticularsUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput> | CddBeneficialOwnerCreateWithoutCaseInput[] | CddBeneficialOwnerUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutCaseInput | CddBeneficialOwnerCreateOrConnectWithoutCaseInput[]
+    upsert?: CddBeneficialOwnerUpsertWithWhereUniqueWithoutCaseInput | CddBeneficialOwnerUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: CddBeneficialOwnerCreateManyCaseInputEnvelope
+    set?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    disconnect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    delete?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    connect?: CddBeneficialOwnerWhereUniqueInput | CddBeneficialOwnerWhereUniqueInput[]
+    update?: CddBeneficialOwnerUpdateWithWhereUniqueWithoutCaseInput | CddBeneficialOwnerUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: CddBeneficialOwnerUpdateManyWithWhereWithoutCaseInput | CddBeneficialOwnerUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: CddBeneficialOwnerScalarWhereInput | CddBeneficialOwnerScalarWhereInput[]
+  }
+
+  export type ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput> | ScreeningRunCreateWithoutCaseInput[] | ScreeningRunUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCaseInput | ScreeningRunCreateOrConnectWithoutCaseInput[]
+    upsert?: ScreeningRunUpsertWithWhereUniqueWithoutCaseInput | ScreeningRunUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: ScreeningRunCreateManyCaseInputEnvelope
+    set?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    disconnect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    delete?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    update?: ScreeningRunUpdateWithWhereUniqueWithoutCaseInput | ScreeningRunUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: ScreeningRunUpdateManyWithWhereWithoutCaseInput | ScreeningRunUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+  }
+
+  export type CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput = {
+    create?: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+    connectOrCreate?: CddRiskAssessmentCreateOrConnectWithoutCaseInput
+    upsert?: CddRiskAssessmentUpsertWithoutCaseInput
+    disconnect?: CddRiskAssessmentWhereInput | boolean
+    delete?: CddRiskAssessmentWhereInput | boolean
+    connect?: CddRiskAssessmentWhereUniqueInput
+    update?: XOR<XOR<CddRiskAssessmentUpdateToOneWithWhereWithoutCaseInput, CddRiskAssessmentUpdateWithoutCaseInput>, CddRiskAssessmentUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddEventUncheckedUpdateManyWithoutCaseNestedInput = {
+    create?: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput> | CddEventCreateWithoutCaseInput[] | CddEventUncheckedCreateWithoutCaseInput[]
+    connectOrCreate?: CddEventCreateOrConnectWithoutCaseInput | CddEventCreateOrConnectWithoutCaseInput[]
+    upsert?: CddEventUpsertWithWhereUniqueWithoutCaseInput | CddEventUpsertWithWhereUniqueWithoutCaseInput[]
+    createMany?: CddEventCreateManyCaseInputEnvelope
+    set?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    disconnect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    delete?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    connect?: CddEventWhereUniqueInput | CddEventWhereUniqueInput[]
+    update?: CddEventUpdateWithWhereUniqueWithoutCaseInput | CddEventUpdateWithWhereUniqueWithoutCaseInput[]
+    updateMany?: CddEventUpdateManyWithWhereWithoutCaseInput | CddEventUpdateManyWithWhereWithoutCaseInput[]
+    deleteMany?: CddEventScalarWhereInput | CddEventScalarWhereInput[]
+  }
+
+  export type CddCaseCreateNestedOneWithoutParticularsInput = {
+    create?: XOR<CddCaseCreateWithoutParticularsInput, CddCaseUncheckedCreateWithoutParticularsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutParticularsInput
+    connect?: CddCaseWhereUniqueInput
+  }
+
+  export type EnumCddIdTypeFieldUpdateOperationsInput = {
+    set?: $Enums.CddIdType
+  }
+
+  export type CddCaseUpdateOneRequiredWithoutParticularsNestedInput = {
+    create?: XOR<CddCaseCreateWithoutParticularsInput, CddCaseUncheckedCreateWithoutParticularsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutParticularsInput
+    upsert?: CddCaseUpsertWithoutParticularsInput
+    connect?: CddCaseWhereUniqueInput
+    update?: XOR<XOR<CddCaseUpdateToOneWithWhereWithoutParticularsInput, CddCaseUpdateWithoutParticularsInput>, CddCaseUncheckedUpdateWithoutParticularsInput>
+  }
+
+  export type CddCaseCreateNestedOneWithoutBeneficialOwnersInput = {
+    create?: XOR<CddCaseCreateWithoutBeneficialOwnersInput, CddCaseUncheckedCreateWithoutBeneficialOwnersInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutBeneficialOwnersInput
+    connect?: CddCaseWhereUniqueInput
+  }
+
+  export type ScreeningRunCreateNestedManyWithoutBeneficialOwnerInput = {
+    create?: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput> | ScreeningRunCreateWithoutBeneficialOwnerInput[] | ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput | ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput[]
+    createMany?: ScreeningRunCreateManyBeneficialOwnerInputEnvelope
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+  }
+
+  export type ScreeningRunUncheckedCreateNestedManyWithoutBeneficialOwnerInput = {
+    create?: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput> | ScreeningRunCreateWithoutBeneficialOwnerInput[] | ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput | ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput[]
+    createMany?: ScreeningRunCreateManyBeneficialOwnerInputEnvelope
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+  }
+
+  export type CddCaseUpdateOneRequiredWithoutBeneficialOwnersNestedInput = {
+    create?: XOR<CddCaseCreateWithoutBeneficialOwnersInput, CddCaseUncheckedCreateWithoutBeneficialOwnersInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutBeneficialOwnersInput
+    upsert?: CddCaseUpsertWithoutBeneficialOwnersInput
+    connect?: CddCaseWhereUniqueInput
+    update?: XOR<XOR<CddCaseUpdateToOneWithWhereWithoutBeneficialOwnersInput, CddCaseUpdateWithoutBeneficialOwnersInput>, CddCaseUncheckedUpdateWithoutBeneficialOwnersInput>
+  }
+
+  export type ScreeningRunUpdateManyWithoutBeneficialOwnerNestedInput = {
+    create?: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput> | ScreeningRunCreateWithoutBeneficialOwnerInput[] | ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput | ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput[]
+    upsert?: ScreeningRunUpsertWithWhereUniqueWithoutBeneficialOwnerInput | ScreeningRunUpsertWithWhereUniqueWithoutBeneficialOwnerInput[]
+    createMany?: ScreeningRunCreateManyBeneficialOwnerInputEnvelope
+    set?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    disconnect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    delete?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    update?: ScreeningRunUpdateWithWhereUniqueWithoutBeneficialOwnerInput | ScreeningRunUpdateWithWhereUniqueWithoutBeneficialOwnerInput[]
+    updateMany?: ScreeningRunUpdateManyWithWhereWithoutBeneficialOwnerInput | ScreeningRunUpdateManyWithWhereWithoutBeneficialOwnerInput[]
+    deleteMany?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+  }
+
+  export type ScreeningRunUncheckedUpdateManyWithoutBeneficialOwnerNestedInput = {
+    create?: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput> | ScreeningRunCreateWithoutBeneficialOwnerInput[] | ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput[]
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput | ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput[]
+    upsert?: ScreeningRunUpsertWithWhereUniqueWithoutBeneficialOwnerInput | ScreeningRunUpsertWithWhereUniqueWithoutBeneficialOwnerInput[]
+    createMany?: ScreeningRunCreateManyBeneficialOwnerInputEnvelope
+    set?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    disconnect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    delete?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    connect?: ScreeningRunWhereUniqueInput | ScreeningRunWhereUniqueInput[]
+    update?: ScreeningRunUpdateWithWhereUniqueWithoutBeneficialOwnerInput | ScreeningRunUpdateWithWhereUniqueWithoutBeneficialOwnerInput[]
+    updateMany?: ScreeningRunUpdateManyWithWhereWithoutBeneficialOwnerInput | ScreeningRunUpdateManyWithWhereWithoutBeneficialOwnerInput[]
+    deleteMany?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+  }
+
+  export type CddCaseCreateNestedOneWithoutScreeningRunsInput = {
+    create?: XOR<CddCaseCreateWithoutScreeningRunsInput, CddCaseUncheckedCreateWithoutScreeningRunsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutScreeningRunsInput
+    connect?: CddCaseWhereUniqueInput
+  }
+
+  export type CddBeneficialOwnerCreateNestedOneWithoutScreeningRunsInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedCreateWithoutScreeningRunsInput>
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutScreeningRunsInput
+    connect?: CddBeneficialOwnerWhereUniqueInput
+  }
+
+  export type ScreeningCandidateCreateNestedManyWithoutRunInput = {
+    create?: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput> | ScreeningCandidateCreateWithoutRunInput[] | ScreeningCandidateUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: ScreeningCandidateCreateOrConnectWithoutRunInput | ScreeningCandidateCreateOrConnectWithoutRunInput[]
+    createMany?: ScreeningCandidateCreateManyRunInputEnvelope
+    connect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+  }
+
+  export type ScreeningCandidateUncheckedCreateNestedManyWithoutRunInput = {
+    create?: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput> | ScreeningCandidateCreateWithoutRunInput[] | ScreeningCandidateUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: ScreeningCandidateCreateOrConnectWithoutRunInput | ScreeningCandidateCreateOrConnectWithoutRunInput[]
+    createMany?: ScreeningCandidateCreateManyRunInputEnvelope
+    connect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+  }
+
+  export type CddCaseUpdateOneRequiredWithoutScreeningRunsNestedInput = {
+    create?: XOR<CddCaseCreateWithoutScreeningRunsInput, CddCaseUncheckedCreateWithoutScreeningRunsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutScreeningRunsInput
+    upsert?: CddCaseUpsertWithoutScreeningRunsInput
+    connect?: CddCaseWhereUniqueInput
+    update?: XOR<XOR<CddCaseUpdateToOneWithWhereWithoutScreeningRunsInput, CddCaseUpdateWithoutScreeningRunsInput>, CddCaseUncheckedUpdateWithoutScreeningRunsInput>
+  }
+
+  export type CddBeneficialOwnerUpdateOneWithoutScreeningRunsNestedInput = {
+    create?: XOR<CddBeneficialOwnerCreateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedCreateWithoutScreeningRunsInput>
+    connectOrCreate?: CddBeneficialOwnerCreateOrConnectWithoutScreeningRunsInput
+    upsert?: CddBeneficialOwnerUpsertWithoutScreeningRunsInput
+    disconnect?: CddBeneficialOwnerWhereInput | boolean
+    delete?: CddBeneficialOwnerWhereInput | boolean
+    connect?: CddBeneficialOwnerWhereUniqueInput
+    update?: XOR<XOR<CddBeneficialOwnerUpdateToOneWithWhereWithoutScreeningRunsInput, CddBeneficialOwnerUpdateWithoutScreeningRunsInput>, CddBeneficialOwnerUncheckedUpdateWithoutScreeningRunsInput>
+  }
+
+  export type ScreeningCandidateUpdateManyWithoutRunNestedInput = {
+    create?: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput> | ScreeningCandidateCreateWithoutRunInput[] | ScreeningCandidateUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: ScreeningCandidateCreateOrConnectWithoutRunInput | ScreeningCandidateCreateOrConnectWithoutRunInput[]
+    upsert?: ScreeningCandidateUpsertWithWhereUniqueWithoutRunInput | ScreeningCandidateUpsertWithWhereUniqueWithoutRunInput[]
+    createMany?: ScreeningCandidateCreateManyRunInputEnvelope
+    set?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    disconnect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    delete?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    connect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    update?: ScreeningCandidateUpdateWithWhereUniqueWithoutRunInput | ScreeningCandidateUpdateWithWhereUniqueWithoutRunInput[]
+    updateMany?: ScreeningCandidateUpdateManyWithWhereWithoutRunInput | ScreeningCandidateUpdateManyWithWhereWithoutRunInput[]
+    deleteMany?: ScreeningCandidateScalarWhereInput | ScreeningCandidateScalarWhereInput[]
+  }
+
+  export type ScreeningCandidateUncheckedUpdateManyWithoutRunNestedInput = {
+    create?: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput> | ScreeningCandidateCreateWithoutRunInput[] | ScreeningCandidateUncheckedCreateWithoutRunInput[]
+    connectOrCreate?: ScreeningCandidateCreateOrConnectWithoutRunInput | ScreeningCandidateCreateOrConnectWithoutRunInput[]
+    upsert?: ScreeningCandidateUpsertWithWhereUniqueWithoutRunInput | ScreeningCandidateUpsertWithWhereUniqueWithoutRunInput[]
+    createMany?: ScreeningCandidateCreateManyRunInputEnvelope
+    set?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    disconnect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    delete?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    connect?: ScreeningCandidateWhereUniqueInput | ScreeningCandidateWhereUniqueInput[]
+    update?: ScreeningCandidateUpdateWithWhereUniqueWithoutRunInput | ScreeningCandidateUpdateWithWhereUniqueWithoutRunInput[]
+    updateMany?: ScreeningCandidateUpdateManyWithWhereWithoutRunInput | ScreeningCandidateUpdateManyWithWhereWithoutRunInput[]
+    deleteMany?: ScreeningCandidateScalarWhereInput | ScreeningCandidateScalarWhereInput[]
+  }
+
+  export type ScreeningRunCreateNestedOneWithoutCandidatesInput = {
+    create?: XOR<ScreeningRunCreateWithoutCandidatesInput, ScreeningRunUncheckedCreateWithoutCandidatesInput>
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCandidatesInput
+    connect?: ScreeningRunWhereUniqueInput
+  }
+
+  export type EnumSanctionsSourceFieldUpdateOperationsInput = {
+    set?: $Enums.SanctionsSource
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type NullableEnumScreeningDecisionFieldUpdateOperationsInput = {
+    set?: $Enums.ScreeningDecision | null
+  }
+
+  export type ScreeningRunUpdateOneRequiredWithoutCandidatesNestedInput = {
+    create?: XOR<ScreeningRunCreateWithoutCandidatesInput, ScreeningRunUncheckedCreateWithoutCandidatesInput>
+    connectOrCreate?: ScreeningRunCreateOrConnectWithoutCandidatesInput
+    upsert?: ScreeningRunUpsertWithoutCandidatesInput
+    connect?: ScreeningRunWhereUniqueInput
+    update?: XOR<XOR<ScreeningRunUpdateToOneWithWhereWithoutCandidatesInput, ScreeningRunUpdateWithoutCandidatesInput>, ScreeningRunUncheckedUpdateWithoutCandidatesInput>
+  }
+
+  export type CddCaseCreateNestedOneWithoutRiskAssessmentInput = {
+    create?: XOR<CddCaseCreateWithoutRiskAssessmentInput, CddCaseUncheckedCreateWithoutRiskAssessmentInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutRiskAssessmentInput
+    connect?: CddCaseWhereUniqueInput
+  }
+
+  export type EnumCddRiskLevelFieldUpdateOperationsInput = {
+    set?: $Enums.CddRiskLevel
+  }
+
+  export type CddCaseUpdateOneRequiredWithoutRiskAssessmentNestedInput = {
+    create?: XOR<CddCaseCreateWithoutRiskAssessmentInput, CddCaseUncheckedCreateWithoutRiskAssessmentInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutRiskAssessmentInput
+    upsert?: CddCaseUpsertWithoutRiskAssessmentInput
+    connect?: CddCaseWhereUniqueInput
+    update?: XOR<XOR<CddCaseUpdateToOneWithWhereWithoutRiskAssessmentInput, CddCaseUpdateWithoutRiskAssessmentInput>, CddCaseUncheckedUpdateWithoutRiskAssessmentInput>
+  }
+
+  export type CddCaseCreateNestedOneWithoutEventsInput = {
+    create?: XOR<CddCaseCreateWithoutEventsInput, CddCaseUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutEventsInput
+    connect?: CddCaseWhereUniqueInput
+  }
+
+  export type CddCaseUpdateOneRequiredWithoutEventsNestedInput = {
+    create?: XOR<CddCaseCreateWithoutEventsInput, CddCaseUncheckedCreateWithoutEventsInput>
+    connectOrCreate?: CddCaseCreateOrConnectWithoutEventsInput
+    upsert?: CddCaseUpsertWithoutEventsInput
+    connect?: CddCaseWhereUniqueInput
+    update?: XOR<XOR<CddCaseUpdateToOneWithWhereWithoutEventsInput, CddCaseUpdateWithoutEventsInput>, CddCaseUncheckedUpdateWithoutEventsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -97496,6 +111036,141 @@ export namespace Prisma {
     _max?: NestedEnumAcknowledgementMethodFilter<$PrismaModel>
   }
 
+  export type NestedEnumCddClientRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddClientRole | EnumCddClientRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddClientRoleFilter<$PrismaModel> | $Enums.CddClientRole
+  }
+
+  export type NestedEnumCddStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddStatus | EnumCddStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddStatusFilter<$PrismaModel> | $Enums.CddStatus
+  }
+
+  export type NestedEnumCddRiskLevelNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel> | $Enums.CddRiskLevel | null
+  }
+
+  export type NestedEnumCddClientRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddClientRole | EnumCddClientRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddClientRole[] | ListEnumCddClientRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddClientRoleWithAggregatesFilter<$PrismaModel> | $Enums.CddClientRole
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddClientRoleFilter<$PrismaModel>
+    _max?: NestedEnumCddClientRoleFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCddStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddStatus | EnumCddStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddStatus[] | ListEnumCddStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddStatusWithAggregatesFilter<$PrismaModel> | $Enums.CddStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddStatusFilter<$PrismaModel>
+    _max?: NestedEnumCddStatusFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCddRiskLevelNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCddRiskLevelNullableWithAggregatesFilter<$PrismaModel> | $Enums.CddRiskLevel | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel>
+    _max?: NestedEnumCddRiskLevelNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCddIdTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddIdType | EnumCddIdTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddIdTypeFilter<$PrismaModel> | $Enums.CddIdType
+  }
+
+  export type NestedEnumCddIdTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddIdType | EnumCddIdTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddIdType[] | ListEnumCddIdTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddIdTypeWithAggregatesFilter<$PrismaModel> | $Enums.CddIdType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddIdTypeFilter<$PrismaModel>
+    _max?: NestedEnumCddIdTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSanctionsSourceFilter<$PrismaModel = never> = {
+    equals?: $Enums.SanctionsSource | EnumSanctionsSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumSanctionsSourceFilter<$PrismaModel> | $Enums.SanctionsSource
+  }
+
+  export type NestedEnumScreeningDecisionNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.ScreeningDecision | EnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel> | $Enums.ScreeningDecision | null
+  }
+
+  export type NestedEnumSanctionsSourceWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SanctionsSource | EnumSanctionsSourceFieldRefInput<$PrismaModel>
+    in?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SanctionsSource[] | ListEnumSanctionsSourceFieldRefInput<$PrismaModel>
+    not?: NestedEnumSanctionsSourceWithAggregatesFilter<$PrismaModel> | $Enums.SanctionsSource
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSanctionsSourceFilter<$PrismaModel>
+    _max?: NestedEnumSanctionsSourceFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
+  }
+
+  export type NestedEnumScreeningDecisionNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ScreeningDecision | EnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    in?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.ScreeningDecision[] | ListEnumScreeningDecisionFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumScreeningDecisionNullableWithAggregatesFilter<$PrismaModel> | $Enums.ScreeningDecision | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel>
+    _max?: NestedEnumScreeningDecisionNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCddRiskLevelFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddRiskLevelFilter<$PrismaModel> | $Enums.CddRiskLevel
+  }
+
+  export type NestedEnumCddRiskLevelWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.CddRiskLevel | EnumCddRiskLevelFieldRefInput<$PrismaModel>
+    in?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    notIn?: $Enums.CddRiskLevel[] | ListEnumCddRiskLevelFieldRefInput<$PrismaModel>
+    not?: NestedEnumCddRiskLevelWithAggregatesFilter<$PrismaModel> | $Enums.CddRiskLevel
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCddRiskLevelFilter<$PrismaModel>
+    _max?: NestedEnumCddRiskLevelFilter<$PrismaModel>
+  }
+
   export type TeamCreateWithoutMembersInput = {
     id?: string
     name: string
@@ -97580,6 +111255,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutLandlordInput = {
@@ -97607,6 +111283,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutLandlordInput = {
@@ -97644,6 +111321,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutTenantInput = {
@@ -97671,6 +111349,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutTenantInput = {
@@ -97708,6 +111387,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutAgentInput = {
@@ -97735,6 +111415,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutAgentInput = {
@@ -98984,6 +112665,114 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CddCaseCreateWithoutAgentInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutAgentInput = {
+    id?: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutAgentInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput>
+  }
+
+  export type CddCaseCreateManyAgentInputEnvelope = {
+    data: CddCaseCreateManyAgentInput | CddCaseCreateManyAgentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CddCaseCreateWithoutClientInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutClientInput = {
+    id?: string
+    agentId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutClientInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput>
+  }
+
+  export type CddCaseCreateManyClientInputEnvelope = {
+    data: CddCaseCreateManyClientInput | CddCaseCreateManyClientInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TeamUpsertWithoutMembersInput = {
     update: XOR<TeamUpdateWithoutMembersInput, TeamUncheckedUpdateWithoutMembersInput>
     create: XOR<TeamCreateWithoutMembersInput, TeamUncheckedCreateWithoutMembersInput>
@@ -100091,6 +113880,59 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"AppleBillingAccount"> | Date | string
   }
 
+  export type CddCaseUpsertWithWhereUniqueWithoutAgentInput = {
+    where: CddCaseWhereUniqueInput
+    update: XOR<CddCaseUpdateWithoutAgentInput, CddCaseUncheckedUpdateWithoutAgentInput>
+    create: XOR<CddCaseCreateWithoutAgentInput, CddCaseUncheckedCreateWithoutAgentInput>
+  }
+
+  export type CddCaseUpdateWithWhereUniqueWithoutAgentInput = {
+    where: CddCaseWhereUniqueInput
+    data: XOR<CddCaseUpdateWithoutAgentInput, CddCaseUncheckedUpdateWithoutAgentInput>
+  }
+
+  export type CddCaseUpdateManyWithWhereWithoutAgentInput = {
+    where: CddCaseScalarWhereInput
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyWithoutAgentInput>
+  }
+
+  export type CddCaseScalarWhereInput = {
+    AND?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+    OR?: CddCaseScalarWhereInput[]
+    NOT?: CddCaseScalarWhereInput | CddCaseScalarWhereInput[]
+    id?: StringFilter<"CddCase"> | string
+    agentId?: StringFilter<"CddCase"> | string
+    clientId?: StringFilter<"CddCase"> | string
+    clientRole?: EnumCddClientRoleFilter<"CddCase"> | $Enums.CddClientRole
+    propertyId?: StringNullableFilter<"CddCase"> | string | null
+    tenancyId?: StringNullableFilter<"CddCase"> | string | null
+    agencyId?: StringNullableFilter<"CddCase"> | string | null
+    country?: StringFilter<"CddCase"> | string
+    status?: EnumCddStatusFilter<"CddCase"> | $Enums.CddStatus
+    riskLevel?: EnumCddRiskLevelNullableFilter<"CddCase"> | $Enums.CddRiskLevel | null
+    version?: IntFilter<"CddCase"> | number
+    contentHash?: StringNullableFilter<"CddCase"> | string | null
+    completedAt?: DateTimeNullableFilter<"CddCase"> | Date | string | null
+    createdAt?: DateTimeFilter<"CddCase"> | Date | string
+    updatedAt?: DateTimeFilter<"CddCase"> | Date | string
+  }
+
+  export type CddCaseUpsertWithWhereUniqueWithoutClientInput = {
+    where: CddCaseWhereUniqueInput
+    update: XOR<CddCaseUpdateWithoutClientInput, CddCaseUncheckedUpdateWithoutClientInput>
+    create: XOR<CddCaseCreateWithoutClientInput, CddCaseUncheckedCreateWithoutClientInput>
+  }
+
+  export type CddCaseUpdateWithWhereUniqueWithoutClientInput = {
+    where: CddCaseWhereUniqueInput
+    data: XOR<CddCaseUpdateWithoutClientInput, CddCaseUncheckedUpdateWithoutClientInput>
+  }
+
+  export type CddCaseUpdateManyWithWhereWithoutClientInput = {
+    where: CddCaseScalarWhereInput
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyWithoutClientInput>
+  }
+
   export type StakeholderCreateWithoutAcquisitionInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -100137,6 +113979,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAcquisitionInput = {
@@ -100185,6 +114029,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAcquisitionInput = {
@@ -100249,6 +114095,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAcquisitionInput = {
@@ -100297,6 +114145,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderCreateWithoutTeamInput = {
@@ -100345,6 +114195,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTeamInput = {
@@ -100393,6 +114245,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTeamInput = {
@@ -100588,6 +114442,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutAgencyInput = {
@@ -100615,6 +114470,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutAgencyInput = {
@@ -100795,6 +114651,60 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CddCaseCreateWithoutAgencyInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutAgencyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutAgencyInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type CddCaseCreateManyAgencyInputEnvelope = {
+    data: CddCaseCreateManyAgencyInput | CddCaseCreateManyAgencyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type AgencyMembershipUpsertWithWhereUniqueWithoutAgencyInput = {
     where: AgencyMembershipWhereUniqueInput
     update: XOR<AgencyMembershipUpdateWithoutAgencyInput, AgencyMembershipUncheckedUpdateWithoutAgencyInput>
@@ -100945,6 +114855,22 @@ export namespace Prisma {
     data: XOR<InspectionUpdateManyMutationInput, InspectionUncheckedUpdateManyWithoutReportAgencyInput>
   }
 
+  export type CddCaseUpsertWithWhereUniqueWithoutAgencyInput = {
+    where: CddCaseWhereUniqueInput
+    update: XOR<CddCaseUpdateWithoutAgencyInput, CddCaseUncheckedUpdateWithoutAgencyInput>
+    create: XOR<CddCaseCreateWithoutAgencyInput, CddCaseUncheckedCreateWithoutAgencyInput>
+  }
+
+  export type CddCaseUpdateWithWhereUniqueWithoutAgencyInput = {
+    where: CddCaseWhereUniqueInput
+    data: XOR<CddCaseUpdateWithoutAgencyInput, CddCaseUncheckedUpdateWithoutAgencyInput>
+  }
+
+  export type CddCaseUpdateManyWithWhereWithoutAgencyInput = {
+    where: CddCaseScalarWhereInput
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyWithoutAgencyInput>
+  }
+
   export type AgencyCreateWithoutBrandingInput = {
     id?: string
     name: string
@@ -100955,6 +114881,7 @@ export namespace Prisma {
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutBrandingInput = {
@@ -100967,6 +114894,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutBrandingInput = {
@@ -100995,6 +114923,7 @@ export namespace Prisma {
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutBrandingInput = {
@@ -101007,6 +114936,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyCreateWithoutMembersInput = {
@@ -101019,6 +114949,7 @@ export namespace Prisma {
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutMembersInput = {
@@ -101031,6 +114962,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutMembersInput = {
@@ -101084,6 +115016,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAgencyMembershipsInput = {
@@ -101132,6 +115066,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAgencyMembershipsInput = {
@@ -101208,6 +115144,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutMembersInput = {
@@ -101220,6 +115157,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type StakeholderUpsertWithoutAgencyMembershipsInput = {
@@ -101279,6 +115217,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAgencyMembershipsInput = {
@@ -101327,6 +115267,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput = {
@@ -101355,6 +115297,7 @@ export namespace Prisma {
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutActivityInput = {
@@ -101367,6 +115310,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutActivityInput = {
@@ -101395,6 +115339,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutActivityInput = {
@@ -101407,6 +115352,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type TeamCreateWithoutSubscriptionInput = {
@@ -101440,6 +115386,7 @@ export namespace Prisma {
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutSubscriptionInput = {
@@ -101452,6 +115399,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutSubscriptionInput = {
@@ -101505,6 +115453,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionInput = {
@@ -101553,6 +115503,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionInput = {
@@ -101606,6 +115558,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionsManagedInput = {
@@ -101654,6 +115608,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionsManagedInput = {
@@ -101791,6 +115747,7 @@ export namespace Prisma {
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutSubscriptionInput = {
@@ -101803,6 +115760,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type StakeholderUpsertWithoutSubscriptionInput = {
@@ -101862,6 +115820,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionInput = {
@@ -101910,6 +115870,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutSubscriptionsManagedInput = {
@@ -101969,6 +115931,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionsManagedInput = {
@@ -102017,6 +115981,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type GooglePlayPurchaseUpsertWithoutSubscriptionInput = {
@@ -102159,6 +116125,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAppleBillingAccountsInput = {
@@ -102207,6 +116175,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAppleBillingAccountsInput = {
@@ -102313,6 +116283,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAppleBillingAccountsInput = {
@@ -102361,6 +116333,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput = {
@@ -102580,6 +116554,8 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput = {
@@ -102628,6 +116604,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutGooglePlayBillingAccountsInput = {
@@ -102742,6 +116720,8 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput = {
@@ -102790,6 +116770,8 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput = {
@@ -103013,6 +116995,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutBrandingInput = {
@@ -103061,6 +117045,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutBrandingInput = {
@@ -103125,6 +117111,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutBrandingInput = {
@@ -103173,6 +117161,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type TenancyCreateWithoutPropertyInput = {
@@ -103200,6 +117190,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutPropertyInput = {
@@ -103227,6 +117218,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutPropertyInput = {
@@ -103357,6 +117349,60 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type CddCaseCreateWithoutPropertyInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutPropertyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutPropertyInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type CddCaseCreateManyPropertyInputEnvelope = {
+    data: CddCaseCreateManyPropertyInput | CddCaseCreateManyPropertyInput[]
+    skipDuplicates?: boolean
+  }
+
   export type TenancyUpsertWithWhereUniqueWithoutPropertyInput = {
     where: TenancyWhereUniqueInput
     update: XOR<TenancyUpdateWithoutPropertyInput, TenancyUncheckedUpdateWithoutPropertyInput>
@@ -103473,6 +117519,22 @@ export namespace Prisma {
     restoredById?: StringNullableFilter<"BinItem"> | string | null
   }
 
+  export type CddCaseUpsertWithWhereUniqueWithoutPropertyInput = {
+    where: CddCaseWhereUniqueInput
+    update: XOR<CddCaseUpdateWithoutPropertyInput, CddCaseUncheckedUpdateWithoutPropertyInput>
+    create: XOR<CddCaseCreateWithoutPropertyInput, CddCaseUncheckedCreateWithoutPropertyInput>
+  }
+
+  export type CddCaseUpdateWithWhereUniqueWithoutPropertyInput = {
+    where: CddCaseWhereUniqueInput
+    data: XOR<CddCaseUpdateWithoutPropertyInput, CddCaseUncheckedUpdateWithoutPropertyInput>
+  }
+
+  export type CddCaseUpdateManyWithWhereWithoutPropertyInput = {
+    where: CddCaseScalarWhereInput
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyWithoutPropertyInput>
+  }
+
   export type PropertyCreateWithoutEventsInput = {
     id?: string
     line1: string
@@ -103488,6 +117550,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
     bin?: BinItemCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutEventsInput = {
@@ -103505,6 +117568,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
     bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutEventsInput = {
@@ -103573,6 +117637,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutEventsInput = {
@@ -103590,6 +117655,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type BinItemUpsertWithoutEventsInput = {
@@ -103648,6 +117714,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
     events?: PropertyEventCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutBinInput = {
@@ -103665,6 +117732,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
     events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutBinInput = {
@@ -103738,6 +117806,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutBinInput = {
@@ -103755,6 +117824,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyEventUpsertWithWhereUniqueWithoutBinItemInput = {
@@ -103788,6 +117858,7 @@ export namespace Prisma {
     assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
     events?: PropertyEventCreateNestedManyWithoutPropertyInput
     bin?: BinItemCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutTenanciesInput = {
@@ -103805,6 +117876,7 @@ export namespace Prisma {
     assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
     events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
     bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutTenanciesInput = {
@@ -103858,6 +117930,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -103906,6 +117980,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -103959,6 +118035,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -104007,6 +118085,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -104060,6 +118140,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -104108,6 +118190,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -104125,6 +118209,7 @@ export namespace Prisma {
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutTenanciesInput = {
@@ -104137,6 +118222,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
     reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutTenanciesInput = {
@@ -104413,6 +118499,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutRenewedAsInput = {
@@ -104440,6 +118527,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutRenewedAsInput = {
@@ -104472,6 +118560,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutRenewedFromInput = {
@@ -104499,11 +118588,66 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutRenewedFromInput = {
     where: TenancyWhereUniqueInput
     create: XOR<TenancyCreateWithoutRenewedFromInput, TenancyUncheckedCreateWithoutRenewedFromInput>
+  }
+
+  export type CddCaseCreateWithoutTenancyInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutTenancyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutTenancyInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput>
+  }
+
+  export type CddCaseCreateManyTenancyInputEnvelope = {
+    data: CddCaseCreateManyTenancyInput | CddCaseCreateManyTenancyInput[]
+    skipDuplicates?: boolean
   }
 
   export type PropertyUpsertWithoutTenanciesInput = {
@@ -104532,6 +118676,7 @@ export namespace Prisma {
     assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutTenanciesInput = {
@@ -104549,6 +118694,7 @@ export namespace Prisma {
     assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsLandlordInput = {
@@ -104608,6 +118754,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -104656,6 +118804,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -104715,6 +118865,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -104763,6 +118915,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -104822,6 +118976,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -104870,6 +119026,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type AgencyUpsertWithoutTenanciesInput = {
@@ -104893,6 +119051,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutTenanciesInput = {
@@ -104905,6 +119064,7 @@ export namespace Prisma {
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
     reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type InspectionUpsertWithWhereUniqueWithoutTenancyInput = {
@@ -105023,6 +119183,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutRenewedAsInput = {
@@ -105050,6 +119211,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUpsertWithoutRenewedFromInput = {
@@ -105088,6 +119250,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutRenewedFromInput = {
@@ -105115,6 +119278,23 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
+  }
+
+  export type CddCaseUpsertWithWhereUniqueWithoutTenancyInput = {
+    where: CddCaseWhereUniqueInput
+    update: XOR<CddCaseUpdateWithoutTenancyInput, CddCaseUncheckedUpdateWithoutTenancyInput>
+    create: XOR<CddCaseCreateWithoutTenancyInput, CddCaseUncheckedCreateWithoutTenancyInput>
+  }
+
+  export type CddCaseUpdateWithWhereUniqueWithoutTenancyInput = {
+    where: CddCaseWhereUniqueInput
+    data: XOR<CddCaseUpdateWithoutTenancyInput, CddCaseUncheckedUpdateWithoutTenancyInput>
+  }
+
+  export type CddCaseUpdateManyWithWhereWithoutTenancyInput = {
+    where: CddCaseScalarWhereInput
+    data: XOR<CddCaseUpdateManyMutationInput, CddCaseUncheckedUpdateManyWithoutTenancyInput>
   }
 
   export type TenancyCreateWithoutCollaboratorsInput = {
@@ -105142,6 +119322,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutCollaboratorsInput = {
@@ -105169,6 +119350,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutCollaboratorsInput = {
@@ -105222,6 +119404,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyCollaborationsInput = {
@@ -105270,6 +119454,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyCollaborationsInput = {
@@ -105323,6 +119509,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyAccessGrantedInput = {
@@ -105371,6 +119559,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyAccessGrantedInput = {
@@ -105414,6 +119604,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutCollaboratorsInput = {
@@ -105441,6 +119632,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type StakeholderUpsertWithoutTenancyCollaborationsInput = {
@@ -105500,6 +119692,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyCollaborationsInput = {
@@ -105548,6 +119742,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutTenancyAccessGrantedInput = {
@@ -105607,6 +119803,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyAccessGrantedInput = {
@@ -105655,6 +119853,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type TenancyCreateWithoutInspectionsInput = {
@@ -105682,6 +119882,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutInspectionsInput = {
@@ -105709,6 +119910,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutInspectionsInput = {
@@ -105762,6 +119964,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -105810,6 +120014,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -105863,6 +120069,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportInspectionsInput = {
@@ -105911,6 +120119,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportInspectionsInput = {
@@ -105928,6 +120138,7 @@ export namespace Prisma {
     activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
+    cddCases?: CddCaseCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyUncheckedCreateWithoutReportInspectionsInput = {
@@ -105940,6 +120151,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
     branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutAgencyInput
   }
 
   export type AgencyCreateOrConnectWithoutReportInspectionsInput = {
@@ -106503,6 +120715,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutInspectionsInput = {
@@ -106530,6 +120743,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type StakeholderUpsertWithoutInspectionsRunInput = {
@@ -106589,6 +120803,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -106637,6 +120853,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutReportInspectionsInput = {
@@ -106696,6 +120914,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportInspectionsInput = {
@@ -106744,6 +120964,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type AgencyUpsertWithoutReportInspectionsInput = {
@@ -106767,6 +120989,7 @@ export namespace Prisma {
     activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutAgencyNestedInput
   }
 
   export type AgencyUncheckedUpdateWithoutReportInspectionsInput = {
@@ -106779,6 +121002,7 @@ export namespace Prisma {
     activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
     branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutAgencyNestedInput
   }
 
   export type InspectionUpsertWithoutCheckOutInput = {
@@ -107278,6 +121502,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionAccessGrantsInput = {
@@ -107326,6 +121552,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionAccessGrantsInput = {
@@ -107469,6 +121697,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionAccessGrantsInput = {
@@ -107517,6 +121747,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -108651,6 +122883,7 @@ export namespace Prisma {
     tenancies?: TenancyCreateNestedManyWithoutPropertyInput
     events?: PropertyEventCreateNestedManyWithoutPropertyInput
     bin?: BinItemCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyUncheckedCreateWithoutAssetsInput = {
@@ -108668,6 +122901,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
     events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
     bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutPropertyInput
   }
 
   export type PropertyCreateOrConnectWithoutAssetsInput = {
@@ -108865,6 +123099,7 @@ export namespace Prisma {
     tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUpdateManyWithoutPropertyNestedInput
   }
 
   export type PropertyUncheckedUpdateWithoutAssetsInput = {
@@ -108882,6 +123117,7 @@ export namespace Prisma {
     tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
     events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
     bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutPropertyNestedInput
   }
 
   export type InspectionItemUpsertWithWhereUniqueWithoutPropertyAssetInput = {
@@ -108978,6 +123214,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutMaintenanceCasesInput = {
@@ -109005,6 +123242,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutMaintenanceCasesInput = {
@@ -109091,6 +123329,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceCasesReportedInput = {
@@ -109139,6 +123379,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceCasesReportedInput = {
@@ -109540,6 +123782,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutMaintenanceCasesInput = {
@@ -109567,6 +123810,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type PropertyAssetUpsertWithoutMaintenanceCasesInput = {
@@ -109665,6 +123909,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceCasesReportedInput = {
@@ -109713,6 +123959,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type MaintenanceEventUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
@@ -110065,6 +124313,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEventsInput = {
@@ -110113,6 +124363,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEventsInput = {
@@ -110242,6 +124494,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEventsInput = {
@@ -110290,6 +124544,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutVisitsInput = {
@@ -110726,6 +124982,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEvidenceUploadedInput = {
@@ -110774,6 +125032,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEvidenceUploadedInput = {
@@ -110940,6 +125200,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEvidenceUploadedInput = {
@@ -110988,6 +125250,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutVerificationInput = {
@@ -111067,6 +125331,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceVerificationsInput = {
@@ -111115,6 +125381,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceVerificationsInput = {
@@ -111216,6 +125484,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput = {
@@ -111264,6 +125534,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
@@ -111371,6 +125643,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
@@ -111419,6 +125693,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
@@ -111472,6 +125748,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
@@ -111520,6 +125798,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
@@ -111649,6 +125929,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
@@ -111697,6 +125979,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
@@ -111756,6 +126040,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
@@ -111804,6 +126090,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutProviderInput = {
@@ -111883,6 +126171,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutSupportingDocumentRequestsInput = {
@@ -111910,6 +126199,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutSupportingDocumentRequestsInput = {
@@ -111963,6 +126253,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput = {
@@ -112011,6 +126303,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput = {
@@ -112088,6 +126382,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
@@ -112115,6 +126410,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type StakeholderUpsertWithoutSupportingDocumentRequestsInput = {
@@ -112174,6 +126470,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
@@ -112222,6 +126520,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput = {
@@ -112311,6 +126611,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput = {
@@ -112359,6 +126661,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput = {
@@ -112454,6 +126758,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput = {
@@ -112502,6 +126808,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderCreateWithoutDeviceInstallationsInput = {
@@ -112550,6 +126858,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeviceInstallationsInput = {
@@ -112598,6 +126908,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeviceInstallationsInput = {
@@ -112694,6 +127006,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeviceInstallationsInput = {
@@ -112742,6 +127056,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutInstallationInput = {
@@ -112821,6 +127137,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutNotificationsInput = {
@@ -112869,6 +127187,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutNotificationsInput = {
@@ -112901,6 +127221,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
     renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
     renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyUncheckedCreateWithoutNotificationsInput = {
@@ -112928,6 +127249,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
     renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+    cddCases?: CddCaseUncheckedCreateNestedManyWithoutTenancyInput
   }
 
   export type TenancyCreateOrConnectWithoutNotificationsInput = {
@@ -113057,6 +127379,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutNotificationsInput = {
@@ -113105,6 +127429,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type TenancyUpsertWithoutNotificationsInput = {
@@ -113143,6 +127469,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutNotificationsInput = {
@@ -113170,6 +127497,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type AgencyMembershipUpsertWithoutNotificationsInput = {
@@ -114105,6 +128433,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutFindingPhotoDraftsInput = {
@@ -114153,6 +128483,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutFindingPhotoDraftsInput = {
@@ -114377,6 +128709,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutFindingPhotoDraftsInput = {
@@ -114425,6 +128759,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type FindingUpsertWithoutPhotoDraftsInput = {
@@ -114757,6 +129093,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -114805,6 +129143,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -114948,6 +129288,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -114996,6 +129338,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InspectionCreateWithoutReportEmailsInput = {
@@ -115117,6 +129461,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportEmailsInput = {
@@ -115165,6 +129511,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportEmailsInput = {
@@ -115308,6 +129656,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportEmailsInput = {
@@ -115356,6 +129706,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
@@ -115677,6 +130029,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaCreatedInput = {
@@ -115725,6 +130079,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaCreatedInput = {
@@ -115778,6 +130134,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaPublishedInput = {
@@ -115826,6 +130184,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaPublishedInput = {
@@ -116012,6 +130372,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaDisputedInput = {
@@ -116060,6 +130422,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaDisputedInput = {
@@ -116203,6 +130567,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaCreatedInput = {
@@ -116251,6 +130617,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUpsertWithoutAddendaPublishedInput = {
@@ -116310,6 +130678,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaPublishedInput = {
@@ -116358,6 +130728,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput = {
@@ -116514,6 +130886,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaDisputedInput = {
@@ -116562,6 +130936,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type ReportAddendumCreateWithoutEntriesInput = {
@@ -117113,6 +131489,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput = {
@@ -117161,6 +131539,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput = {
@@ -117280,6 +131660,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput = {
@@ -117328,6 +131710,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderCreateWithoutDeletionRequestsInput = {
@@ -117376,6 +131760,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
@@ -117424,6 +131810,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
@@ -117512,6 +131900,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
@@ -117560,6 +131950,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {
@@ -117703,6 +132095,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutErrorEventsInput = {
@@ -117751,6 +132145,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutErrorEventsInput = {
@@ -117815,6 +132211,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutErrorEventsInput = {
@@ -117863,6 +132261,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderCreateWithoutProductEventsInput = {
@@ -117911,6 +132311,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutProductEventsInput = {
@@ -117959,6 +132361,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutProductEventsInput = {
@@ -118023,6 +132427,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutProductEventsInput = {
@@ -118071,6 +132477,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type InspectionCreateWithoutIssuedReportFilesInput = {
@@ -118296,6 +132704,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderUncheckedCreateWithoutAssessmentResponsesInput = {
@@ -118344,6 +132754,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
     appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
   }
 
   export type StakeholderCreateOrConnectWithoutAssessmentResponsesInput = {
@@ -118439,6 +132851,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAssessmentResponsesInput = {
@@ -118487,6 +132901,1824 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type StakeholderCreateWithoutCddCasesAsAgentInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsClient?: CddCaseCreateNestedManyWithoutClientInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutCddCasesAsAgentInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsClient?: CddCaseUncheckedCreateNestedManyWithoutClientInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutCddCasesAsAgentInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutCddCasesAsAgentInput, StakeholderUncheckedCreateWithoutCddCasesAsAgentInput>
+  }
+
+  export type StakeholderCreateWithoutCddCasesAsClientInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseCreateNestedManyWithoutAgentInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutCddCasesAsClientInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    cddCasesAsAgent?: CddCaseUncheckedCreateNestedManyWithoutAgentInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutCddCasesAsClientInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutCddCasesAsClientInput, StakeholderUncheckedCreateWithoutCddCasesAsClientInput>
+  }
+
+  export type PropertyCreateWithoutCddCasesInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventCreateNestedManyWithoutPropertyInput
+    bin?: BinItemCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyUncheckedCreateWithoutCddCasesInput = {
+    id?: string
+    line1: string
+    unit?: string | null
+    postalCode: string
+    type: $Enums.PropertyType
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    archivedAt?: Date | string | null
+    trashedAt?: Date | string | null
+    trashExpiresAt?: Date | string | null
+    trashedById?: string | null
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutPropertyInput
+    assets?: PropertyAssetUncheckedCreateNestedManyWithoutPropertyInput
+    events?: PropertyEventUncheckedCreateNestedManyWithoutPropertyInput
+    bin?: BinItemUncheckedCreateNestedManyWithoutPropertyInput
+  }
+
+  export type PropertyCreateOrConnectWithoutCddCasesInput = {
+    where: PropertyWhereUniqueInput
+    create: XOR<PropertyCreateWithoutCddCasesInput, PropertyUncheckedCreateWithoutCddCasesInput>
+  }
+
+  export type TenancyCreateWithoutCddCasesInput = {
+    id?: string
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    property: PropertyCreateNestedOneWithoutTenanciesInput
+    landlord: StakeholderCreateNestedOneWithoutTenanciesAsLandlordInput
+    tenant: StakeholderCreateNestedOneWithoutTenanciesAsTenantInput
+    agent?: StakeholderCreateNestedOneWithoutTenanciesAsAgentInput
+    agency?: AgencyCreateNestedOneWithoutTenanciesInput
+    inspections?: InspectionCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutTenancyInput
+    renewedFrom?: TenancyCreateNestedOneWithoutRenewedAsInput
+    renewedAs?: TenancyCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyUncheckedCreateWithoutCddCasesInput = {
+    id?: string
+    propertyId: string
+    landlordId: string
+    tenantId: string
+    agentId?: string | null
+    agencyId?: string | null
+    startDate: Date | string
+    endDate: Date | string
+    monthlyRent: Decimal | DecimalJsLike | number | string
+    deposit: Decimal | DecimalJsLike | number | string
+    minorRepairCap?: Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: boolean
+    defectWindowDays?: number
+    renewalDecision?: $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: Date | string | null
+    renewedFromId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    inspections?: InspectionUncheckedCreateNestedManyWithoutTenancyInput
+    collaborators?: TenancyCollaboratorUncheckedCreateNestedManyWithoutTenancyInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutTenancyInput
+    maintenanceCases?: MaintenanceCaseUncheckedCreateNestedManyWithoutTenancyInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutTenancyInput
+    renewedAs?: TenancyUncheckedCreateNestedOneWithoutRenewedFromInput
+  }
+
+  export type TenancyCreateOrConnectWithoutCddCasesInput = {
+    where: TenancyWhereUniqueInput
+    create: XOR<TenancyCreateWithoutCddCasesInput, TenancyUncheckedCreateWithoutCddCasesInput>
+  }
+
+  export type AgencyCreateWithoutCddCasesInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyUncheckedCreateWithoutCddCasesInput = {
+    id?: string
+    name: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    members?: AgencyMembershipUncheckedCreateNestedManyWithoutAgencyInput
+    tenancies?: TenancyUncheckedCreateNestedManyWithoutAgencyInput
+    activity?: AgencyActivityUncheckedCreateNestedManyWithoutAgencyInput
+    branding?: AgencyBrandingUncheckedCreateNestedOneWithoutAgencyInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutAgencyInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgencyInput
+  }
+
+  export type AgencyCreateOrConnectWithoutCddCasesInput = {
+    where: AgencyWhereUniqueInput
+    create: XOR<AgencyCreateWithoutCddCasesInput, AgencyUncheckedCreateWithoutCddCasesInput>
+  }
+
+  export type CddParticularsCreateWithoutCaseInput = {
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    address: string
+    pepDeclared: boolean
+    pepDetails?: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById?: string | null
+    idSightedAt?: Date | string | null
+    submittedAt?: Date | string
+  }
+
+  export type CddParticularsUncheckedCreateWithoutCaseInput = {
+    kind: $Enums.StakeholderKind
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    address: string
+    pepDeclared: boolean
+    pepDetails?: string | null
+    submittedById: string
+    submittedInPerson: boolean
+    idSightedById?: string | null
+    idSightedAt?: Date | string | null
+    submittedAt?: Date | string
+  }
+
+  export type CddParticularsCreateOrConnectWithoutCaseInput = {
+    where: CddParticularsWhereUniqueInput
+    create: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerCreateWithoutCaseInput = {
+    id?: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutBeneficialOwnerInput
+  }
+
+  export type CddBeneficialOwnerUncheckedCreateWithoutCaseInput = {
+    id?: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutBeneficialOwnerInput
+  }
+
+  export type CddBeneficialOwnerCreateOrConnectWithoutCaseInput = {
+    where: CddBeneficialOwnerWhereUniqueInput
+    create: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerCreateManyCaseInputEnvelope = {
+    data: CddBeneficialOwnerCreateManyCaseInput | CddBeneficialOwnerCreateManyCaseInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type ScreeningRunCreateWithoutCaseInput = {
+    id?: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    beneficialOwner?: CddBeneficialOwnerCreateNestedOneWithoutScreeningRunsInput
+    candidates?: ScreeningCandidateCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunUncheckedCreateWithoutCaseInput = {
+    id?: string
+    beneficialOwnerId?: string | null
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    candidates?: ScreeningCandidateUncheckedCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunCreateOrConnectWithoutCaseInput = {
+    where: ScreeningRunWhereUniqueInput
+    create: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput>
+  }
+
+  export type ScreeningRunCreateManyCaseInputEnvelope = {
+    data: ScreeningRunCreateManyCaseInput | ScreeningRunCreateManyCaseInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CddRiskAssessmentCreateWithoutCaseInput = {
+    checklistVersion: string
+    answers: JsonNullValueInput | InputJsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt?: Date | string
+    approvedById?: string | null
+    approvedAt?: Date | string | null
+  }
+
+  export type CddRiskAssessmentUncheckedCreateWithoutCaseInput = {
+    checklistVersion: string
+    answers: JsonNullValueInput | InputJsonValue
+    level: $Enums.CddRiskLevel
+    assessedById: string
+    assessedAt?: Date | string
+    approvedById?: string | null
+    approvedAt?: Date | string | null
+  }
+
+  export type CddRiskAssessmentCreateOrConnectWithoutCaseInput = {
+    where: CddRiskAssessmentWhereUniqueInput
+    create: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddEventCreateWithoutCaseInput = {
+    id?: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CddEventUncheckedCreateWithoutCaseInput = {
+    id?: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CddEventCreateOrConnectWithoutCaseInput = {
+    where: CddEventWhereUniqueInput
+    create: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddEventCreateManyCaseInputEnvelope = {
+    data: CddEventCreateManyCaseInput | CddEventCreateManyCaseInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StakeholderUpsertWithoutCddCasesAsAgentInput = {
+    update: XOR<StakeholderUpdateWithoutCddCasesAsAgentInput, StakeholderUncheckedUpdateWithoutCddCasesAsAgentInput>
+    create: XOR<StakeholderCreateWithoutCddCasesAsAgentInput, StakeholderUncheckedCreateWithoutCddCasesAsAgentInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutCddCasesAsAgentInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutCddCasesAsAgentInput, StakeholderUncheckedUpdateWithoutCddCasesAsAgentInput>
+  }
+
+  export type StakeholderUpdateWithoutCddCasesAsAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutCddCasesAsAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
+  }
+
+  export type StakeholderUpsertWithoutCddCasesAsClientInput = {
+    update: XOR<StakeholderUpdateWithoutCddCasesAsClientInput, StakeholderUncheckedUpdateWithoutCddCasesAsClientInput>
+    create: XOR<StakeholderCreateWithoutCddCasesAsClientInput, StakeholderUncheckedCreateWithoutCddCasesAsClientInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutCddCasesAsClientInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutCddCasesAsClientInput, StakeholderUncheckedUpdateWithoutCddCasesAsClientInput>
+  }
+
+  export type StakeholderUpdateWithoutCddCasesAsClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutCddCasesAsClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+  }
+
+  export type PropertyUpsertWithoutCddCasesInput = {
+    update: XOR<PropertyUpdateWithoutCddCasesInput, PropertyUncheckedUpdateWithoutCddCasesInput>
+    create: XOR<PropertyCreateWithoutCddCasesInput, PropertyUncheckedCreateWithoutCddCasesInput>
+    where?: PropertyWhereInput
+  }
+
+  export type PropertyUpdateToOneWithWhereWithoutCddCasesInput = {
+    where?: PropertyWhereInput
+    data: XOR<PropertyUpdateWithoutCddCasesInput, PropertyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type PropertyUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type PropertyUncheckedUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    line1?: StringFieldUpdateOperationsInput | string
+    unit?: NullableStringFieldUpdateOperationsInput | string | null
+    postalCode?: StringFieldUpdateOperationsInput | string
+    type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    trashedById?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancies?: TenancyUncheckedUpdateManyWithoutPropertyNestedInput
+    assets?: PropertyAssetUncheckedUpdateManyWithoutPropertyNestedInput
+    events?: PropertyEventUncheckedUpdateManyWithoutPropertyNestedInput
+    bin?: BinItemUncheckedUpdateManyWithoutPropertyNestedInput
+  }
+
+  export type TenancyUpsertWithoutCddCasesInput = {
+    update: XOR<TenancyUpdateWithoutCddCasesInput, TenancyUncheckedUpdateWithoutCddCasesInput>
+    create: XOR<TenancyCreateWithoutCddCasesInput, TenancyUncheckedCreateWithoutCddCasesInput>
+    where?: TenancyWhereInput
+  }
+
+  export type TenancyUpdateToOneWithWhereWithoutCddCasesInput = {
+    where?: TenancyWhereInput
+    data: XOR<TenancyUpdateWithoutCddCasesInput, TenancyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type TenancyUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    property?: PropertyUpdateOneRequiredWithoutTenanciesNestedInput
+    landlord?: StakeholderUpdateOneRequiredWithoutTenanciesAsLandlordNestedInput
+    tenant?: StakeholderUpdateOneRequiredWithoutTenanciesAsTenantNestedInput
+    agent?: StakeholderUpdateOneWithoutTenanciesAsAgentNestedInput
+    agency?: AgencyUpdateOneWithoutTenanciesNestedInput
+    inspections?: InspectionUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
+    renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
+    renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type TenancyUncheckedUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    propertyId?: StringFieldUpdateOperationsInput | string
+    landlordId?: StringFieldUpdateOperationsInput | string
+    tenantId?: StringFieldUpdateOperationsInput | string
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
+    agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
+    defectWindowDays?: IntFieldUpdateOperationsInput | number
+    renewalDecision?: NullableEnumRenewalDecisionFieldUpdateOperationsInput | $Enums.RenewalDecision | null
+    renewalSnoozedUntil?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    renewedFromId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    inspections?: InspectionUncheckedUpdateManyWithoutTenancyNestedInput
+    collaborators?: TenancyCollaboratorUncheckedUpdateManyWithoutTenancyNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutTenancyNestedInput
+    maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
+    renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+  }
+
+  export type AgencyUpsertWithoutCddCasesInput = {
+    update: XOR<AgencyUpdateWithoutCddCasesInput, AgencyUncheckedUpdateWithoutCddCasesInput>
+    create: XOR<AgencyCreateWithoutCddCasesInput, AgencyUncheckedCreateWithoutCddCasesInput>
+    where?: AgencyWhereInput
+  }
+
+  export type AgencyUpdateToOneWithWhereWithoutCddCasesInput = {
+    where?: AgencyWhereInput
+    data: XOR<AgencyUpdateWithoutCddCasesInput, AgencyUncheckedUpdateWithoutCddCasesInput>
+  }
+
+  export type AgencyUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgencyNestedInput
+  }
+
+  export type AgencyUncheckedUpdateWithoutCddCasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: AgencyMembershipUncheckedUpdateManyWithoutAgencyNestedInput
+    tenancies?: TenancyUncheckedUpdateManyWithoutAgencyNestedInput
+    activity?: AgencyActivityUncheckedUpdateManyWithoutAgencyNestedInput
+    branding?: AgencyBrandingUncheckedUpdateOneWithoutAgencyNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutAgencyNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgencyNestedInput
+  }
+
+  export type CddParticularsUpsertWithoutCaseInput = {
+    update: XOR<CddParticularsUpdateWithoutCaseInput, CddParticularsUncheckedUpdateWithoutCaseInput>
+    create: XOR<CddParticularsCreateWithoutCaseInput, CddParticularsUncheckedCreateWithoutCaseInput>
+    where?: CddParticularsWhereInput
+  }
+
+  export type CddParticularsUpdateToOneWithWhereWithoutCaseInput = {
+    where?: CddParticularsWhereInput
+    data: XOR<CddParticularsUpdateWithoutCaseInput, CddParticularsUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddParticularsUpdateWithoutCaseInput = {
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddParticularsUncheckedUpdateWithoutCaseInput = {
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    pepDetails?: NullableStringFieldUpdateOperationsInput | string | null
+    submittedById?: StringFieldUpdateOperationsInput | string
+    submittedInPerson?: BoolFieldUpdateOperationsInput | boolean
+    idSightedById?: NullableStringFieldUpdateOperationsInput | string | null
+    idSightedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    submittedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddBeneficialOwnerUpsertWithWhereUniqueWithoutCaseInput = {
+    where: CddBeneficialOwnerWhereUniqueInput
+    update: XOR<CddBeneficialOwnerUpdateWithoutCaseInput, CddBeneficialOwnerUncheckedUpdateWithoutCaseInput>
+    create: XOR<CddBeneficialOwnerCreateWithoutCaseInput, CddBeneficialOwnerUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerUpdateWithWhereUniqueWithoutCaseInput = {
+    where: CddBeneficialOwnerWhereUniqueInput
+    data: XOR<CddBeneficialOwnerUpdateWithoutCaseInput, CddBeneficialOwnerUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerUpdateManyWithWhereWithoutCaseInput = {
+    where: CddBeneficialOwnerScalarWhereInput
+    data: XOR<CddBeneficialOwnerUpdateManyMutationInput, CddBeneficialOwnerUncheckedUpdateManyWithoutCaseInput>
+  }
+
+  export type CddBeneficialOwnerScalarWhereInput = {
+    AND?: CddBeneficialOwnerScalarWhereInput | CddBeneficialOwnerScalarWhereInput[]
+    OR?: CddBeneficialOwnerScalarWhereInput[]
+    NOT?: CddBeneficialOwnerScalarWhereInput | CddBeneficialOwnerScalarWhereInput[]
+    id?: StringFilter<"CddBeneficialOwner"> | string
+    caseId?: StringFilter<"CddBeneficialOwner"> | string
+    legalName?: StringFilter<"CddBeneficialOwner"> | string
+    idType?: EnumCddIdTypeFilter<"CddBeneficialOwner"> | $Enums.CddIdType
+    idNumberEncrypted?: StringFilter<"CddBeneficialOwner"> | string
+    idNumberLast4?: StringFilter<"CddBeneficialOwner"> | string
+    nationality?: StringFilter<"CddBeneficialOwner"> | string
+    dateOfBirth?: DateTimeNullableFilter<"CddBeneficialOwner"> | Date | string | null
+    ownershipPercent?: DecimalNullableFilter<"CddBeneficialOwner"> | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFilter<"CddBeneficialOwner"> | boolean
+    createdAt?: DateTimeFilter<"CddBeneficialOwner"> | Date | string
+  }
+
+  export type ScreeningRunUpsertWithWhereUniqueWithoutCaseInput = {
+    where: ScreeningRunWhereUniqueInput
+    update: XOR<ScreeningRunUpdateWithoutCaseInput, ScreeningRunUncheckedUpdateWithoutCaseInput>
+    create: XOR<ScreeningRunCreateWithoutCaseInput, ScreeningRunUncheckedCreateWithoutCaseInput>
+  }
+
+  export type ScreeningRunUpdateWithWhereUniqueWithoutCaseInput = {
+    where: ScreeningRunWhereUniqueInput
+    data: XOR<ScreeningRunUpdateWithoutCaseInput, ScreeningRunUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type ScreeningRunUpdateManyWithWhereWithoutCaseInput = {
+    where: ScreeningRunScalarWhereInput
+    data: XOR<ScreeningRunUpdateManyMutationInput, ScreeningRunUncheckedUpdateManyWithoutCaseInput>
+  }
+
+  export type ScreeningRunScalarWhereInput = {
+    AND?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+    OR?: ScreeningRunScalarWhereInput[]
+    NOT?: ScreeningRunScalarWhereInput | ScreeningRunScalarWhereInput[]
+    id?: StringFilter<"ScreeningRun"> | string
+    caseId?: StringFilter<"ScreeningRun"> | string
+    beneficialOwnerId?: StringNullableFilter<"ScreeningRun"> | string | null
+    subjectName?: StringFilter<"ScreeningRun"> | string
+    subjectBirthYear?: IntNullableFilter<"ScreeningRun"> | number | null
+    provider?: StringFilter<"ScreeningRun"> | string
+    listVersions?: JsonFilter<"ScreeningRun">
+    ranAt?: DateTimeFilter<"ScreeningRun"> | Date | string
+  }
+
+  export type CddRiskAssessmentUpsertWithoutCaseInput = {
+    update: XOR<CddRiskAssessmentUpdateWithoutCaseInput, CddRiskAssessmentUncheckedUpdateWithoutCaseInput>
+    create: XOR<CddRiskAssessmentCreateWithoutCaseInput, CddRiskAssessmentUncheckedCreateWithoutCaseInput>
+    where?: CddRiskAssessmentWhereInput
+  }
+
+  export type CddRiskAssessmentUpdateToOneWithWhereWithoutCaseInput = {
+    where?: CddRiskAssessmentWhereInput
+    data: XOR<CddRiskAssessmentUpdateWithoutCaseInput, CddRiskAssessmentUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddRiskAssessmentUpdateWithoutCaseInput = {
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddRiskAssessmentUncheckedUpdateWithoutCaseInput = {
+    checklistVersion?: StringFieldUpdateOperationsInput | string
+    answers?: JsonNullValueInput | InputJsonValue
+    level?: EnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel
+    assessedById?: StringFieldUpdateOperationsInput | string
+    assessedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    approvedById?: NullableStringFieldUpdateOperationsInput | string | null
+    approvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddEventUpsertWithWhereUniqueWithoutCaseInput = {
+    where: CddEventWhereUniqueInput
+    update: XOR<CddEventUpdateWithoutCaseInput, CddEventUncheckedUpdateWithoutCaseInput>
+    create: XOR<CddEventCreateWithoutCaseInput, CddEventUncheckedCreateWithoutCaseInput>
+  }
+
+  export type CddEventUpdateWithWhereUniqueWithoutCaseInput = {
+    where: CddEventWhereUniqueInput
+    data: XOR<CddEventUpdateWithoutCaseInput, CddEventUncheckedUpdateWithoutCaseInput>
+  }
+
+  export type CddEventUpdateManyWithWhereWithoutCaseInput = {
+    where: CddEventScalarWhereInput
+    data: XOR<CddEventUpdateManyMutationInput, CddEventUncheckedUpdateManyWithoutCaseInput>
+  }
+
+  export type CddEventScalarWhereInput = {
+    AND?: CddEventScalarWhereInput | CddEventScalarWhereInput[]
+    OR?: CddEventScalarWhereInput[]
+    NOT?: CddEventScalarWhereInput | CddEventScalarWhereInput[]
+    id?: StringFilter<"CddEvent"> | string
+    caseId?: StringFilter<"CddEvent"> | string
+    actorId?: StringNullableFilter<"CddEvent"> | string | null
+    kind?: StringFilter<"CddEvent"> | string
+    detail?: JsonNullableFilter<"CddEvent">
+    createdAt?: DateTimeFilter<"CddEvent"> | Date | string
+  }
+
+  export type CddCaseCreateWithoutParticularsInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutParticularsInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutParticularsInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutParticularsInput, CddCaseUncheckedCreateWithoutParticularsInput>
+  }
+
+  export type CddCaseUpsertWithoutParticularsInput = {
+    update: XOR<CddCaseUpdateWithoutParticularsInput, CddCaseUncheckedUpdateWithoutParticularsInput>
+    create: XOR<CddCaseCreateWithoutParticularsInput, CddCaseUncheckedCreateWithoutParticularsInput>
+    where?: CddCaseWhereInput
+  }
+
+  export type CddCaseUpdateToOneWithWhereWithoutParticularsInput = {
+    where?: CddCaseWhereInput
+    data: XOR<CddCaseUpdateWithoutParticularsInput, CddCaseUncheckedUpdateWithoutParticularsInput>
+  }
+
+  export type CddCaseUpdateWithoutParticularsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutParticularsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseCreateWithoutBeneficialOwnersInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutBeneficialOwnersInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutBeneficialOwnersInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutBeneficialOwnersInput, CddCaseUncheckedCreateWithoutBeneficialOwnersInput>
+  }
+
+  export type ScreeningRunCreateWithoutBeneficialOwnerInput = {
+    id?: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutScreeningRunsInput
+    candidates?: ScreeningCandidateCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput = {
+    id?: string
+    caseId: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    candidates?: ScreeningCandidateUncheckedCreateNestedManyWithoutRunInput
+  }
+
+  export type ScreeningRunCreateOrConnectWithoutBeneficialOwnerInput = {
+    where: ScreeningRunWhereUniqueInput
+    create: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput>
+  }
+
+  export type ScreeningRunCreateManyBeneficialOwnerInputEnvelope = {
+    data: ScreeningRunCreateManyBeneficialOwnerInput | ScreeningRunCreateManyBeneficialOwnerInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CddCaseUpsertWithoutBeneficialOwnersInput = {
+    update: XOR<CddCaseUpdateWithoutBeneficialOwnersInput, CddCaseUncheckedUpdateWithoutBeneficialOwnersInput>
+    create: XOR<CddCaseCreateWithoutBeneficialOwnersInput, CddCaseUncheckedCreateWithoutBeneficialOwnersInput>
+    where?: CddCaseWhereInput
+  }
+
+  export type CddCaseUpdateToOneWithWhereWithoutBeneficialOwnersInput = {
+    where?: CddCaseWhereInput
+    data: XOR<CddCaseUpdateWithoutBeneficialOwnersInput, CddCaseUncheckedUpdateWithoutBeneficialOwnersInput>
+  }
+
+  export type CddCaseUpdateWithoutBeneficialOwnersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutBeneficialOwnersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type ScreeningRunUpsertWithWhereUniqueWithoutBeneficialOwnerInput = {
+    where: ScreeningRunWhereUniqueInput
+    update: XOR<ScreeningRunUpdateWithoutBeneficialOwnerInput, ScreeningRunUncheckedUpdateWithoutBeneficialOwnerInput>
+    create: XOR<ScreeningRunCreateWithoutBeneficialOwnerInput, ScreeningRunUncheckedCreateWithoutBeneficialOwnerInput>
+  }
+
+  export type ScreeningRunUpdateWithWhereUniqueWithoutBeneficialOwnerInput = {
+    where: ScreeningRunWhereUniqueInput
+    data: XOR<ScreeningRunUpdateWithoutBeneficialOwnerInput, ScreeningRunUncheckedUpdateWithoutBeneficialOwnerInput>
+  }
+
+  export type ScreeningRunUpdateManyWithWhereWithoutBeneficialOwnerInput = {
+    where: ScreeningRunScalarWhereInput
+    data: XOR<ScreeningRunUpdateManyMutationInput, ScreeningRunUncheckedUpdateManyWithoutBeneficialOwnerInput>
+  }
+
+  export type CddCaseCreateWithoutScreeningRunsInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutScreeningRunsInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutScreeningRunsInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutScreeningRunsInput, CddCaseUncheckedCreateWithoutScreeningRunsInput>
+  }
+
+  export type CddBeneficialOwnerCreateWithoutScreeningRunsInput = {
+    id?: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutBeneficialOwnersInput
+  }
+
+  export type CddBeneficialOwnerUncheckedCreateWithoutScreeningRunsInput = {
+    id?: string
+    caseId: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+  }
+
+  export type CddBeneficialOwnerCreateOrConnectWithoutScreeningRunsInput = {
+    where: CddBeneficialOwnerWhereUniqueInput
+    create: XOR<CddBeneficialOwnerCreateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedCreateWithoutScreeningRunsInput>
+  }
+
+  export type ScreeningCandidateCreateWithoutRunInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+  }
+
+  export type ScreeningCandidateUncheckedCreateWithoutRunInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+  }
+
+  export type ScreeningCandidateCreateOrConnectWithoutRunInput = {
+    where: ScreeningCandidateWhereUniqueInput
+    create: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput>
+  }
+
+  export type ScreeningCandidateCreateManyRunInputEnvelope = {
+    data: ScreeningCandidateCreateManyRunInput | ScreeningCandidateCreateManyRunInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CddCaseUpsertWithoutScreeningRunsInput = {
+    update: XOR<CddCaseUpdateWithoutScreeningRunsInput, CddCaseUncheckedUpdateWithoutScreeningRunsInput>
+    create: XOR<CddCaseCreateWithoutScreeningRunsInput, CddCaseUncheckedCreateWithoutScreeningRunsInput>
+    where?: CddCaseWhereInput
+  }
+
+  export type CddCaseUpdateToOneWithWhereWithoutScreeningRunsInput = {
+    where?: CddCaseWhereInput
+    data: XOR<CddCaseUpdateWithoutScreeningRunsInput, CddCaseUncheckedUpdateWithoutScreeningRunsInput>
+  }
+
+  export type CddCaseUpdateWithoutScreeningRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutScreeningRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddBeneficialOwnerUpsertWithoutScreeningRunsInput = {
+    update: XOR<CddBeneficialOwnerUpdateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedUpdateWithoutScreeningRunsInput>
+    create: XOR<CddBeneficialOwnerCreateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedCreateWithoutScreeningRunsInput>
+    where?: CddBeneficialOwnerWhereInput
+  }
+
+  export type CddBeneficialOwnerUpdateToOneWithWhereWithoutScreeningRunsInput = {
+    where?: CddBeneficialOwnerWhereInput
+    data: XOR<CddBeneficialOwnerUpdateWithoutScreeningRunsInput, CddBeneficialOwnerUncheckedUpdateWithoutScreeningRunsInput>
+  }
+
+  export type CddBeneficialOwnerUpdateWithoutScreeningRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutBeneficialOwnersNestedInput
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateWithoutScreeningRunsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningCandidateUpsertWithWhereUniqueWithoutRunInput = {
+    where: ScreeningCandidateWhereUniqueInput
+    update: XOR<ScreeningCandidateUpdateWithoutRunInput, ScreeningCandidateUncheckedUpdateWithoutRunInput>
+    create: XOR<ScreeningCandidateCreateWithoutRunInput, ScreeningCandidateUncheckedCreateWithoutRunInput>
+  }
+
+  export type ScreeningCandidateUpdateWithWhereUniqueWithoutRunInput = {
+    where: ScreeningCandidateWhereUniqueInput
+    data: XOR<ScreeningCandidateUpdateWithoutRunInput, ScreeningCandidateUncheckedUpdateWithoutRunInput>
+  }
+
+  export type ScreeningCandidateUpdateManyWithWhereWithoutRunInput = {
+    where: ScreeningCandidateScalarWhereInput
+    data: XOR<ScreeningCandidateUpdateManyMutationInput, ScreeningCandidateUncheckedUpdateManyWithoutRunInput>
+  }
+
+  export type ScreeningCandidateScalarWhereInput = {
+    AND?: ScreeningCandidateScalarWhereInput | ScreeningCandidateScalarWhereInput[]
+    OR?: ScreeningCandidateScalarWhereInput[]
+    NOT?: ScreeningCandidateScalarWhereInput | ScreeningCandidateScalarWhereInput[]
+    id?: StringFilter<"ScreeningCandidate"> | string
+    runId?: StringFilter<"ScreeningCandidate"> | string
+    source?: EnumSanctionsSourceFilter<"ScreeningCandidate"> | $Enums.SanctionsSource
+    reference?: StringFilter<"ScreeningCandidate"> | string
+    matchedName?: StringFilter<"ScreeningCandidate"> | string
+    score?: FloatFilter<"ScreeningCandidate"> | number
+    details?: JsonFilter<"ScreeningCandidate">
+    decision?: EnumScreeningDecisionNullableFilter<"ScreeningCandidate"> | $Enums.ScreeningDecision | null
+    reason?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedById?: StringNullableFilter<"ScreeningCandidate"> | string | null
+    decidedAt?: DateTimeNullableFilter<"ScreeningCandidate"> | Date | string | null
+  }
+
+  export type ScreeningRunCreateWithoutCandidatesInput = {
+    id?: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+    case: CddCaseCreateNestedOneWithoutScreeningRunsInput
+    beneficialOwner?: CddBeneficialOwnerCreateNestedOneWithoutScreeningRunsInput
+  }
+
+  export type ScreeningRunUncheckedCreateWithoutCandidatesInput = {
+    id?: string
+    caseId: string
+    beneficialOwnerId?: string | null
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+  }
+
+  export type ScreeningRunCreateOrConnectWithoutCandidatesInput = {
+    where: ScreeningRunWhereUniqueInput
+    create: XOR<ScreeningRunCreateWithoutCandidatesInput, ScreeningRunUncheckedCreateWithoutCandidatesInput>
+  }
+
+  export type ScreeningRunUpsertWithoutCandidatesInput = {
+    update: XOR<ScreeningRunUpdateWithoutCandidatesInput, ScreeningRunUncheckedUpdateWithoutCandidatesInput>
+    create: XOR<ScreeningRunCreateWithoutCandidatesInput, ScreeningRunUncheckedCreateWithoutCandidatesInput>
+    where?: ScreeningRunWhereInput
+  }
+
+  export type ScreeningRunUpdateToOneWithWhereWithoutCandidatesInput = {
+    where?: ScreeningRunWhereInput
+    data: XOR<ScreeningRunUpdateWithoutCandidatesInput, ScreeningRunUncheckedUpdateWithoutCandidatesInput>
+  }
+
+  export type ScreeningRunUpdateWithoutCandidatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutScreeningRunsNestedInput
+    beneficialOwner?: CddBeneficialOwnerUpdateOneWithoutScreeningRunsNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateWithoutCandidatesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    beneficialOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddCaseCreateWithoutRiskAssessmentInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    events?: CddEventCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutRiskAssessmentInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    events?: CddEventUncheckedCreateNestedManyWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutRiskAssessmentInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutRiskAssessmentInput, CddCaseUncheckedCreateWithoutRiskAssessmentInput>
+  }
+
+  export type CddCaseUpsertWithoutRiskAssessmentInput = {
+    update: XOR<CddCaseUpdateWithoutRiskAssessmentInput, CddCaseUncheckedUpdateWithoutRiskAssessmentInput>
+    create: XOR<CddCaseCreateWithoutRiskAssessmentInput, CddCaseUncheckedCreateWithoutRiskAssessmentInput>
+    where?: CddCaseWhereInput
+  }
+
+  export type CddCaseUpdateToOneWithWhereWithoutRiskAssessmentInput = {
+    where?: CddCaseWhereInput
+    data: XOR<CddCaseUpdateWithoutRiskAssessmentInput, CddCaseUncheckedUpdateWithoutRiskAssessmentInput>
+  }
+
+  export type CddCaseUpdateWithoutRiskAssessmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutRiskAssessmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseCreateWithoutEventsInput = {
+    id?: string
+    clientRole: $Enums.CddClientRole
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agent: StakeholderCreateNestedOneWithoutCddCasesAsAgentInput
+    client: StakeholderCreateNestedOneWithoutCddCasesAsClientInput
+    property?: PropertyCreateNestedOneWithoutCddCasesInput
+    tenancy?: TenancyCreateNestedOneWithoutCddCasesInput
+    agency?: AgencyCreateNestedOneWithoutCddCasesInput
+    particulars?: CddParticularsCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentCreateNestedOneWithoutCaseInput
+  }
+
+  export type CddCaseUncheckedCreateWithoutEventsInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    particulars?: CddParticularsUncheckedCreateNestedOneWithoutCaseInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedCreateNestedManyWithoutCaseInput
+    screeningRuns?: ScreeningRunUncheckedCreateNestedManyWithoutCaseInput
+    riskAssessment?: CddRiskAssessmentUncheckedCreateNestedOneWithoutCaseInput
+  }
+
+  export type CddCaseCreateOrConnectWithoutEventsInput = {
+    where: CddCaseWhereUniqueInput
+    create: XOR<CddCaseCreateWithoutEventsInput, CddCaseUncheckedCreateWithoutEventsInput>
+  }
+
+  export type CddCaseUpsertWithoutEventsInput = {
+    update: XOR<CddCaseUpdateWithoutEventsInput, CddCaseUncheckedUpdateWithoutEventsInput>
+    create: XOR<CddCaseCreateWithoutEventsInput, CddCaseUncheckedCreateWithoutEventsInput>
+    where?: CddCaseWhereInput
+  }
+
+  export type CddCaseUpdateToOneWithWhereWithoutEventsInput = {
+    where?: CddCaseWhereInput
+    data: XOR<CddCaseUpdateWithoutEventsInput, CddCaseUncheckedUpdateWithoutEventsInput>
+  }
+
+  export type CddCaseUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutEventsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
   }
 
   export type AgencyMembershipCreateManyStakeholderInput = {
@@ -118946,6 +135178,40 @@ export namespace Prisma {
     createdAt?: Date | string
   }
 
+  export type CddCaseCreateManyAgentInput = {
+    id?: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type CddCaseCreateManyClientInput = {
+    id?: string
+    agentId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AgencyMembershipUpdateWithoutStakeholderInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
@@ -119012,6 +135278,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutLandlordInput = {
@@ -119039,6 +135306,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutLandlordInput = {
@@ -119087,6 +135355,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutTenantInput = {
@@ -119114,6 +135383,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutTenantInput = {
@@ -119162,6 +135432,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutAgentInput = {
@@ -119189,6 +135460,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutAgentInput = {
@@ -120439,6 +136711,128 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CddCaseUpdateWithoutAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutAgentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddCaseUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutClientInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StakeholderCreateManyTeamInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -120497,6 +136891,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTeamInput = {
@@ -120545,6 +136941,8 @@ export namespace Prisma {
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
     appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    cddCasesAsAgent?: CddCaseUncheckedUpdateManyWithoutAgentNestedInput
+    cddCasesAsClient?: CddCaseUncheckedUpdateManyWithoutClientNestedInput
   }
 
   export type StakeholderUncheckedUpdateManyWithoutTeamInput = {
@@ -120626,6 +137024,23 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type CddCaseCreateManyAgencyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    tenancyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type AgencyMembershipUpdateWithoutAgencyInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: EnumAgencyRoleFieldUpdateOperationsInput | $Enums.AgencyRole
@@ -120692,6 +137107,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutAgencyInput = {
@@ -120719,6 +137135,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutAgencyInput = {
@@ -120859,6 +137276,67 @@ export namespace Prisma {
     sharedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     aiConsentAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     aiConsentById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddCaseUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutAgencyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -121138,6 +137616,23 @@ export namespace Prisma {
     restoredById?: string | null
   }
 
+  export type CddCaseCreateManyPropertyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    tenancyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type TenancyUpdateWithoutPropertyInput = {
     id?: StringFieldUpdateOperationsInput | string
     startDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -121163,6 +137658,7 @@ export namespace Prisma {
     supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutTenancyNestedInput
     renewedFrom?: TenancyUpdateOneWithoutRenewedAsNestedInput
     renewedAs?: TenancyUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateWithoutPropertyInput = {
@@ -121190,6 +137686,7 @@ export namespace Prisma {
     maintenanceCases?: MaintenanceCaseUncheckedUpdateManyWithoutTenancyNestedInput
     supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutTenancyNestedInput
     renewedAs?: TenancyUncheckedUpdateOneWithoutRenewedFromNestedInput
+    cddCases?: CddCaseUncheckedUpdateManyWithoutTenancyNestedInput
   }
 
   export type TenancyUncheckedUpdateManyWithoutPropertyInput = {
@@ -121341,6 +137838,67 @@ export namespace Prisma {
     restoredById?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
+  export type CddCaseUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    tenancy?: TenancyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutPropertyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    tenancyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type PropertyEventCreateManyBinItemInput = {
     id?: string
     propertyId: string
@@ -121476,6 +138034,23 @@ export namespace Prisma {
     kind?: $Enums.SupportingDocumentKind
     requestedById: string
     requestedAt?: Date | string
+  }
+
+  export type CddCaseCreateManyTenancyInput = {
+    id?: string
+    agentId: string
+    clientId: string
+    clientRole: $Enums.CddClientRole
+    propertyId?: string | null
+    agencyId?: string | null
+    country?: string
+    status?: $Enums.CddStatus
+    riskLevel?: $Enums.CddRiskLevel | null
+    version?: number
+    contentHash?: string | null
+    completedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type InspectionUpdateWithoutTenancyInput = {
@@ -121747,6 +138322,67 @@ export namespace Prisma {
     kind?: EnumSupportingDocumentKindFieldUpdateOperationsInput | $Enums.SupportingDocumentKind
     requestedById?: StringFieldUpdateOperationsInput | string
     requestedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddCaseUpdateWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agent?: StakeholderUpdateOneRequiredWithoutCddCasesAsAgentNestedInput
+    client?: StakeholderUpdateOneRequiredWithoutCddCasesAsClientNestedInput
+    property?: PropertyUpdateOneWithoutCddCasesNestedInput
+    agency?: AgencyUpdateOneWithoutCddCasesNestedInput
+    particulars?: CddParticularsUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUpdateOneWithoutCaseNestedInput
+    events?: CddEventUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    particulars?: CddParticularsUncheckedUpdateOneWithoutCaseNestedInput
+    beneficialOwners?: CddBeneficialOwnerUncheckedUpdateManyWithoutCaseNestedInput
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutCaseNestedInput
+    riskAssessment?: CddRiskAssessmentUncheckedUpdateOneWithoutCaseNestedInput
+    events?: CddEventUncheckedUpdateManyWithoutCaseNestedInput
+  }
+
+  export type CddCaseUncheckedUpdateManyWithoutTenancyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agentId?: StringFieldUpdateOperationsInput | string
+    clientId?: StringFieldUpdateOperationsInput | string
+    clientRole?: EnumCddClientRoleFieldUpdateOperationsInput | $Enums.CddClientRole
+    propertyId?: NullableStringFieldUpdateOperationsInput | string | null
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: StringFieldUpdateOperationsInput | string
+    status?: EnumCddStatusFieldUpdateOperationsInput | $Enums.CddStatus
+    riskLevel?: NullableEnumCddRiskLevelFieldUpdateOperationsInput | $Enums.CddRiskLevel | null
+    version?: IntFieldUpdateOperationsInput | number
+    contentHash?: NullableStringFieldUpdateOperationsInput | string | null
+    completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RoomCreateManyInspectionInput = {
@@ -123893,6 +140529,228 @@ export namespace Prisma {
     roomId?: StringFieldUpdateOperationsInput | string
     readyAt?: DateTimeFieldUpdateOperationsInput | Date | string
     completedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type CddBeneficialOwnerCreateManyCaseInput = {
+    id?: string
+    legalName: string
+    idType: $Enums.CddIdType
+    idNumberEncrypted: string
+    idNumberLast4: string
+    nationality: string
+    dateOfBirth?: Date | string | null
+    ownershipPercent?: Decimal | DecimalJsLike | number | string | null
+    pepDeclared: boolean
+    createdAt?: Date | string
+  }
+
+  export type ScreeningRunCreateManyCaseInput = {
+    id?: string
+    beneficialOwnerId?: string | null
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+  }
+
+  export type CddEventCreateManyCaseInput = {
+    id?: string
+    actorId?: string | null
+    kind: string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+  }
+
+  export type CddBeneficialOwnerUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    screeningRuns?: ScreeningRunUpdateManyWithoutBeneficialOwnerNestedInput
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    screeningRuns?: ScreeningRunUncheckedUpdateManyWithoutBeneficialOwnerNestedInput
+  }
+
+  export type CddBeneficialOwnerUncheckedUpdateManyWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    legalName?: StringFieldUpdateOperationsInput | string
+    idType?: EnumCddIdTypeFieldUpdateOperationsInput | $Enums.CddIdType
+    idNumberEncrypted?: StringFieldUpdateOperationsInput | string
+    idNumberLast4?: StringFieldUpdateOperationsInput | string
+    nationality?: StringFieldUpdateOperationsInput | string
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    ownershipPercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    pepDeclared?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningRunUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    beneficialOwner?: CddBeneficialOwnerUpdateOneWithoutScreeningRunsNestedInput
+    candidates?: ScreeningCandidateUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficialOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidates?: ScreeningCandidateUncheckedUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateManyWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    beneficialOwnerId?: NullableStringFieldUpdateOperationsInput | string | null
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddEventUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddEventUncheckedUpdateWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CddEventUncheckedUpdateManyWithoutCaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    actorId?: NullableStringFieldUpdateOperationsInput | string | null
+    kind?: StringFieldUpdateOperationsInput | string
+    detail?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningRunCreateManyBeneficialOwnerInput = {
+    id?: string
+    caseId: string
+    subjectName: string
+    subjectBirthYear?: number | null
+    provider: string
+    listVersions: JsonNullValueInput | InputJsonValue
+    ranAt?: Date | string
+  }
+
+  export type ScreeningRunUpdateWithoutBeneficialOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    case?: CddCaseUpdateOneRequiredWithoutScreeningRunsNestedInput
+    candidates?: ScreeningCandidateUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateWithoutBeneficialOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    candidates?: ScreeningCandidateUncheckedUpdateManyWithoutRunNestedInput
+  }
+
+  export type ScreeningRunUncheckedUpdateManyWithoutBeneficialOwnerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    caseId?: StringFieldUpdateOperationsInput | string
+    subjectName?: StringFieldUpdateOperationsInput | string
+    subjectBirthYear?: NullableIntFieldUpdateOperationsInput | number | null
+    provider?: StringFieldUpdateOperationsInput | string
+    listVersions?: JsonNullValueInput | InputJsonValue
+    ranAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ScreeningCandidateCreateManyRunInput = {
+    id?: string
+    source: $Enums.SanctionsSource
+    reference: string
+    matchedName: string
+    score: number
+    details: JsonNullValueInput | InputJsonValue
+    decision?: $Enums.ScreeningDecision | null
+    reason?: string | null
+    decidedById?: string | null
+    decidedAt?: Date | string | null
+  }
+
+  export type ScreeningCandidateUpdateWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ScreeningCandidateUncheckedUpdateWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type ScreeningCandidateUncheckedUpdateManyWithoutRunInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    source?: EnumSanctionsSourceFieldUpdateOperationsInput | $Enums.SanctionsSource
+    reference?: StringFieldUpdateOperationsInput | string
+    matchedName?: StringFieldUpdateOperationsInput | string
+    score?: FloatFieldUpdateOperationsInput | number
+    details?: JsonNullValueInput | InputJsonValue
+    decision?: NullableEnumScreeningDecisionFieldUpdateOperationsInput | $Enums.ScreeningDecision | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedById?: NullableStringFieldUpdateOperationsInput | string | null
+    decidedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
 

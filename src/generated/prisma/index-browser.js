@@ -842,6 +842,112 @@ exports.Prisma.AssessmentResponseScalarFieldEnum = {
   respondedAt: 'respondedAt'
 };
 
+exports.Prisma.CddCaseScalarFieldEnum = {
+  id: 'id',
+  agentId: 'agentId',
+  clientId: 'clientId',
+  clientRole: 'clientRole',
+  propertyId: 'propertyId',
+  tenancyId: 'tenancyId',
+  agencyId: 'agencyId',
+  country: 'country',
+  status: 'status',
+  riskLevel: 'riskLevel',
+  version: 'version',
+  contentHash: 'contentHash',
+  completedAt: 'completedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CddParticularsScalarFieldEnum = {
+  caseId: 'caseId',
+  kind: 'kind',
+  legalName: 'legalName',
+  idType: 'idType',
+  idNumberEncrypted: 'idNumberEncrypted',
+  idNumberLast4: 'idNumberLast4',
+  nationality: 'nationality',
+  dateOfBirth: 'dateOfBirth',
+  address: 'address',
+  pepDeclared: 'pepDeclared',
+  pepDetails: 'pepDetails',
+  submittedById: 'submittedById',
+  submittedInPerson: 'submittedInPerson',
+  idSightedById: 'idSightedById',
+  idSightedAt: 'idSightedAt',
+  submittedAt: 'submittedAt'
+};
+
+exports.Prisma.CddBeneficialOwnerScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  legalName: 'legalName',
+  idType: 'idType',
+  idNumberEncrypted: 'idNumberEncrypted',
+  idNumberLast4: 'idNumberLast4',
+  nationality: 'nationality',
+  dateOfBirth: 'dateOfBirth',
+  ownershipPercent: 'ownershipPercent',
+  pepDeclared: 'pepDeclared',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ScreeningRunScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  beneficialOwnerId: 'beneficialOwnerId',
+  subjectName: 'subjectName',
+  subjectBirthYear: 'subjectBirthYear',
+  provider: 'provider',
+  listVersions: 'listVersions',
+  ranAt: 'ranAt'
+};
+
+exports.Prisma.ScreeningCandidateScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  source: 'source',
+  reference: 'reference',
+  matchedName: 'matchedName',
+  score: 'score',
+  details: 'details',
+  decision: 'decision',
+  reason: 'reason',
+  decidedById: 'decidedById',
+  decidedAt: 'decidedAt'
+};
+
+exports.Prisma.CddRiskAssessmentScalarFieldEnum = {
+  caseId: 'caseId',
+  checklistVersion: 'checklistVersion',
+  answers: 'answers',
+  level: 'level',
+  assessedById: 'assessedById',
+  assessedAt: 'assessedAt',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt'
+};
+
+exports.Prisma.CddEventScalarFieldEnum = {
+  id: 'id',
+  caseId: 'caseId',
+  actorId: 'actorId',
+  kind: 'kind',
+  detail: 'detail',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SanctionsListScalarFieldEnum = {
+  id: 'id',
+  source: 'source',
+  publishedAt: 'publishedAt',
+  checksum: 'checksum',
+  entryCount: 'entryCount',
+  entries: 'entries',
+  fetchedAt: 'fetchedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -1127,6 +1233,40 @@ exports.StatementAnswer = exports.$Enums.StatementAnswer = {
   DISPUTED: 'DISPUTED'
 };
 
+exports.CddClientRole = exports.$Enums.CddClientRole = {
+  LANDLORD: 'LANDLORD',
+  TENANT: 'TENANT'
+};
+
+exports.CddStatus = exports.$Enums.CddStatus = {
+  WAITING_FOR_CLIENT: 'WAITING_FOR_CLIENT',
+  NEEDS_REVIEW: 'NEEDS_REVIEW',
+  COMPLETE: 'COMPLETE',
+  ESCALATED: 'ESCALATED'
+};
+
+exports.CddRiskLevel = exports.$Enums.CddRiskLevel = {
+  STANDARD: 'STANDARD',
+  HIGHER: 'HIGHER'
+};
+
+exports.CddIdType = exports.$Enums.CddIdType = {
+  NRIC: 'NRIC',
+  FIN: 'FIN',
+  PASSPORT: 'PASSPORT',
+  COMPANY_REGISTRATION: 'COMPANY_REGISTRATION'
+};
+
+exports.SanctionsSource = exports.$Enums.SanctionsSource = {
+  UN: 'UN',
+  SG: 'SG'
+};
+
+exports.ScreeningDecision = exports.$Enums.ScreeningDecision = {
+  NOT_A_MATCH: 'NOT_A_MATCH',
+  CONFIRMED_MATCH: 'CONFIRMED_MATCH'
+};
+
 exports.Prisma.ModelName = {
   Stakeholder: 'Stakeholder',
   AccountAcquisition: 'AccountAcquisition',
@@ -1182,7 +1322,15 @@ exports.Prisma.ModelName = {
   ErrorEvent: 'ErrorEvent',
   ProductEvent: 'ProductEvent',
   IssuedReportFile: 'IssuedReportFile',
-  AssessmentResponse: 'AssessmentResponse'
+  AssessmentResponse: 'AssessmentResponse',
+  CddCase: 'CddCase',
+  CddParticulars: 'CddParticulars',
+  CddBeneficialOwner: 'CddBeneficialOwner',
+  ScreeningRun: 'ScreeningRun',
+  ScreeningCandidate: 'ScreeningCandidate',
+  CddRiskAssessment: 'CddRiskAssessment',
+  CddEvent: 'CddEvent',
+  SanctionsList: 'SanctionsList'
 };
 
 /**
