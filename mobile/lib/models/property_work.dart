@@ -14,6 +14,11 @@ class PropertyWorkItem {
     this.leadAgentName,
     this.nextInspectionId,
     this.nextInspectionKind,
+    this.startDate,
+    this.endDate,
+    this.coverUrl,
+    this.nextStep,
+    this.attention = const PropertyAttention(),
   });
   final String id;
   final String address;
@@ -26,6 +31,18 @@ class PropertyWorkItem {
   final String? leadAgentName;
   final String? nextInspectionId;
   final String? nextInspectionKind;
+
+  /// The current term's lease, for the card's timeline. Absent in a copy saved before
+  /// the server sent them.
+  final String? startDate;
+  final String? endDate;
+
+  /// A photo from the newest check-in, its small copy where there is one.
+  final String? coverUrl;
+
+  /// What is next and who it waits on, where the stage label alone would be vague.
+  final String? nextStep;
+  final PropertyAttention attention;
 
   factory PropertyWorkItem.fromJson(Map<String, dynamic> json) =>
       PropertyWorkItem(
@@ -40,6 +57,34 @@ class PropertyWorkItem {
         leadAgentName: json['leadAgentName'] as String?,
         nextInspectionId: json['nextInspectionId'] as String?,
         nextInspectionKind: json['nextInspectionKind'] as String?,
+        startDate: json['startDate'] as String?,
+        endDate: json['endDate'] as String?,
+        coverUrl: json['coverUrl'] as String?,
+        nextStep: json['nextStep'] as String?,
+        attention: json['attention'] == null
+            ? const PropertyAttention()
+            : PropertyAttention.fromJson(
+                json['attention'] as Map<String, dynamic>,
+              ),
+      );
+}
+
+/// What is waiting on someone at a property, as counts for the card.
+class PropertyAttention {
+  const PropertyAttention({
+    this.openRepairs = 0,
+    this.pendingUpdates = 0,
+    this.depositAnswersMissing = 0,
+  });
+  final int openRepairs;
+  final int pendingUpdates;
+  final int depositAnswersMissing;
+
+  factory PropertyAttention.fromJson(Map<String, dynamic> json) =>
+      PropertyAttention(
+        openRepairs: json['openRepairs'] as int? ?? 0,
+        pendingUpdates: json['pendingUpdates'] as int? ?? 0,
+        depositAnswersMissing: json['depositAnswersMissing'] as int? ?? 0,
       );
 }
 

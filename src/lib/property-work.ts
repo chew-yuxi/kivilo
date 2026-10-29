@@ -4,7 +4,8 @@ import { inspectionWorkScope, type InspectionWorkFilters } from '@/lib/inspectio
 import { listTenancies } from '@/lib/maintenance'
 import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
-import type { InspectionStatus, Prisma } from '@/generated/prisma'
+import { createDownloadUrl } from '@/lib/storage'
+import { Prisma, type InspectionStatus } from '@/generated/prisma'
 
 /// Where a property is, read from the newest tenancy the viewer can see. A renewal is a
 /// new tenancy on the same property, so the card follows the work in front of the agent;
@@ -55,6 +56,39 @@ export function propertyStage(reports: Report[], endDate: Date, now = new Date()
   return { stage: due ? 'CHECK_OUT_DUE' : 'RUNNING', next: checkIn }
 }
 
+const shortDate = new Intl.DateTimeFormat('en-SG', { dateStyle: 'medium', timeZone: 'Asia/Singapore' })
+
+/// The card's line under the address: what is next and who it waits on, where the
+/// stage label alone would be vague. Null where the stage label says it all.
+export function propertyNextStep(
+  stage: PropertyStage,
+  input: {
+    kind: 'CHECK_IN' | 'CHECK_OUT' | null
+    rooms: { total: number; reviewed: number }
+    unsigned: string[]
+    endDate: Date
+  },
+  now = new Date(),
+): string | null {
+  const report = input.kind === 'CHECK_OUT' ? 'Check-out' : 'Check-in'
+  switch (stage) {
+    case 'CHECK_IN_IN_PROGRESS':
+    case 'CHECK_OUT_IN_PROGRESS':
+      return input.rooms.total === 0
+        ? `${report} started, no rooms yet`
+        : `${report}: ${input.rooms.reviewed} of ${input.rooms.total} rooms reviewed`
+    case 'CHECK_IN_AWAITING':
+    case 'CHECK_OUT_AWAITING':
+      return input.unsigned.length === 0 ? null : `Waiting on ${input.unsigned.join(' and ')} to sign`
+    case 'CHECK_OUT_DUE':
+      return input.endDate < now
+        ? `Lease ended ${shortDate.format(input.endDate)}, check-out not started`
+        : `Check-out due by ${shortDate.format(input.endDate)}`
+    default:
+      return null
+  }
+}
+
 export type PropertyWorkFilters = Omit<InspectionWorkFilters, 'state' | 'status'> & {
   state?: 'active' | 'archived' | 'trash'
 }
@@ -80,7 +114,8 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       tenancy: {
         select: {
           id: true, startDate: true, endDate: true, createdAt: true,
-          property: true,
+          property: true, landlordId: true, tenantId: true,
+          landlord: { select: { name: true } },
           tenant: { select: { name: true } },
           agency: { select: { name: true } },
           agent: { select: { name: true } },
@@ -88,6 +123,7 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       },
     },
   })
+  const card = await cardDetails(actorId, inspections)
 
   const byProperty = new Map<string, typeof inspections>()
   for (const inspection of inspections) {
@@ -105,6 +141,11 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       const at = row.conductedAt ?? row.createdAt
       return at > latest ? at : latest
     }, rows[0].createdAt)
+    const signed = next ? card.signatures.get(next.id) ?? new Set<string>() : new Set<string>()
+    const newestFirst = [...rows].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const covered = newestFirst.find((row) => row.kind === 'CHECK_IN' && card.covers.has(row.id))
+      ?? newestFirst.find((row) => card.covers.has(row.id))
+    const checkOut = reports.find((row) => row.kind === 'CHECK_OUT' && row.status === 'COMPLETED')
     return {
       id: current.property.id,
       address: propertyLabel(current.property),
@@ -114,9 +155,25 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       tenant: current.tenant.name,
       agencyName: current.agency?.name ?? null,
       leadAgentName: current.agent?.name ?? null,
+      startDate: current.startDate.toISOString(),
       endDate: current.endDate.toISOString(),
+      coverUrl: covered ? card.covers.get(covered.id)! : null,
       stage,
       stageLabel: stageLabels[stage],
+      nextStep: propertyNextStep(stage, {
+        kind: next?.kind ?? null,
+        rooms: next ? card.rooms.get(next.id) ?? { total: 0, reviewed: 0 } : { total: 0, reviewed: 0 },
+        unsigned: [
+          ...(signed.has(current.landlordId) ? [] : [current.landlord.name]),
+          ...(signed.has(current.tenantId) || current.tenantId === current.landlordId ? [] : [current.tenant.name]),
+        ],
+        endDate: current.endDate,
+      }, now),
+      attention: {
+        openRepairs: card.openRepairs.get(current.id) ?? 0,
+        pendingUpdates: reports.reduce((sum, row) => sum + (card.pendingUpdates.get(row.id) ?? 0), 0),
+        depositAnswersMissing: checkOut ? card.depositAnswers.get(checkOut.id)?.(current.landlordId, current.tenantId) ?? 0 : 0,
+      },
       nextInspectionId: next?.id ?? null,
       nextInspectionKind: next?.kind ?? null,
       reports: rows.length,
@@ -124,6 +181,89 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       lastActivityAt: lastActivity.toISOString(),
     }
   }).sort((a, b) => b.lastActivityAt.localeCompare(a.lastActivityAt))
+}
+
+type WorkRow = {
+  id: string
+  kind: 'CHECK_IN' | 'CHECK_OUT'
+  status: InspectionStatus
+  tenancy: { id: string }
+}
+
+/// What the cards show beyond the stage, fetched for every listed report at once. Each
+/// read is limited to reports already in the viewer's scope, and repair counts to the
+/// terms whose repairs the viewer may open.
+async function cardDetails(actorId: string, rows: WorkRow[]) {
+  const ids = rows.map((row) => row.id)
+  const ofStatus = (...statuses: InspectionStatus[]) =>
+    rows.filter((row) => statuses.includes(row.status)).map((row) => row.id)
+  const completedCheckOuts = rows
+    .filter((row) => row.kind === 'CHECK_OUT' && row.status === 'COMPLETED').map((row) => row.id)
+  const [covers, rooms, signatures, openable, updates, versions] = await Promise.all([
+    ids.length === 0 ? [] : db.$queryRaw<{ inspectionId: string; storagePath: string; posterPath: string | null }[]>`
+      SELECT DISTINCT ON (r."inspectionId") r."inspectionId", c."storagePath", c."posterPath"
+      FROM "Capture" c JOIN "Room" r ON r."id" = c."roomId"
+      WHERE r."inspectionId" IN (${Prisma.join(ids)}) AND c."kind" = 'PHOTO'
+      ORDER BY r."inspectionId", r."order", c."createdAt"`,
+    db.room.groupBy({
+      by: ['inspectionId', 'status'],
+      where: { inspectionId: { in: ofStatus('DRAFT', 'CAPTURING', 'PROCESSING', 'REVIEW', 'FAILED') } },
+      _count: { _all: true },
+    }),
+    db.signature.findMany({
+      where: { inspectionId: { in: ofStatus('AWAITING_SIGNATURE') } },
+      select: { inspectionId: true, stakeholderId: true },
+    }),
+    listTenancies(actorId),
+    db.reportAddendum.groupBy({
+      by: ['inspectionId'],
+      where: { inspectionId: { in: ids }, publishedAt: { not: null }, acknowledgedAt: null, disputedAt: null },
+      _count: { _all: true },
+    }),
+    completedCheckOuts.length === 0 ? [] : db.$queryRaw<{ id: string; inspectionId: string; hasDeposit: boolean }[]>`
+      SELECT DISTINCT ON ("inspectionId") "id", "inspectionId", ("snapshot" ? 'deposit') AS "hasDeposit"
+      FROM "AssessmentVersion" WHERE "inspectionId" IN (${Prisma.join(completedCheckOuts)})
+      ORDER BY "inspectionId", "version" DESC`,
+  ])
+  const repairTenancies = [...new Set(rows.map((row) => row.tenancy.id))]
+    .filter((id) => openable.some((tenancy) => tenancy.id === id))
+  const [repairs, responses] = await Promise.all([
+    db.maintenanceCase.groupBy({
+      by: ['tenancyId'],
+      where: { tenancyId: { in: repairTenancies }, status: { notIn: ['RESOLVED', 'CLOSED_NO_ACTION'] } },
+      _count: { _all: true },
+    }),
+    db.assessmentResponse.findMany({
+      where: { assessmentVersionId: { in: versions.filter((row) => row.hasDeposit).map((row) => row.id) } },
+      select: { assessmentVersionId: true, stakeholderId: true },
+    }),
+  ])
+
+  const roomCounts = new Map<string, { total: number; reviewed: number }>()
+  for (const row of rooms) {
+    const counts = roomCounts.get(row.inspectionId) ?? { total: 0, reviewed: 0 }
+    counts.total += row._count._all
+    if (row.status === 'REVIEWED') counts.reviewed += row._count._all
+    roomCounts.set(row.inspectionId, counts)
+  }
+  const signed = new Map<string, Set<string>>()
+  for (const row of signatures) signed.set(row.inspectionId, (signed.get(row.inspectionId) ?? new Set()).add(row.stakeholderId))
+  // A version from before deposits were frozen has no statement to answer.
+  const depositAnswers = new Map(versions.filter((row) => row.hasDeposit).map((row) => {
+    const answered = new Set(responses.filter((each) => each.assessmentVersionId === row.id).map((each) => each.stakeholderId))
+    return [row.inspectionId, (landlordId: string, tenantId: string) =>
+      new Set([landlordId, tenantId].filter((id) => !answered.has(id))).size] as const
+  }))
+
+  return {
+    covers: new Map(await Promise.all(covers.map(async (row) =>
+      [row.inspectionId, await createDownloadUrl(row.posterPath ?? row.storagePath)] as const))),
+    rooms: roomCounts,
+    signatures: signed,
+    openRepairs: new Map(repairs.map((row) => [row.tenancyId, row._count._all])),
+    pendingUpdates: new Map(updates.map((row) => [row.inspectionId, row._count._all])),
+    depositAnswers,
+  }
 }
 
 /// Everything at one address the viewer works: every term, newest first, with the

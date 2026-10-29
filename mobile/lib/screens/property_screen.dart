@@ -17,6 +17,15 @@ import 'tenancy_details_screen.dart';
 import 'supporting_documents_screen.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
+/// A stage's text and fill colours, shared by the pill and the property card.
+(Color, Color) propertyStageColors(String stage) => switch (stage) {
+  'RUNNING' => (KiviloColors.green, KiviloColors.greenSoft),
+  'CHECK_IN_AWAITING' ||
+  'CHECK_OUT_AWAITING' => (KiviloColors.pinkDark, KiviloColors.pinkSoft),
+  'ENDED' => (KiviloColors.muted, KiviloColors.canvas),
+  _ => (KiviloColors.amber, KiviloColors.amberSoft),
+};
+
 class PropertyStagePill extends StatelessWidget {
   const PropertyStagePill({
     super.key,
@@ -28,13 +37,7 @@ class PropertyStagePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, background) = switch (stage) {
-      'RUNNING' => (KiviloColors.green, KiviloColors.greenSoft),
-      'CHECK_IN_AWAITING' ||
-      'CHECK_OUT_AWAITING' => (KiviloColors.pinkDark, KiviloColors.pinkSoft),
-      'ENDED' => (KiviloColors.muted, KiviloColors.canvas),
-      _ => (KiviloColors.amber, KiviloColors.amberSoft),
-    };
+    final (color, background) = propertyStageColors(stage);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(

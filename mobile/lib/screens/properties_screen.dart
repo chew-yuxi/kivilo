@@ -11,6 +11,7 @@ import '../ui/kivilo_illustration.dart';
 import '../ui/kivilo_theme.dart';
 import '../models/property_work.dart';
 import 'inspection_screen.dart';
+import 'property_card.dart';
 import 'property_screen.dart';
 import 'new_inspection_screen.dart';
 import 'renewal_reminders.dart';
@@ -497,52 +498,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   ),
   );
 
-  Widget _propertyCard(PropertyWorkItem property) => Card(
-    child: InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () => _openProperty(property.id),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    property.address,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    '${property.tenant} · ${property.agencyName ?? 'Personal'}',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  if (property.leadAgentName != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'Responsible: ${property.leadAgentName}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                  PropertyStagePill(
-                    stage: property.stage,
-                    label: property.state == 'TRASHED'
-                        ? 'Recently deleted'
-                        : property.state == 'ARCHIVED'
-                        ? 'Archived · ${property.stageLabel}'
-                        : property.stageLabel,
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
-          ],
-        ),
-      ),
-    ),
+  Widget _propertyCard(PropertyWorkItem property) => PropertyCard(
+    property: property,
+    onTap: () => _openProperty(property.id),
   );
 
   Widget _messageCard() => Card(

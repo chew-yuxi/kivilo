@@ -1,10 +1,14 @@
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
+
+vi.mock('@/lib/storage', () => ({
+  createDownloadUrl: vi.fn(async (path: string) => `https://storage.test/${path}?token=signed`),
+}))
 
 /// The Properties tab lists one row per property, at the stage of the newest term the
 /// viewer can see, using the same access as the work list.
 
 import { db } from '@/lib/db'
-import { propertyOverview, propertyStage, propertyWork } from '@/lib/property-work'
+import { propertyNextStep, propertyOverview, propertyStage, propertyWork } from '@/lib/property-work'
 
 const postalCode = '998833'
 const DAY = 86_400_000
@@ -57,7 +61,85 @@ describe('property stage', () => {
   })
 })
 
+describe('property next step', () => {
+  const base = { kind: 'CHECK_IN' as const, rooms: { total: 0, reviewed: 0 }, unsigned: [], endDate: new Date(now.getTime() + 20 * DAY) }
+  it('says what is next and who it waits on', () => {
+    expect(propertyNextStep('CHECK_IN_IN_PROGRESS', base, now)).toBe('Check-in started, no rooms yet')
+    expect(propertyNextStep('CHECK_OUT_IN_PROGRESS', { ...base, kind: 'CHECK_OUT', rooms: { total: 5, reviewed: 3 } }, now))
+      .toBe('Check-out: 3 of 5 rooms reviewed')
+    expect(propertyNextStep('CHECK_IN_AWAITING', { ...base, unsigned: ['Lee', 'Tan'] }, now)).toBe('Waiting on Lee and Tan to sign')
+    expect(propertyNextStep('CHECK_OUT_DUE', base, now)).toBe('Check-out due by 12 Nov 2026')
+    expect(propertyNextStep('CHECK_OUT_DUE', { ...base, endDate: new Date(now.getTime() - DAY) }, now))
+      .toBe('Lease ended 22 Oct 2026, check-out not started')
+    expect(propertyNextStep('RUNNING', base, now)).toBeNull()
+  })
+})
+
 describe('property work', () => {
+  it('gives each card its cover photo, next step and what is waiting', async () => {
+    const agent = await person('Agent WORK-CARD')
+    const viewer = await person('Viewer WORK-CARD')
+    const home = await property('WORK-CARD')
+    const tenancy = await term(home.id, agent.id, '2026-01-01', '2028-01-01')
+    const checkIn = await report(tenancy.id, 'CHECK_IN', 'COMPLETED')
+    const kitchen = await db.room.create({ data: { inspectionId: checkIn.id, name: 'Kitchen', order: 1 } })
+    const living = await db.room.create({ data: { inspectionId: checkIn.id, name: 'Living', order: 0 } })
+    const photo = (roomId: string, path: string, posterPath: string | null = null, kind: 'PHOTO' | 'VIDEO' = 'PHOTO') =>
+      db.capture.create({ data: { roomId, kind, storagePath: `WORK-CARD/${path}`, posterPath, mimeType: 'image/jpeg', sizeBytes: 1 } })
+    await photo(kitchen.id, 'kitchen.jpg')
+    await photo(living.id, 'walkthrough.mp4', null, 'VIDEO')
+    await photo(living.id, 'sofa.jpg', 'WORK-CARD/sofa.webp')
+    await db.maintenanceCase.createMany({ data: [
+      { tenancyId: tenancy.id, reportedById: agent.id, category: 'PLUMBING', title: 'Tap', description: 'Drips' },
+      { tenancyId: tenancy.id, reportedById: agent.id, category: 'PLUMBING', title: 'Old', description: 'Fixed', status: 'RESOLVED' },
+    ] })
+    await db.reportAddendum.create({ data: {
+      inspectionId: checkIn.id, number: 1, title: 'New oven', effectiveDate: now, createdById: agent.id, publishedAt: now,
+    } })
+
+    const [row] = (await propertyWork(agent.id, {}, now)).filter((each) => each.id === home.id)
+    expect(row).toMatchObject({
+      startDate: tenancy.startDate.toISOString(),
+      coverUrl: 'https://storage.test/WORK-CARD/sofa.webp?token=signed',
+      stage: 'RUNNING', nextStep: null,
+      attention: { openRepairs: 1, pendingUpdates: 1, depositAnswersMissing: 0 },
+    })
+
+    // An old-report grant sees the report and its updates, but repairs stay closed.
+    await db.inspectionAccessGrant.create({ data: { inspectionId: checkIn.id, stakeholderId: viewer.id } })
+    expect((await propertyWork(viewer.id, {}, now))[0].attention).toEqual({ openRepairs: 0, pendingUpdates: 1, depositAnswersMissing: 0 })
+  })
+
+  it('names who has not signed and counts unanswered deposit statements', async () => {
+    const agent = await person('Agent WORK-SIGN')
+    const home = await property('WORK-SIGN')
+    const tenancy = await term(home.id, agent.id, '2026-01-01', '2028-01-01')
+    await report(tenancy.id, 'CHECK_IN', 'COMPLETED')
+    const checkOut = await report(tenancy.id, 'CHECK_OUT', 'AWAITING_SIGNATURE')
+    const [landlord, tenant] = await Promise.all([
+      db.stakeholder.update({ where: { id: tenancy.landlordId }, data: { name: 'Lee Landlord' } }),
+      db.stakeholder.update({ where: { id: tenancy.tenantId }, data: { name: 'Tan Tenant' } }),
+    ])
+    const row = async () => (await propertyWork(agent.id, {}, now)).filter((each) => each.id === home.id)[0]
+    expect((await row()).nextStep).toBe('Waiting on Lee Landlord and Tan Tenant to sign')
+    await db.signature.create({ data: { inspectionId: checkOut.id, stakeholderId: landlord.id, imageData: 'data:,' } })
+    expect((await row()).nextStep).toBe('Waiting on Tan Tenant to sign')
+
+    await db.inspection.update({ where: { id: checkOut.id }, data: { status: 'COMPLETED' } })
+    const version = (deposit: boolean, n: number) => db.assessmentVersion.create({ data: {
+      inspectionId: checkOut.id, version: n, contentHash: `h${n}`, publishedById: agent.id,
+      snapshot: deposit ? { deposit: '2000.00', findings: [] } : { findings: [] },
+    } })
+    await version(false, 1)
+    expect((await row()).attention.depositAnswersMissing).toBe(0)
+    const latest = await version(true, 2)
+    expect((await row()).attention.depositAnswersMissing).toBe(2)
+    await db.assessmentResponse.create({ data: {
+      assessmentVersionId: latest.id, stakeholderId: tenant.id, answer: 'AGREED', method: 'OWN_ACCOUNT', contentHash: 'h2',
+    } })
+    expect(await row()).toMatchObject({ stage: 'ENDED', attention: { depositAnswersMissing: 1 } })
+  })
+
   it('lists each property once, at the stage of its newest term', async () => {
     const agent = await person('Agent WORK-RENEWAL')
     const home = await property('WORK-RENEWAL')
