@@ -226,26 +226,29 @@ void main() {
   tearDownAll(() => Supabase.instance.dispose());
 
   for (final awaiting in [false, true]) {
-    testWidgets('party card has one property destination, awaiting=$awaiting', (
-      tester,
-    ) async {
-      final api = _Api(awaiting: awaiting);
-      final workspace = Workspace(api);
-      await workspace.refresh();
-      await _pump(tester, PartyHomesScreen(api: api, workspace: workspace));
-      expect(find.text('View property'), findsOneWidget);
-      expect(find.text('Repairs'), findsNothing);
-      expect(
-        find.text('Review and sign'),
-        awaiting ? findsOneWidget : findsNothing,
-      );
-      expect(find.text('Check-in report'), findsNothing);
-      await tester.tap(find.text('View property'));
-      await tester.pumpAndSettle();
-      expect(find.byType(TenancyScreen), findsOneWidget);
-      expect(find.text('Documents'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    testWidgets(
+      'party card opens the report, the documents and the repairs, awaiting=$awaiting',
+      (tester) async {
+        final api = _Api(awaiting: awaiting);
+        final workspace = Workspace(api);
+        await workspace.refresh();
+        await _pump(tester, PartyHomesScreen(api: api, workspace: workspace));
+        expect(
+          find.text('Review and sign'),
+          awaiting ? findsOneWidget : findsNothing,
+        );
+        expect(find.text('Check-in report'), findsOneWidget);
+        expect(
+          find.text(awaiting ? 'Waiting for signatures' : 'Signed'),
+          findsOneWidget,
+        );
+        expect(find.text('Documents'), findsOneWidget);
+        await tester.tap(find.text('Repairs and the home'));
+        await tester.pumpAndSettle();
+        expect(find.byType(TenancyScreen), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   }
 
   testWidgets(

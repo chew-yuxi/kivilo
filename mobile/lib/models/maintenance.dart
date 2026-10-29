@@ -114,6 +114,8 @@ class TenancySummary {
     this.latestReportStatus,
     this.awaitingMySignature = false,
     this.capacities = const [],
+    this.startDate,
+    this.endDate,
   });
   final String id;
   final String role;
@@ -126,6 +128,10 @@ class TenancySummary {
   final String postalCode;
   final String landlord;
   final String tenant;
+
+  /// The lease; absent in a copy saved before the app read them.
+  final String? startDate;
+  final String? endDate;
   final int maintenanceCases;
   final int inspections;
 
@@ -147,6 +153,8 @@ class TenancySummary {
     postalCode: json['postalCode'] as String,
     landlord: json['landlord'] as String,
     tenant: json['tenant'] as String,
+    startDate: json['startDate'] as String?,
+    endDate: json['endDate'] as String?,
     maintenanceCases: json['maintenanceCases'] as int,
     inspections: json['inspections'] as int,
     latestReportId:

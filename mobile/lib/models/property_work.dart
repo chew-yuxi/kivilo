@@ -189,6 +189,8 @@ class PropertyOverview {
     this.propertyDetailsLockedReason,
     this.nextInspectionId,
     this.nextInspectionKind,
+    this.nextStep,
+    this.attention = const PropertyAttention(),
   });
   final String id;
   final String address;
@@ -205,6 +207,10 @@ class PropertyOverview {
   final List<PropertyTerm> terms;
   final String? nextInspectionId;
   final String? nextInspectionKind;
+
+  /// The same next step and waiting counts as the property's card.
+  final String? nextStep;
+  final PropertyAttention attention;
 
   factory PropertyOverview.fromJson(
     Map<String, dynamic> json,
@@ -223,6 +229,10 @@ class PropertyOverview {
     propertyDetailsLockedReason: json['propertyDetailsLockedReason'] as String?,
     nextInspectionId: json['nextInspectionId'] as String?,
     nextInspectionKind: json['nextInspectionKind'] as String?,
+    nextStep: json['nextStep'] as String?,
+    attention: json['attention'] == null
+        ? const PropertyAttention()
+        : PropertyAttention.fromJson(json['attention'] as Map<String, dynamic>),
     terms: (json['terms'] as List<dynamic>)
         .map((value) => PropertyTerm.fromJson(value as Map<String, dynamic>))
         .toList(),

@@ -73,7 +73,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
       title: StreamBuilder<PropertyHistory>(
         stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
-          title: 'History',
+          title: 'Change log',
           contextLabel: snapshot.data?.address ?? 'Property',
         ),
       ),

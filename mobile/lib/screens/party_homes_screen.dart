@@ -4,9 +4,12 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/workspace.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
+import '../ui/kivilo_theme.dart';
 import '../ui/workspace_picker.dart';
 import 'report_screen.dart';
+import 'supporting_documents_screen.dart';
 import 'team_screen.dart';
 import 'tenancy_screen.dart';
 
@@ -179,63 +182,108 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
     );
   }
 
-  /// A landlord's or tenant's tenancy: the report they agreed and the repairs since.
+  /// A landlord's or tenant's tenancy: the lease, the report they agreed, the
+  /// paperwork and the repairs since, each one tap away.
   Widget _card(TenancySummary tenancy) {
     final text = Theme.of(context).textTheme;
+    final owner = _party == 'LANDLORD';
     final reportId = tenancy.latestReportId;
+    final status = tenancy.latestReportStatus;
     final alsoAgent = tenancy.capacities.contains('AGENT');
+    final shared =
+        reportId != null &&
+        (status == 'AWAITING_SIGNATURE' || status == 'COMPLETED');
+    final report = tenancy.latestReportKind == 'CHECK_OUT'
+        ? 'Check-out report'
+        : 'Check-in report';
+
+    Widget row(String title, String subtitle, Widget screen) => ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+      onTap: () => _open(screen),
+    );
+
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              tenancy.property,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: text.titleMedium,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  tenancy.property,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.titleMedium,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  [
+                    owner ? 'You are the landlord' : 'You are the tenant',
+                    if (alsoAgent) 'and its agent',
+                  ].join(' '),
+                  style: text.bodySmall,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  owner
+                      ? 'Tenant: ${tenancy.tenant}'
+                      : 'Landlord: ${tenancy.landlord}',
+                  style: text.bodySmall,
+                ),
+                if (tenancy.startDate != null && tenancy.endDate != null) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    'Lease ${shortDate(tenancy.startDate!)} to ${shortDate(tenancy.endDate!)}',
+                    style: text.bodySmall,
+                  ),
+                ],
+                if (!shared) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Your check-in report appears here once your agent sends it.',
+                    style: text.bodySmall,
+                  ),
+                ],
+                if (shared && tenancy.awaitingMySignature) ...[
+                  const SizedBox(height: 14),
+                  FilledButton(
+                    onPressed: () =>
+                        _open(ReportScreen(id: reportId, api: _api)),
+                    child: const Text('Review and sign'),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 3),
-            Text(
-              [
-                _party == 'LANDLORD'
-                    ? 'You are the landlord'
-                    : 'You are the tenant',
-                if (alsoAgent) 'and its agent',
-              ].join(' '),
-              style: text.bodySmall,
+          ),
+          const Divider(height: 1),
+          if (shared) ...[
+            row(
+              report,
+              status == 'COMPLETED' ? 'Signed' : 'Waiting for signatures',
+              ReportScreen(id: reportId, api: _api),
             ),
-            const SizedBox(height: 3),
-            Text(
-              _party == 'LANDLORD'
-                  ? 'Tenant: ${tenancy.tenant}'
-                  : 'Landlord: ${tenancy.landlord}',
-              style: text.bodySmall,
-            ),
-            if (reportId == null) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Your check-in report appears here once your agent sends it.',
-                style: text.bodySmall,
-              ),
-            ],
-            const SizedBox(height: 14),
-            if (reportId != null && tenancy.awaitingMySignature) ...[
-              FilledButton(
-                onPressed: () => _open(ReportScreen(id: reportId, api: _api)),
-                child: const Text('Review and sign'),
-              ),
-              const SizedBox(height: kiviloButtonGap),
-            ],
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: const Text('View property'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _open(TenancyScreen(tenancy: tenancy, api: _api)),
-            ),
+            const Divider(height: 1),
           ],
-        ),
+          row(
+            'Documents',
+            'Tenancy agreement and other files',
+            SupportingDocumentsScreen(tenancyId: tenancy.id, api: _api),
+          ),
+          const Divider(height: 1),
+          row(
+            'Repairs and the home',
+            owner
+                ? 'Repairs, who pays, appliances and the agreed condition'
+                : 'Report a problem and follow each repair',
+            TenancyScreen(tenancy: tenancy, api: _api),
+          ),
+        ],
       ),
     );
   }

@@ -15,6 +15,7 @@ import 'tenancy_screen.dart';
 import 'tenancy_access_screen.dart';
 import 'tenancy_details_screen.dart';
 import 'supporting_documents_screen.dart';
+import 'property_card.dart';
 
 /// Where a property is, as a coloured pill. Shared by the list and the property page.
 /// A stage's text and fill colours, shared by the pill and the property card.
@@ -135,20 +136,26 @@ class _PropertyScreenState extends State<PropertyScreen> {
               children: [
                 Text(property.address, style: text.headlineMedium),
                 const SizedBox(height: 8),
+                // The current tenancy, its people and what is next, before anything else.
+                Text('Landlord: ${current.landlord}', style: text.bodyMedium),
+                Text('Tenant: ${current.tenant}', style: text.bodyMedium),
+                const SizedBox(height: 3),
                 Text(
-                  '${current.tenant} · ${shortDate(current.startDate)} to ${shortDate(current.endDate)}',
+                  [
+                    '${shortDate(current.startDate)} to ${shortDate(current.endDate)}',
+                    ?current.agencyName,
+                  ].join(' · '),
+                  style: text.bodySmall,
                 ),
-                if (current.agencyName != null) ...[
-                  const SizedBox(height: 3),
-                  Text(current.agencyName!, style: text.bodySmall),
-                ],
                 const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: PropertyStagePill(
-                    stage: property.stage,
-                    label: property.stageLabel,
-                  ),
+                PropertyNextStep(
+                  stage: property.state == 'TRASHED' ? 'ENDED' : property.stage,
+                  label: switch (property.state) {
+                    'TRASHED' => 'Recently deleted',
+                    'ARCHIVED' => 'Archived · ${property.stageLabel}',
+                    _ => property.nextStep ?? property.stageLabel,
+                  },
+                  attention: property.attention,
                 ),
                 if (_api.offlineCopy) ...[
                   const SizedBox(height: 12),
@@ -160,16 +167,15 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 for (final term in property.terms) ...[
                   if (_termCard(term, property) case final card?) ...[
                     const SizedBox(height: kiviloSectionGap),
-                    if (property.terms.length > 1) ...[
-                      KiviloSectionHeading(
-                        title: term == current
-                            ? 'Current tenancy'
-                            : 'Earlier tenancy',
-                        subtitle:
-                            '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
-                      ),
-                      const SizedBox(height: kiviloHeadingGap),
-                    ],
+                    KiviloSectionHeading(
+                      title: term == current
+                          ? 'Reports and documents'
+                          : 'Earlier tenancy',
+                      subtitle: term == current
+                          ? 'This tenancy’s reports, details and paperwork'
+                          : '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
+                    ),
+                    const SizedBox(height: kiviloHeadingGap),
                     card,
                   ],
                 ],
@@ -187,9 +193,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
                       if (property.canOpenTimeline) ...[
                         ListTile(
                           leading: const Icon(Icons.schedule_rounded),
-                          title: const Text('Timeline'),
+                          title: const Text('Property timeline'),
                           subtitle: const Text(
-                            'Reports, updates, repairs and assets',
+                            'What happened here over the years: reports, updates, repairs',
                           ),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => _open(
@@ -203,8 +209,10 @@ class _PropertyScreenState extends State<PropertyScreen> {
                       ],
                       ListTile(
                         leading: const Icon(Icons.history),
-                        title: const Text('History'),
-                        subtitle: const Text('Changes made to this property'),
+                        title: const Text('Change log'),
+                        subtitle: const Text(
+                          'Who changed what in Kivilo, and when',
+                        ),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _open(
                           PropertyHistoryScreen(

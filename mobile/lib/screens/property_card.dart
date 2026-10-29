@@ -31,34 +31,6 @@ class PropertyCard extends StatelessWidget {
         : property.state == 'ARCHIVED'
         ? 'Archived · ${property.stageLabel}'
         : property.nextStep ?? property.stageLabel;
-    final (stepColor, _) = propertyStageColors(
-      trashed ? 'ENDED' : property.stage,
-    );
-    final attention = property.attention;
-    final badges = [
-      if (attention.openRepairs > 0)
-        (
-          Icons.build_outlined,
-          attention.openRepairs == 1
-              ? '1 open repair'
-              : '${attention.openRepairs} open repairs',
-        ),
-      if (attention.pendingUpdates > 0)
-        (
-          Icons.description_outlined,
-          attention.pendingUpdates == 1
-              ? '1 update to acknowledge'
-              : '${attention.pendingUpdates} updates to acknowledge',
-        ),
-      if (attention.depositAnswersMissing > 0)
-        (
-          Icons.handshake_outlined,
-          attention.depositAnswersMissing == 1
-              ? 'Deposit: 1 answer pending'
-              : 'Deposit: ${attention.depositAnswersMissing} answers pending',
-        ),
-    ];
-
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -107,59 +79,110 @@ class PropertyCard extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 12),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 6),
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: stepColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const SizedBox.square(dimension: 8),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      step,
-                      style: text.bodyMedium?.copyWith(
-                        color: stepColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
+              PropertyNextStep(
+                stage: trashed ? 'ENDED' : property.stage,
+                label: step,
+                attention: property.attention,
               ),
-              if (badges.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 14,
-                  runSpacing: 6,
-                  children: [
-                    for (final (icon, label) in badges)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(icon, size: 16, color: KiviloColors.amber),
-                          const SizedBox(width: 4),
-                          Text(
-                            label,
-                            style: text.bodySmall?.copyWith(
-                              color: KiviloColors.amber,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ],
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A property's next step in its stage colour, then what is waiting on someone. Shared
+/// by its card and its page, so the two always read the same.
+class PropertyNextStep extends StatelessWidget {
+  const PropertyNextStep({
+    super.key,
+    required this.stage,
+    required this.label,
+    required this.attention,
+  });
+
+  final String stage;
+  final String label;
+  final PropertyAttention attention;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final (color, _) = propertyStageColors(stage);
+    final badges = [
+      if (attention.openRepairs > 0)
+        (
+          Icons.build_outlined,
+          attention.openRepairs == 1
+              ? '1 open repair'
+              : '${attention.openRepairs} open repairs',
+        ),
+      if (attention.pendingUpdates > 0)
+        (
+          Icons.description_outlined,
+          attention.pendingUpdates == 1
+              ? '1 update to acknowledge'
+              : '${attention.pendingUpdates} updates to acknowledge',
+        ),
+      if (attention.depositAnswersMissing > 0)
+        (
+          Icons.handshake_outlined,
+          attention.depositAnswersMissing == 1
+              ? 'Deposit: 1 answer pending'
+              : 'Deposit: ${attention.depositAnswersMissing} answers pending',
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                child: const SizedBox.square(dimension: 8),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: text.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        if (badges.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 14,
+            runSpacing: 6,
+            children: [
+              for (final (icon, badge) in badges)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: KiviloColors.amber),
+                    const SizedBox(width: 4),
+                    Text(
+                      badge,
+                      style: text.bodySmall?.copyWith(
+                        color: KiviloColors.amber,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ],
     );
   }
 }

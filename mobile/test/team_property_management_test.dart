@@ -674,7 +674,7 @@ void main() {
     expect(find.text('Property actions'), findsOneWidget);
     expect(find.text('Tenancy access'), findsNothing);
     expect(find.text('Open check-in report'), findsNothing);
-    expect(find.text('History'), findsNothing);
+    expect(find.text('Change log'), findsNothing);
     expect(find.text('Restore to active properties'), findsOneWidget);
   });
 

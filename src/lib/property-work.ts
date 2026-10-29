@@ -142,11 +142,9 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       const at = row.conductedAt ?? row.createdAt
       return at > latest ? at : latest
     }, rows[0].createdAt)
-    const signed = next ? card.signatures.get(next.id) ?? new Set<string>() : new Set<string>()
     const newestFirst = [...rows].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     const covered = newestFirst.find((row) => row.kind === 'CHECK_IN' && card.covers.has(row.id))
       ?? newestFirst.find((row) => card.covers.has(row.id))
-    const checkOut = reports.find((row) => row.kind === 'CHECK_OUT' && row.status === 'COMPLETED')
     return {
       id: current.property.id,
       address: propertyLabel(current.property),
@@ -161,20 +159,7 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
       coverUrl: covered ? card.covers.get(covered.id)! : null,
       stage,
       stageLabel: stageLabels[stage],
-      nextStep: propertyNextStep(stage, {
-        kind: next?.kind ?? null,
-        rooms: next ? card.rooms.get(next.id) ?? { total: 0, reviewed: 0 } : { total: 0, reviewed: 0 },
-        unsigned: [
-          ...(signed.has(current.landlordId) ? [] : [current.landlord.name]),
-          ...(signed.has(current.tenantId) || current.tenantId === current.landlordId ? [] : [current.tenant.name]),
-        ],
-        endDate: current.endDate,
-      }, now),
-      attention: {
-        openRepairs: card.openRepairs.get(current.id) ?? 0,
-        pendingUpdates: reports.reduce((sum, row) => sum + (card.pendingUpdates.get(row.id) ?? 0), 0),
-        depositAnswersMissing: checkOut ? card.depositAnswers.get(checkOut.id)?.(current.landlordId, current.tenantId) ?? 0 : 0,
-      },
+      ...nextAndWaiting(card, current, reports, stage, next, now),
       nextInspectionId: next?.id ?? null,
       nextInspectionKind: next?.kind ?? null,
       reports: rows.length,
@@ -313,6 +298,41 @@ export async function startableProperties(actorId: string) {
   }).sort((a, b) => a.address.localeCompare(b.address))
 }
 
+type CardDetails = Awaited<ReturnType<typeof cardDetails>>
+type CurrentTerm = {
+  id: string; endDate: Date; landlordId: string; tenantId: string
+  landlord: { name: string }; tenant: { name: string }
+}
+
+/// The next step and what is waiting at a property, for its card and its page alike.
+function nextAndWaiting(
+  card: CardDetails,
+  current: CurrentTerm,
+  reports: WorkRow[],
+  stage: PropertyStage,
+  next: { id: string; kind: 'CHECK_IN' | 'CHECK_OUT' } | null,
+  now: Date,
+) {
+  const signed = next ? card.signatures.get(next.id) ?? new Set<string>() : new Set<string>()
+  const checkOut = reports.find((row) => row.kind === 'CHECK_OUT' && row.status === 'COMPLETED')
+  return {
+    nextStep: propertyNextStep(stage, {
+      kind: next?.kind ?? null,
+      rooms: next ? card.rooms.get(next.id) ?? { total: 0, reviewed: 0 } : { total: 0, reviewed: 0 },
+      unsigned: [
+        ...(signed.has(current.landlordId) ? [] : [current.landlord.name]),
+        ...(signed.has(current.tenantId) || current.tenantId === current.landlordId ? [] : [current.tenant.name]),
+      ],
+      endDate: current.endDate,
+    }, now),
+    attention: {
+      openRepairs: card.openRepairs.get(current.id) ?? 0,
+      pendingUpdates: reports.reduce((sum, row) => sum + (card.pendingUpdates.get(row.id) ?? 0), 0),
+      depositAnswersMissing: checkOut ? card.depositAnswers.get(checkOut.id)?.(current.landlordId, current.tenantId) ?? 0 : 0,
+    },
+  }
+}
+
 /// Everything at one address the viewer works: every term, newest first, with the
 /// reports in each that they can open, and which linked screens they may open.
 export async function propertyOverview(propertyId: string, actorId: string, now = new Date()) {
@@ -330,6 +350,7 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
       tenancy: {
         select: {
           id: true, startDate: true, endDate: true, createdAt: true, monthlyRent: true, deposit: true,
+          landlordId: true, tenantId: true,
           tenant: { select: { name: true, email: true } },
           landlord: { select: { name: true, email: true } },
           agency: { select: { name: true } },
@@ -361,6 +382,7 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
     b.startDate.getTime() - a.startDate.getTime() || b.createdAt.getTime() - a.createdAt.getTime())
   const currentReports = inspections.filter((row) => row.tenancy.id === ordered[0].id)
   const { stage, next } = propertyStage(currentReports, ordered[0].endDate, now)
+  const card = await cardDetails(actorId, currentReports)
 
   return {
     id: property.id,
@@ -372,6 +394,7 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
     state: propertyState(property),
     stage,
     stageLabel: stageLabels[stage],
+    ...nextAndWaiting(card, ordered[0], currentReports, stage, next, now),
     nextInspectionId: next?.id ?? null,
     nextInspectionKind: next?.kind ?? null,
     canOpenTimeline: openable.size > 0,

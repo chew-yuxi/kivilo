@@ -105,6 +105,11 @@ describe('property work', () => {
       attention: { openRepairs: 1, pendingUpdates: 1, depositAnswersMissing: 0 },
     })
 
+    // The property page says the same as its card.
+    expect(await propertyOverview(home.id, agent.id, now)).toMatchObject({
+      nextStep: null, attention: { openRepairs: 1, pendingUpdates: 1, depositAnswersMissing: 0 },
+    })
+
     // An old-report grant sees the report and its updates, but repairs stay closed.
     await db.inspectionAccessGrant.create({ data: { inspectionId: checkIn.id, stakeholderId: viewer.id } })
     expect((await propertyWork(viewer.id, {}, now))[0].attention).toEqual({ openRepairs: 0, pendingUpdates: 1, depositAnswersMissing: 0 })
@@ -124,6 +129,7 @@ describe('property work', () => {
     expect((await row()).nextStep).toBe('Waiting on Lee Landlord and Tan Tenant to sign')
     await db.signature.create({ data: { inspectionId: checkOut.id, stakeholderId: landlord.id, imageData: 'data:,' } })
     expect((await row()).nextStep).toBe('Waiting on Tan Tenant to sign')
+    expect((await propertyOverview(home.id, agent.id, now)).nextStep).toBe('Waiting on Tan Tenant to sign')
 
     await db.inspection.update({ where: { id: checkOut.id }, data: { status: 'COMPLETED' } })
     const version = (deposit: boolean, n: number) => db.assessmentVersion.create({ data: {

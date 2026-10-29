@@ -426,10 +426,10 @@ void main() {
       await tester.tap(find.text('12 Bayview Road'));
       await tester.pumpAndSettle();
       expect(find.byType(PropertyScreen), findsOneWidget);
-      expect(find.text('Current tenancy'), findsNothing);
+      expect(find.text('Reports and documents'), findsOneWidget);
       expect(find.text('Tenancy details'), findsOneWidget);
       expect(find.text('Continue check-in'), findsOneWidget);
-      expect(find.text('History'), findsOneWidget);
+      expect(find.text('Change log'), findsOneWidget);
       expect(find.text('Archive or delete property'), findsOneWidget);
       // An old-report grant or ended term has no repairs screen to open.
       expect(find.text('Repairs and assets'), findsNothing);
@@ -455,7 +455,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.text('Current tenancy'), findsNothing);
+      expect(find.text('Reports and documents'), findsOneWidget);
       expect(find.text('Repairs and assets'), findsNothing);
       expect(find.text('Property care'), findsOneWidget);
       expect(find.text('Maintenance'), findsOneWidget);
