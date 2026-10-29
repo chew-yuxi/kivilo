@@ -5,6 +5,28 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Contacts and the same landlord in New check-in: 29 October 2026 Singapore time
+
+Source `eb2c8e6`, pushed to `origin/main` and deployed by Vercel (READY;
+`GET /api/v1/contacts` answers 401 signed out) before the patches were set to stable;
+no migration. Phase 2 of `plans/app-first-ux-20261025.md`, third slice: "Choose from
+your contacts" fills the landlord or tenant from the parties on tenancies this
+account acts on as an agent (never a search of all people, never an old report
+grant); the fields stay editable and the verified-email rule still decides identity.
+At an existing property, "Same landlord as last time" sends `sameLandlord`, and
+`createInspection` links exactly the latest tenancy's landlord under the property lock.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **15** / `759709` | **stable** |
+| iOS TestFlight `1.0.0+25` | **43** / `759724` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **496 mobile tests**
+passed. No icon added against either base; `--allow-asset-diffs` covered the icon
+font. No native difference. iOS shared 64.6% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Check-in at an existing property, and room names carried into the next term: 29 October 2026 Singapore time
 
 Source `1f2ef66`, pushed to `origin/main` and deployed by Vercel (READY;
