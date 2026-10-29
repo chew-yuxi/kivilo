@@ -140,6 +140,9 @@ export async function createInspection(input: {
   /// A property this agent already manages, for a new tenancy there. Its own address
   /// and type are kept; the address fields sent are ignored.
   propertyId?: string | null
+  /// With `propertyId`: the landlord of its latest tenancy, linked as that same person
+  /// rather than matched by the name and email sent.
+  sameLandlord?: boolean
   line1: string
   unit: string | null
   postalCode: string
@@ -169,9 +172,11 @@ export async function createInspection(input: {
     }
   }
 
+  if (input.sameLandlord && !input.propertyId) throw new Error('Same landlord needs an existing property')
   const required = [
     ...(input.propertyId ? [] : [input.line1, input.postalCode]),
-    input.landlordName, input.tenantName,
+    ...(input.sameLandlord ? [] : [input.landlordName]),
+    input.tenantName,
   ]
   if (required.some((value) => !value.trim())) {
     throw new Error('Address, postal code, landlord, and tenant are all required')
@@ -186,7 +191,7 @@ export async function createInspection(input: {
     throw new Error('The tenancy must end after it starts')
   }
 
-  const landlordEmail = input.landlordEmail?.trim().toLowerCase() || null
+  const landlordEmail = input.sameLandlord ? null : input.landlordEmail?.trim().toLowerCase() || null
   const tenantEmail = input.tenantEmail?.trim().toLowerCase() || null
   if (landlordEmail && landlordEmail === tenantEmail) {
     throw new Error('The landlord and tenant need different email addresses')
@@ -199,6 +204,7 @@ export async function createInspection(input: {
     ?? (input.fullyFurnished === false ? 'UNFURNISHED' : 'FULLY_FURNISHED')
 
   const inspection = await db.$transaction(async (tx) => {
+    let landlordId: string | null = null
     if (input.agencyId) {
       await lockAgency(input.agencyId, tx)
       await requireAgencyMembership(input.agencyId, agent.id, tx)
@@ -210,11 +216,17 @@ export async function createInspection(input: {
       // Managing a tenancy there is what may start another, never an old report grant.
       const managed = await tx.property.findFirst({
         where: { id: input.propertyId, trashedAt: null, archivedAt: null, tenancies: { some: managedTenancies(agent.id) } },
-        select: { tenancies: { orderBy: [{ startDate: 'desc' }, { createdAt: 'desc' }], take: 1, select: { agencyId: true } } },
+        select: { tenancies: { orderBy: [{ startDate: 'desc' }, { createdAt: 'desc' }], take: 1, select: { agencyId: true, landlordId: true, landlord: { select: { email: true } } } } },
       })
       if (!managed) throw new Error('Property not found')
       if (managed.tenancies[0].agencyId !== (input.agencyId ?? null)) {
         throw new Error('A new tenancy stays in the property’s workspace')
+      }
+      if (input.sameLandlord) {
+        if (tenantEmail && tenantEmail === managed.tenancies[0].landlord.email) {
+          throw new Error('The landlord and tenant need different email addresses')
+        }
+        landlordId = managed.tenancies[0].landlordId
       }
     }
     await assertCanAddProperty(agent, input.agencyId ?? null, tx, input.propertyId ?? undefined)
@@ -247,7 +259,7 @@ export async function createInspection(input: {
                 type: input.propertyType,
               },
             },
-          landlord: party(input.landlordName, landlordEmail),
+          landlord: landlordId ? { connect: { id: landlordId } } : party(input.landlordName, landlordEmail),
           tenant: party(input.tenantName, tenantEmail),
         },
       },

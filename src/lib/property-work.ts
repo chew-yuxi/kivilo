@@ -281,6 +281,7 @@ export async function startableProperties(actorId: string) {
         take: 1,
         select: {
           endDate: true,
+          landlord: { select: { name: true, email: true } },
           tenant: { select: { name: true } },
           agency: { select: { id: true, name: true } },
           inspections: {
@@ -303,6 +304,8 @@ export async function startableProperties(actorId: string) {
       agencyId: latest.agency?.id ?? null,
       agencyName: latest.agency?.name ?? null,
       lastTenant: latest.tenant.name,
+      /// Offered as the new tenancy's landlord; `sameLandlord` links exactly this person.
+      lastLandlord: { name: latest.landlord.name, email: latest.landlord.email },
       lastEndDate: latest.endDate.toISOString().slice(0, 10),
       furnishingLevel: latest.inspections[0]?.furnishingLevel ?? null,
       rooms: rooms.get(property.id) ?? [],

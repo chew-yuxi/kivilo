@@ -59,6 +59,7 @@ const newInspection = z.object({
   agencyId: z.string().min(1).optional(),
   /// An existing property: its own address and type are kept, so these may be empty.
   propertyId: z.string().min(1).optional(),
+  sameLandlord: z.boolean().optional(),
   line1: z.string().trim().default(''),
   unit: z.string().trim().nullable().default(null),
   postalCode: z.string().trim().default(''),
@@ -66,7 +67,7 @@ const newInspection = z.object({
   // Older app builds send only this Boolean. The action maps it onto the new enum.
   fullyFurnished: z.boolean().default(true),
   furnishingLevel: z.enum(['FULLY_FURNISHED', 'PARTIALLY_FURNISHED', 'UNFURNISHED']).optional(),
-  landlordName: z.string().trim().min(1),
+  landlordName: z.string().trim().default(''),
   landlordEmail: z.email().nullable().default(null),
   tenantName: z.string().trim().min(1),
   tenantEmail: z.email().nullable().default(null),
@@ -77,6 +78,8 @@ const newInspection = z.object({
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
 }).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
   message: 'Address and postal code are required',
+}).refine((input) => input.sameLandlord || input.landlordName, {
+  message: 'Landlord name is required',
 })
 
 /// Creates the property, both stakeholders, the tenancy and the check-in in one call,

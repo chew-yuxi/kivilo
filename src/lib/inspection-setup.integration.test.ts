@@ -17,6 +17,7 @@ import { currentStakeholder, requireAgent } from '@/lib/auth'
 import { createInspection } from '@/lib/actions'
 import { createRenewal } from '@/lib/renewal-actions'
 import { startableProperties } from '@/lib/property-work'
+import { contactSuggestions } from '@/lib/contacts'
 import { templateRows } from '@/lib/room-templates'
 import * as renewalRoute from '@/app/api/v1/renewals/[tenancyId]/route'
 
@@ -31,7 +32,10 @@ async function agent(name: string) {
   return person
 }
 
-function create(by: { id: string }, extra: { clientId?: string; rooms?: string[]; propertyId?: string; agencyId?: string } = {}) {
+function create(by: { id: string }, extra: {
+  clientId?: string; rooms?: string[]; propertyId?: string; agencyId?: string; sameLandlord?: boolean
+  landlordName?: string; landlordEmail?: string | null; tenantName?: string; tenantEmail?: string | null
+} = {}) {
   vi.mocked(requireAgent).mockResolvedValueOnce(by as never)
   return createInspection({
     line1: 'Setup Road', unit: '#04-11', postalCode, propertyType: 'HDB', furnishingLevel: 'PARTIALLY_FURNISHED',
@@ -139,5 +143,31 @@ describe('check-in setup', () => {
     expect(rooms.map((room) => room.name)).toEqual(['Living room', 'Kitchen'])
     // Names only: a fresh room's standard lines, nothing from the earlier report.
     expect(rooms.every((room) => room.items.every((item) => item.condition === 'GOOD'))).toBe(true)
+  })
+
+  it('suggests only the people on tenancies this agent works, and links the same landlord', async () => {
+    const by = await agent('Agent SETUP-PEOPLE')
+    const outsider = await agent('Outsider SETUP-PEOPLE')
+    const tag = randomUUID().slice(0, 8)
+    const landlordEmail = `landlord-${tag}@example.com`
+    const first = await create(by, { landlordName: 'Lee Landlord', landlordEmail, tenantName: 'Tan Tenant', tenantEmail: `tenant-${tag}@example.com` })
+    const { tenancy } = await db.inspection.findUniqueOrThrow({ where: { id: first }, include: { tenancy: true } })
+
+    expect(await contactSuggestions(by.id)).toEqual(expect.arrayContaining([
+      { name: 'Lee Landlord', email: landlordEmail, roles: ['LANDLORD'] },
+      { name: 'Tan Tenant', email: `tenant-${tag}@example.com`, roles: ['TENANT'] },
+    ]))
+    expect((await contactSuggestions(outsider.id)).map((contact) => contact.email)).not.toContain(landlordEmail)
+    expect((await startableProperties(by.id)).find((row) => row.id === tenancy.propertyId)?.lastLandlord)
+      .toEqual({ name: 'Lee Landlord', email: landlordEmail })
+
+    // The same person, whatever name was sent, and never one the agent could not name.
+    const next = await create(by, { propertyId: tenancy.propertyId, sameLandlord: true, landlordName: '', tenantName: 'New Tenant' })
+    const created = await db.inspection.findUniqueOrThrow({ where: { id: next }, include: { tenancy: { include: { landlord: true } } } })
+    expect(created.tenancy.landlordId).toBe(tenancy.landlordId)
+    expect(created.tenancy.landlord.name).toBe('Lee Landlord')
+    await expect(create(by, { sameLandlord: true })).rejects.toThrow('existing property')
+    await expect(create(by, { propertyId: tenancy.propertyId, sameLandlord: true, tenantEmail: landlordEmail }))
+      .rejects.toThrow('different email addresses')
   })
 })

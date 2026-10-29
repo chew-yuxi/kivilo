@@ -1033,6 +1033,14 @@ class Api {
         .toList();
   }
 
+  Future<List<Contact>> contacts() async {
+    const route = '/api/v1/contacts';
+    final data = await _read(route, route);
+    return (data as List<dynamic>)
+        .map((json) => Contact.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<String> createInspection(Map<String, dynamic> body) => _call(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/inspections',

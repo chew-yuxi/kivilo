@@ -242,6 +242,8 @@ class StartableProperty {
     this.agencyName,
     this.furnishingLevel,
     this.rooms = const [],
+    this.lastLandlordName,
+    this.lastLandlordEmail,
   });
   final String id;
   final String address;
@@ -252,6 +254,10 @@ class StartableProperty {
   final String? agencyName;
   final String? furnishingLevel;
   final List<String> rooms;
+
+  /// The latest tenancy's landlord, offered as the new tenancy's.
+  final String? lastLandlordName;
+  final String? lastLandlordEmail;
 
   factory StartableProperty.fromJson(Map<String, dynamic> json) =>
       StartableProperty(
@@ -264,6 +270,10 @@ class StartableProperty {
         agencyName: json['agencyName'] as String?,
         furnishingLevel: json['furnishingLevel'] as String?,
         rooms: ((json['rooms'] as List<dynamic>?) ?? const []).cast<String>(),
+        lastLandlordName:
+            (json['lastLandlord'] as Map<String, dynamic>?)?['name'] as String?,
+        lastLandlordEmail:
+            (json['lastLandlord'] as Map<String, dynamic>?)?['email'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -276,5 +286,23 @@ class StartableProperty {
     'agencyName': agencyName,
     'furnishingLevel': furnishingLevel,
     'rooms': rooms,
+    'lastLandlord': lastLandlordName == null
+        ? null
+        : {'name': lastLandlordName, 'email': lastLandlordEmail},
   };
+}
+
+/// A landlord or tenant on a tenancy this account works, offered to fill New
+/// check-in's people fields. [roles] are LANDLORD and/or TENANT.
+class Contact {
+  const Contact({required this.name, this.email, this.roles = const []});
+  final String name;
+  final String? email;
+  final List<String> roles;
+
+  factory Contact.fromJson(Map<String, dynamic> json) => Contact(
+    name: json['name'] as String,
+    email: json['email'] as String?,
+    roles: ((json['roles'] as List<dynamic>?) ?? const []).cast<String>(),
+  );
 }

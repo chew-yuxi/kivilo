@@ -7,6 +7,7 @@ import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
 import '../models/agency.dart';
 import '../models/property_work.dart';
+import 'contact_picker_screen.dart';
 import 'property_picker_screen.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
@@ -57,6 +58,13 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   final _previousRooms = <String>[];
   bool _usePreviousRooms = true;
 
+  /// With an existing property: its last landlord is this tenancy's too, linked as
+  /// that same person by the server.
+  bool _sameLandlord = true;
+
+  bool get _keepsLandlord =>
+      _existing?.lastLandlordName != null && _sameLandlord;
+
   bool get _previousMode =>
       _existing != null && _existing!.rooms.isNotEmpty && _usePreviousRooms;
   final _customRoom = TextEditingController();
@@ -93,6 +101,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         ..clear()
         ..addAll(chosen.rooms);
       _usePreviousRooms = true;
+      _sameLandlord = true;
       _furnishingLevel ??= chosen.furnishingLevel;
       _error = null;
     });
@@ -177,6 +186,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         ..clear()
         ..addAll(((draft['previousRooms'] as List?) ?? const []).cast<String>());
       _usePreviousRooms = draft['usePreviousRooms'] as bool? ?? true;
+      _sameLandlord = draft['sameLandlord'] as bool? ?? true;
     });
   }
 
@@ -199,6 +209,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       'existing': _existing?.toJson(),
       'previousRooms': [..._previousRooms],
       'usePreviousRooms': _usePreviousRooms,
+      'sameLandlord': _sameLandlord,
     };
     // Each write waits for the one before, so an older copy never replaces a newer one.
     _pendingDraftWrite = _pendingDraftWrite.then((_) async {
@@ -213,6 +224,21 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   void _change(VoidCallback change) {
     setState(change);
     _saveDraft();
+  }
+
+  /// Fills a party's name and email from someone this account already works with.
+  /// The fields stay editable; the email decides who the person is.
+  Future<void> _chooseContact(String role) async {
+    final contact = await Navigator.push<Contact>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ContactPickerScreen(api: _api, role: role),
+      ),
+    );
+    if (contact == null || !mounted) return;
+    final prefix = role == 'LANDLORD' ? 'landlord' : 'tenant';
+    _fields['${prefix}Name']!.text = contact.name;
+    _fields['${prefix}Email']!.text = contact.email ?? '';
   }
 
   void _addCustomRoom() {
@@ -340,10 +366,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           'propertyType': _propertyType,
         },
         'furnishingLevel': _furnishingLevel,
-        'landlordName': value('landlordName'),
-        'landlordEmail': value('landlordEmail').isEmpty
-            ? null
-            : value('landlordEmail'),
+        if (_keepsLandlord)
+          'sameLandlord': true
+        else ...{
+          'landlordName': value('landlordName'),
+          'landlordEmail': value('landlordEmail').isEmpty
+              ? null
+              : value('landlordEmail'),
+        },
         'tenantName': value('tenantName'),
         'tenantEmail': value('tenantEmail').isEmpty
             ? null
@@ -574,13 +604,32 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             subtitle: 'The landlord and tenant on the report',
           ),
           const SizedBox(height: kiviloHeadingGap),
-          _textField('landlordName', 'Landlord name', required: true),
-          const SizedBox(height: 12),
-          _textField(
-            'landlordEmail',
-            'Landlord email',
-            keyboardType: TextInputType.emailAddress,
-          ),
+          if (_existing?.lastLandlordName case final name?)
+            CheckboxListTile(
+              value: _sameLandlord,
+              title: const Text('Same landlord as last time'),
+              subtitle: Text(
+                [name, ?_existing!.lastLandlordEmail].join(' · '),
+              ),
+              contentPadding: EdgeInsets.zero,
+              onChanged: _busy
+                  ? null
+                  : (value) => _change(() => _sameLandlord = value!),
+            ),
+          if (!_keepsLandlord) ...[
+            _textField('landlordName', 'Landlord name', required: true),
+            const SizedBox(height: 12),
+            _textField(
+              'landlordEmail',
+              'Landlord email',
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: _busy ? null : () => _chooseContact('LANDLORD'),
+              child: const Text('Choose from your contacts'),
+            ),
+          ],
           const SizedBox(height: 12),
           _textField('tenantName', 'Tenant name', required: true),
           const SizedBox(height: 12),
@@ -588,6 +637,11 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             'tenantEmail',
             'Tenant email',
             keyboardType: TextInputType.emailAddress,
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: _busy ? null : () => _chooseContact('TENANT'),
+            child: const Text('Choose from your contacts'),
           ),
           const SizedBox(height: 32),
           const Divider(),

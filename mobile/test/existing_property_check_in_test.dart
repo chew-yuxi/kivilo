@@ -27,6 +27,8 @@ class _Api extends Api {
         agencyName: 'Harbour Homes',
         furnishingLevel: 'PARTIALLY_FURNISHED',
         rooms: ['Living room', 'Kitchen', 'Bedroom'],
+        lastLandlordName: 'Lee Landlord',
+        lastLandlordEmail: 'lee@example.test',
       ),
       StartableProperty(
         id: 'property-2',
@@ -35,6 +37,15 @@ class _Api extends Api {
         lastTenant: 'Marcus Lee',
         lastEndDate: '2026-11-14',
       ),
+    ];
+  }
+
+  @override
+  Future<List<Contact>> contacts() async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    return const [
+      Contact(name: 'Lee Landlord', email: 'lee@example.test', roles: ['LANDLORD']),
+      Contact(name: 'Priya Nair', email: 'priya@example.test', roles: ['TENANT']),
     ];
   }
 
@@ -136,11 +147,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      for (final label in ['Landlord name (required)', 'Tenant name (required)']) {
-        final field = find.widgetWithText(TextFormField, label);
-        await _reveal(tester, field);
-        await tester.enterText(field, label.split(' ').first);
-      }
+      await _reveal(tester, find.text('Same landlord as last time'));
+      expect(find.text('Lee Landlord · lee@example.test'), findsOneWidget);
+      expect(find.widgetWithText(TextFormField, 'Landlord name (required)'), findsNothing);
+      final tenant = find.widgetWithText(TextFormField, 'Tenant name (required)');
+      await _reveal(tester, tenant);
+      await tester.enterText(tenant, 'New Tenant');
       await tester.tap(find.text('Create check-in'));
       await tester.pumpAndSettle();
 
@@ -151,8 +163,35 @@ void main() {
       // The property's last furnishing is offered and kept unless changed.
       expect(body['furnishingLevel'], 'PARTIALLY_FURNISHED');
       expect(body['rooms'], ['Living room', 'Kitchen']);
+      // The server links last term's landlord itself; no name or email is sent.
+      expect(body['sameLandlord'], isTrue);
+      expect(body.containsKey('landlordName'), isFalse);
     },
   );
+
+  testWidgets('a contact fills the tenant, and the fields stay editable', (
+    tester,
+  ) async {
+    final api = _Api();
+    await _show(tester, NewInspectionScreen(api: api, cache: _NoDraft()));
+    // The tenant's button follows the tenant's email field.
+    await _reveal(tester, find.widgetWithText(TextFormField, 'Tenant email (optional)'));
+    final choose = find.text('Choose from your contacts').last;
+    await tester.ensureVisible(choose);
+    await tester.pumpAndSettle();
+    await tester.tap(choose);
+    await tester.pumpAndSettle();
+    expect(find.text('Choose the tenant'), findsOneWidget);
+    // People seen as tenants first.
+    expect(
+      tester.getTopLeft(find.text('Priya Nair')).dy,
+      lessThan(tester.getTopLeft(find.text('Lee Landlord')).dy),
+    );
+    await tester.tap(find.text('Priya Nair'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextFormField, 'Priya Nair'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'priya@example.test'), findsOneWidget);
+  });
 
   testWidgets('a renewal starts with the rooms kept from the last check-in', (
     tester,
