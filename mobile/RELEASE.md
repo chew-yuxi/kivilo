@@ -20,7 +20,7 @@ lookup (needs a OneMap account) remain.
 
 | Platform / installed release | Patch / ID | Track read-back |
 | --- | --- | --- |
-| Android internal `1.0.0+29` | **13** / `759584` | **stable** |
+| Android internal `1.0.0+29` | **13** / `759578` | **stable** |
 | iOS TestFlight `1.0.0+25` | **41** / `759586` | **stable** |
 
 Both built from one pinned worktree with production defines, published to staging and
