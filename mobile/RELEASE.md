@@ -5,6 +5,49 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Photo capture, caching and report previews: 30 October 2026 Singapore time
+
+Source `3734be3`, pushed to `origin/main` and deployed by Vercel as
+`dpl_Cp4YrRzaLLUv5pUb9cPZmp8VpR6k` (READY, `sin1`) on both production domains before
+patch promotion. Yuxi authorized all five changes and deployment. Multi-shot JPEGs
+are capped at 2048px after durable original storage, retaining the original until
+upload registration and queue handover succeed. The pure-Dart `image` package adds
+no native plugin. The existing disk photo cache now handles sign-out races and
+enforces its size limit throughout a session. Registration makes photo thumbnails
+immediately, room URLs are signed in a batch, and shared/signing reports show
+thumbnails linking to the signed originals. The agreed evidence and PDF stay intact.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **18** / `761163` | **stable**, active, latest; all three architectures |
+| iOS TestFlight `1.0.0+25` | **46** / `761175` | **stable**, active, latest |
+
+Both patches used separate clean worktrees pinned to the source, production defines,
+and the release's Flutter 3.47.2. Explicit build numbers 29 and 25 were verified in
+the final signed artifacts: Shorebird's `--release-version` alone does not override
+the pubspec build number. Both were published to staging, then promoted and read
+back. No native override, migration, store binary, store track or metadata change.
+Android's reviewed `--allow-asset-diffs` covers notices and the existing font reduction
+(119 glyphs, all present in the base's 120). Native executable content matches;
+`libdartjni.so` differs only in its GNU build ID. iOS needed no overrides: nine assets
+match exactly, only `NOTICES.Z` differs, and strict deep code signing passes. iOS
+shares **60.7%** of Dart code and Shorebird warns execution may be slower.
+
+Flutter analysis and all **510 mobile tests** pass. Typecheck, zero-warning lint,
+production build and **227 web unit tests** pass; focused server and complete
+check-in browser coverage pass. The broad integration/browser runs retain unrelated
+local data/permission and billing failures documented in `plans/work-status.md`.
+Production read-only smoke verified all 90 photos/posters in an existing synthetic
+room, signed downloads, private storage and authorization; no application data or
+email changed. Only the poster cron bundles FFmpeg. Physical devices **NOT RUN**:
+the iPhone was offline, so camera speed, detail, orientation, offline bursts and
+update delivery still need a real-device check.
+
+Receipts, logs, provenance and binary audits: `build/release-20261030-photo-speed/`.
+Rollback baselines are Android 29 patch **17** / `761123`, iOS 25 patch **45** /
+`761136`, and server deployment `dpl_7Fjhp3y3kuvsdHGzL7aCVQnxpv4s` (`d4df982`).
+Never delete queued phone media during rollback.
+
 ## Property page leads with the tenancy; landlord and tenant direct rows: 30 October 2026 Singapore time
 
 Source `dc3f68e`, pushed to `origin/main` and deployed by Vercel (READY) before the

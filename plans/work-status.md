@@ -1,6 +1,6 @@
 # Kivilo work tracker
 
-## Photo capture and loading — 29 October (local implementation)
+## Photo capture and loading — 30 October (released)
 
 The multi-shot camera now caps JPEGs at 2048px, with quality 85, after saving the
 camera original in app-support storage. Encoding runs in a Dart isolate through
@@ -9,9 +9,9 @@ retry cannot encode or insert the same shot concurrently. Its original stays bes
 the upload copy until
 registration and final queue handover succeed; failed writes/encoding and app
 restarts recover from that journal. Shots already within the cap retain their
-exact bytes. The `image` dependency adds no Flutter native plugin; patch build
-compatibility and real iPhone camera throughput, detail and orientation remain
-**NOT RUN**. No patch, native build or server deployment was published.
+exact bytes. The `image` dependency adds no Flutter native plugin. Patch build
+compatibility passes for Android 29 and iOS 25; real iPhone camera throughput,
+detail and orientation remain **NOT RUN**.
 
 Disk photo caching already existed, keyed by the immutable storage address without
 its changing signed token. It now enforces the 200 MiB limit throughout a session,
@@ -27,10 +27,25 @@ thumbnails for room, finding, maintenance and addendum photos, with a link to th
 signed original; pending thumbnails fall back to originals. Evidence filtering,
 mark geometry, fingerprints and PDF rendering are unchanged.
 
+Source `3734be3` is pushed and live on both production domains through Vercel
+deployment `dpl_Cp4YrRzaLLUv5pUb9cPZmp8VpR6k` (READY, Singapore). The immediate
+photo path uses Sharp without importing the cron's video converter; final build
+traces include FFmpeg only in the poster cron. A read-only production smoke passed
+all 90 photos/posters in an existing synthetic room, signed downloads, private
+storage and authorization. It changed no report data and sent no email.
+
+Android `1.0.0+29` patch **18** / `761163` and iOS `1.0.0+25` patch **46** /
+`761175` are stable, active and latest, verified by fresh readbacks. Both were built
+from separate pinned worktrees, published to staging and promoted after server
+smoke. No native override, migration or store-track change. iOS shares 60.7% of Dart
+code with Shorebird's possible-slower-execution warning; device performance and
+delivery remain unverified.
+
 Verification: TypeScript, ESLint, production build and 227 unit tests pass using
 Node 24.11.0 (the local pnpm shim's older Node fails PDF tests). Focused server
 coverage passes: 44 poster/reference/comparable/freeze tests, 15 finding-photo
-tests and six batch-signing unit tests. The broad integration run had 411 passes
+tests, six batch-signing unit tests and 30 poster/freeze tests after isolating the
+video dependency. The broad integration run had 411 passes
 and 11 failures; its three missing batch-signing mocks were fixed and all 15
 finding-photo tests then passed. The remaining eight failures concern an existing
 23 October storage-purge tombstone blocking account-deletion tests and local
@@ -55,9 +70,10 @@ local account page offers no Upgrade to Pro button.
 The real iPhone check must cover portrait/landscape multi-shot capture, readable
 label details, a sustained offline photo burst, restart before upload, failed upload
 then retry, and source cleanup only after handover. Confirm the uploaded longest
-edge is 2048px and revisit cached photos offline. These automated tests do not
-establish physical camera throughput or prove a Shorebird patch against a specific
-installed release.
+edge is 2048px and revisit cached photos offline. Automated tests and patch
+compatibility checks do not establish physical camera throughput or device delivery.
+Release provenance, patch readbacks and rollback targets are in `mobile/RELEASE.md`;
+receipts are under `build/release-20261030-photo-speed/`.
 
 ## Earlier release status — 26 October
 
