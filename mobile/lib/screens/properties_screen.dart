@@ -14,6 +14,7 @@ import 'inspection_screen.dart';
 import 'property_card.dart';
 import 'property_screen.dart';
 import 'new_inspection_screen.dart';
+import 'party_homes_screen.dart';
 import 'renewal_reminders.dart';
 import 'team_screen.dart';
 
@@ -88,13 +89,24 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   @override
   void initState() {
     super.initState();
+    _workspace.addListener(_workspaceChanged);
     _loading = _api.load(_load, retainKey: _retainKey);
   }
 
   @override
   void dispose() {
+    _workspace.removeListener(_workspaceChanged);
     _search.dispose();
     super.dispose();
+  }
+
+  /// Home and this tab share the selection; Home swaps this tab out for a party's
+  /// homes, so only a change between work workspaces reloads here.
+  void _workspaceChanged() {
+    if (!mounted) return;
+    if (_workspace.party != null) return setState(() {});
+    _assigneeId = null;
+    _refresh(newScope: true);
   }
 
   Future<List<PropertyWorkItem>> _load() async {
@@ -141,10 +153,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
 
   Future<void> _selectWorkspace(String value) async {
     try {
+      // A changed selection reloads through the listener.
       await _workspace.select(value);
-      if (!mounted) return;
-      _assigneeId = null;
-      await _refresh(newScope: true);
     } catch (error) {
       if (mounted) setState(() => _workError = plainError(error));
     }
@@ -159,8 +169,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     if (!mounted) return;
     try {
       await _workspace.refresh();
+      final before = _workspace.value;
       if (selected != null) await _workspace.select(selected);
-      if (mounted) await _refresh(newScope: selected != null);
+      if (mounted && _workspace.value == before) await _refresh();
     } catch (error) {
       if (mounted) setState(() => _workError = plainError(error));
     }
@@ -213,7 +224,18 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => ProductScreen(
+  Widget build(BuildContext context) =>
+      // Opened on its own (an older notification) while the saved choice is a party's
+      // homes: show those, as the tab would.
+      widget.workspace == null && _workspace.party != null
+      ? PartyHomesScreen(
+          key: ValueKey(_workspace.party),
+          api: _api,
+          workspace: _workspace,
+        )
+      : _work(context);
+
+  Widget _work(BuildContext context) => ProductScreen(
     screen: ProductScreenName.inspections,
     active: widget.trackView,
     child: Scaffold(
@@ -250,7 +272,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                             ),
                         child: OutlinedButton(
                           onPressed: () => _selectWorkspace('all'),
-                          child: const Text('Show all properties'),
+                          child: const Text('Show all my work'),
                         ),
                       ),
               );

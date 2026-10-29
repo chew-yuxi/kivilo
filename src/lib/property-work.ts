@@ -29,7 +29,7 @@ const stageLabels: Record<PropertyStage, string> = {
   ENDED: 'Ended',
 }
 
-const CHECK_OUT_NOTICE_DAYS = 30
+export const CHECK_OUT_NOTICE_DAYS = 30
 
 type Report = { id: string; kind: 'CHECK_IN' | 'CHECK_OUT'; status: InspectionStatus; createdAt: Date }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/models/home_tasks.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/home_screen.dart';
@@ -14,9 +15,32 @@ class _WorkspaceApi extends Api {
   _WorkspaceApi({this.partyOnly = false}) : super(attachAuth: false);
 
   final bool partyOnly;
-  int inspectionReads = 0;
+  int homeReads = 0;
   int propertyReads = 0;
   int renewalReads = 0;
+
+  @override
+  Future<HomeTasks> homeTasks({
+    required String context,
+    String? agencyId,
+    bool personal = false,
+  }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    homeReads++;
+    return HomeTasks(tasks: partyOnly ? [] : const [
+      HomeTask(
+        id: 'inspection:inspection-1',
+        group: 'ACTION',
+        kind: 'CONTINUE_INSPECTION',
+        capacity: 'AGENT',
+        propertyId: 'property-1',
+        property: 'Inspection 1 at a long Cairnhill Rise address',
+        tenancyId: 'tenancy-1',
+        title: 'Continue the check-in',
+        href: '/inspections/inspection-1',
+      ),
+    ]);
+  }
 
   @override
   Future<List<PropertyWorkItem>> propertyWork({
@@ -58,6 +82,7 @@ class _WorkspaceApi extends Api {
   Future<List<TenancySummary>> tenancyWork({
     String? agencyId,
     bool personal = false,
+    String? party,
   }) => tenancies();
   @override
   Future<List<RenewalReminder>> renewalWork({
@@ -90,7 +115,6 @@ class _WorkspaceApi extends Api {
   @override
   Future<List<InspectionSummary>> inspections() async {
     if (readingSavedCopy) throw StateError('nothing saved');
-    inspectionReads++;
     if (partyOnly) return [];
     return [
       for (var index = 1; index <= 20; index++)
@@ -132,7 +156,7 @@ void main() {
         find.text('Inspection 1 at a long Cairnhill Rise address'),
         findsOneWidget,
       );
-      expect(api.inspectionReads, 1);
+      expect(api.homeReads, 1);
 
       await tester.tap(find.text('Properties').last);
       await tester.pumpAndSettle();
@@ -149,7 +173,7 @@ void main() {
         find.text('Inspection 1 at a long Cairnhill Rise address'),
         findsOneWidget,
       );
-      expect(api.inspectionReads, 1);
+      expect(api.homeReads, 1);
 
       await tester.tap(find.text('Properties').last);
       await tester.pump();
@@ -201,7 +225,7 @@ void main() {
       await tester.pumpAndSettle();
       final scrollOffset = scrollable.position.pixels;
       expect(scrollOffset, greaterThan(0));
-      expect(api.inspectionReads, 1);
+      expect(api.homeReads, 1);
       expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
 
@@ -213,7 +237,7 @@ void main() {
       expect(rail.selectedIndex, 1);
       expect(tester.state(find.byType(PropertiesScreen)), same(original));
       expect(scrollable.position.pixels, scrollOffset);
-      expect(api.inspectionReads, 1);
+      expect(api.homeReads, 1);
       expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
       expect(tester.takeException(), isNull);
@@ -230,7 +254,7 @@ void main() {
       );
       expect(tester.state(find.byType(PropertiesScreen)), same(original));
       expect(scrollable.position.pixels, scrollOffset);
-      expect(api.inspectionReads, 1);
+      expect(api.homeReads, 1);
       expect(api.propertyReads, 1);
       expect(api.renewalReads, 1);
       expect(tester.takeException(), isNull);
@@ -256,9 +280,12 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      // Home, Properties and Account for every account; a landlord's or tenant's
+      // homes are in Properties.
       final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
-      expect(rail.destinations, hasLength(2));
-      expect(find.text('Properties'), findsNothing);
+      expect(rail.destinations, hasLength(3));
+      await tester.tap(find.text('Properties').last);
+      await tester.pumpAndSettle();
       final first = tester.getRect(_cardWith('Property 1 at Cairnhill Rise'));
       final second = tester.getRect(_cardWith('Property 2 at Cairnhill Rise'));
       expect(first.top, second.top);

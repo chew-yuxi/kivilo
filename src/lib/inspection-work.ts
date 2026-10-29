@@ -29,3 +29,15 @@ export function inspectionWorkScope(actorId: string, filters: InspectionWorkFilt
   if (filters.status) and.push({ status: filters.status })
   return { AND: and }
 }
+
+/// The same workspace narrowing for tenancy-level work (repairs, documents), where an
+/// exact inspection grant has no part: the lead and collaborators, or the chosen team.
+export function workspaceTenancies(actorId: string, filters: Pick<InspectionWorkFilters, 'agencyId' | 'personal'> = {}): Prisma.TenancyWhereInput {
+  const and: Prisma.TenancyWhereInput[] = [{ property: { archivedAt: null } }]
+  if (filters.agencyId) and.push({
+    agencyId: filters.agencyId, agency: { members: { some: { stakeholderId: actorId, status: 'ACTIVE' } } },
+  })
+  if (filters.personal) and.push({ agencyId: null })
+  if (!filters.agencyId) and.push({ OR: [{ agentId: actorId }, { collaborators: { some: { stakeholderId: actorId } } }] })
+  return { AND: and }
+}

@@ -3,17 +3,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/handover.dart';
-import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/report.dart';
 import 'package:kivilo/models/supporting_documents.dart';
 import 'package:kivilo/screens/agreement_terms_screen.dart';
-import 'package:kivilo/screens/home_screen.dart';
+import 'package:kivilo/screens/party_homes_screen.dart';
 import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/screens/supporting_documents_screen.dart';
 import 'package:kivilo/screens/tenancy_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/workspace.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 import 'package:kivilo/ui/tenant_handover.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -61,20 +62,25 @@ class _Api extends Api {
   String? get currentOwnerId => 'owner-1';
 
   @override
-  Future<UserProfile> me() async {
-    if (readingSavedCopy) throw StateError('nothing saved');
-    return const UserProfile(
-      id: 'owner-1',
-      name: 'Taylor Tenant',
-      roles: ['TENANT'],
-    );
-  }
+  Future<UserProfile> me() async => const UserProfile(
+    id: 'owner-1',
+    name: 'Taylor Tenant',
+    roles: ['TENANT'],
+  );
 
   @override
-  Future<List<InspectionSummary>> inspections() async => [];
+  Future<AgencyIndex> agencies() async =>
+      const AgencyIndex(agencies: [], invitations: []);
 
   @override
-  Future<List<TenancySummary>> tenancies() async => [_tenancy(awaiting: awaiting)];
+  Future<String?> workspacePreference() async => 'tenant';
+
+  @override
+  Future<List<TenancySummary>> tenancyWork({
+    String? agencyId,
+    bool personal = false,
+    String? party,
+  }) async => [_tenancy(awaiting: awaiting)];
 
   @override
   Future<List<MaintenanceCaseSummary>> maintenanceCases(
@@ -224,7 +230,9 @@ void main() {
       tester,
     ) async {
       final api = _Api(awaiting: awaiting);
-      await _pump(tester, HomeScreen(api: api));
+      final workspace = Workspace(api);
+      await workspace.refresh();
+      await _pump(tester, PartyHomesScreen(api: api, workspace: workspace));
       expect(find.text('View property'), findsOneWidget);
       expect(find.text('Repairs'), findsNothing);
       expect(

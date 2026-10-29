@@ -12,6 +12,7 @@ import '../models/property_history.dart';
 import '../models/property_work.dart';
 import '../models/property_settings.dart';
 import '../models/handover.dart';
+import '../models/home_tasks.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../models/report.dart';
@@ -511,18 +512,38 @@ class Api {
   Future<List<TenancySummary>> tenancyWork({
     String? agencyId,
     bool personal = false,
+    String? party,
   }) async {
     final route = Uri(
       path: '/api/v1/tenancies',
       queryParameters: {
         'agencyId': ?agencyId,
         if (personal) 'personal': 'true',
+        'party': ?party,
       },
     ).toString();
     final data = await _read(route, route);
     return (data as List<dynamic>)
         .map((json) => TenancySummary.fromJson(json as Map<String, dynamic>))
         .toList();
+  }
+
+  /// Home's tasks for one context: `work` (narrowed by team or personal), `landlord`
+  /// or `tenant`. Saved per route, so one context's copy never shows for another.
+  Future<HomeTasks> homeTasks({
+    required String context,
+    String? agencyId,
+    bool personal = false,
+  }) async {
+    final route = Uri(
+      path: '/api/v1/home',
+      queryParameters: {
+        'context': context,
+        'agencyId': ?agencyId,
+        if (personal) 'personal': 'true',
+      },
+    ).toString();
+    return HomeTasks.fromJson(await _read(route, route) as Map<String, dynamic>);
   }
 
   Future<String?> workspacePreference() async {

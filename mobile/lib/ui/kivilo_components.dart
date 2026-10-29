@@ -446,12 +446,16 @@ class KiviloSelectOption<T> {
     this.description,
     this.icon,
     this.action = false,
+    this.group,
   });
 
   final T value;
   final String label;
   final String? description;
   final IconData? icon;
+
+  /// A heading the sheet shows above the first option of each run of a group.
+  final String? group;
 
   /// Goes somewhere rather than being a value to hold, so it has no radio.
   final bool action;
@@ -620,7 +624,12 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
             itemBuilder: (context, index) {
               final option = options[index];
               final isSelected = option.value == value;
-              return Material(
+              final heading =
+                  option.group != null &&
+                      (index == 0 || options[index - 1].group != option.group)
+                  ? option.group
+                  : null;
+              final tile = Material(
                 color: isSelected ? KiviloColors.pinkSoft : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -682,6 +691,20 @@ class _KiviloSelectSheet<T> extends StatelessWidget {
                   onTap: () =>
                       Navigator.pop(context, _KiviloSelection<T>(option.value)),
                 ),
+              );
+              if (heading == null) return tile;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(4, index == 0 ? 0 : 12, 4, 8),
+                    child: Semantics(
+                      header: true,
+                      child: KiviloEyebrow(heading),
+                    ),
+                  ),
+                  tile,
+                ],
               );
             },
           ),

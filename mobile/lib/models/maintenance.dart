@@ -7,15 +7,41 @@ class UserProfile {
     required this.id,
     required this.name,
     required this.roles,
+    this.contexts,
   });
   final String id;
   final String name;
   final List<String> roles;
 
+  /// Every relationship the account holds. Null from a server that predates it.
+  final UserContexts? contexts;
+
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
     id: json['id'] as String,
     name: json['name'] as String,
     roles: (json['roles'] as List<dynamic>).cast<String>(),
+    contexts: json['contexts'] == null
+        ? null
+        : UserContexts.fromJson(json['contexts'] as Map<String, dynamic>),
+  );
+}
+
+/// Which Home views this account can choose. Navigation only: the server scopes every
+/// list, so a stale answer can hide a view but never reveal a record.
+class UserContexts {
+  const UserContexts({
+    required this.work,
+    required this.landlord,
+    required this.tenant,
+  });
+  final bool work;
+  final bool landlord;
+  final bool tenant;
+
+  factory UserContexts.fromJson(Map<String, dynamic> json) => UserContexts(
+    work: json['work'] as bool,
+    landlord: json['landlord'] as bool,
+    tenant: json['tenant'] as bool,
   );
 }
 
@@ -87,9 +113,14 @@ class TenancySummary {
     this.latestReportKind,
     this.latestReportStatus,
     this.awaitingMySignature = false,
+    this.capacities = const [],
   });
   final String id;
   final String role;
+
+  /// Every capacity this account holds here; [role] is the single one released
+  /// builds read. Empty from a server that predates it.
+  final List<String> capacities;
   final String propertyId;
   final String property;
   final String postalCode;
@@ -128,6 +159,8 @@ class TenancySummary {
         (json['latestReport'] as Map<String, dynamic>?)?['awaitingMySignature']
             as bool? ??
         false,
+    capacities: (json['capacities'] as List<dynamic>? ?? const [])
+        .cast<String>(),
   );
 }
 

@@ -8,6 +8,7 @@ export const GET = authed(async (stakeholder, _params, request) => {
   const filters = z.object({
     agencyId: z.string().min(1).optional(),
     personal: z.enum(['true', 'false']).transform((value) => value === 'true').optional(),
+    party: z.enum(['LANDLORD', 'TENANT']).optional(),
   }).parse(Object.fromEntries(new URL(request.url).searchParams))
   return listTenancies(stakeholder.id, filters)
 })

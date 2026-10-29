@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
 import 'package:kivilo/models/inspection.dart';
+import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/property_settings.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/models/tenancy_access.dart';
@@ -59,6 +60,12 @@ class _ManagementApi extends Api {
   Completer<List<PropertyEntry>>? propertiesPending;
   List<InspectionSummary> personalReports = const [];
   String? preferredWorkspace;
+  @override
+  Future<UserProfile> me() async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    return const UserProfile(id: 'owner', name: 'Lead Owner', roles: ['AGENT']);
+  }
+
   @override
   Future<String?> workspacePreference() async => preferredWorkspace;
   @override
@@ -734,16 +741,16 @@ void main() {
   );
 
   testWidgets(
-    'revoked Team work can return to All properties without retrying the revoked team',
+    'revoked Team work can return to All my work without retrying the revoked team',
     (tester) async {
       final api = _ManagementApi()
         ..preferredWorkspace = 'team'
         ..workFailure = const ApiFailure('Team access was removed.', 404);
       await _open(tester, PropertiesScreen(api: api));
       expect(find.text('Team access was removed.'), findsOneWidget);
-      await tester.tap(find.text('Show all properties'));
+      await tester.tap(find.text('Show all my work'));
       await tester.pumpAndSettle();
-      expect(find.text('All properties'), findsOneWidget);
+      expect(find.text('All my work'), findsOneWidget);
       expect(find.text('Team access was removed.'), findsNothing);
       expect(api.queries, [('team', null)]);
       expect(tester.takeException(), isNull);

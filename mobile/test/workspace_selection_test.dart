@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/models/home_tasks.dart';
 import 'package:kivilo/models/inspection.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/renewal.dart';
@@ -64,6 +65,16 @@ class _WorkspaceApi extends Api {
   @override
   Future<List<TenancySummary>> tenancies() async => [];
   @override
+  Future<HomeTasks> homeTasks({
+    required String context,
+    String? agencyId,
+    bool personal = false,
+  }) async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    scopes.add((agencyId, personal));
+    return const HomeTasks(tasks: []);
+  }
+  @override
   Future<List<PropertyWorkItem>> propertyWork({
     String? agencyId,
     String? assigneeId,
@@ -88,6 +99,7 @@ class _WorkspaceApi extends Api {
   Future<List<TenancySummary>> tenancyWork({
     String? agencyId,
     bool personal = false,
+    String? party,
   }) async => [];
   @override
   Future<List<RenewalReminder>> renewalWork({
@@ -235,13 +247,13 @@ void main() {
   );
 
   testWidgets(
-    'Home defaults to All properties, shares Personal selection with Properties and inherits it on creation',
+    'Home defaults to All my work, shares Personal selection with Properties and inherits it on creation',
     (tester) async {
       final api = _WorkspaceApi();
       await _open(tester, HomeScreen(api: api));
-      expect(find.text('All properties'), findsOneWidget);
-      expect(api.scopes, isEmpty);
-      await tester.tap(find.text('Start check-in').first);
+      expect(find.text('All my work'), findsOneWidget);
+      expect(api.scopes, [(null, false)]);
+      await tester.tap(find.text('New check-in').first);
       await tester.pumpAndSettle();
       expect(find.text('Workspace: Jac and Nimin'), findsOneWidget);
       await tester.pageBack();
@@ -326,12 +338,16 @@ void main() {
           api: Api(dio: dio, cache: cache, attachAuth: false),
         ),
       );
+      // Home's tasks were never saved before the update; the work list was.
       expect(find.text('Previously loaded home'), findsOneWidget);
       expect(
-        find.text('Offline. Showing previously loaded work.'),
+        find.text(
+          'Offline. Showing tasks as they were last loaded; '
+          'some may already be done.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('Continue inspection'), findsOneWidget);
+      expect(find.text('Continue the check-in'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

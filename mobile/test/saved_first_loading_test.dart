@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/property_work.dart';
 import 'package:kivilo/models/renewal.dart';
 import 'package:kivilo/screens/properties_screen.dart';
@@ -206,6 +207,12 @@ void main() {
 class _RefreshApi extends Api {
   _RefreshApi() : super(attachAuth: false, cache: _MemoryCache());
   Completer<List<PropertyWorkItem>>? next;
+
+  @override
+  Future<UserProfile> me() async {
+    if (readingSavedCopy) throw StateError('nothing saved');
+    return const UserProfile(id: 'account', name: 'Agent', roles: ['AGENT']);
+  }
 
   @override
   Future<AgencyIndex> agencies() async =>

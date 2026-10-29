@@ -14,6 +14,7 @@ import '../services/product_events.dart';
 import '../services/play_billing.dart';
 import '../services/push_notifications.dart';
 import '../services/saved_signature.dart';
+import '../ui/handover_guide.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
@@ -62,6 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
+  String? _signOutError;
   StreamSubscription<void>? _planChanges;
 
   @override
@@ -204,7 +206,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     if (_busy) return;
     setState(() {
       _busy = true;
-      _error = null;
+      _signOutError = null;
     });
     try {
       if (Config.isPushComplete) {
@@ -233,7 +235,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       }
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not sign out. ${plainError(error)}');
+        setState(() => _signOutError = 'Could not sign out. ${plainError(error)}');
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -433,52 +435,79 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 16),
+            // Who is signed in, and the way out, together at the top.
             Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: KiviloColors.pinkSoft,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.person_outline,
-                        color: KiviloColors.pinkDark,
+              clipBehavior: Clip.antiAlias,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: const BoxDecoration(
+                            color: KiviloColors.pinkSoft,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.person_outline,
+                            color: KiviloColors.pinkDark,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Signed in to Kivilo',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium,
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                      Supabase
+                                              .instance
+                                              .client
+                                              .auth
+                                              .currentUser
+                                              ?.email ??
+                                    '',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    leading: const Icon(Icons.logout),
+                    title: const Text('Sign out'),
+                    subtitle: const Text(
+                      'Your saved signature is removed from this phone',
+                    ),
+                    onTap: _busy ? null : _signOut,
+                  ),
+                  if (_signOutError != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                      child: Text(
+                        _signOutError!,
+                        style: const TextStyle(color: KiviloColors.red),
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Signed in to Kivilo',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium,
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                                  Supabase
-                                          .instance
-                                          .client
-                                          .auth
-                                          .currentUser
-                                          ?.email ??
-                                '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ),
             ),
             if (widget.onStartCheckIn != null) ...[
@@ -513,6 +542,23 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Privacy & support'),
             const SizedBox(height: kiviloHeadingGap),
+            _linkCard(
+              icon: Icons.info_outline,
+              title: 'How a handover works',
+              subtitle: 'Capture, write the inventory, then sign',
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => Scaffold(
+                    appBar: AppBar(title: const Text('How a handover works')),
+                    body: const SingleChildScrollView(
+                      padding: kiviloScreenPadding,
+                      child: HandoverGuide(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             _linkCard(
               icon: Icons.privacy_tip_outlined,
               title: 'Privacy policy',
@@ -615,13 +661,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     ),
             ],
             const SizedBox(height: 28),
-            _linkCard(
-              icon: Icons.logout,
-              title: 'Sign out',
-              subtitle: 'Your saved signature is removed from this phone',
-              onTap: _busy ? null : _signOut,
-            ),
-            const SizedBox(height: 20),
             FutureBuilder<String>(
               future: _version,
               builder: (context, version) => Text(

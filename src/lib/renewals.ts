@@ -53,6 +53,7 @@ export async function dueRenewals(
   })
   return tenancies.filter((tenancy) => renewalDueAt(tenancy.endDate) <= now).map((tenancy) => ({
     id: tenancy.id,
+    propertyId: tenancy.propertyId,
     property: propertyLabel(tenancy.property),
     tenant: tenancy.tenant.name,
     endDate: tenancy.endDate.toISOString().slice(0, 10),

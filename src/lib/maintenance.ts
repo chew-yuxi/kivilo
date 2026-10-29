@@ -175,6 +175,29 @@ function repairRoles(
   return { arrangedBy, canLogVisit: arranges, canVerify: !arranges }
 }
 
+/// The decision an open case waits on, for Home: the same rules `answerResponsibility`,
+/// the status change and `verifyMaintenanceVisit` enforce. Arranging and scheduling a
+/// repair are ongoing work, not a decision, so they have no step here.
+export function repairNextStep(
+  role: TenancyRole,
+  maintenanceCase: { status: string; responsibilityProposals: { status: string; arrangedBy: Side; proposedById: string }[] },
+  tenancy: { tenantId: string; agentMayAgreeCosts: boolean },
+): { step: 'ANSWER_COST' | 'ACKNOWLEDGE' | 'CONFIRM'; waitingOn: Side; mine: boolean } | null {
+  const pending = maintenanceCase.responsibilityProposals.find((proposal) => proposal.status === 'PENDING')
+  if (maintenanceCase.status === 'RESOLVED' || maintenanceCase.status === 'CLOSED_NO_ACTION') return null
+  if (pending) {
+    const answering: Side = proposalSide(pending.proposedById, tenancy) === 'TENANT' ? 'LANDLORD' : 'TENANT'
+    return { step: 'ANSWER_COST', waitingOn: answering, mine: sideOf(role) === answering && mayAnswerFor(role, tenancy) }
+  }
+  if (maintenanceCase.status === 'REPORTED') return { step: 'ACKNOWLEDGE', waitingOn: 'LANDLORD', mine: canManage(role) }
+  if (maintenanceCase.status === 'AWAITING_CONFIRMATION') {
+    const { canVerify } = repairRoles(role, maintenanceCase.responsibilityProposals)
+    const confirming: Side = canVerify ? sideOf(role) : sideOf(role) === 'TENANT' ? 'LANDLORD' : 'TENANT'
+    return { step: 'CONFIRM', waitingOn: confirming, mine: canVerify }
+  }
+  return null
+}
+
 const partyName = { LANDLORD: 'Landlord', TENANT: 'Tenant' } as const
 
 /// The one sentence both sides read, in the app and in the notification. Third person,
@@ -293,8 +316,14 @@ async function createNotificationRows(
   if (active.length) await client.notification.createMany({ data: active, skipDuplicates: true })
 }
 
-export async function listTenancies(stakeholderId: string, filters: { agencyId?: string; personal?: boolean } = {}) {
-  const scope: Prisma.TenancyWhereInput[] = [tenancyScope(stakeholderId)]
+export async function listTenancies(
+  stakeholderId: string,
+  filters: { agencyId?: string; personal?: boolean; party?: 'LANDLORD' | 'TENANT' } = {},
+  now = new Date(),
+) {
+  const scope: Prisma.TenancyWhereInput[] = [tenancyScope(stakeholderId, now)]
+  if (filters.party === 'LANDLORD') scope.push({ landlordId: stakeholderId })
+  if (filters.party === 'TENANT') scope.push({ tenantId: stakeholderId })
   if (filters.agencyId) scope.push({
     agencyId: filters.agencyId,
     agency: { members: { some: { stakeholderId, status: 'ACTIVE' } } },
@@ -308,6 +337,8 @@ export async function listTenancies(stakeholderId: string, filters: { agencyId?:
       landlord: { select: { id: true, name: true } },
       tenant: { select: { id: true, name: true } },
       agent: { select: { id: true, name: true } },
+      collaborators: { where: { stakeholderId }, select: { id: true } },
+      agency: { select: { members: { where: { stakeholderId, status: 'ACTIVE', role: { in: ['OWNER', 'MANAGER'] } }, select: { id: true } } } },
       _count: { select: { maintenanceCases: true, inspections: true } },
       // The newest report sent for signature, which `authorizeReport` lets every party read.
       inspections: {
@@ -326,6 +357,14 @@ export async function listTenancies(stakeholderId: string, filters: { agencyId?:
   return tenancies.map((tenancy) => ({
     id: tenancy.id,
     role: tenancy.landlordId === stakeholderId ? 'LANDLORD' : tenancy.tenantId === stakeholderId ? 'TENANT' : 'AGENT',
+    /// Every capacity this account holds here; `role` keeps its single-role precedence.
+    /// AGENT follows `agentTenancies`, the same rule that admitted the row.
+    capacities: [
+      ...(tenancy.landlordId === stakeholderId ? ['LANDLORD'] : []),
+      ...(tenancy.tenantId === stakeholderId ? ['TENANT'] : []),
+      ...(tenancy.endDate >= now && (tenancy.agentId === stakeholderId || tenancy.collaborators.length > 0 ||
+        (tenancy.agency?.members.length ?? 0) > 0) ? ['AGENT'] : []),
+    ],
     propertyId: tenancy.propertyId,
     property: [tenancy.property.line1, tenancy.property.unit].filter(Boolean).join(' '),
     postalCode: tenancy.property.postalCode,
