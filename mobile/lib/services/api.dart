@@ -8,6 +8,7 @@ import '../config.dart';
 import '../models/addenda.dart';
 import '../models/agency.dart';
 import '../models/billing.dart';
+import '../models/cdd.dart';
 import '../models/property_history.dart';
 import '../models/property_work.dart';
 import '../models/property_settings.dart';
@@ -390,6 +391,59 @@ class Api {
           data: data,
         );
         return response.data!['id'] as String;
+      });
+
+  // Due diligence (plans/compliance-pack.md). Read with `_get`, never `_read`: clients'
+  // names, addresses and masked IDs are not kept in this phone's saved copies.
+  Future<List<CddCaseSummary>> cddCases() async {
+    final data = (await _get<Map<String, dynamic>>('/api/v1/cdd')).data!;
+    return [
+      for (final json in data['cases'] as List<dynamic>)
+        CddCaseSummary.fromJson(json as Map<String, dynamic>),
+    ];
+  }
+
+  Future<CddCase> cddCase(String id) async =>
+      CddCase.fromJson((await _get<Map<String, dynamic>>('/api/v1/cdd/$id')).data!);
+
+  Future<String> startDeal({
+    required String clientName,
+    String? clientEmail,
+    required String clientRole,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/cdd',
+      data: {
+        'clientName': clientName,
+        'clientEmail': ?clientEmail,
+        'clientRole': clientRole,
+      },
+    );
+    return response.data!['id'] as String;
+  });
+
+  /// Emails the client (when there is an address) and returns the link to send on
+  /// WhatsApp as well. The link opens a page the client must sign in to.
+  Future<({String url, bool emailed})> requestParticulars(String id) => _call(() async {
+    final data = (await _dio.post<Map<String, dynamic>>('/api/v1/cdd/$id/request')).data!;
+    return (url: data['url'] as String, emailed: data['emailed'] as bool);
+  });
+
+  Future<void> submitParticularsInPerson(String id, Map<String, dynamic> particulars) =>
+      _call(() async {
+        await _dio.post<Object>('/api/v1/cdd/$id/particulars', data: particulars);
+      });
+
+  Future<void> rescreen(String id) => _call(() async {
+    await _dio.post<Object>('/api/v1/cdd/$id/rescreen');
+  });
+
+  Future<void> decideMatch(String matchId, {required bool confirmed, required String reason}) =>
+      _call(() async {
+        await _dio.post<Object>(
+          '/api/v1/cdd/matches/$matchId/decision',
+          data: {'decision': confirmed ? 'CONFIRMED_MATCH' : 'NOT_A_MATCH', 'reason': reason},
+        );
       });
 
   Future<UserProfile> me() async {

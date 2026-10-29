@@ -10,6 +10,7 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/handover_guide.dart';
 import '../ui/kivilo_illustration.dart';
+import 'cdd_screen.dart';
 import 'inspection_screen.dart';
 import 'home_tasks.dart';
 import 'party_homes_screen.dart';
@@ -523,6 +524,14 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.add, size: 20),
             label: const Text('New check-in'),
           ),
+        const SizedBox(height: kiviloButtonGap),
+        OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).push<void>(
+            MaterialPageRoute(builder: (_) => CddListScreen(api: _api)),
+          ),
+          icon: const Icon(Icons.fact_check_outlined, size: 18),
+          label: const Text('Due diligence'),
+        ),
       ],
     );
   }

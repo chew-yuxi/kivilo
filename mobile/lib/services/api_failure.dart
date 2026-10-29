@@ -28,6 +28,11 @@ class ApiFailure implements Exception {
         'Open and confirm every finding before publishing the assessment.',
       'no_damage_unconfirmed' =>
         'Add a finding, or confirm that no damage was found, before publishing.',
+      // Due diligence explains itself: show the server's message when there is one.
+      'invalid_input' || 'invalid_state'
+          when error.response?.data is Map &&
+              (error.response!.data as Map)['message'] is String =>
+        (error.response!.data as Map)['message'] as String,
       'invalid_state' => 'This cannot be done at this stage of the report.',
       'capture_conflict' =>
         'This photo or video clashes with one already in the report. Refresh the room and check it.',
