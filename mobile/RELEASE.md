@@ -5,6 +5,30 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Rooms set up when a check-in is created: 29 October 2026 Singapore time
+
+Source `5378530`, pushed to `origin/main` after `20261029090000_inspection_client_id`
+was applied to production (a nullable unique column on an RLS table), and deployed by
+Vercel (READY) before the patches were set to stable. Phase 2 of
+`plans/app-first-ux-20261025.md`, first slice: New check-in asks bedrooms, bathrooms,
+the usual extra rooms and any named room, previews them and creates each with its
+standard editable lines and a history line. The app sends `clientId`, so a retried
+create returns the same check-in to the same agent; the form is saved on the phone
+until created. Both request fields are optional for older builds and the web form.
+Existing property, renewal room reuse, scoped contact suggestions and OneMap address
+lookup (needs a OneMap account) remain.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **13** / `759584` | **stable** |
+| iOS TestFlight `1.0.0+25` | **41** / `759586` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **493 mobile tests**
+passed. No icon added against either base; `--allow-asset-diffs` covered the icon
+font. No native difference. iOS shared 69.7% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Home task list across agent, landlord and tenant contexts: 29 October 2026 Singapore time
 
 Source `9d71b9b`, pushed to `origin/main` and deployed by Vercel (READY;
