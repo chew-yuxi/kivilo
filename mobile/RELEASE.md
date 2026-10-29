@@ -5,6 +5,30 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Check-in at an existing property, and room names carried into the next term: 29 October 2026 Singapore time
+
+Source `1f2ef66`, pushed to `origin/main` and deployed by Vercel (READY;
+`GET /api/v1/properties/startable` answers 401 signed out) before the patches were set
+to stable; no migration. Phase 2 of `plans/app-first-ux-20261025.md`, second slice:
+New check-in offers New property or Existing property, a searchable picker of
+properties whose tenancies this account manages (never an old report grant; not
+archived or deleted). `createInspection` takes `propertyId`, rechecks management under
+the agency then property lock, keeps the property's address, type and workspace, and
+reuses its plan place. The last check-in's room names start the new check-in and a
+renewal's (`createRenewal` `rooms`), removable one by one; names only.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **14** / `759611` | **stable** |
+| iOS TestFlight `1.0.0+25` | **42** / `759621` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **495 mobile tests**
+passed. No icon added against either base (the picker's search field has no icon,
+since `Icons.search` is in neither); `--allow-asset-diffs` covered the icon font. No
+native difference. iOS shared 64.7% of Dart code with its possible-slower-execution
+warning. Physical devices **NOT RUN**.
+
 ## Rooms set up when a check-in is created: 29 October 2026 Singapore time
 
 Source `5378530`, pushed to `origin/main` after `20261029090000_inspection_client_id`
