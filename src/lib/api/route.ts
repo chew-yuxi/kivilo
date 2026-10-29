@@ -9,6 +9,7 @@ import { MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 import { AgencyActionError } from '@/lib/agency-errors'
 import { PropertyLifecycleError } from '@/lib/property-errors'
 import { SupportingDocumentError } from '@/lib/supporting-documents-errors'
+import { CddInputError, CddStateError } from '@/lib/cdd/errors'
 
 /// Transport for the native client. These handlers are deliberately thin: they resolve
 /// the agent, call the same function the web app calls, and serialise the result. No
@@ -45,6 +46,12 @@ export function authed<P>(
       }
       if (error instanceof SupportingDocumentError) {
         return Response.json({ error: error.code, message: error.message }, { status: error.code === 'invalid_document' ? 400 : 409 })
+      }
+      if (error instanceof CddInputError) {
+        return Response.json({ error: 'invalid_input', message: error.message }, { status: 400 })
+      }
+      if (error instanceof CddStateError) {
+        return Response.json({ error: 'invalid_state', message: error.message }, { status: 409 })
       }
       if (error instanceof PropertyLifecycleError) {
         return Response.json({ error: error.code, message: error.message }, { status: 409 })

@@ -1,24 +1,12 @@
 import { test, expect } from '@playwright/test'
-import { readFileSync } from 'node:fs'
-import path from 'node:path'
 import { freshEmail, latestCodeFor } from './helpers'
+import { ensureSanctionsLists, removeCases } from './cdd-helpers'
 import { db } from '../src/lib/db'
-import { parseTsfaFirstSchedule } from '../src/lib/screening/sg-tsfa'
-import { parseUnConsolidated } from '../src/lib/screening/un-list'
-
-const fixture = (name: string) => readFileSync(path.join(process.cwd(), 'src/lib/screening/fixtures', name), 'utf8')
 
 const cleanup: { caseIds: string[]; people: string[] } = { caseIds: [], people: [] }
 
-// Due-diligence records block deleting the people they name (they are kept five years),
-// so this test removes its own case before anything else cleans up test accounts.
 test.afterAll(async () => {
-  const runs = await db.screeningRun.findMany({ where: { caseId: { in: cleanup.caseIds } }, select: { id: true } })
-  await db.screeningCandidate.deleteMany({ where: { runId: { in: runs.map((run) => run.id) } } })
-  await db.screeningRun.deleteMany({ where: { caseId: { in: cleanup.caseIds } } })
-  await db.cddEvent.deleteMany({ where: { caseId: { in: cleanup.caseIds } } })
-  await db.cddParticulars.deleteMany({ where: { caseId: { in: cleanup.caseIds } } })
-  await db.cddCase.deleteMany({ where: { id: { in: cleanup.caseIds } } })
+  await removeCases(cleanup)
   await db.stakeholder.deleteMany({ where: { id: { in: cleanup.people } } })
 })
 
@@ -26,16 +14,7 @@ test.afterAll(async () => {
 /// emailed code as themselves, fills in their details and sees only a thank-you. The case
 /// moves to the agent with the ID number encrypted (plans/compliance-pack.md).
 test('a client sends their due-diligence particulars from the emailed link', async ({ page }) => {
-  if ((await db.sanctionsList.count()) === 0) {
-    for (const [source, list] of [
-      ['UN', parseUnConsolidated(fixture('un-consolidated-sample.xml'))],
-      ['SG', parseTsfaFirstSchedule(fixture('sg-tsfa-first-schedule.html'))],
-    ] as const) {
-      await db.sanctionsList.create({
-        data: { source, checksum: `e2e-${source}`, publishedAt: list.generatedAt, entryCount: list.entries.length, entries: list.entries },
-      })
-    }
-  }
+  await ensureSanctionsLists()
   const email = freshEmail('cdd-client')
   const agent = await db.stakeholder.create({ data: { name: 'Jane Agent', email: freshEmail('cdd-agent') } })
   const client = await db.stakeholder.create({ data: { name: 'Tan Wei Ming', email } })

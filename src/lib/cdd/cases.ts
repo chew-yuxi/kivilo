@@ -6,6 +6,9 @@ import { screen } from '@/lib/screening/match'
 import { currentSanctionsLists } from '@/lib/screening/lists'
 import { recordServerError } from '@/lib/errors'
 import { encryptIdNumber, maskIdNumber } from './crypto'
+import { CddInputError, CddStateError } from './errors'
+
+export { CddInputError, CddStateError }
 
 /// CEA customer due diligence for one client of one deal (plans/compliance-pack.md).
 /// Every function takes the acting person explicitly and refuses with the same "Case not
@@ -14,8 +17,6 @@ import { encryptIdNumber, maskIdNumber } from './crypto'
 
 const NOT_FOUND = 'Case not found'
 
-/// Something the person filling in the form can fix. Its message is safe to show them.
-export class CddInputError extends Error {}
 
 /// Who works a case: the agent who started it, anyone working its linked tenancy, and the
 /// owners and managers of its agency.
@@ -47,7 +48,7 @@ export type StartDeal = {
 /// existing tenancy links the case now; otherwise it is linked when the check-in creates one.
 export async function startDeal(actorId: string, input: StartDeal) {
   const name = input.clientName.trim()
-  if (!name) throw new Error('Enter the client’s name')
+  if (!name) throw new CddInputError('Enter the client’s name')
   const email = input.clientEmail?.trim().toLowerCase() || null
   return db.$transaction(async (tx) => {
     let tenancy: { id: string; propertyId: string; agencyId: string | null } | null = null
@@ -130,7 +131,7 @@ export function particularsPath(caseId: string, email?: string | null) {
 export async function requestParticulars(caseId: string, agentId: string) {
   return db.$transaction(async (tx) => {
     const found = await caseInScope(caseId, agentId, tx)
-    if (found.status !== 'WAITING_FOR_CLIENT') throw new Error('The client has already sent their particulars')
+    if (found.status !== 'WAITING_FOR_CLIENT') throw new CddStateError('The client has already sent their particulars')
     const [client, agent] = await Promise.all([
       tx.stakeholder.findUniqueOrThrow({ where: { id: found.clientId }, select: { email: true } }),
       tx.stakeholder.findUniqueOrThrow({ where: { id: found.agentId }, select: { name: true } }),
@@ -181,7 +182,7 @@ export async function submitParticularsInPerson(caseId: string, agentId: string,
   const data = checkedParticulars(input)
   await db.$transaction(async (tx) => {
     const found = await caseInScope(caseId, agentId, tx)
-    if (found.status !== 'WAITING_FOR_CLIENT') throw new Error('Particulars are already in')
+    if (found.status !== 'WAITING_FOR_CLIENT') throw new CddStateError('Particulars are already in')
     await tx.cddParticulars.create({
       data: { ...data, caseId, submittedById: agentId, submittedInPerson: true, idSightedById: agentId, idSightedAt: new Date() },
     })
@@ -238,7 +239,7 @@ export async function screenCase(caseId: string) {
 /// The agent's retry after a failed screening, or a fresh check before renewal.
 export async function rescreen(caseId: string, agentId: string) {
   const found = await caseInScope(caseId, agentId)
-  if (found.status === 'WAITING_FOR_CLIENT') throw new Error('The client has not sent their particulars yet')
+  if (found.status === 'WAITING_FOR_CLIENT') throw new CddStateError('The client has not sent their particulars yet')
   await screenCase(caseId)
 }
 
@@ -246,7 +247,7 @@ export async function rescreen(caseId: string, agentId: string) {
 /// confirmed match escalates the case: no further dealing, and a report to be filed.
 export async function decideCandidate(candidateId: string, agentId: string, decision: ScreeningDecision, reason: string) {
   const why = reason.trim()
-  if (!why) throw new Error('Give the reason for this decision')
+  if (!why) throw new CddInputError('Give the reason for this decision')
   await db.$transaction(async (tx) => {
     const candidate = await tx.screeningCandidate.findFirst({
       where: { id: candidateId, decision: null, run: { case: cddCaseScope(agentId) } },
@@ -264,6 +265,43 @@ export async function decideCandidate(candidateId: string, agentId: string, deci
       await tx.cddEvent.create({ data: { caseId, actorId: agentId, kind: 'ESCALATED' } })
     }
   })
+}
+
+const ATTENTION: Record<string, number> = { ESCALATED: 0, NEEDS_REVIEW: 1, WAITING_FOR_CLIENT: 2, COMPLETE: 3 }
+
+/// The agent's cases, those needing them first: escalated, then needing review, then
+/// waiting for the client, then complete; newest first within each.
+export async function casesForAgent(agentId: string) {
+  const cases = await db.cddCase.findMany({
+    where: cddCaseScope(agentId),
+    orderBy: { updatedAt: 'desc' },
+    take: 200,
+    select: {
+      id: true, status: true, clientRole: true, createdAt: true, updatedAt: true,
+      client: { select: { name: true } },
+      particulars: { select: { legalName: true } },
+      tenancy: { select: { id: true, property: { select: { line1: true, unit: true } } } },
+      screeningRuns: {
+        orderBy: { ranAt: 'desc' },
+        take: 1,
+        select: { candidates: { where: { decision: null }, select: { id: true } } },
+      },
+    },
+  })
+  return cases
+    .map((found) => ({
+      id: found.id,
+      status: found.status,
+      clientRole: found.clientRole,
+      clientName: found.particulars?.legalName ?? found.client.name,
+      property: found.tenancy ? [found.tenancy.property.unit, found.tenancy.property.line1].filter(Boolean).join(', ') : null,
+      tenancyId: found.tenancy?.id ?? null,
+      openMatches: found.screeningRuns[0]?.candidates.length ?? 0,
+      screened: found.screeningRuns.length > 0,
+      createdAt: found.createdAt,
+      updatedAt: found.updatedAt,
+    }))
+    .sort((a, b) => ATTENTION[a.status] - ATTENTION[b.status])
 }
 
 /// Everything the agent sees. The identity number appears only masked; nothing here ever
