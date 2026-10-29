@@ -5,6 +5,28 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## OneMap address lookup in New check-in: 29 October 2026 Singapore time
+
+Source `6ab8f01`, pushed to `origin/main` and deployed by Vercel (READY;
+`GET /api/v1/addresses` answers 401 signed out) after `ONEMAP_EMAIL` and
+`ONEMAP_PASSWORD` were added to Production; no migration. Completes Phase 2 of
+`plans/app-first-ux-20261025.md`: "Find the address" searches OneMap from the server,
+which renews the three-day token from the account login; a match fills only the
+street address and postal code, manual entry works on failure, a later answer always
+wins, and one account is held to 60 lookups a minute. The account login was checked
+locally against OneMap; a signed-in production lookup is **NOT RUN**.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **16** / `761053` | **stable** |
+| iOS TestFlight `1.0.0+25` | **44** / `761062` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **499 mobile tests**
+passed. No icon added against either base; `--allow-asset-diffs` covered the icon
+font. No native difference. iOS shared 71.9% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Contacts and the same landlord in New check-in: 29 October 2026 Singapore time
 
 Source `eb2c8e6`, pushed to `origin/main` and deployed by Vercel (READY;
