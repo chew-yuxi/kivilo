@@ -4,9 +4,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
 import { parseTsfaFirstSchedule } from '@/lib/screening/sg-tsfa'
 import { parseUnConsolidated } from '@/lib/screening/un-list'
+import { notificationScope } from '@/lib/auth'
 import {
-  caseForAgent, caseForClient, decideCandidate, rescreen, startDeal, submitOwnParticulars, submitParticularsInPerson,
-  type Particulars,
+  caseForAgent, caseForClient, decideCandidate, particularsStillWanted, requestParticulars, rescreen, startDeal,
+  submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
 
 const tag = randomUUID().slice(0, 8)
@@ -42,6 +43,7 @@ afterAll(async () => {
   await db.screeningCandidate.deleteMany({ where: { run: { caseId: { in: ids } } } })
   await db.screeningRun.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddEvent.deleteMany({ where: { caseId: { in: ids } } })
+  await db.notification.deleteMany({ where: { kind: 'CDD_REQUEST', recipientId: { in: people } } })
   await db.cddParticulars.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddCase.deleteMany({ where: { id: { in: ids } } })
   await db.sanctionsList.deleteMany()
@@ -133,4 +135,32 @@ describe('due diligence cases', () => {
     await rescreen(started.id, agent.id)
     expect((await caseForAgent(started.id, agent.id)).screeningRuns).toHaveLength(1)
   })
+
+  it('asks the client by email, once per ten minutes, until their particulars are in', async () => {
+    const agent = await person('Agent Seven')
+    const client = await person('Client Seven')
+    const started = await startDeal(agent.id, { clientName: client.name, clientEmail: client.email, clientRole: 'LANDLORD' })
+    const first = await requestParticulars(started.id, agent.id)
+    expect(first).toEqual({ path: `/cdd/${started.id}?email=${encodeURIComponent(client.email!)}`, emailed: true })
+    expect((await requestParticulars(started.id, agent.id)).emailed).toBe(false)
+
+    const [request] = await db.notification.findMany({ where: { kind: 'CDD_REQUEST', recipientId: client.id } })
+    expect(request).toMatchObject({ href: `/cdd/${started.id}`, title: expect.stringContaining(agent.name) })
+    expect(await db.notification.count({ where: { id: request.id, ...notificationScope(client.id) } })).toBe(1)
+    expect(await particularsStillWanted(started.id)).toBe(true)
+
+    await submitOwnParticulars(started.id, client.id, ordinary)
+    expect(await particularsStillWanted(started.id)).toBe(false)
+    await expect(requestParticulars(started.id, agent.id)).rejects.toThrow('already sent')
+    const stranger = await person('Stranger Seven')
+    await expect(requestParticulars(started.id, stranger.id)).rejects.toThrow('Case not found')
+  })
+
+  it('returns a copyable link without emailing a client who has no address on file', async () => {
+    const agent = await person('Agent Eight')
+    const started = await startDeal(agent.id, { clientName: 'No Email Eight', clientRole: 'TENANT' })
+    expect(await requestParticulars(started.id, agent.id)).toEqual({ path: `/cdd/${started.id}`, emailed: false })
+    expect(await db.notification.count({ where: { kind: 'CDD_REQUEST', href: `/cdd/${started.id}` } })).toBe(0)
+  })
 })
+

@@ -1029,6 +1029,8 @@ enum NotificationKind {
   /// An addendum to a signed report was published and waits for this party.
   REPORT_UPDATED
   RENEWAL_DUE
+  /// An agent asks their client for CEA due-diligence particulars (plans/compliance-pack.md).
+  CDD_REQUEST
 }
 
 /// Optional private tenancy paperwork, separate from the signed condition report.

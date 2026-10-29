@@ -1,8 +1,9 @@
 import { db } from '@/lib/db'
-import { sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification, sendAgencyInvitationNotification, sendSupportingDocumentNotification } from '@/lib/email'
+import { sendCddRequest, sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification, sendAgencyInvitationNotification, sendSupportingDocumentNotification } from '@/lib/email'
 import { queueRenewalReminders } from '@/lib/renewals'
 import { deliverPushOutbox } from '@/lib/push'
 import { activeNotificationRecipients, notificationCanBeDelivered } from '@/lib/notification-recipients'
+import { particularsStillWanted } from '@/lib/cdd/cases'
 
 /// Creates reminders and delivers the durable email and push outboxes. In-app
 /// notifications are already committed with the domain change; transports retry alone.
@@ -61,7 +62,14 @@ export async function deliverNotificationOutbox(limit = 25) {
   for (const notification of pending) {
     try {
       if (!await notificationCanBeDelivered(db, notification)) continue
-      if (notification.kind === 'SUPPORTING_DOCUMENT_REQUESTED' || notification.kind === 'SUPPORTING_DOCUMENT_UPLOADED') {
+      if (notification.kind === 'CDD_REQUEST') {
+        // Sent their particulars already, perhaps through the WhatsApp link: nothing to ask.
+        if (!await particularsStillWanted(notification.href!.split('/')[2])) {
+          await db.notification.delete({ where: { id: notification.id } })
+          continue
+        }
+        await sendCddRequest(notification.recipient.email!, { ...notification, href: notification.href! })
+      } else if (notification.kind === 'SUPPORTING_DOCUMENT_REQUESTED' || notification.kind === 'SUPPORTING_DOCUMENT_UPLOADED') {
         await sendSupportingDocumentNotification(notification.recipient.email!, { ...notification, href: notification.href! })
       } else if (notification.kind === 'AGENCY_INVITATION') {
         await sendAgencyInvitationNotification(notification.recipient.email!, { ...notification, href: notification.href! })

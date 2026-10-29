@@ -168,6 +168,27 @@ export function agencyInvitationEmail(notification: { title: string; body: strin
   }
 }
 
+/// To a client whose agent needs their CEA due-diligence particulars. The page asks them to
+/// sign in as themselves, so the link is not a credential. It never mentions screening.
+export function cddRequestEmail(notification: { title: string; body: string; href: string }) {
+  const origin = process.env.KIVILO_APP_URL
+  if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  return {
+    subject: notification.title,
+    text: [notification.body, '', `Fill in your details: ${new URL(notification.href, origin).href}`, '',
+      'Sign in using the email address this message was sent to. Your ID number is encrypted, and only its last four characters are ever shown.',
+    ].join('\n'),
+  }
+}
+
+export async function sendCddRequest(to: string, notification: { id: string; title: string; body: string; href: string }) {
+  const { subject, text } = cddRequestEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+    idempotencyKey: `cdd-request-${notification.id}`,
+  })
+  if (error) throw new Error(`Resend refused the particulars request: ${error.message}`)
+}
+
 export async function sendAgencyInvitationNotification(to: string, notification: { id: string; title: string; body: string; href: string }) {
   const { subject, text } = agencyInvitationEmail(notification)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {

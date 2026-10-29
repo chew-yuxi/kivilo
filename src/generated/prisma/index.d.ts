@@ -657,7 +657,8 @@ export const NotificationKind: {
   MAINTENANCE_RESPONSIBILITY: 'MAINTENANCE_RESPONSIBILITY',
   REPEAT_REPAIR: 'REPEAT_REPAIR',
   REPORT_UPDATED: 'REPORT_UPDATED',
-  RENEWAL_DUE: 'RENEWAL_DUE'
+  RENEWAL_DUE: 'RENEWAL_DUE',
+  CDD_REQUEST: 'CDD_REQUEST'
 };
 
 export type NotificationKind = (typeof NotificationKind)[keyof typeof NotificationKind]

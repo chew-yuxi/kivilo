@@ -61,5 +61,5 @@ export const config = {
   /// signing a report, opening their handover and acknowledging an update to it. Those need the same session
   /// refresh and the same redirect when signed out. Shared reports are deliberately
   /// outside it: the token in the URL is the credential there.
-  matcher: ['/inspections/:path*', '/renewals/:path*', '/team/:path*', '/properties/:path*', '/tenancies/:path*', '/account', '/admin', '/sign/:path*', '/updates/:path*', '/handover/:path*'],
+  matcher: ['/inspections/:path*', '/renewals/:path*', '/team/:path*', '/properties/:path*', '/tenancies/:path*', '/account', '/admin', '/sign/:path*', '/cdd/:path*', '/updates/:path*', '/handover/:path*'],
 }

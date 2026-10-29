@@ -14,6 +14,9 @@ import { encryptIdNumber, maskIdNumber } from './crypto'
 
 const NOT_FOUND = 'Case not found'
 
+/// Something the person filling in the form can fix. Its message is safe to show them.
+export class CddInputError extends Error {}
+
 /// Who works a case: the agent who started it, anyone working its linked tenancy, and the
 /// owners and managers of its agency.
 export function cddCaseScope(actorId: string): Prisma.CddCaseWhereInput {
@@ -92,14 +95,15 @@ function checkedParticulars(input: Particulars) {
   const nationality = input.nationality.trim()
   const address = input.address.trim()
   if (!legalName || !nationality || !address || !input.idNumber.trim()) {
-    throw new Error('Fill in every field as it appears on the ID')
+    throw new CddInputError('Fill in every field as it appears on the ID')
   }
   // Without a date of birth a common name matches too many listed people to review.
   const dateOfBirth = input.dateOfBirth ? new Date(`${input.dateOfBirth}T00:00:00Z`) : null
   if (input.kind === 'INDIVIDUAL' && (!dateOfBirth || Number.isNaN(dateOfBirth.getTime()))) {
-    throw new Error('Enter the date of birth as it appears on the ID')
+    throw new CddInputError('Enter the date of birth as it appears on the ID')
   }
-  if (input.pepDeclared && !input.pepDetails?.trim()) throw new Error('Say which public position is held')
+  if (input.pepDeclared && !input.pepDetails?.trim()) throw new CddInputError('Say which public position is held')
+  if (input.idNumber.replace(/[\s-]/g, '').length < 4) throw new CddInputError('Check the ID number')
   const { encrypted, last4 } = encryptIdNumber(input.idNumber)
   return {
     kind: input.kind,
@@ -113,6 +117,48 @@ function checkedParticulars(input: Particulars) {
     pepDeclared: input.pepDeclared,
     pepDetails: input.pepDeclared ? input.pepDetails!.trim() : null,
   }
+}
+
+/// Where the client fills in their particulars, signed in as themselves (`/cdd/[caseId]`).
+/// The email only fills in the login form; the link is not a credential.
+export function particularsPath(caseId: string, email?: string | null) {
+  return email ? `/cdd/${caseId}?${new URLSearchParams({ email })}` : `/cdd/${caseId}`
+}
+
+/// Asks the client for their particulars by email, in-app and push, and returns the link
+/// for the agent to send on WhatsApp as well. At most once every ten minutes per case.
+export async function requestParticulars(caseId: string, agentId: string) {
+  return db.$transaction(async (tx) => {
+    const found = await caseInScope(caseId, agentId, tx)
+    if (found.status !== 'WAITING_FOR_CLIENT') throw new Error('The client has already sent their particulars')
+    const [client, agent] = await Promise.all([
+      tx.stakeholder.findUniqueOrThrow({ where: { id: found.clientId }, select: { email: true } }),
+      tx.stakeholder.findUniqueOrThrow({ where: { id: found.agentId }, select: { name: true } }),
+    ])
+    const path = particularsPath(caseId, client.email)
+    const recent = await tx.cddEvent.findFirst({
+      where: { caseId, kind: 'REQUEST_SENT', createdAt: { gt: new Date(Date.now() - 10 * 60 * 1000) } },
+    })
+    if (client.email && !recent) {
+      await tx.notification.create({
+        data: {
+          recipientId: found.clientId,
+          kind: 'CDD_REQUEST',
+          title: `${agent.name} needs your details for your rental`,
+          body: `${agent.name} is your property agent and needs your details as on your ID. Agents in Singapore must confirm who their clients are before a deal, under CEA rules. It takes about three minutes.`,
+          href: particularsPath(caseId),
+          dedupeKey: `cdd-request:${caseId}:${Date.now()}`,
+        },
+      })
+      await tx.cddEvent.create({ data: { caseId, actorId: agentId, kind: 'REQUEST_SENT' } })
+    }
+    return { path, emailed: Boolean(client.email && !recent) }
+  })
+}
+
+/// Whether a queued request still wants an answer; once the particulars are in, it is not sent.
+export async function particularsStillWanted(caseId: string) {
+  return (await db.cddCase.count({ where: { id: caseId, status: 'WAITING_FOR_CLIENT', particulars: null } })) > 0
 }
 
 /// The client's own submission, signed in as themselves: refused for anyone else, and once
