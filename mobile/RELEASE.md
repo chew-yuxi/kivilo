@@ -5,6 +5,34 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Home task list across agent, landlord and tenant contexts: 29 October 2026 Singapore time
+
+Source `9d71b9b`, pushed to `origin/main` and deployed by Vercel (READY;
+`GET /api/v1/home` answers 401 signed out) before the patches were set to stable; no
+migration. Phase 1 of `plans/app-first-ux-20261025.md`, finished from another
+session's uncommitted work: the context picker (work, homes I own, homes I rent),
+Home as Needs your action / Waiting on others / Coming up (`src/lib/home-tasks.ts`),
+and landlord and tenant homes in Properties (`PartyHomesScreen`, two a row on a
+tablet). `/api/v1/me` `contexts` and `/api/v1/tenancies` `capacities`/`party` are
+additive. Before release an independent review found no access leak; four defects
+were fixed and pinned (check-out offered only with full tenancy access and never
+while a renewal is undecided, pending deposit statements and repairs filtered before
+the per-source bound, move-in notices recognised by snapshot). An app updated offline
+falls back to its saved inspection list. Sign out moved into the account card.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **12** / `759244` | **stable** |
+| iOS TestFlight `1.0.0+25` | **40** / `759255` | **stable** |
+
+iOS patch **39** (`759253`) exists with no track, created two IDs before 40 during the
+same publish; it never reaches a device. Both built from one pinned worktree with
+production defines. Flutter analysis was clean and all **491 mobile tests** passed.
+The handover guide's `Icons.school_outlined`, absent from both bases, was replaced
+with `Icons.info_outline`; no icon is added. `--allow-asset-diffs` covered the icon
+font. No native difference. iOS shared 70.8% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Property cards with cover, lease, next step and badges: 29 October 2026 Singapore time
 
 Source `272325d`, pushed to `origin/main` and deployed by Vercel (READY) before the
