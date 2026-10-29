@@ -1033,6 +1033,17 @@ class Api {
         .toList();
   }
 
+  /// Never saved on the phone: a lookup is only useful with a connection.
+  Future<List<AddressMatch>> searchAddresses(String query) => _call(() async {
+    final response = await _dio.get<List<dynamic>>(
+      '/api/v1/addresses',
+      queryParameters: {'q': query},
+    );
+    return response.data!
+        .map((json) => AddressMatch.fromJson(json as Map<String, dynamic>))
+        .toList();
+  });
+
   Future<List<Contact>> contacts() async {
     const route = '/api/v1/contacts';
     final data = await _read(route, route);

@@ -376,7 +376,14 @@ void main() {
         final furnishing = personal
             ? 'Partially furnished'
             : 'Fully furnished';
-        await tester.ensureVisible(find.text(furnishing));
+        // Mid-screen, clear of the Create check-in bar at the bottom.
+        unawaited(
+          Scrollable.ensureVisible(
+            tester.element(find.text(furnishing)),
+            alignment: 0.5,
+          ),
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text(furnishing));
         await tester.pumpAndSettle();
         for (final label in [

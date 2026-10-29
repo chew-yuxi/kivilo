@@ -58,6 +58,9 @@ export function authed<P>(
           /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Photo path|Unsupported logo|The landlord and tenant need different email addresses)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
+      if (/^Too many address lookups/.test(message)) {
+        return Response.json({ error: 'rate_limited', message }, { status: 429 })
+      }
       if (/^Plan limit reached/.test(message)) {
         return Response.json({ error: 'plan_limit' }, { status: 403 })
       }

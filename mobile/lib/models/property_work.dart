@@ -306,3 +306,22 @@ class Contact {
     roles: ((json['roles'] as List<dynamic>?) ?? const []).cast<String>(),
   );
 }
+
+/// A Singapore address from OneMap Search: the street address and postal code only.
+/// The unit and everything else about the property is the agent's own entry.
+class AddressMatch {
+  const AddressMatch({
+    required this.line1,
+    required this.postalCode,
+    this.building,
+  });
+  final String line1;
+  final String postalCode;
+  final String? building;
+
+  factory AddressMatch.fromJson(Map<String, dynamic> json) => AddressMatch(
+    line1: json['line1'] as String,
+    postalCode: json['postalCode'] as String,
+    building: json['building'] as String?,
+  );
+}

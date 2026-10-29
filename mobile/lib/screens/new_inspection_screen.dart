@@ -68,6 +68,15 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   bool get _previousMode =>
       _existing != null && _existing!.rooms.isNotEmpty && _usePreviousRooms;
   final _customRoom = TextEditingController();
+
+  /// OneMap search for a new property's address. A later answer replaces an earlier
+  /// one, never the reverse, and a failure leaves manual entry as it always was.
+  final _lookup = TextEditingController();
+  Timer? _lookupDelay;
+  int _lookupRun = 0;
+  bool _lookingUp = false;
+  List<AddressMatch> _matches = const [];
+  String? _lookupNote;
   int _draftRevision = 0;
   Future<void> _pendingDraftWrite = Future.value();
 
@@ -146,6 +155,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       controller.dispose();
     }
     _customRoom.dispose();
+    _lookup.dispose();
+    _lookupDelay?.cancel();
     super.dispose();
   }
 
@@ -224,6 +235,62 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   void _change(VoidCallback change) {
     setState(change);
     _saveDraft();
+  }
+
+  void _lookupChanged(String text) {
+    _lookupDelay?.cancel();
+    final query = text.trim();
+    if (query.length < 2) {
+      _lookupRun++;
+      setState(() {
+        _matches = const [];
+        _lookupNote = null;
+        _lookingUp = false;
+      });
+      return;
+    }
+    _lookupDelay = Timer(
+      const Duration(milliseconds: 350),
+      () => unawaited(_runLookup(query)),
+    );
+  }
+
+  Future<void> _runLookup(String query) async {
+    final run = ++_lookupRun;
+    setState(() => _lookingUp = true);
+    try {
+      final matches = await _api.searchAddresses(query);
+      if (!mounted || run != _lookupRun) return;
+      setState(() {
+        _matches = matches;
+        _lookupNote = matches.isEmpty
+            ? 'No Singapore address matches. Type it below.'
+            : null;
+      });
+    } catch (error) {
+      if (!mounted || run != _lookupRun) return;
+      setState(() {
+        _matches = const [];
+        _lookupNote = 'Could not look up addresses (${plainError(error)}) '
+            'Type it below.';
+      });
+    } finally {
+      if (mounted && run == _lookupRun) setState(() => _lookingUp = false);
+    }
+  }
+
+  void _useAddress(AddressMatch match) {
+    _lookupRun++;
+    _lookupDelay?.cancel();
+    _fields['line1']!.text = match.line1;
+    _fields['postalCode']!.text = match.postalCode;
+    _lookup.clear();
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      _matches = const [];
+      _lookingUp = false;
+      _lookupNote = 'Address filled in. Add the unit below if there is one.';
+    });
   }
 
   /// Fills a party's name and email from someone this account already works with.
@@ -512,6 +579,53 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 child: const Text('Choose a property'),
               ),
           ] else ...[
+            TextField(
+              controller: _lookup,
+              readOnly: _busy,
+              textInputAction: TextInputAction.search,
+              decoration: InputDecoration(
+                labelText: 'Find the address (optional)',
+                hintText: 'Postal code, building or street',
+                suffixIcon: _lookingUp
+                    ? const Padding(
+                        padding: EdgeInsets.all(14),
+                        child: SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    : null,
+              ),
+              onChanged: _lookupChanged,
+            ),
+            if (_matches.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Card(
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    for (final (index, match) in _matches.indexed) ...[
+                      if (index > 0) const Divider(height: 1),
+                      ListTile(
+                        title: Text(match.line1),
+                        subtitle: Text(
+                          [
+                            ?match.building,
+                            'Singapore ${match.postalCode}',
+                          ].join(' · '),
+                        ),
+                        onTap: _busy ? null : () => _useAddress(match),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+            if (_lookupNote != null) ...[
+              const SizedBox(height: 6),
+              Text(_lookupNote!, style: Theme.of(context).textTheme.bodySmall),
+            ],
+            const SizedBox(height: 12),
             _textField('line1', 'Address', required: true),
             const SizedBox(height: 12),
             _textField('unit', 'Unit'),
