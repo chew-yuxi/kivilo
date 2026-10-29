@@ -5,6 +5,29 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Property page leads with the tenancy; landlord and tenant direct rows: 30 October 2026 Singapore time
+
+Source `dc3f68e`, pushed to `origin/main` and deployed by Vercel (READY) before the
+patches were set to stable; no migration. Phase 3 of `plans/app-first-ux-20261025.md`:
+the agent's property page opens with landlord, tenant, lease dates and the card's own
+next step and waiting counts (overview `nextStep` and `attention`, additive), groups
+reports and paperwork under "Reports and documents", and renames the look-alike links
+to "Property timeline" and "Change log". The landlord/tenant home card shows the lease
+and one-tap rows for the report, documents and repairs, reversing the 27 October
+single-row card at Yuxi's choice. Built from only these 11 files: another session had
+uncommitted camera, upload, storage and poster work in the shared checkout, excluded.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **17** / `761123` | **stable** |
+| iOS TestFlight `1.0.0+25` | **45** / `761136` | **stable** |
+
+Both built from one pinned worktree with production defines, published to staging and
+set to stable with Yuxi's go. Flutter analysis was clean and all **499 mobile tests**
+passed. No icon added against either base; `--allow-asset-diffs` covered the icon
+font. No native difference. iOS shared 68.0% of Dart code with its
+possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## OneMap address lookup in New check-in: 29 October 2026 Singapore time
 
 Source `6ab8f01`, pushed to `origin/main` and deployed by Vercel (READY;
