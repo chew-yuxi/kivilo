@@ -463,6 +463,8 @@ enum FurnishingLevel {
 
 model Inspection {
   id                String           @id @default(cuid())
+  /// The phone's id for a new check-in, so a retried create returns the same one.
+  clientId          String?          @unique
   tenancyId         String
   kind              InspectionKind
   status            InspectionStatus @default(DRAFT)

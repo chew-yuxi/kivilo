@@ -55,6 +55,7 @@ export const GET = authed(async (agent, _params, request) => {
 })
 
 const newInspection = z.object({
+  clientId: z.uuid().optional(),
   agencyId: z.string().min(1).optional(),
   line1: z.string().trim().min(1),
   unit: z.string().trim().nullable().default(null),
@@ -71,6 +72,7 @@ const newInspection = z.object({
   endDate: z.string().min(1),
   monthlyRent: z.string().min(1),
   deposit: z.string().min(1),
+  rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
 })
 
 /// Creates the property, both stakeholders, the tenancy and the check-in in one call,

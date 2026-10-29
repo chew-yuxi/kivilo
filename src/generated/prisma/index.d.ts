@@ -27627,6 +27627,7 @@ export namespace Prisma {
 
   export type InspectionMinAggregateOutputType = {
     id: string | null
+    clientId: string | null
     tenancyId: string | null
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
@@ -27650,6 +27651,7 @@ export namespace Prisma {
 
   export type InspectionMaxAggregateOutputType = {
     id: string | null
+    clientId: string | null
     tenancyId: string | null
     kind: $Enums.InspectionKind | null
     status: $Enums.InspectionStatus | null
@@ -27673,6 +27675,7 @@ export namespace Prisma {
 
   export type InspectionCountAggregateOutputType = {
     id: number
+    clientId: number
     tenancyId: number
     kind: number
     status: number
@@ -27698,6 +27701,7 @@ export namespace Prisma {
 
   export type InspectionMinAggregateInputType = {
     id?: true
+    clientId?: true
     tenancyId?: true
     kind?: true
     status?: true
@@ -27721,6 +27725,7 @@ export namespace Prisma {
 
   export type InspectionMaxAggregateInputType = {
     id?: true
+    clientId?: true
     tenancyId?: true
     kind?: true
     status?: true
@@ -27744,6 +27749,7 @@ export namespace Prisma {
 
   export type InspectionCountAggregateInputType = {
     id?: true
+    clientId?: true
     tenancyId?: true
     kind?: true
     status?: true
@@ -27840,6 +27846,7 @@ export namespace Prisma {
 
   export type InspectionGroupByOutputType = {
     id: string
+    clientId: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status: $Enums.InspectionStatus
@@ -27880,6 +27887,7 @@ export namespace Prisma {
 
   export type InspectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
@@ -27920,6 +27928,7 @@ export namespace Prisma {
 
   export type InspectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
@@ -27948,6 +27957,7 @@ export namespace Prisma {
 
   export type InspectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    clientId?: boolean
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
@@ -27976,6 +27986,7 @@ export namespace Prisma {
 
   export type InspectionSelectScalar = {
     id?: boolean
+    clientId?: boolean
     tenancyId?: boolean
     kind?: boolean
     status?: boolean
@@ -27997,7 +28008,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "furnishingLevel" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "furnishingLevel" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -28054,6 +28065,10 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      /**
+       * The phone's id for a new check-in, so a retried create returns the same one.
+       */
+      clientId: string | null
       tenancyId: string
       kind: $Enums.InspectionKind
       status: $Enums.InspectionStatus
@@ -28536,6 +28551,7 @@ export namespace Prisma {
    */
   interface InspectionFieldRefs {
     readonly id: FieldRef<"Inspection", 'String'>
+    readonly clientId: FieldRef<"Inspection", 'String'>
     readonly tenancyId: FieldRef<"Inspection", 'String'>
     readonly kind: FieldRef<"Inspection", 'InspectionKind'>
     readonly status: FieldRef<"Inspection", 'InspectionStatus'>
@@ -72289,6 +72305,7 @@ export namespace Prisma {
 
   export const InspectionScalarFieldEnum: {
     id: 'id',
+    clientId: 'clientId',
     tenancyId: 'tenancyId',
     kind: 'kind',
     status: 'status',
@@ -75045,6 +75062,7 @@ export namespace Prisma {
     OR?: InspectionWhereInput[]
     NOT?: InspectionWhereInput | InspectionWhereInput[]
     id?: StringFilter<"Inspection"> | string
+    clientId?: StringNullableFilter<"Inspection"> | string | null
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
@@ -75084,6 +75102,7 @@ export namespace Prisma {
 
   export type InspectionOrderByWithRelationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
@@ -75123,6 +75142,7 @@ export namespace Prisma {
 
   export type InspectionWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    clientId?: string
     baselineId?: string
     shareToken?: string
     AND?: InspectionWhereInput | InspectionWhereInput[]
@@ -75161,10 +75181,11 @@ export namespace Prisma {
     addenda?: ReportAddendumListRelationFilter
     accessGrants?: InspectionAccessGrantListRelationFilter
     moveInDefectCases?: MaintenanceCaseListRelationFilter
-  }, "id" | "baselineId" | "shareToken">
+  }, "id" | "clientId" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
     id?: SortOrder
+    clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
@@ -75194,6 +75215,7 @@ export namespace Prisma {
     OR?: InspectionScalarWhereWithAggregatesInput[]
     NOT?: InspectionScalarWhereWithAggregatesInput | InspectionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Inspection"> | string
+    clientId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     tenancyId?: StringWithAggregatesFilter<"Inspection"> | string
     kind?: EnumInspectionKindWithAggregatesFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusWithAggregatesFilter<"Inspection"> | $Enums.InspectionStatus
@@ -79973,6 +79995,7 @@ export namespace Prisma {
 
   export type InspectionCreateInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -80007,6 +80030,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -80041,6 +80065,7 @@ export namespace Prisma {
 
   export type InspectionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -80075,6 +80100,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -80109,6 +80135,7 @@ export namespace Prisma {
 
   export type InspectionCreateManyInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -80132,6 +80159,7 @@ export namespace Prisma {
 
   export type InspectionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -80150,6 +80178,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -85035,6 +85064,7 @@ export namespace Prisma {
 
   export type InspectionCountOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
@@ -85058,6 +85088,7 @@ export namespace Prisma {
 
   export type InspectionMaxOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
@@ -85081,6 +85112,7 @@ export namespace Prisma {
 
   export type InspectionMinOrderByAggregateInput = {
     id?: SortOrder
+    clientId?: SortOrder
     tenancyId?: SortOrder
     kind?: SortOrder
     status?: SortOrder
@@ -94517,6 +94549,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutConductedByInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -94550,6 +94583,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -94593,6 +94627,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutReportAgentInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -94626,6 +94661,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutReportAgentInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -95867,6 +95903,7 @@ export namespace Prisma {
     OR?: InspectionScalarWhereInput[]
     NOT?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
     id?: StringFilter<"Inspection"> | string
+    clientId?: StringNullableFilter<"Inspection"> | string | null
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
@@ -97362,6 +97399,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutReportAgencyInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -97395,6 +97433,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutReportAgencyInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -100254,6 +100293,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutTenancyInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -100287,6 +100327,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -102037,6 +102078,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutCheckOutInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -102070,6 +102112,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -102108,6 +102151,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutBaselineInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -102141,6 +102185,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -102874,6 +102919,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutCheckOutInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -102907,6 +102953,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -102951,6 +102998,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutBaselineInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -102984,6 +103032,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -103237,6 +103286,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutAccessGrantsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -103270,6 +103320,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutAccessGrantsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -103418,6 +103469,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutAccessGrantsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -103451,6 +103503,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutAccessGrantsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -103803,6 +103856,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutRoomsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -103836,6 +103890,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -103987,6 +104042,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutRoomsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -104020,6 +104076,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -105446,6 +105503,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutMoveInDefectCasesInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -105479,6 +105537,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutMoveInDefectCasesInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -105897,6 +105956,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutMoveInDefectCasesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -105930,6 +105990,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutMoveInDefectCasesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -109401,6 +109462,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutFindingsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -109434,6 +109496,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -109712,6 +109775,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutFindingsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -109745,6 +109809,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -110004,6 +110069,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutFindingPhotoDraftsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -110037,6 +110103,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutFindingPhotoDraftsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -110266,6 +110333,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutFindingPhotoDraftsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -110299,6 +110367,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutFindingPhotoDraftsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -110648,6 +110717,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutSignaturesInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -110681,6 +110751,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -110829,6 +110900,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutSignaturesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -110862,6 +110934,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -111000,6 +111073,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutReportEmailsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -111033,6 +111107,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutReportEmailsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -111181,6 +111256,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutReportEmailsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -111214,6 +111290,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutReportEmailsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -111352,6 +111429,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutAssessmentsInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -111385,6 +111463,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutAssessmentsInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -111466,6 +111545,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutAssessmentsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -111499,6 +111579,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -111548,6 +111629,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutAddendaInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -111581,6 +111663,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutAddendaInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -112060,6 +112143,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutAddendaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -112093,6 +112177,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutAddendaInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -114031,6 +114116,7 @@ export namespace Prisma {
 
   export type InspectionCreateWithoutIssuedReportFilesInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -114064,6 +114150,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedCreateWithoutIssuedReportFilesInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -114113,6 +114200,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutIssuedReportFilesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -114146,6 +114234,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutIssuedReportFilesInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -114529,6 +114618,7 @@ export namespace Prisma {
 
   export type InspectionCreateManyConductedByInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -114551,6 +114641,7 @@ export namespace Prisma {
 
   export type InspectionCreateManyReportAgentInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -115194,6 +115285,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutConductedByInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -115227,6 +115319,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -115260,6 +115353,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -115282,6 +115376,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutReportAgentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -115315,6 +115410,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutReportAgentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -115348,6 +115444,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateManyWithoutReportAgentInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -116509,6 +116606,7 @@ export namespace Prisma {
 
   export type InspectionCreateManyReportAgencyInput = {
     id?: string
+    clientId?: string | null
     tenancyId: string
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
@@ -116677,6 +116775,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutReportAgencyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -116710,6 +116809,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutReportAgencyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -116743,6 +116843,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateManyWithoutReportAgencyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
@@ -117241,6 +117342,7 @@ export namespace Prisma {
 
   export type InspectionCreateManyTenancyInput = {
     id?: string
+    clientId?: string | null
     kind: $Enums.InspectionKind
     status?: $Enums.InspectionStatus
     fullyFurnished?: boolean
@@ -117317,6 +117419,7 @@ export namespace Prisma {
 
   export type InspectionUpdateWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -117350,6 +117453,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean
@@ -117383,6 +117487,7 @@ export namespace Prisma {
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
     status?: EnumInspectionStatusFieldUpdateOperationsInput | $Enums.InspectionStatus
     fullyFurnished?: BoolFieldUpdateOperationsInput | boolean

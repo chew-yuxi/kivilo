@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../services/api.dart';
+import '../services/capture_queue.dart';
+import '../services/read_cache.dart';
 import '../models/agency.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
@@ -8,9 +12,15 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
 class NewInspectionScreen extends StatefulWidget {
-  const NewInspectionScreen({super.key, this.api, this.initialAgency});
+  const NewInspectionScreen({
+    super.key,
+    this.api,
+    this.initialAgency,
+    this.cache,
+  });
   final AgencySummary? initialAgency;
   final Api? api;
+  final ReadCache? cache;
 
   @override
   State<NewInspectionScreen> createState() => _NewInspectionScreenState();
@@ -19,7 +29,41 @@ class NewInspectionScreen extends StatefulWidget {
 class _NewInspectionScreenState extends State<NewInspectionScreen> {
   final _form = GlobalKey<FormState>();
   late final _api = widget.api ?? Api();
+  late final ReadCache _cache = widget.cache ?? ReadCache();
   late AgencySummary? _agency = widget.initialAgency;
+
+  /// Sent with the create, so a retry after a lost response returns the same check-in.
+  String _clientId = newCaptureId();
+
+  int _bedrooms = 2;
+  int _bathrooms = 2;
+  final _extras = <String, bool>{
+    'Living room': true,
+    'Dining area': false,
+    'Kitchen': true,
+    'Balcony': false,
+    'Utility room': false,
+  };
+  final _custom = <String>[];
+  final _customRoom = TextEditingController();
+  int _draftRevision = 0;
+  Future<void> _pendingDraftWrite = Future.value();
+
+  static const _draftKey = 'new-check-in-draft';
+
+  /// The rooms the check-in starts with, in walking order. Each gets the standard
+  /// editable lines for its name and the furnishing level, as a room added later does.
+  List<String> get _rooms => [
+    for (final name in ['Living room', 'Dining area', 'Kitchen'])
+      if (_extras[name]!) name,
+    for (var i = 1; i <= _bedrooms; i++)
+      _bedrooms == 1 ? 'Bedroom' : 'Bedroom $i',
+    for (var i = 1; i <= _bathrooms; i++)
+      _bathrooms == 1 ? 'Bathroom' : 'Bathroom $i',
+    for (final name in ['Balcony', 'Utility room'])
+      if (_extras[name]!) name,
+    ..._custom,
+  ];
   final _fields = <String, TextEditingController>{
     for (final name in [
       'line1',
@@ -46,11 +90,90 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   String? _error;
 
   @override
+  void initState() {
+    super.initState();
+    for (final controller in _fields.values) {
+      controller.addListener(_saveDraft);
+    }
+    unawaited(_restoreDraft());
+  }
+
+  @override
   void dispose() {
     for (final controller in _fields.values) {
       controller.dispose();
     }
+    _customRoom.dispose();
     super.dispose();
+  }
+
+  /// An interrupted setup (a call, the app closed) comes back as it was left.
+  Future<void> _restoreDraft() async {
+    final revision = _draftRevision;
+    final value = await _cache.read(_draftKey);
+    // Typing while the read is in flight takes precedence over the saved copy.
+    if (!mounted || revision != _draftRevision || value is! Map) return;
+    final draft = value.cast<String, dynamic>();
+    final fields = (draft['fields'] as Map?)?.cast<String, dynamic>() ?? {};
+    for (final entry in _fields.entries) {
+      entry.value.text = fields[entry.key] as String? ?? '';
+    }
+    setState(() {
+      _clientId = draft['clientId'] as String? ?? _clientId;
+      _propertyType = draft['propertyType'] as String? ?? _propertyType;
+      _furnishingLevel = draft['furnishingLevel'] as String?;
+      _startDate =
+          DateTime.tryParse(draft['startDate'] as String? ?? '') ?? _startDate;
+      _endDate =
+          DateTime.tryParse(draft['endDate'] as String? ?? '') ?? _endDate;
+      _bedrooms = draft['bedrooms'] as int? ?? _bedrooms;
+      _bathrooms = draft['bathrooms'] as int? ?? _bathrooms;
+      final extras = (draft['extras'] as Map?)?.cast<String, dynamic>() ?? {};
+      for (final name in _extras.keys) {
+        _extras[name] = extras[name] as bool? ?? _extras[name]!;
+      }
+      _custom
+        ..clear()
+        ..addAll(((draft['custom'] as List?) ?? const []).cast<String>());
+    });
+  }
+
+  void _saveDraft() {
+    _draftRevision++;
+    final snapshot = {
+      'clientId': _clientId,
+      'fields': {
+        for (final entry in _fields.entries) entry.key: entry.value.text,
+      },
+      'propertyType': _propertyType,
+      'furnishingLevel': _furnishingLevel,
+      'startDate': _iso(_startDate),
+      'endDate': _iso(_endDate),
+      'bedrooms': _bedrooms,
+      'bathrooms': _bathrooms,
+      'extras': {..._extras},
+      'custom': [..._custom],
+    };
+    // Each write waits for the one before, so an older copy never replaces a newer one.
+    _pendingDraftWrite = _pendingDraftWrite.then((_) async {
+      try {
+        await _cache.write(_draftKey, snapshot);
+      } catch (error) {
+        debugPrint('Could not save the check-in draft: $error');
+      }
+    });
+  }
+
+  void _change(VoidCallback change) {
+    setState(change);
+    _saveDraft();
+  }
+
+  void _addCustomRoom() {
+    final name = _customRoom.text.trim();
+    if (name.isEmpty) return;
+    _customRoom.clear();
+    _change(() => _custom.add(name));
   }
 
   String _iso(DateTime date) =>
@@ -64,7 +187,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       initialDate: start ? _startDate : _endDate,
     );
     if (selected != null && mounted) {
-      setState(() {
+      _change(() {
         if (start) {
           _startDate = selected;
         } else {
@@ -173,7 +296,16 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             ? '0'
             : value('monthlyRent'),
         'deposit': value('deposit').isEmpty ? '0' : value('deposit'),
+        'clientId': _clientId,
+        'rooms': _rooms,
       });
+      await _pendingDraftWrite;
+      try {
+        await _cache.remove(_draftKey);
+      } catch (error) {
+        // The check-in exists; a stale local draft must not look like a failed create.
+        debugPrint('Could not clear the check-in draft: $error');
+      }
       if (mounted) Navigator.pop(context, id);
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
@@ -227,7 +359,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Set up the property and tenancy. You can add rooms after this.',
+            'Set up the property, the tenancy and its rooms.',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 20),
@@ -288,7 +420,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 icon: Icons.store_rounded,
               ),
             ],
-            onChanged: (value) => setState(() => _propertyType = value),
+            onChanged: (value) => _change(() => _propertyType = value),
           ),
           const SizedBox(height: 20),
           Text(
@@ -302,7 +434,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           ),
           RadioGroup<String>(
             groupValue: _furnishingLevel,
-            onChanged: (value) => setState(() {
+            onChanged: (value) => _change(() {
               _furnishingLevel = value;
               _error = null;
             }),
@@ -326,6 +458,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 32),
+          const Divider(),
+          const SizedBox(height: kiviloSectionGap),
+          ..._roomsSection(),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: kiviloSectionGap),
@@ -416,6 +552,109 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     )),
   ),
   );
+
+  List<Widget> _roomsSection() {
+    final text = Theme.of(context).textTheme;
+    final rooms = _rooms;
+    return [
+      const KiviloSectionHeading(
+        title: 'Rooms',
+        subtitle: 'Each starts with standard lines you can edit',
+      ),
+      const SizedBox(height: kiviloHeadingGap),
+      Text('Bedrooms', style: text.bodySmall),
+      const SizedBox(height: 6),
+      KiviloSegmentedControl<int>(
+        value: _bedrooms,
+        options: [
+          for (var count = 0; count <= 5; count++)
+            KiviloSegmentOption(value: count, label: '$count'),
+        ],
+        onChanged: _busy
+            ? null
+            : (value) => _change(() => _bedrooms = value!),
+      ),
+      const SizedBox(height: 12),
+      Text('Bathrooms', style: text.bodySmall),
+      const SizedBox(height: 6),
+      KiviloSegmentedControl<int>(
+        value: _bathrooms,
+        options: [
+          for (var count = 1; count <= 4; count++)
+            KiviloSegmentOption(value: count, label: '$count'),
+        ],
+        onChanged: _busy
+            ? null
+            : (value) => _change(() => _bathrooms = value!),
+      ),
+      const SizedBox(height: 8),
+      for (final name in _extras.keys)
+        CheckboxListTile(
+          value: _extras[name],
+          title: Text(name),
+          contentPadding: EdgeInsets.zero,
+          onChanged: _busy
+              ? null
+              : (value) => _change(() => _extras[name] = value!),
+        ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _customRoom,
+              readOnly: _busy,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Another room (optional)',
+                hintText: 'For example, study',
+              ),
+              onSubmitted: (_) => _addCustomRoom(),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: TextButton.icon(
+              onPressed: _busy ? null : _addCustomRoom,
+              icon: const Icon(Icons.add),
+              label: const Text('Add'),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+      Text(
+        rooms.isEmpty
+            ? 'No rooms yet. You can add them after this.'
+            : '${rooms.length} ${rooms.length == 1 ? 'room' : 'rooms'} to set up',
+        style: text.bodySmall,
+      ),
+      if (rooms.isNotEmpty) ...[
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final (index, name) in rooms.indexed)
+              index >= rooms.length - _custom.length
+                  ? InputChip(
+                      label: Text(name),
+                      deleteIcon: const Icon(Icons.close, size: 18),
+                      onDeleted: _busy
+                          ? null
+                          : () => _change(
+                              () => _custom.removeAt(
+                                index - (rooms.length - _custom.length),
+                              ),
+                            ),
+                    )
+                  : Chip(label: Text(name)),
+          ],
+        ),
+      ],
+    ];
+  }
 
   Widget _dateCard(String label, DateTime date, VoidCallback onTap) => Card(
     child: InkWell(

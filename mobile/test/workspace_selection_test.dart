@@ -384,7 +384,11 @@ void main() {
           'Tenant name (required)',
         ]) {
           final field = find.widgetWithText(TextFormField, label);
-          await tester.ensureVisible(field);
+          await tester.scrollUntilVisible(
+            field,
+            300,
+            scrollable: find.byType(Scrollable).first,
+          );
           await tester.enterText(
             field,
             label.startsWith('Landlord') ? 'Demo Landlord' : 'Demo Tenant',

@@ -330,6 +330,7 @@ exports.Prisma.TenancyCollaboratorScalarFieldEnum = {
 
 exports.Prisma.InspectionScalarFieldEnum = {
   id: 'id',
+  clientId: 'clientId',
   tenancyId: 'tenancyId',
   kind: 'kind',
   status: 'status',

@@ -89,6 +89,15 @@ void main() {
     }
   }
 
+  /// Real file and queue work finishes on the real clock; wait for the outcome itself
+  /// rather than a fixed time, which a busy machine can outrun.
+  Future<void> settleUntil(WidgetTester tester, Future<bool> Function() done) async {
+    for (var i = 0; i < 40; i++) {
+      await settle(tester);
+      if (await tester.runAsync(done) ?? false) return;
+    }
+  }
+
   Future<void> open(WidgetTester tester) async {
     tester.view.physicalSize = const Size(393, 1200);
     tester.view.devicePixelRatio = 1;
@@ -122,7 +131,7 @@ void main() {
   ) async {
     await open(tester);
     await tester.runAsync(() => tester.tap(find.text('Take photo')));
-    await settle(tester);
+    await settleUntil(tester, () async => find.byType(PhotoMarkScreen).evaluate().isNotEmpty);
     expect(find.byType(PhotoMarkScreen), findsOneWidget);
     final capture = (await queue.forRoom('BEFORE', 'owner')).single;
     expect(capture.awaitingMarkup, isTrue);
@@ -142,7 +151,8 @@ void main() {
     await tester.tap(find.text('Save mark'));
     await settle(tester);
     await tester.tap(find.text('Save photo'));
-    await settle(tester);
+    await settleUntil(tester, () async =>
+        registration() != null && (await queue.forRoom('BEFORE', 'owner')).isEmpty);
 
     expect(find.byType(PhotoMarkScreen), findsNothing);
     final sent = registration()!.data as Map<String, dynamic>;
@@ -181,6 +191,8 @@ void main() {
     await tester.runAsync(() => queue.setAnnotations(id, jsonEncode(drawn)));
 
     await open(tester);
+    await settleUntil(tester, () async =>
+        registration() != null && (await queue.forRoom('BEFORE', 'owner')).isEmpty);
 
     expect((registration()!.data as Map<String, dynamic>)['annotations'], drawn);
     expect(await queue.forRoom('BEFORE', 'owner'), isEmpty);

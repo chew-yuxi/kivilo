@@ -83,8 +83,11 @@ void main() {
       ),
     );
 
-    await tester.drag(find.byType(ListView), const Offset(0, -1600));
-    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Tenancy'),
+      400,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Tenancy'), findsOneWidget);
     expect(find.text('Create check-in'), findsOneWidget);
     expect(tester.takeException(), isNull);

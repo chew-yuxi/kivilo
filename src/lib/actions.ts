@@ -133,6 +133,8 @@ async function authorizeItem(itemId: string, inspectionId: string, agentId: stri
 /// it, so they see every deal that names them from the one login. The name the agent
 /// typed does not overwrite the one on file, since other deals show that name too.
 export async function createInspection(input: {
+  /// Set by the app, so a create whose response was lost returns the same check-in.
+  clientId?: string | null
   agencyId?: string
   line1: string
   unit: string | null
@@ -148,8 +150,20 @@ export async function createInspection(input: {
   endDate: string
   monthlyRent: string
   deposit: string
+  /// Rooms to start with, in order, each with its standard editable lines.
+  rooms?: string[]
 }) {
   const agent = await requireAgent()
+  if (input.clientId) {
+    const existing = await db.inspection.findUnique({
+      where: { clientId: input.clientId },
+      select: { id: true, conductedById: true },
+    })
+    if (existing) {
+      if (existing.conductedById !== agent.id) throw new Error('Inspection not found')
+      return existing.id
+    }
+  }
 
   const required = [input.line1, input.postalCode, input.landlordName, input.tenantName]
   if (required.some((value) => !value.trim())) {
@@ -183,8 +197,9 @@ export async function createInspection(input: {
       await requireAgencyMembership(input.agencyId, agent.id, tx)
     }
     await assertCanAddProperty(agent, input.agencyId ?? null, tx)
-    return tx.inspection.create({
+    const created = await tx.inspection.create({
     data: {
+      clientId: input.clientId || null,
       kind: 'CHECK_IN',
       furnishingLevel,
       // Kept in sync for app builds released before the three-way field existed.
@@ -215,6 +230,32 @@ export async function createInspection(input: {
       },
     },
     })
+    const rooms = (input.rooms ?? []).map((name) => name.trim()).filter(Boolean)
+    if (rooms.length > 0) {
+      const place = await inspectionPlace(tx, created.id)
+      // As addRoom makes each room: its standard rows, one millisecond apart so they
+      // keep the template's order, and a history line per room.
+      const now = Date.now()
+      for (const [order, name] of rooms.entries()) {
+        await tx.room.create({
+          data: {
+            inspectionId: created.id,
+            name,
+            order,
+            items: {
+              create: templateRows(name, furnishingLevel).map((row, index) => ({
+                ...row,
+                condition: 'GOOD',
+                editedByHuman: true,
+                createdAt: new Date(now + index),
+              })),
+            },
+          },
+        })
+        await recordEvent(tx, { ...place, actorId: agent.id, kind: 'ROOM_ADDED', summary: `added the room ${name}` })
+      }
+    }
+    return created
   })
 
   revalidatePath('/inspections')
