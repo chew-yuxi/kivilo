@@ -3,18 +3,23 @@
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
 Pte. Ltd. iOS **1.0.0 (24) was rejected on 30 October 2026** under 2.1(a), 3.1.1,
 and 4.5.4. Its review submission is `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`.
-All 21 Apple subscriptions are READY_TO_SUBMIT. Prices cover Apple's required
+Replacement **1.0.0 (26)** was submitted at **00:10 Singapore time on 31 October**.
+Submission `2428f030-a3ac-4faf-b507-487a1a46b9ca`, the app, all 21 subscriptions
+and both groups are **WAITING_FOR_REVIEW**. The rejected submission is Removed.
+Release remains **MANUAL** and Singapore-only. Receipt: `apple-resubmission-20261031.json`.
+Prices cover Apple's required
 175 storefronts, with Singapore alone available for sale. Signed replacement build
 **26** is uploaded, VALID and in **Kivilo Internal** TestFlight; Shorebird release
 **922723** is active. It is selected for the public version, now
-PREPARE_FOR_SUBMISSION. Six listing replacements are COMPLETE, with both old images
+WAITING_FOR_REVIEW. Six listing replacements are COMPLETE, with both old images
 removed; the description, App Privacy and current review notes are saved.
 The billing backend is live and signed Sandbox TEST notification delivery succeeds.
 All 21 private subscription review images are COMPLETE. Apple's separate bulk-quantity
 purchasing is disabled; the selected team SKU already determines its seat count.
-The owner cannot perform a phone purchase test yet. Real purchase/restore and final
-distribution-update verification, subscription/group attachment and App Store
-resubmission remain. Apple account setup is cleared: both agreements, banking and
+The owner authorized review submission with real purchase/restore and final
+distribution-update verification still unrun; a phone is not available yet.
+App Review Information explains all three fixes; no separate review reply was sent.
+Apple account setup is cleared: both agreements, banking and
 the two U.S. tax forms are Active; Singapore tax is Complete. The U.S. forms were
 submitted after the owner's explicit certification approval. Current
 remediation, provenance and gates: `plans/apple-billing.md`,

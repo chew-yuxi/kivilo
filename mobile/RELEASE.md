@@ -38,7 +38,14 @@ code. Checks: 516 mobile tests on the patch source and clean analysis; on the se
 source lint, typecheck, build, 277 unit, 446 integration and both due-diligence e2e
 specs. Physical devices **NOT RUN**.
 
-## Apple rejection remediation: 30 October 2026 (TestFlight 26; review not resubmitted)
+## Apple rejection remediation: resubmitted 31 October 2026
+
+Build **1.0.0 (26)** was submitted at **00:10 Singapore time on 31 October** with
+all 21 subscriptions and both groups. Submission
+`2428f030-a3ac-4faf-b507-487a1a46b9ca` and all 24 linked versions show
+**WAITING_FOR_REVIEW** in API read-back and App Store Connect. Release remains
+**MANUAL** and Singapore-only. The owner authorized submission with the real-device
+test gaps below. Receipt: `store/submission/apple-resubmission-20261031.json`.
 
 Apple rejected **1.0.0 (24)** under 2.1(a), 3.1.1 and 4.5.4. Native **1.0.0 (26)**
 now includes StoreKit 2 billing, optional Shorebird update continuation and updated
@@ -52,7 +59,8 @@ The test fixture is absent. Artifact: `build/release-artifacts/ios/build26/kivil
 hash/provenance: `store/submission/apple-prepared-build.json`. Shorebird release
 **922723** is active for iOS. Apple build `7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2`
 is **VALID**, in **Kivilo Internal** TestFlight, and selected for public version
-1.0.0 (PREPARE_FOR_SUBMISSION). No new patch, review reply or resubmission was sent.
+1.0.0 (WAITING_FOR_REVIEW). The review notes explain the three fixes. No new patch
+or separate review reply was sent.
 
 Seven native StoreKit cases pass on each simulator with a fake backend and the real
 billing UI/plugin. Restore now excludes historical entries without signed receipts;
@@ -61,7 +69,7 @@ The production verifier rejects the local Xcode test transaction. These checks d
 not replace real App Store sandbox purchase and notification delivery verification.
 The fixture and reproducible commands are in `test_support/README.md`.
 
-The Apple catalog has 21 products READY_TO_SUBMIT, with prices and private review
+The Apple catalog has 21 products WAITING_FOR_REVIEW, with prices and private review
 screenshots saved and read back (all assets COMPLETE); three seats
 is S$116.98, with remaining tiers rounded down to an available price. The supplied
 IAP key authenticates to Sandbox and billing is enabled on the live backend.
@@ -73,13 +81,15 @@ The owner cannot test on a phone yet; real sandbox purchases, restore and final
 distribution update behavior remain unverified. Apple's bulk quantities are disabled
 because each team SKU already defines its seat count. Each product has the 175
 starting-price records Apple requires, equalized from the approved SGD amount;
-only Singapore is available for sale. Attach the subscription groups
-and products when resubmitting; public review remains separate from the completed
-TestFlight release. The owner accepted Apple's updated Developer Program License
+only Singapore is available for sale. Both subscription groups and all products
+are attached to the submitted app. The rejected submission was canceled so the first
+subscriptions could be reviewed together with the replacement. The owner accepted
+Apple's updated Developer Program License
 Agreement and Paid Apps Agreement. Both U.S. tax forms were submitted after the
 owner's explicit certification approval. Fresh read-back confirms both agreements,
 banking and the U.S. forms Active, with Singapore tax Complete. Apple account setup
-is cleared; the real purchase/restore and distribution-update gates remain.
+is cleared. Real purchase/restore and distribution-update checks remain unverified;
+the owner authorized this review submission with those gaps.
 See `plans/apple-billing.md` for the exact boundaries, checks and remaining steps.
 
 ## Duplicate a line, one condition for several, missing-detail hints: 30 October 2026 Singapore time

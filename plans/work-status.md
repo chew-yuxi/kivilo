@@ -1,6 +1,13 @@
 # Kivilo work tracker
 
-## Apple review rejection — 30 October (deployed; resubmission pending phone test)
+## Apple review — resubmitted 31 October (Waiting for Review)
+
+At **00:10 Singapore time on 31 October**, build **1.0.0 (26)**, all 21 subscriptions
+and both groups were submitted together as `2428f030-a3ac-4faf-b507-487a1a46b9ca`.
+Apple's API and web UI confirm **WAITING_FOR_REVIEW** for the app and all catalog
+versions. Release remains **MANUAL** and Singapore-only. The owner authorized review
+with the real-device tests below still unverified. Receipt:
+`mobile/store/submission/apple-resubmission-20261031.json`.
 
 iOS 1.0.0 (24) was rejected for demo screenshot content, missing Apple IAP for Pro,
 and mandatory notifications. StoreKit 2 Personal/team purchases, server verification,
@@ -11,7 +18,7 @@ exit. Native iPhone/iPad tests confirm denial leaves inventory accessible. Six a
 simulator screenshot replacements use finished fictional property details and are
 uploaded with COMPLETE status; both rejected listing images were removed.
 
-The 21 Apple products are READY_TO_SUBMIT with prices configured and read back and all
+The 21 Apple products are WAITING_FOR_REVIEW with prices configured and read back and all
 private review screenshots COMPLETE. Apple's default bulk purchasing is disabled;
 each SKU already defines its Personal or team seat tier. The owner's
 S$116.98 choice for three seats was applied as nearest-at-or-below pricing for team
@@ -24,8 +31,8 @@ The billing release was verified at source `378d3df`, Vercel
 owner-authorized `chew-yuxi` account.
 Signed iOS **1.0.0 (26)** is Shorebird release **922723**, Apple **VALID** and
 **IN_BETA_TESTING** in **Kivilo Internal**. The public version selects build 26
-and is PREPARE_FOR_SUBMISSION. Listing copy, App Privacy and reviewer instructions
-are saved. No review reply or resubmission has been sent.
+and is WAITING_FOR_REVIEW. Listing copy, App Privacy and reviewer instructions
+are submitted. Review notes describe all three fixes; no separate review reply was sent.
 
 Apple's Sandbox TEST notification is delivered successfully. Re-saving the URL
 in Apple's web UI resolved its registry error; a real signed test then exposed
@@ -40,8 +47,9 @@ Singapore tax is **Complete**. DSA is Active with the no-planned-EU option saved
 Kivilo remains Singapore-only. Apple account setup is cleared. No developer or
 Paid Apps agreement was accepted by the agent.
 The owner cannot run a phone purchase test yet. Real Sandbox purchase/restore and
-distribution-update denial remain release gates. Attach the subscriptions and
-groups together with the app when resubmitting; no extra draft submission remains.
+distribution-update denial remain unverified; the owner authorized this review
+submission with those gaps. The rejected submission is Removed and the replacement
+contains all subscriptions and groups; no extra draft submission remains.
 
 Native StoreKit tests pass seven cases on each of iPhone and iPad using the real
 billing screen/plugin and a fake API. They found and fixed restore submitting

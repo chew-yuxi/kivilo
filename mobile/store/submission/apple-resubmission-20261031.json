@@ -1,0 +1,233 @@
+{
+  "appId": "6821514302",
+  "bundleId": "one.kivilo.kivilo",
+  "version": "1.0.0",
+  "buildNumber": 26,
+  "appleBuildId": "7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2",
+  "appStoreVersionId": "11c7e01f-bfd0-4277-b1c8-5882e10dcafa",
+  "submissionId": "2428f030-a3ac-4faf-b507-487a1a46b9ca",
+  "submittedAt": "2026-10-30T16:10:12.052Z",
+  "submittedAtSingapore": "2026-10-31T00:10:12.052+08:00",
+  "checkedAt": "2026-10-30T16:11:14.239364+00:00",
+  "state": "WAITING_FOR_REVIEW",
+  "appStoreVersionState": "WAITING_FOR_REVIEW",
+  "releaseType": "MANUAL",
+  "reviewUrl": "https://appstoreconnect.apple.com/apps/6821514302/distribution/reviewsubmissions/details/2428f030-a3ac-4faf-b507-487a1a46b9ca",
+  "submissionMethod": "App Store Connect API; draft prepared in App Store Connect, final UI button remained disabled without a displayed validation error.",
+  "replacedSubmissionId": "628f3b8a-64c9-43fe-bc57-3305e6d25aa6",
+  "replacedSubmissionState": "COMPLETE",
+  "replacedSubmissionDisplayStatus": "Removed",
+  "itemCounts": {
+    "appVersions": 1,
+    "subscriptions": 21,
+    "subscriptionGroups": 2,
+    "total": 24
+  },
+  "items": [
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE5fDU1Y2VkYjNkLWI5ODMtNDM2ZC1iMzY3LTJlZTIyZWY1NmRlZA",
+      "type": "subscriptionGroupVersions",
+      "versionId": "55cedb3d-b983-436d-b367-2ee22ef56ded",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "22528923"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGNjYjczYWM2LTIyMmYtNGViYy1hNDkxLTQyY2QyNzFmYjNiMg",
+      "type": "subscriptionVersions",
+      "versionId": "ccb73ac6-222f-4ebc-a491-42cd271fb3b2",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828831737"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE5fDE1YzNjNDJjLTgxZGEtNDEwZS1hYzUxLTc1NjI2NWRkZTkyNw",
+      "type": "subscriptionGroupVersions",
+      "versionId": "15c3c42c-81da-410e-ac51-756265dde927",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "22528973"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGJhOGJlZjNhLWUzZDMtNGNhMC05NzE0LWY5NmM1ZDBkN2VlNQ",
+      "type": "subscriptionVersions",
+      "versionId": "ba8bef3a-e3d3-4ca0-9714-f96c5d0d7ee5",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838788"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDlmZTIyYWI1LTMyYzQtNGMxYy1hZjZkLTJmN2JhNmVkODI1Yg",
+      "type": "subscriptionVersions",
+      "versionId": "9fe22ab5-32c4-4c1c-af6d-2f7ba6ed825b",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828834709"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGY5ZWU5MDViLWE0MmQtNDMyZC05MGRhLTRiYjkxNWRhMzdmNw",
+      "type": "subscriptionVersions",
+      "versionId": "f9ee905b-a42d-432d-90da-4bb915da37f7",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828834868"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDM3NDI2N2MwLWMzMjMtNGYzNy1iYjBlLWY0NWQ1NGJlNDlkMQ",
+      "type": "subscriptionVersions",
+      "versionId": "374267c0-c323-4f37-bb0e-f45d54be49d1",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828835615"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGY0NzJlOTdjLTVmZTAtNDE1Ni1iNjM3LTFmMmMxNmYyNTcwOA",
+      "type": "subscriptionVersions",
+      "versionId": "f472e97c-5fe0-4156-b637-1f2c16f25708",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828835930"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGQxNWRjYTgyLTY1YjEtNGE1Mi1iMGE5LTY2MjA1M2JhNDNiMw",
+      "type": "subscriptionVersions",
+      "versionId": "d15dca82-65b1-4a52-b0a9-662053ba43b3",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828835951"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDBlNTA3ZTgyLTRmZDMtNGRmMi1hOWFkLTVkNTFhM2M5NDg0ZA",
+      "type": "subscriptionVersions",
+      "versionId": "0e507e82-4fd3-4df2-a9ad-5d51a3c9484d",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828836122"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGM2OTI1NjFhLWYzZWEtNDQ5ZS05ZjY5LTJlYTFlNDg1YTkxNw",
+      "type": "subscriptionVersions",
+      "versionId": "c692561a-f3ea-449e-9f69-2ea1e485a917",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828835699"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGRmMDE1MzU5LTkzNDgtNGVjNS1iNzg3LTE5OTkyODA4N2VlNw",
+      "type": "subscriptionVersions",
+      "versionId": "df015359-9348-4ec5-b787-199928087ee7",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828836410"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDBlY2FhY2E2LTI1MzAtNDAyYi1iZDkwLWEyNGI2Nzk0YTQ1Yg",
+      "type": "subscriptionVersions",
+      "versionId": "0ecaaca6-2530-402b-bd90-a24b6794a45b",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828836333"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGQ4OGMxZGNhLTI2NWEtNDFiMy1iZjdiLWQyYzFjNWY1ZjliMw",
+      "type": "subscriptionVersions",
+      "versionId": "d88c1dca-265a-41b3-bf7b-d2c1c5f5f9b3",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828836589"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGRmMmZkMzFkLWVhMTgtNDM2Ni04MWM4LTJkYjljMjZmZjhkMg",
+      "type": "subscriptionVersions",
+      "versionId": "df2fd31d-ea18-4366-81c8-2db9c26ff8d2",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828837827"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGY5YjQ3YTIyLTFkMjAtNDI1MC04Y2ZkLWEyYmNmNzBlMjQ1Mw",
+      "type": "subscriptionVersions",
+      "versionId": "f9b47a22-1d20-4250-8cfd-a2bcf70e2453",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828837866"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDViNzkxZjQ0LTFhOWUtNDgyYy05YmY3LWY2NzYzYTUxMDZhNw",
+      "type": "subscriptionVersions",
+      "versionId": "5b791f44-1a9e-482c-9bf7-f6763a5106a7",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838101"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDNkZWNhOTM4LWM0OGYtNGYzMy04ZTVjLTg4YjA3M2JiMmNmNQ",
+      "type": "subscriptionVersions",
+      "versionId": "3deca938-c48f-4f33-8e5c-88b073bb2cf5",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838077"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fGRmODBmYWFkLTI4YjMtNDg3Ni04MzgwLTRjNTJkMzM2ZGU2YQ",
+      "type": "subscriptionVersions",
+      "versionId": "df80faad-28b3-4876-8380-4c52d336de6a",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838086"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDBlYzAzZDc3LTE3ZmMtNGI1YS04NzBhLTg5MDM4OTY0OWUxNA",
+      "type": "subscriptionVersions",
+      "versionId": "0ec03d77-17fc-4b5a-870a-890389649e14",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838429"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDFiYzVhYjhmLWI2YjUtNDYwMi1hNjAzLTY2ZjI3ZmI0ZTM4MQ",
+      "type": "subscriptionVersions",
+      "versionId": "1bc5ab8f-b6b5-4602-a603-66f27fb4e381",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838378"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDI3NzlhOTQzLTRmZDItNDUyNC04NWJiLTk2NjU1NzhlYjFlNg",
+      "type": "subscriptionVersions",
+      "versionId": "2779a943-4fd2-4524-85bb-9665578eb1e6",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838488"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDE4fDYxMTdmNjkzLTEyM2ItNDM5ZS1hZDU1LTQwNTliZjU5ZTY3OQ",
+      "type": "subscriptionVersions",
+      "versionId": "6117f693-123b-439e-ad55-4059bf59e679",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW",
+      "catalogId": "6828838833"
+    },
+    {
+      "submissionItemId": "MjQyOGYwMzAtYTNhYy00ZmFmLWI1MDctNDg3YTFhNDZiOWNhfDZ8ODkyOTIyMTk0",
+      "type": "appStoreVersions",
+      "versionId": "11c7e01f-bfd0-4277-b1c8-5882e10dcafa",
+      "reviewState": "WAITING_FOR_REVIEW",
+      "submissionItemState": "READY_FOR_REVIEW"
+    }
+  ],
+  "reviewStatusNote": "The linked app, subscription and group versions all show WAITING_FOR_REVIEW. Apple reviewSubmissionItems retain READY_FOR_REVIEW while queued.",
+  "saleTerritories": [
+    "SGP"
+  ],
+  "listingScreenshots": 6,
+  "reviewNotesFile": "mobile/store/submission/apple-review-notes.txt",
+  "reviewNotesSha256": "70918df76daafba05bb7d2d7097affddd89f734f45da9c27272b67f198ac7580",
+  "separateReviewMessageSent": false,
+  "ownerAuthorizedSubmission": true,
+  "unverifiedTestsAcceptedForThisReviewSubmission": [
+    "Real TestFlight sandbox purchase and restore on build 26.",
+    "Final Shorebird distribution update/download flow with notifications denied."
+  ],
+  "followUpAfterFirstPublicRelease": "Recheck production App Store Server API authentication."
+}

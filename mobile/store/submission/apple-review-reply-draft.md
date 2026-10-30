@@ -1,7 +1,9 @@
 # Draft only — not sent
 
-Use this reply only after the release gates in `plans/apple-billing.md` pass and the
-replacement build, screenshots and subscriptions are attached to the submission.
+Retained as an unsent reference. Build 26, its screenshots, 21 subscriptions and both
+groups were resubmitted on 31 October. The remediation summary is in the submitted
+`apple-review-notes.txt`; no separate reply was sent. The owner authorized review
+with the real-device test gaps recorded in `plans/apple-billing.md`.
 
 Hello App Review,
 

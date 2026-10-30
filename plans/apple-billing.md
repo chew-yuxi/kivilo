@@ -1,4 +1,13 @@
-# Apple review remediation — 30 October 2026
+# Apple review remediation — resubmitted 31 October 2026
+
+Native **1.0.0 (26)** was resubmitted at **00:10 Singapore time on 31 October**
+(`2026-10-30T16:10:12.052Z`). Submission
+`2428f030-a3ac-4faf-b507-487a1a46b9ca` and all 24 linked versions are
+**WAITING_FOR_REVIEW**: the app, 21 subscriptions and both subscription groups.
+Release remains **MANUAL**, with Singapore-only availability. The owner authorized
+submission with real-device purchase/restore and final distribution-update testing
+still unverified. These remain test gaps, not prerequisites to this authorized
+review submission. Safe read-back: `mobile/store/submission/apple-resubmission-20261031.json`.
 
 The rejected submission is `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`, app
 `6821514302`, iOS **1.0.0 (24)**. The review device was iPad Air 11-inch (M3).
@@ -22,9 +31,15 @@ fixture and has `get-task-allow=false`. The IPA is at
 are in `mobile/store/submission/apple-prepared-build.json`.
 
 All six listing screenshots, the subscription description, App Privacy answers
-and current review instructions are saved. Build 26 is selected for version 1.0.0,
-now **PREPARE_FOR_SUBMISSION**. No review reply or resubmission was sent.
-The owner cannot perform a phone purchase test yet; that remains an explicit gate.
+and current review instructions are submitted with build 26. Review notes explain
+the 2.1(a), 3.1.1 and 4.5.4 fixes; no separate review message was sent.
+The rejected submission was canceled because Apple does not allow adding the first
+subscriptions and groups to an unresolved submission. A fresh draft was prepared
+in App Store Connect. Its bulk action attached only one team tier, so the remainder
+were attached individually through the API. After confirming all 24 items and
+setting the draft platform to iOS, the webpage still disabled Submit without an
+explanation. The API accepted submission; both API read-back and the web UI confirm
+Waiting for Review.
 The owner accepted Apple's updated Developer Program License Agreement; the banner
 cleared and Free Apps now shows **Active**. The owner also accepted the Paid Apps
 Agreement and supplied banking and Singapore tax information. After the owner's
@@ -38,10 +53,10 @@ distribution. App Store Connect shows DSA **Active**, with the
 non-trader/no-planned-EU-distribution option saved.
 The existing declaration was verified without changing it.
 
-| Rejection | Prepared change | Remaining release gate |
+| Rejection | Submitted change | Verification still outstanding |
 | --- | --- | --- |
-| 2.1(a): demo content in screenshots | Six actual iPhone and iPad captures of a fictional property, written inventory and room review; all uploaded assets COMPLETE and both old images removed. | Final device review before resubmission. |
-| 3.1.1: externally purchased Pro unavailable through IAP | StoreKit 2 purchase, restore, current Apple prices, terms and server verification deployed; separate Personal and team groups. All 21 private review screenshots are COMPLETE. A signed Sandbox TEST notification is delivered successfully. | Real sandbox purchases and attaching subscriptions/groups when resubmitting. |
+| 2.1(a): demo content in screenshots | Six actual iPhone and iPad captures of a fictional property, written inventory and room review; all uploaded assets COMPLETE and both old images removed. | Apple review pending. |
+| 3.1.1: externally purchased Pro unavailable through IAP | StoreKit 2 purchase, restore, current Apple prices, terms and server verification deployed; all 21 subscriptions and both groups submitted together. All private review screenshots are COMPLETE. A signed Sandbox TEST notification is delivered successfully. | Real sandbox purchases and restore remain unverified; owner authorized review with this gap. |
 | 4.5.4: push required | Shorebird downloads no longer request notification permission or exit the app; Not now and Continue keep work accessible. | Verify patch delivery on the final Shorebird distribution build. Native notification denial and inventory navigation pass on both simulators. |
 
 ## Catalog and pricing
@@ -56,8 +71,8 @@ in the team purchase screen. Family Sharing is disabled; entitlement belongs to 
 selected Kivilo workspace, not an Apple family.
 
 All 21 products have English (UK) localization, Singapore availability and a private
-review screenshot, with every image **COMPLETE**. They have not been submitted for
-review. Apple's
+review screenshot, with every image **COMPLETE**. Their versions and both groups are
+**WAITING_FOR_REVIEW** with build 26. Apple's
 `UPFRONT` plan type pays for the `ONE_MONTH` subscription period; it is not an annual
 commitment. No annual instalment option is configured.
 
@@ -78,7 +93,7 @@ though only Singapore is available for sale. A Singapore-only price record displ
 correctly but failed Add for Review with `IAP_SUBMISSION_NOT_ALLOWED_MISSING_PRICING_DATA`.
 The missing records were filled using Apple's equalizations of each approved SGD
 price, preserving the existing Singapore price points and Singapore-only availability.
-All 21 subscriptions now report **READY_TO_SUBMIT**. The setup script creates the
+All 21 subscriptions reached **READY_TO_SUBMIT** before submission. The setup script creates the
 complete starting-price table for a new product and audits storefront coverage, so
 a valid Singapore price alone is not mistaken for a complete catalog.
 
@@ -163,9 +178,9 @@ in production, with the migration checksum and privileges verified. The Stripe a
    confirms the Personal product and purchase availability; Google Play billing,
    current account and property-work endpoints also pass. Never put the private
    key in Flutter defines or source control.
-3. **Catalog prepared:** each subscription's review screenshot is COMPLETE and
+3. **Catalog submitted:** each subscription's review screenshot is COMPLETE and
    all approved prices are configured, with 175 starting-price records per product
-   and **READY_TO_SUBMIT** read-back. Retain the Singapore availability scope.
+   and **WAITING_FOR_REVIEW** read-back. Retain the Singapore availability scope.
    The owner has accepted the updated Developer Program License Agreement, with
    read-back confirming Free Apps Active. The owner also accepted the separate
    Paid Apps Agreement. After the owner's confirmation, both U.S. tax forms were
@@ -186,17 +201,19 @@ in production, with the migration checksum and privileges verified. The Stripe a
 5. Test real Apple sandbox purchases for Personal and a team, upgrade/downgrade,
    cancel/renew/expire/refund, pending approval, restore after reinstall, offline
    verification and switching Kivilo accounts. Check the correct workspace and no
-   duplicate provider subscription. Mocked tests do not establish this release gate.
+   duplicate provider subscription. Mocked tests do not establish these results.
+   The owner authorized review submission before these device checks could run.
 6. **Published and uploaded:** native Shorebird iOS release **1.0.0+26** contains
    the StoreKit plugin and updated permission descriptions/privacy manifest.
    Do not patch this plugin into build 24/25. Confirm prices and restore on the
    final TestFlight build and deny notifications while using
    the app, downloading an update and resuming captures. Preserve all queued media.
-7. **Listing and build prepared:** the six replacements and description including
+7. **Submitted:** the six replacements and description including
    privacy/EULA links are saved, App Privacy is published, stale AI review notes
-   are replaced and build 26 is selected. Finish subscription attachments and
-   the phone gates before resubmission. A review reply must describe verified
-   shipped behavior. No review message has been sent.
+   are replaced and build 26 is selected. The app, 21 subscriptions and both groups
+   are queued together in submission `2428f030-a3ac-4faf-b507-487a1a46b9ca`.
+   Remediation is described in App Review Information; no separate review message
+   was sent. Wait for Apple's decision. Public release remains manual.
 
 ## Screenshots and verification
 
@@ -249,8 +266,8 @@ Apple server purchase verification, and the private review notes say so. Provena
 hashes and Apple asset IDs are in
 `mobile/store/submission/apple-subscription-review-screenshots.json`. Two Apple
 uploads stalled after upload and completed after replacing only those assets.
-No extra draft submission remains; the existing rejected submission is retained
-until the phone gates and subscription/group attachment steps are complete.
+The rejected submission is now Removed. All subscription and group versions are
+attached to the new submitted version; no extra draft submission remains.
 
 Verification on this work:
 

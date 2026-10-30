@@ -29,6 +29,8 @@
   "testFlightState": "IN_BETA_TESTING",
   "testFlightGroup": "Kivilo Internal",
   "selectedForVersion": "1.0.0",
-  "appStoreVersionState": "PREPARE_FOR_SUBMISSION",
-  "submittedForReview": false
+  "appStoreVersionState": "WAITING_FOR_REVIEW",
+  "submittedForReview": true,
+  "reviewSubmissionId": "2428f030-a3ac-4faf-b507-487a1a46b9ca",
+  "submittedAt": "2026-10-30T16:10:12.052Z"
 }

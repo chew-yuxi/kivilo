@@ -1,3 +1,5 @@
+Resubmission: version 1.0.0 (26) addresses the October 30 review of build 24. For 2.1(a), the listing screenshots have been replaced with finished property, check-in and inventory screens. For 3.1.1, Personal and all 20 team tiers are available through Apple's in-app subscriptions and are submitted with this version. For 4.5.4, notifications are optional, including during app updates; denying permission does not block access to the app.
+
 Sign in with the review email and password supplied in App Review Information, using the visible password option. Other users can sign in with an emailed six-digit code.
 
 The account contains fictional property records for review. Open Properties → 18 Amber Grove to inspect a draft check-in with written inventory and photos. You can review rooms, capture evidence and edit inventory. Kivilo does not generate inventory or findings with AI. Inventory is written and reviewed by the inspector.
