@@ -5,6 +5,25 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Due diligence refuses particulars that cannot be right: 31 October 2026 Singapore time
+
+Server source `d175ae0` on `origin/main`, deployed by Vercel (READY, created 15 seconds
+after the commit), no migration. `src/lib/cdd/particulars-rules.ts` is the one rule set,
+ported to Dart in `mobile/lib/models/cdd.dart`: a real name, a date of birth that exists
+and makes the client 18 to 120, a nationality from `src/lib/countries.ts` (the app's copy
+pinned equal by `countries.test.ts`), a full address, a correct NRIC/FIN check letter, an
+NRIC whose S or T matches the century of birth, no FIN for a Singapore citizen.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **22** / `765091` | **stable** |
+| iOS TestFlight `1.0.0+25` | **50** / `765101` | **stable** |
+
+Patch source `d29689a` on `claude/cdd-patch`; its due-diligence files match main's byte for
+byte. Build numbers read back (29; 25). Icons all in both bases. Checks: 521 mobile tests on
+the patch source, 533 on main; lint, typecheck, build, 292 unit, 448 integration and the
+three due-diligence e2e specs. Physical devices **NOT RUN**.
+
 ## Due diligence review and client verification: 31 October 2026 Singapore time
 
 Server source `9fb43d8` on `origin/main`, deployed by Vercel (READY; `/api/v1/cdd/[id]/id-check`,
