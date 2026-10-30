@@ -1,23 +1,45 @@
 # Kivilo work tracker
 
-## Apple review rejection — 30 October (prepared, not released)
+## Apple review rejection — 30 October (deployed; resubmission pending phone test)
 
 iOS 1.0.0 (24) was rejected for demo screenshot content, missing Apple IAP for Pro,
 and mandatory notifications. StoreKit 2 Personal/team purchases, server verification,
-restore and v2 notifications are implemented locally; the migration is local only.
+restore and v2 notifications are deployed; the migration is applied in production
+with all 50 checksums and client-role privileges verified.
 The updater now allows Not now/Continue without notification permission or process
 exit. Native iPhone/iPad tests confirm denial leaves inventory accessible. Six actual
-simulator screenshot replacements use finished fictional property details.
+simulator screenshot replacements use finished fictional property details and are
+uploaded with COMPLETE status; both rejected listing images were removed.
 
-The 21 Apple products are drafts with prices configured and read back. The owner's
+The 21 Apple products are READY_TO_SUBMIT with prices configured and read back and all
+private review screenshots COMPLETE. Apple's default bulk purchasing is disabled;
+each SKU already defines its Personal or team seat tier. The owner's
 S$116.98 choice for three seats was applied as nearest-at-or-below pricing for team
-tiers. The supplied IAP key authenticates to Apple's Sandbox API. Its credentials
-are staged as sensitive Production-only Vercel variables with billing disabled.
-Real sandbox purchase and notification delivery verification remain. Signed iOS
-build 26 passed a Shorebird dry run and signature inspection; publishing the
-Shorebird release, build upload, backend deployment, final screenshots and
-resubmission remain.
-Nothing was deployed, uploaded as a build, sent to App Review or resubmitted.
+tiers. Apple's validator also requires starting prices in all 175 storefronts;
+the missing price records were equalized from the approved SGD amounts, while sales
+remain Singapore-only. The supplied IAP key authenticates to Apple's Sandbox API. Its credentials
+are deployed as sensitive Production-only Vercel variables with billing enabled.
+The billing release was verified at source `378d3df`, Vercel
+`dpl_2HJuX7j8mkbKRG4irqqyFDVoNmuP` (READY, Singapore), pushed using the
+owner-authorized `chew-yuxi` account.
+Signed iOS **1.0.0 (26)** is Shorebird release **922723**, Apple **VALID** and
+**IN_BETA_TESTING** in **Kivilo Internal**. The public version selects build 26
+and is PREPARE_FOR_SUBMISSION. Listing copy, App Privacy and reviewer instructions
+are saved. No review reply or resubmission has been sent.
+
+Apple's Sandbox TEST notification is delivered successfully. Re-saving the URL
+in Apple's web UI resolved its registry error; a real signed test then exposed
+the SDK's Production app-ID check occurring before its environment check.
+Verifying Sandbox first fixes the missing sandbox appAppleId without weakening
+signature or identity checks. Six regressions cover acceptance and rejection.
+The owner accepted the updated Developer Program License Agreement; the banner
+cleared and Free Apps is Active. Business now shows the separate Paid Apps Agreement
+as **New**. The owner was asked to review/sign it and finish required tax/banking
+setup and reported completion, but refreshed read-back still showed New; activation
+is not yet verified. No agreement was accepted by the agent. The owner cannot run a phone purchase
+test yet. Real Sandbox purchase/restore and
+distribution-update denial remain release gates. Attach the subscriptions and
+groups together with the app when resubmitting; no extra draft submission remains.
 
 Native StoreKit tests pass seven cases on each of iPhone and iPad using the real
 billing screen/plugin and a fake API. They found and fixed restore submitting
@@ -25,7 +47,7 @@ metadata-only historical entries without a signed receipt. The production verifi
 correctly rejects an actual local Xcode transaction. Real Apple sandbox purchases
 still require a device/TestFlight run.
 
-Typecheck, lint, production build, 242 web unit and 525 Flutter tests pass; targeted
+Typecheck, lint, production build, **248** web unit and 525 Flutter tests pass; targeted
 billing integration passes 91 cases. The eight known broad Postgres failures remain.
 Browser checks pass 25/26 across the full run and Node 24 PDF rerun; local Stripe
 configuration blocks the remaining checkout case. Full details and release gates:

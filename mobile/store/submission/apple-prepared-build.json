@@ -24,5 +24,11 @@
   },
   "shorebirdReleaseId": 922723,
   "appleUploadDeliveryId": "7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2",
-  "appleProcessingState": "awaiting_readback"
+  "appleProcessingState": "VALID",
+  "appleBuildId": "7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2",
+  "testFlightState": "IN_BETA_TESTING",
+  "testFlightGroup": "Kivilo Internal",
+  "selectedForVersion": "1.0.0",
+  "appStoreVersionState": "PREPARE_FOR_SUBMISSION",
+  "submittedForReview": false
 }

@@ -1,0 +1,23 @@
+{
+  "checkedAt": "2026-10-30",
+  "provider": "NOTTOOSWEETLABS PTE. LTD.",
+  "source": "https://appstoreconnect.apple.com/business",
+  "developerProgramLicense": "Owner accepted; update banner cleared on read-back",
+  "visibleAgreements": [
+    {
+      "type": "Free Apps Agreement",
+      "status": "Active"
+    },
+    {
+      "type": "Paid Apps Agreement",
+      "status": "New"
+    }
+  ],
+  "paidAppsAgreementVerifiedActive": false,
+  "ownerReportsPaidAgreementCompleted": true,
+  "readbackNote": "After the owner's completion report, a refreshed Business page still shows Paid Apps Agreement as New; activation is not yet verified.",
+  "kiviloAvailableTerritories": ["SGP"],
+  "dsaDeclarationSubmittedByAgent": false,
+  "action": "Account Holder must review and sign the Paid Apps Agreement, then complete required tax and banking setup in App Store Connect Business before purchase testing and resubmission. Owner has been asked.",
+  "agreementsAcceptedByAgent": false
+}

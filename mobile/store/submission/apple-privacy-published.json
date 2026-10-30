@@ -1,0 +1,29 @@
+{
+  "publishedAt": "2026-10-30",
+  "appId": "6821514302",
+  "policyUrl": "https://my.kivilo.app/privacy",
+  "tracking": false,
+  "linkedToIdentity": true,
+  "appFunctionality": [
+    "Name",
+    "Email Address",
+    "Phone Number",
+    "Physical Address",
+    "Other Financial Info",
+    "Photos or Videos",
+    "Audio Data",
+    "Other User Content",
+    "User ID",
+    "Device ID",
+    "Purchase History",
+    "Crash Data",
+    "Other Diagnostic Data",
+    "Other Data Types"
+  ],
+  "analytics": [
+    "Product Interaction",
+    "User ID",
+    "Other Data Types"
+  ],
+  "note": "Other Data Types retains the existing disclosure. New phone, purchase, interaction and crash categories were published; User ID analytics and account-linked diagnostics corrected. Product page preview shows only Data Linked to You."
+}

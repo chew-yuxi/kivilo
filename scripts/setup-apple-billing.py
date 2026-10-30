@@ -28,11 +28,11 @@ def main():
     auth = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(auth)
 
-    def request(path, payload=None):
+    def request(path, payload=None, method=None):
         url = path if path.startswith(BASE + '/') else BASE + path
         if not url.startswith(BASE + '/v1/') and not url.startswith(BASE + '/v2/'):
             raise ValueError('Unexpected API endpoint')
-        req = Request(url, data=json.dumps(payload).encode() if payload else None,
+        req = Request(url, method=method, data=json.dumps(payload).encode() if payload else None,
                       headers={'Authorization': 'Bearer ' + auth.token(), 'Content-Type': 'application/json'})
         try:
             with urlopen(req, timeout=30) as response:
@@ -55,6 +55,7 @@ def main():
     def relation(kind, identity):
         return {'data': {'type': kind, 'id': identity}}
 
+    territories = {t['id'] for t in items('/v1/territories?limit=200')}
     groups = items(f'/v1/apps/{APP_ID}/subscriptionGroups')
     report = []
     for kind, group_name, seats_list in [('personal', 'Kivilo Personal', [1]), ('team', 'Kivilo Team', range(1, 21))]:
@@ -85,12 +86,21 @@ def main():
                     'familySharable': False, 'groupLevel': 1 if kind == 'personal' else 21 - seats,
                     'reviewNote': f'Account > Plan > {"Personal" if kind == "personal" else "choose a team"}. {seats} seat(s), {25 * seats} active properties. Apple verifies and bills the monthly subscription. Restore purchases is on the same screen.',
                 }, {'group': relation('subscriptionGroups', gid)})
+                # Each SKU already represents its complete workspace seat tier.
+                # Apple's default bulk quantities require a different entitlement
+                # model and must be disabled before this new SKU is offered.
+                sub = request(f'/v1/subscriptions/{sub["id"]}', {'data': {
+                    'type': 'subscriptions', 'id': sub['id'],
+                    'attributes': {'multiSeatStatus': 'DISABLED', 'marketSettings': ['APP_STORE']},
+                }}, method='PATCH')['data']
             if sub is None:
                 report.append({'productId': product, 'status': 'missing'})
                 continue
             sid = sub['id']
             if sub['attributes']['subscriptionPeriod'] != 'ONE_MONTH' or sub['attributes']['familySharable']:
                 raise RuntimeError(f'{product} has incompatible period/sharing settings; review it manually.')
+            if sub['attributes'].get('multiSeatStatus') != 'DISABLED' or sub['attributes'].get('marketSettings') != ['APP_STORE']:
+                raise RuntimeError(f'{product} must use single-quantity App Store purchases; review its purchase options manually.')
             localizations = items(f'/v1/subscriptions/{sid}/subscriptionLocalizations')
             if not localizations and args.create_drafts:
                 create('subscriptionLocalizations', {'name': name, 'locale': 'en-GB',
@@ -104,7 +114,8 @@ def main():
                     'subscription': relation('subscriptions', sid),
                     'availableTerritories': {'data': [{'type': 'territories', 'id': 'SGP'}]},
                 })
-            prices = items(f'/v1/subscriptions/{sid}/prices?filter[territory]=SGP&include=subscriptionPricePoint')
+            all_prices = items(f'/v1/subscriptions/{sid}/prices?include=territory,subscriptionPricePoint&limit=200')
+            prices = [p for p in all_prices if p['relationships']['territory']['data']['id'] == 'SGP']
             desired_price = Decimal(39 * seats)
             points = items(f'/v1/subscriptions/{sid}/pricePoints?filter[territory]=SGP&limit=200')
             point = next((p for p in points if Decimal(p['attributes']['customerPrice']) == desired_price), None)
@@ -112,16 +123,39 @@ def main():
             candidates = [p for p in points if args.price_policy == 'nearest' or Decimal(p['attributes']['customerPrice']) <= desired_price]
             if selected_point is None and args.price_policy != 'exact' and candidates:
                 selected_point = min(candidates, key=lambda p: (abs(Decimal(p['attributes']['customerPrice']) - desired_price), Decimal(p['attributes']['customerPrice'])))
-            if not prices and selected_point and args.create_drafts:
-                create('subscriptionPrices', {'preserveCurrentPrice': True, 'planType': 'UPFRONT'}, {
-                    'subscription': relation('subscriptions', sid),
-                    'subscriptionPricePoint': relation('subscriptionPricePoints', selected_point['id']),
-                })
-                prices = items(f'/v1/subscriptions/{sid}/prices?filter[territory]=SGP&include=subscriptionPricePoint')
+            if not all_prices and selected_point and args.create_drafts:
+                # Review requires starting prices in every storefront, even when
+                # sale availability is only Singapore. Keep that availability;
+                # equalize the approved SGD starting price using Apple's points.
+                equalized = items(f'/v1/subscriptionPricePoints/{selected_point["id"]}/equalizations?include=territory&limit=200')
+                price_points = {p['relationships']['territory']['data']['id']: p['id'] for p in equalized}
+                price_points['SGP'] = selected_point['id']
+                if set(price_points) != territories:
+                    raise RuntimeError(f'{product}: Apple did not return all storefront prices.')
+                included = []
+                for index, territory in enumerate(sorted(territories)):
+                    included.append({
+                        'type': 'subscriptionPrices', 'id': '${newprice-' + str(index) + '}',
+                        'attributes': {'startDate': None, 'planType': 'UPFRONT'},
+                        'relationships': {'subscriptionPricePoint': relation('subscriptionPricePoints', price_points[territory])},
+                    })
+                sub = request(f'/v1/subscriptions/{sid}', {'data': {
+                    'type': 'subscriptions', 'id': sid,
+                    'relationships': {'prices': {'data': [{'type': p['type'], 'id': p['id']} for p in included]}},
+                }, 'included': included}, method='PATCH')['data']
+                all_prices = items(f'/v1/subscriptions/{sid}/prices?include=territory,subscriptionPricePoint&limit=200')
+                prices = [p for p in all_prices if p['relationships']['territory']['data']['id'] == 'SGP']
+            starting_price_territories = {p['relationships']['territory']['data']['id'] for p in all_prices
+                                          if p['attributes']['startDate'] is None and p['attributes']['planType'] == 'UPFRONT'}
             configured_ids = {p.get('relationships', {}).get('subscriptionPricePoint', {}).get('data', {}).get('id') for p in prices}
             row = {'productId': product, 'id': sid, 'groupId': gid, 'seats': seats,
                    'desiredMonthlySGD': str(desired_price), 'exactPriceAvailable': point is not None,
-                   'priceConfigured': bool(prices), 'state': sub['attributes']['state'],
+                   'priceConfigured': starting_price_territories == territories,
+                   'singaporePriceConfigured': bool(prices), 'state': sub['attributes']['state'],
+                   'startingPriceTerritoryCount': len(starting_price_territories),
+                   'missingStartingPriceTerritories': sorted(territories - starting_price_territories),
+                   'multiSeatStatus': sub['attributes']['multiSeatStatus'],
+                   'marketSettings': sub['attributes']['marketSettings'],
                    'configuredPricesSGD': [p['attributes']['customerPrice'] for p in points if p['id'] in configured_ids],
                    'pricePolicy': args.price_policy}
             if not point:

@@ -9,7 +9,14 @@
       "desiredMonthlySGD": "39",
       "exactPriceAvailable": true,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "39.0"
       ],
@@ -23,7 +30,14 @@
       "desiredMonthlySGD": "39",
       "exactPriceAvailable": true,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "39.0"
       ],
@@ -37,7 +51,14 @@
       "desiredMonthlySGD": "78",
       "exactPriceAvailable": true,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "78.0"
       ],
@@ -51,7 +72,14 @@
       "desiredMonthlySGD": "117",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "116.98"
       ],
@@ -69,7 +97,14 @@
       "desiredMonthlySGD": "156",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "154.98"
       ],
@@ -87,7 +122,14 @@
       "desiredMonthlySGD": "195",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "194.98"
       ],
@@ -105,7 +147,14 @@
       "desiredMonthlySGD": "234",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "229.98"
       ],
@@ -123,7 +172,14 @@
       "desiredMonthlySGD": "273",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "269.98"
       ],
@@ -141,7 +197,14 @@
       "desiredMonthlySGD": "312",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "309.98"
       ],
@@ -159,7 +222,14 @@
       "desiredMonthlySGD": "351",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "350.0"
       ],
@@ -177,7 +247,14 @@
       "desiredMonthlySGD": "390",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "389.98"
       ],
@@ -195,7 +272,14 @@
       "desiredMonthlySGD": "429",
       "exactPriceAvailable": true,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "429.0"
       ],
@@ -209,7 +293,14 @@
       "desiredMonthlySGD": "468",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "464.98"
       ],
@@ -227,7 +318,14 @@
       "desiredMonthlySGD": "507",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "500.0"
       ],
@@ -245,7 +343,14 @@
       "desiredMonthlySGD": "546",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "539.98"
       ],
@@ -263,7 +368,14 @@
       "desiredMonthlySGD": "585",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "579.98"
       ],
@@ -281,7 +393,14 @@
       "desiredMonthlySGD": "624",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "619.98"
       ],
@@ -299,7 +418,14 @@
       "desiredMonthlySGD": "663",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "659.98"
       ],
@@ -317,7 +443,14 @@
       "desiredMonthlySGD": "702",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "700.0"
       ],
@@ -335,7 +468,14 @@
       "desiredMonthlySGD": "741",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "739.98"
       ],
@@ -353,7 +493,14 @@
       "desiredMonthlySGD": "780",
       "exactPriceAvailable": false,
       "priceConfigured": true,
-      "state": "MISSING_METADATA",
+      "singaporePriceConfigured": true,
+      "state": "READY_TO_SUBMIT",
+      "startingPriceTerritoryCount": 175,
+      "missingStartingPriceTerritories": [],
+      "multiSeatStatus": "DISABLED",
+      "marketSettings": [
+        "APP_STORE"
+      ],
       "configuredPricesSGD": [
         "779.98"
       ],
@@ -363,5 +510,9 @@
         "779.0"
       ]
     }
-  ]
+  ],
+  "saleTerritories": [
+    "SGP"
+  ],
+  "auditedAt": "2026-10-30"
 }

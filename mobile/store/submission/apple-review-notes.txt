@@ -1,0 +1,11 @@
+Sign in with the review email and password supplied in App Review Information, using the visible password option. Other users can sign in with an emailed six-digit code.
+
+The account contains fictional property records for review. Open Properties → 18 Amber Grove to inspect a draft check-in with written inventory and photos. You can review rooms, capture evidence and edit inventory. Kivilo does not generate inventory or findings with AI. Inventory is written and reviewed by the inspector.
+
+For Apple subscriptions, open Account → Plan. Choose Personal to see the monthly Pro subscription, its current App Store price and renewal terms. Restore purchases, Terms of Use and Privacy policy are on the same screen. For team subscriptions, create a team from Account → Workspace if needed, return to Plan, select that team and choose 1–20 seats. Each seat adds 25 active properties shared across that workspace. Personal and team subscriptions are separate; one Apple Account can subscribe for one team alongside Personal. Existing web plans remain accessible.
+
+Notifications are optional. Choose Don't Allow when iOS asks; properties, inventories and reports remain available. Downloading an app update does not require notification permission. The update screen offers Not now, or Continue after downloading.
+
+Account contains the account-deletion request. Apple subscriptions must be canceled separately in the Apple Account subscription settings; deletion is available without first canceling. Sending a reviewed report freezes it for the landlord and tenant to sign. A countersigned check-in can be used to start a check-out and a separate assessment. Supporting documents remain separate from shared condition reports.
+
+Listing screenshots show working property, check-in and inventory screens using fictional details to protect customer privacy.

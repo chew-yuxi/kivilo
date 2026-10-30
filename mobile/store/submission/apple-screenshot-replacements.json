@@ -3,7 +3,7 @@
   "bundleId": "one.kivilo.kivilo",
   "version": "1.0.0",
   "simulatorBuild": 26,
-  "configuration": "Debug simulator, production API; final distribution build not yet made",
+  "configuration": "Debug simulator, production API; actual UI shared with released native build 26",
   "content": "Dedicated Apple reviewer account; fictional unsigned, unshared tenancy; no party emails, real tenants, passwords, QA labels or DEMO ONLY labels in these screenshots",
   "notifications": "Declined on both devices with native XCTest; inventory remains accessible",
   "images": [
@@ -11,37 +11,52 @@
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/01-property.png",
       "width": 2064,
       "height": 2752,
-      "sha256": "d183059ff49af14ee74f7a90795bb804c05b7f5f36f866b5e188ab1f15ed2963"
+      "sha256": "d183059ff49af14ee74f7a90795bb804c05b7f5f36f866b5e188ab1f15ed2963",
+      "appStoreScreenshotId": "1a800019-6980-8c3e-803c-f7f3abeef1ee",
+      "appStoreAssetState": "COMPLETE"
     },
     {
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/02-check-in.png",
       "width": 2064,
       "height": 2752,
-      "sha256": "ee6f170a6e0709c4cc737c3c29b9609e07adddcf8e8b7d379281d9732d617186"
+      "sha256": "ee6f170a6e0709c4cc737c3c29b9609e07adddcf8e8b7d379281d9732d617186",
+      "appStoreScreenshotId": "b8000019-6980-8c3e-8032-2f4668bbfc01",
+      "appStoreAssetState": "COMPLETE"
     },
     {
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/03-inventory.png",
       "width": 2064,
       "height": 2752,
-      "sha256": "29bfe2a38a82f15933b9d1f1618ab43094cc08e7f6935fd0216824e4ba7a6e95"
+      "sha256": "29bfe2a38a82f15933b9d1f1618ab43094cc08e7f6935fd0216824e4ba7a6e95",
+      "appStoreScreenshotId": "c6c00019-6980-8c3e-802e-5eb7f442bd75",
+      "appStoreAssetState": "COMPLETE"
     },
     {
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/01-property.png",
       "width": 1206,
       "height": 2622,
-      "sha256": "6e621230f1e0b1f7c095b68837bd5efbd2f96e7da62e93de2ea58c46238c9ca4"
+      "sha256": "6e621230f1e0b1f7c095b68837bd5efbd2f96e7da62e93de2ea58c46238c9ca4",
+      "appStoreScreenshotId": "fb000019-6980-8c3e-8022-47fb6d28469b",
+      "appStoreAssetState": "COMPLETE"
     },
     {
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/02-check-in.png",
       "width": 1206,
       "height": 2622,
-      "sha256": "df1644f33a005468ca8b244795fb4db6828c642a97494facb37b3120c58b4539"
+      "sha256": "df1644f33a005468ca8b244795fb4db6828c642a97494facb37b3120c58b4539",
+      "appStoreScreenshotId": "7e000019-6980-8c3e-8005-35c970379787",
+      "appStoreAssetState": "COMPLETE"
     },
     {
       "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/03-inventory.png",
       "width": 1206,
       "height": 2622,
-      "sha256": "e48809a0737a819ee2a3e1b417408f2660930a96e20ea6934fff006f3b609c9d"
+      "sha256": "e48809a0737a819ee2a3e1b417408f2660930a96e20ea6934fff006f3b609c9d",
+      "appStoreScreenshotId": "bbc00019-6980-8c3e-8034-6239d2799d7a",
+      "appStoreAssetState": "COMPLETE"
     }
-  ]
+  ],
+  "uploadedAt": "2026-10-30",
+  "versionId": "11c7e01f-bfd0-4277-b1c8-5882e10dcafa",
+  "submittedForReview": false
 }

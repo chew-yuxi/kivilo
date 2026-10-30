@@ -4,22 +4,41 @@ The rejected submission is `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`, app
 `6821514302`, iOS **1.0.0 (24)**. The review device was iPad Air 11-inch (M3).
 TestFlight build 25 and its Shorebird patches are separate from that submission.
 
-The owner authorized deployment on 30 October. The Apple billing migration is now
+The owner authorized deployment and use of the already authenticated `chew-yuxi`
+GitHub identity on 30 October. Repository-local Git attribution is Chew Yuxi;
+global identity and login were left unchanged. The Apple billing migration is
 applied in production: all 50 migration checksums match, the new tables have RLS
-and no client-role privileges, and existing row counts are unchanged. Server
-deployment and the native release are in progress; no build upload, screenshot
-replacement, review reply or resubmission has been performed yet. A signed build **1.0.0 (26)** was prepared with
-`shorebird release ios --dry-run`, using Flutter 3.47.2 and `lib/main.dart`.
-Its strict deep signature check passes, it includes the StoreKit framework and
-excludes the test fixture, and `get-task-allow=false`. The IPA is at
-`mobile/build/release-artifacts/ios/build26-prepared/kivilo.ipa`; its hash and
-provenance are in `mobile/store/submission/apple-prepared-build.json`. This dry run
-did not publish a Shorebird release. Register the release before a store upload.
+and no client-role privileges, and existing row counts are unchanged. Billing is
+enabled on `my.kivilo.app`. The billing release was verified at source `378d3df`,
+Vercel deployment `dpl_2HJuX7j8mkbKRG4irqqyFDVoNmuP` (READY, Singapore).
+
+Native **1.0.0 (26)** was published with `shorebird release ios`, Flutter 3.47.2
+and `lib/main.dart`, from `9a06bbd`. Shorebird release **922723** is active for iOS.
+Apple build `7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2` is **VALID** and
+**IN_BETA_TESTING** in **Kivilo Internal**; automatic tester emails were disabled.
+Its strict deep signature check passes, it includes StoreKit, excludes the test
+fixture and has `get-task-allow=false`. The IPA is at
+`mobile/build/release-artifacts/ios/build26/kivilo.ipa`; its hash and provenance
+are in `mobile/store/submission/apple-prepared-build.json`.
+
+All six listing screenshots, the subscription description, App Privacy answers
+and current review instructions are saved. Build 26 is selected for version 1.0.0,
+now **PREPARE_FOR_SUBMISSION**. No review reply or resubmission was sent.
+The owner cannot perform a phone purchase test yet; that remains an explicit gate.
+The owner accepted Apple's updated Developer Program License Agreement; the banner
+cleared and Free Apps now shows **Active**. Business then exposed the separate
+**Paid Apps Agreement — New**. The owner was asked to sign it and complete required
+tax/banking setup. No agreement was accepted by the agent.
+See `mobile/store/submission/apple-agreement-status.json`.
+The owner subsequently reported completion, but the refreshed Business page still
+showed Paid Apps **New**; activation is not yet verified. Kivilo's app availability
+is Singapore-only. The DSA option for no planned EU distribution fits that rollout
+if it remains outside the EU; the owner must make the declaration.
 
 | Rejection | Prepared change | Remaining release gate |
 | --- | --- | --- |
-| 2.1(a): demo content in screenshots | Actual iPhone and iPad captures of a fictional property, written inventory and room review; no DEMO ONLY, QA or Review Lane labels. | Verify against the distribution build and replace all affected store screenshot sets. |
-| 3.1.1: externally purchased Pro unavailable through IAP | StoreKit 2 purchase, restore, current Apple prices, terms, server verification and signed v2 notifications; separate Personal and team groups. All prices configured and the IAP key authenticates to Sandbox. | Subscription review screenshots, deployment and real sandbox purchases. |
+| 2.1(a): demo content in screenshots | Six actual iPhone and iPad captures of a fictional property, written inventory and room review; all uploaded assets COMPLETE and both old images removed. | Final device review before resubmission. |
+| 3.1.1: externally purchased Pro unavailable through IAP | StoreKit 2 purchase, restore, current Apple prices, terms and server verification deployed; separate Personal and team groups. All 21 private review screenshots are COMPLETE. A signed Sandbox TEST notification is delivered successfully. | Real sandbox purchases and attaching subscriptions/groups when resubmitting. |
 | 4.5.4: push required | Shorebird downloads no longer request notification permission or exit the app; Not now and Continue keep work accessible. | Verify patch delivery on the final Shorebird distribution build. Native notification denial and inventory navigation pass on both simulators. |
 
 ## Catalog and pricing
@@ -33,14 +52,32 @@ An Apple Account can hold Personal plus one team subscription. This limit is sho
 in the team purchase screen. Family Sharing is disabled; entitlement belongs to the
 selected Kivilo workspace, not an Apple family.
 
-All 21 products are drafts with English (UK) localization and Singapore availability.
-They remain **MISSING_METADATA**, including the purchase review screenshot. Apple's
+All 21 products have English (UK) localization, Singapore availability and a private
+review screenshot, with every image **COMPLETE**. They have not been submitted for
+review. Apple's
 `UPFRONT` plan type pays for the `ONE_MONTH` subscription period; it is not an annual
 commitment. No annual instalment option is configured.
+
+Apple's new multiseat setting defaults to enabled. It is disabled for all 21 SKUs,
+with purchase markets restricted to the App Store. Each purchase is quantity one;
+the selected team SKU already determines the workspace's seat count. Apple's bulk
+quantities and Business/School licensing use a separate entitlement model which
+Kivilo does not implement. The setup script now configures this for newly created
+SKUs and refuses incompatible existing purchase options during an audit.
+See [Apple's purchase-option settings](https://developer.apple.com/documentation/appstoreconnectapi/configuring-multi-seat-subscriptions-for-organizations).
 
 The owner chose **S$116.98 for three seats**. That lower-price choice was applied
 across the draft team tiers using the nearest offered price at or below S$39 × seats.
 All 21 prices were saved and read back from App Store Connect. Personal is S$39/month.
+
+Apple's review validator requires starting prices in all 175 storefronts, even
+though only Singapore is available for sale. A Singapore-only price record displayed
+correctly but failed Add for Review with `IAP_SUBMISSION_NOT_ALLOWED_MISSING_PRICING_DATA`.
+The missing records were filled using Apple's equalizations of each approved SGD
+price, preserving the existing Singapore price points and Singapore-only availability.
+All 21 subscriptions now report **READY_TO_SUBMIT**. The setup script creates the
+complete starting-price table for a new product and audits storefront coverage, so
+a valid Singapore price alone is not mistaken for a complete catalog.
 
 | Team seats | Monthly SGD | Team seats | Monthly SGD |
 | --- | ---: | --- | ---: |
@@ -119,31 +156,42 @@ in production, with the migration checksum and privileges verified. The Stripe a
    metadata is in `build/apple-review-20261030/iap-key-verification.json`.
 2. `APPLE_IAP_PRIVATE_KEY`, `APPLE_IAP_KEY_ID` and `APPLE_IAP_ISSUER_ID` are saved
    as sensitive Production-only Vercel variables, with read-back of variable names.
-   `APPLE_BILLING_ENABLED=false` is staged there while release verification remains.
-   These changes apply to a later deployment; the existing deployment is unchanged.
-   Enable billing when the backend and purchase test are ready. Never put the private
+   `APPLE_BILLING_ENABLED=true` is deployed. An authenticated production smoke
+   confirms the Personal product and purchase availability; Google Play billing,
+   current account and property-work endpoints also pass. Never put the private
    key in Flutter defines or source control.
-3. Finish each subscription's review screenshot; all approved prices are configured.
-   Retain the Singapore availability scope. Confirm paid-app agreements and the
-   catalog are usable by the sandbox tester.
-4. Deploy the database migration and server code, then configure App Store Server
-   Notifications **v2**, Production and Sandbox, to
-   `https://my.kivilo.app/api/apple/notifications`. Verify a signed TEST notification
-   and Apple's delivery status. No shared webhook password is used; the signed
-   payload and transactions are verified.
+3. **Catalog prepared:** each subscription's review screenshot is COMPLETE and
+   all approved prices are configured, with 175 starting-price records per product
+   and **READY_TO_SUBMIT** read-back. Retain the Singapore availability scope.
+   The owner has accepted the updated Developer Program License Agreement, with
+   read-back confirming Free Apps Active. The separate Paid Apps Agreement is
+   **New**: the Account Holder must review/sign it and finish required tax/banking
+   setup in Business. Confirm the catalog is usable by the sandbox tester.
+4. **Deployed and verified:** App Store Server Notifications **v2**, Production
+   and Sandbox, point to `https://my.kivilo.app/api/apple/notifications`.
+   Saving through the API initially left Apple's test service returning 4040007
+   despite correct read-back; re-saving Sandbox in the web UI resolved it.
+   The first signed TEST then exposed the SDK checking Production appAppleId
+   before environment, while Sandbox omits that ID. Trying the Sandbox verifier
+   first fixes this without accepting unsigned, Xcode or other-app payloads.
+   Six regressions exercise the SDK's real identity/environment checks. After
+   deployment, Apple's delivery status reports **SUCCESS**. No shared webhook
+   password or relaxed certificate checks are used. Production API authentication
+   still needs rechecking after the first public release.
 5. Test real Apple sandbox purchases for Personal and a team, upgrade/downgrade,
    cancel/renew/expire/refund, pending approval, restore after reinstall, offline
    verification and switching Kivilo accounts. Check the correct workspace and no
    duplicate provider subscription. Mocked tests do not establish this release gate.
-6. Publish a **new native Shorebird iOS release** with the StoreKit plugin and an
-   unused explicit build number. Signed build 26 passed the local dry run; the
-   Shorebird release is not published. Do not patch this plugin into build 24/25.
-   Confirm prices and restore on the final build and deny notifications while using
+6. **Published and uploaded:** native Shorebird iOS release **1.0.0+26** contains
+   the StoreKit plugin and updated permission descriptions/privacy manifest.
+   Do not patch this plugin into build 24/25. Confirm prices and restore on the
+   final TestFlight build and deny notifications while using
    the app, downloading an update and resuming captures. Preserve all queued media.
-7. Replace the rejected listing screenshots, apply the prepared Apple description
-   including privacy/EULA links, select the new build, attach the first subscriptions
-   to the app submission and resubmit. A review reply must describe verified shipped
-   behavior, not the unfinished steps above. No review message has been sent.
+7. **Listing and build prepared:** the six replacements and description including
+   privacy/EULA links are saved, App Privacy is published, stale AI review notes
+   are replaced and build 26 is selected. Finish subscription attachments and
+   the phone gates before resubmission. A review reply must describe verified
+   shipped behavior. No review message has been sent.
 
 ## Screenshots and verification
 
@@ -162,7 +210,8 @@ The iOS privacy manifest now also declares existing phone/financial details,
 notification identifiers, subscription history, account-linked screen analytics
 and diagnostics. The public policy describes Apple/Google billing, mobile screen
 analytics and the Apple account-deletion/cancellation distinction. Store privacy
-answers must match these disclosures before resubmission. Identity verification
+answers now include these disclosures, with a published read-back recorded in
+`mobile/store/submission/apple-privacy-published.json`. Identity verification
 will need its own clear purpose, consent, access and retention rules when built;
 this release does not introduce HR, CRM or KYC collection.
 
@@ -186,12 +235,25 @@ unshared. No party email was supplied and no report, invitation or signature ema
 was sent. Existing review fixtures were retained. Private simulator auth material
 is confined to ignored local QA artifacts and is not part of the screenshot set.
 
+The 21 private subscription-review images are separately captured from the actual
+`BillingScreen` and native StoreKit plugin on iPad, using the Xcode catalog with
+the configured Singapore prices and fake account status. An isolated capture
+harness hid its debug ribbon and selected each tier through the screen's existing
+callback; product code was unchanged. These are UI evidence, not a claim of real
+Apple server purchase verification, and the private review notes say so. Provenance,
+hashes and Apple asset IDs are in
+`mobile/store/submission/apple-subscription-review-screenshots.json`. Two Apple
+uploads stalled after upload and completed after replacing only those assets.
+No extra draft submission remains; the existing rejected submission is retained
+until the phone gates and subscription/group attachment steps are complete.
+
 Verification on this work:
 
-- Typecheck, zero-warning ESLint, production build and 242 web unit tests pass.
+- Typecheck, zero-warning ESLint, production build and **248 web unit tests** pass,
+  including the six additional notification identity/environment regressions.
 - Flutter analysis and **525 tests** pass. The normal native simulator build and
-  signed distribution build 26 compile with `in_app_purchase_storekit`; no new
-  build has been uploaded or registered as a Shorebird release.
+  signed distribution build 26 compile with `in_app_purchase_storekit`; build 26
+  is uploaded, processed and available in internal TestFlight.
 - Targeted Apple/Stripe/Google/team integration tests pass (**91 tests** after the
   added cross-provider test). The broad database run passed 424 and failed eight:
   the already-recorded schema-versus-table permission expectations and a retained
@@ -200,9 +262,10 @@ Verification on this work:
 - Browser run: 24/26 passed under Node 22; the PDF-clause case passes on the
   repository's documented Node 24. The remaining Stripe checkout case has no local
   Upgrade button because sandbox billing is not configured. The supplied IAP key
-  authenticates to Apple's Sandbox API; real sandbox purchases and notification
-  delivery remain **NOT RUN**. The user chose simulator testing while the physical
-  iPhone was unavailable.
+  authenticates to Apple's Sandbox API and signed notification delivery succeeds;
+  real sandbox purchases remain **NOT RUN**. The owner chose simulator testing
+  while the physical iPhone was unavailable and confirmed the phone test cannot
+  be run yet after TestFlight 26 became available.
 - Seven native StoreKit cases pass on **both iPhone and iPad**: all 21 prices and
   billing UI, purchase/restore, cancellation, pending approval, verification failure
   and retry, permanent rejection, immediate team upgrade and a downgrade scheduled

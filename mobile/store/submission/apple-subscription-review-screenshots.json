@@ -1,0 +1,199 @@
+{
+  "capturedAt": "2026-10-30",
+  "sourceCommit": "9a06bbd148bf56abcd1d6a5ae376336a4fd537a9",
+  "purpose": "Private subscription App Review screenshots, not public listing images",
+  "capture": "Actual BillingScreen and native StoreKit plugin on iPad simulator, Xcode catalog matching configured Singapore prices, fake in-memory account status. Debug ribbon disabled in the isolated capture harness; product code unchanged. No purchase-verification claim.",
+  "images": [
+    {
+      "productId": "kivilo_pro_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_monthly.png",
+      "sha256": "a1492d3417e61ced28260cb2abb2c7b7e80c54152e45554f6fa12d2736c5811a",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "298e2855-35ae-4e28-8448-8d5a5faccda4",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_10_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_10_monthly.png",
+      "sha256": "f94495a7bfb38929c7886862f5aa5d7ad93d9592143f1d366a5cb487289b1b28",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "22bd2d89-e9b8-4340-8f27-3df84ca1861f",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_11_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_11_monthly.png",
+      "sha256": "f010d941ffd49803a02730d62141b74acd9c352ed00ab69bc01fbde2f366b393",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "5b0ec295-eb54-4795-bf61-32b7b7a295d6",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_12_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_12_monthly.png",
+      "sha256": "f056d743aa69c12281aedc6cffe7e4675fade66b16827aed24e73f0a85e8d0b5",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "2804fd0e-5283-405b-a5c4-11f5303fe398",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_13_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_13_monthly.png",
+      "sha256": "db3bbda60bec5e832fe38dbd5e428715efce058e4489d907139ea5398fc68d32",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "42313f8a-d665-49f6-a4af-e5c902138bd2",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_14_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_14_monthly.png",
+      "sha256": "c9edd31e7bb19e0f372e82f6b8193b0cd5ebd45f18760cf910850f81fb1cb985",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "08baf483-4a71-43af-b007-1889e9c18d32",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_15_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_15_monthly.png",
+      "sha256": "750403cd0070bab4efd91ceb6b661f7d622b27f907de3fe8453382c427be12e5",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "be91e126-c9f0-4df0-aa83-3fb0ca070b4c",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_16_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_16_monthly.png",
+      "sha256": "f9b8c126d1f5bca0cd3c06463cd7216c25549e1cfeca2b79770fc2057cc6bcf9",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "cd2c1332-5fa7-4d98-878c-ed26397690b6",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_17_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_17_monthly.png",
+      "sha256": "9695207416cce8d1733531d6b92e454fb895710a1b306dc26158e7ac64e853e5",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "7561e7b8-f0f8-4ffe-8593-f82a0355b70e",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_18_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_18_monthly.png",
+      "sha256": "0e42bde299bf6406f0fd187853cd3e560e51543ceb3a1b41a2eef0742dd366c0",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "f8a1796e-f268-48f1-a6d6-4cdf634b10b9",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_19_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_19_monthly.png",
+      "sha256": "1ff7056e80f246fbff4a95ef63701b408d3d08f5ec4d5bca097cd670c3029a53",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "da5fda5d-834e-4c09-a2b4-a50e32ae4601",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_1_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_1_monthly.png",
+      "sha256": "dd1d1326a100975afefa04886c7bd66b135bf6e62e54c225fb231735392c85da",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "4fabf599-10ed-4241-aee9-b21aac9bd730",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_20_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_20_monthly.png",
+      "sha256": "d7331f21b4f92c8299dd3fac412b2168e1a3a245fbd87c8b0a64602da1b1953d",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "76542460-536c-4d50-ada5-287ffdfb9e4e",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_2_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_2_monthly.png",
+      "sha256": "625330f656eb82fd06ec646c91a14a433ab06b76d4871b7008103679f7d31fbe",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "f1339485-18cd-476a-844e-af25fca4efd5",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_3_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_3_monthly.png",
+      "sha256": "389eb372f38dde0bb30b272d1eca8e0bf053a62d19e87597b92a105dc8a9d73b",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "1ae4981a-dc2b-4b6a-887c-4ecfd1abe1c4",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_4_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_4_monthly.png",
+      "sha256": "adcee121fd4575aed8c80d4ebacf5a1db02ad29cab3e9056973866897e06f275",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "2ff6b711-6d3d-4113-8434-fa3c612eaab0",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_5_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_5_monthly.png",
+      "sha256": "216674c00bc1ea86c9e86a19e198012921dafbc1f5c7e7e1295710477e046e60",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "39f95c24-3df1-4d76-9998-f37b64ba35ca",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_6_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_6_monthly.png",
+      "sha256": "f2c96a2c665a75ecc0c2f3cea32df7339670eab9f16033a344e798cb9c65fecd",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "7dce2e11-ace7-425f-8ed0-c213097f2049",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_7_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_7_monthly.png",
+      "sha256": "393515db402d25b44074343e9e39e85cf27478d1b7b77afcb76fe0d0d3277cba",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "e15bdb45-f00d-4593-ac27-006b82cf9e87",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_8_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_8_monthly.png",
+      "sha256": "5910be74d37044b38e4561ec9b4e158890fcecaf91255f49a33e596883e3c07b",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "89f2428f-472f-48f3-a1dd-0bedd91ecba0",
+      "appStoreAssetState": "COMPLETE"
+    },
+    {
+      "productId": "kivilo_pro_team_9_monthly",
+      "file": "mobile/build/store-screenshots/ios/subscription-review-20261030/kivilo_pro_team_9_monthly.png",
+      "sha256": "13c7d86024c0e1b4cb06a38688e6a05126174a38bf4be1bacc7938638b5229cf",
+      "width": 2064,
+      "height": 2752,
+      "appStoreScreenshotId": "2de4267e-c6e3-4755-b713-3c8c8f65a963",
+      "appStoreAssetState": "COMPLETE"
+    }
+  ],
+  "uploadedAt": "2026-10-30",
+  "submittedForReview": false
+}

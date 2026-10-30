@@ -3,10 +3,23 @@
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
 Pte. Ltd. iOS **1.0.0 (24) was rejected on 30 October 2026** under 2.1(a), 3.1.1,
 and 4.5.4. Its review submission is `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`.
-All 21 Apple subscription prices are configured in draft. Signed replacement build
-26 is prepared locally (`apple-prepared-build.json`); its Shorebird release is not
-published and no replacement build or resubmission has been uploaded. Current
-remediation and gates: `plans/apple-billing.md`.
+All 21 Apple subscriptions are READY_TO_SUBMIT. Prices cover Apple's required
+175 storefronts, with Singapore alone available for sale. Signed replacement build
+**26** is uploaded, VALID and in **Kivilo Internal** TestFlight; Shorebird release
+**922723** is active. It is selected for the public version, now
+PREPARE_FOR_SUBMISSION. Six listing replacements are COMPLETE, with both old images
+removed; the description, App Privacy and current review notes are saved.
+The billing backend is live and signed Sandbox TEST notification delivery succeeds.
+All 21 private subscription review images are COMPLETE. Apple's separate bulk-quantity
+purchasing is disabled; the selected team SKU already determines its seat count.
+The owner cannot perform a phone purchase test yet. Real purchase/restore verification,
+Account Holder completion of the separate Paid Apps Agreement (currently New) and
+required tax/banking setup, subscription/group attachment and App Store resubmission
+remain. The owner accepted the updated Developer Program License Agreement; Free
+Apps is Active. Current
+remediation, provenance and gates: `plans/apple-billing.md`,
+`apple-prepared-build.json`, `apple-screenshot-replacements.json`,
+`apple-privacy-published.json`, `apple-review-notes.txt` and `apple-agreement-status.json`.
 The older submission records below are retained as history.
 
 Android build 13 replaces the native-upload

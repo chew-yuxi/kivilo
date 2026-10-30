@@ -5,20 +5,21 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
-## Apple rejection remediation: 30 October 2026 (not released)
+## Apple rejection remediation: 30 October 2026 (TestFlight 26; review not resubmitted)
 
-Apple rejected **1.0.0 (24)** under 2.1(a), 3.1.1 and 4.5.4. The working tree now
-includes native StoreKit 2 billing and optional Shorebird update continuation; it
-requires a new native iOS release. A Flutter simulator build numbered 26 compiles,
-and native iPhone/iPad tests can decline notifications and open inventory. All 525
-Flutter tests and analysis pass. A signed **1.0.0 (26)** IPA was prepared with
-`shorebird release ios --dry-run --flutter-version=3.47.2 --target=lib/main.dart`
+Apple rejected **1.0.0 (24)** under 2.1(a), 3.1.1 and 4.5.4. Native **1.0.0 (26)**
+now includes StoreKit 2 billing, optional Shorebird update continuation and updated
+camera/photo purpose strings and privacy manifest. Native iPhone/iPad tests can
+decline notifications and open inventory. All 525 Flutter tests and analysis pass.
+The signed release was built from `9a06bbd` with
+`shorebird release ios --flutter-version=3.47.2 --target=lib/main.dart --build-number=26`
 and the existing export options. Strict deep signature verification passes;
 `get-task-allow=false`, production APNs, and the StoreKit framework are confirmed.
-The test fixture is absent. Artifact: `build/release-artifacts/ios/build26-prepared/kivilo.ipa`;
-hash/provenance: `store/submission/apple-prepared-build.json`. The dry run does not
-publish a Shorebird release; register that release before uploading the store build.
-No new release/patch has been published or build uploaded for this work.
+The test fixture is absent. Artifact: `build/release-artifacts/ios/build26/kivilo.ipa`;
+hash/provenance: `store/submission/apple-prepared-build.json`. Shorebird release
+**922723** is active for iOS. Apple build `7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2`
+is **VALID**, in **Kivilo Internal** TestFlight, and selected for public version
+1.0.0 (PREPARE_FOR_SUBMISSION). No new patch, review reply or resubmission was sent.
 
 Seven native StoreKit cases pass on each simulator with a fake backend and the real
 billing UI/plugin. Restore now excludes historical entries without signed receipts;
@@ -27,13 +28,23 @@ The production verifier rejects the local Xcode test transaction. These checks d
 not replace real App Store sandbox purchase and notification delivery verification.
 The fixture and reproducible commands are in `test_support/README.md`.
 
-The Apple catalog has 21 draft products with prices saved and read back; three seats
+The Apple catalog has 21 products READY_TO_SUBMIT, with prices and private review
+screenshots saved and read back (all assets COMPLETE); three seats
 is S$116.98, with remaining tiers rounded down to an available price. The supplied
-IAP key authenticates to Sandbox and is staged in Vercel with billing disabled. Real
-sandbox purchase verification remains. Production
-migration/deployment, v2 notification setup, final subscription review screenshots,
-replacement listing screenshots and resubmission remain. Six simulator screenshot
-previews and their provenance are prepared; existing store screenshots are unchanged.
+IAP key authenticates to Sandbox and billing is enabled on the live backend.
+Migration checksums, RLS and existing row counts were verified. Server source
+`378d3df` was verified live in Singapore, and Apple's signed Sandbox TEST notification
+delivery reports SUCCESS. Six replacement listing images are COMPLETE, both old
+images removed, and App Privacy, listing text and reviewer notes updated.
+The owner cannot test on a phone yet; real sandbox purchases, restore and final
+distribution update behavior remain unverified. Apple's bulk quantities are disabled
+because each team SKU already defines its seat count. Each product has the 175
+starting-price records Apple requires, equalized from the approved SGD amount;
+only Singapore is available for sale. Attach the subscription groups
+and products when resubmitting; public review remains separate from the completed
+TestFlight release. The owner accepted Apple's updated Developer Program License
+Agreement; Free Apps is Active. The separate Paid Apps Agreement is New and requires
+the Account Holder's review/signature and required tax/banking setup.
 See `plans/apple-billing.md` for the exact boundaries, checks and remaining steps.
 
 ## Duplicate a line, one condition for several, missing-detail hints: 30 October 2026 Singapore time
