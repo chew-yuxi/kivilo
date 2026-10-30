@@ -5,6 +5,39 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Due diligence preview: 30 October 2026 Singapore time
+
+Server source `f8dc676`, pushed to `origin/main` and deployed by Vercel (READY, `sin1`;
+`/api/v1/cdd` answers 401 signed out) after `20261030100000_compliance_pack` and
+`20261030110000_cdd_request_notification` were applied to production with `prisma
+migrate deploy` (all 8 new tables have RLS and no `anon`/`authenticated`/`PUBLIC`
+grants). `CDD_ID_KEYS` was added to Vercel Production; its only other copy is this
+Mac's login Keychain, service `kivilo-cdd-id-keys`. Production's sanctions lists were
+loaded by running `refreshSanctionsLists` locally against production (UN 1,007 entries,
+published 29 October; SG First Schedule 33), since `CRON_SECRET` is sensitive and cannot
+be read back; the daily cron keeps them current. Home offers Due diligence only to
+`ADMIN_EMAILS` (`dueDiligence` on `GET /api/v1/home`). Dilisense is not wired in.
+
+**The app patch is not built from main.** Main now carries Apple subscriptions and the
+`in_app_purchase_storekit` plugin, which the installed builds lack. The patch source is
+`ccf566a` on local branch `claude/cdd-patch`: the previous patch source line (`bfe4074`)
+plus only the due-diligence app changes (`git diff 378d3df f8dc676 -- mobile/`). The next
+patch from main must wait for native builds that include StoreKit.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **20** / `764050` | **stable** |
+| iOS TestFlight `1.0.0+25` | **48** / `764059` | **stable** |
+
+Built from one pinned worktree with production defines and explicit build numbers,
+read back from the artifacts (`versionCode="29"`; `CFBundleVersion` 25, `1.0.0`),
+published to staging, then set to stable with Yuxi's go. Every icon used exists in both
+base sources (`89a8534`, `b7f897f`); Android's `--allow-asset-diffs` covered the icon
+font and `NOTICES.Z`, iOS needed none. No native difference. iOS shared 60.6% of Dart
+code. Checks: 516 mobile tests on the patch source and clean analysis; on the server
+source lint, typecheck, build, 277 unit, 446 integration and both due-diligence e2e
+specs. Physical devices **NOT RUN**.
+
 ## Apple rejection remediation: 30 October 2026 (TestFlight 26; review not resubmitted)
 
 Apple rejected **1.0.0 (24)** under 2.1(a), 3.1.1 and 4.5.4. Native **1.0.0 (26)**
