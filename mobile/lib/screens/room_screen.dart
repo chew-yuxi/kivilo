@@ -97,6 +97,10 @@ class _RoomScreenState extends State<RoomScreen> {
   );
   bool _busy = false;
   bool _addingItem = false;
+
+  /// Lines picked for one condition change, in this room only.
+  bool _selecting = false;
+  final _selected = <String>{};
   bool _newestFirst = true;
 
   /// The check-in reference starts closed, as on the web, so the inventory is what the
@@ -349,7 +353,7 @@ class _RoomScreenState extends State<RoomScreen> {
             'Delete this ${capture.kind == 'PHOTO' ? 'photo' : 'video'}?',
           ),
           content: const Text(
-            'This removes it from the room and any item it is attached to. You can restore it from the property’s History for 30 days.',
+            'This removes it from the room and any item it is attached to. You can restore it from the property’s Change log for 30 days.',
           ),
           actions: [
             TextButton(
@@ -442,13 +446,124 @@ class _RoomScreenState extends State<RoomScreen> {
     }
   }
 
+  Future<void> _duplicateItem(InventoryItem item) => _run(() async {
+    await _api.duplicateItem(widget.inspectionId, item.id);
+  });
+
+  static const _conditions = {
+    'NEW': 'New',
+    'GOOD': 'Good',
+    'FAIR': 'Fair',
+    'POOR': 'Poor',
+    'DAMAGED': 'Damaged',
+  };
+
+  /// One condition for the selected lines, after the inspector confirms exactly which.
+  Future<void> _setCondition(RoomDetail room) async {
+    final count = _selected.length;
+    final condition = await showKiviloDrawer<String>(
+      context: context,
+      builder: (context) {
+        String? chosen;
+        return StatefulBuilder(
+          builder: (context, setDrawerState) => KiviloDrawer(
+            title: Text(
+              'Set condition for $count ${count == 1 ? 'line' : 'lines'}',
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  count == 1
+                      ? 'Only the selected line in ${room.name} changes.'
+                      : 'Only the selected lines in ${room.name} change.',
+                ),
+                RadioGroup<String>(
+                  groupValue: chosen,
+                  onChanged: (value) => setDrawerState(() => chosen = value),
+                  child: Column(
+                    children: [
+                      for (final entry in _conditions.entries)
+                        RadioListTile<String>(
+                          value: entry.key,
+                          title: Text(entry.value),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: chosen == null
+                    ? null
+                    : () => Navigator.pop(context, chosen),
+                child: Text(
+                  chosen == null
+                      ? 'Set condition'
+                      : 'Set to ${_conditions[chosen]}',
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+    if (condition == null || !mounted) return;
+    await _run(() async {
+      await _api.setItemsCondition(
+        widget.inspectionId,
+        widget.roomId,
+        _selected.toList(),
+        condition,
+      );
+      if (mounted) {
+        setState(() {
+          _selecting = false;
+          _selected.clear();
+        });
+      }
+    });
+  }
+
+  /// Specific details a reviewer may have missed, to check before review. A note only:
+  /// it never blocks review, sets a photo quota, or questions an empty room.
+  List<String> _missingDetails(RoomDetail room) {
+    final linked = {for (final item in room.items) ...item.evidenceCaptureIds};
+    return [
+      if (room.items.isNotEmpty &&
+          !room.captures.any((capture) => capture.kind == 'PHOTO'))
+        'No photos of this room yet',
+      for (final item in room.items) ...[
+        if (item.category == 'APPLIANCE' &&
+            (item.identifier?.trim().isEmpty ?? true))
+          '${item.name}: no serial or model number',
+        if (item.category == 'METER' &&
+            (item.meterReading?.trim().isEmpty ?? true))
+          '${item.name}: no reading',
+        if ((item.condition == 'POOR' || item.condition == 'DAMAGED') &&
+            (item.notes?.trim().isEmpty ?? true))
+          '${item.name}: marked ${_conditions[item.condition]} with no description',
+        if ((item.condition == 'POOR' || item.condition == 'DAMAGED') &&
+            !item.evidenceCaptureIds.any(linked.contains))
+          '${item.name}: marked ${_conditions[item.condition]} with no photo linked',
+      ],
+    ];
+  }
+
   Future<void> _deleteItem(InventoryItem item) async {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Delete ${item.name}?'),
         content: const Text(
-          'This removes the line from the inventory. You can restore it from the property’s History for 30 days.',
+          'This removes the line from the inventory. You can restore it from the property’s Change log for 30 days.',
         ),
         actions: [
           TextButton(
@@ -683,7 +798,7 @@ class _RoomScreenState extends State<RoomScreen> {
         builder: (context) => KiviloDrawer(
           title: const Text('Delete this room?'),
           content: const Text(
-            'Its photos, videos and inventory will be removed. You can restore the room from the property’s History for 30 days.',
+            'Its photos, videos and inventory will be removed. You can restore the room from the property’s Change log for 30 days.',
           ),
           actions: [
             TextButton(
@@ -783,14 +898,63 @@ class _RoomScreenState extends State<RoomScreen> {
                           ? null
                           : '${room.items.length} ${room.items.length == 1 ? 'item' : 'items'} in this room',
                       action: widget.editable
-                          ? TextButton.icon(
-                              onPressed: _busy || _addingItem ? null : _addItem,
-                              icon: const Icon(Icons.add),
-                              label: const Text('Add'),
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (room.items.length > 1) ...[
+                                  TextButton(
+                                    onPressed: _busy
+                                        ? null
+                                        : () => setState(() {
+                                            _selecting = !_selecting;
+                                            _selected.clear();
+                                          }),
+                                    child: Text(
+                                      _selecting ? 'Done' : 'Select',
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                TextButton.icon(
+                                  onPressed: _busy || _addingItem || _selecting
+                                      ? null
+                                      : _addItem,
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Add'),
+                                ),
+                              ],
                             )
                           : null,
                     ),
                     const SizedBox(height: kiviloHeadingGap),
+                    if (_selecting) ...[
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _selected.isEmpty
+                                      ? 'Tap lines to select them'
+                                      : '${_selected.length} selected',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleSmall,
+                                ),
+                              ),
+                              FilledButton(
+                                onPressed: _busy || _selected.isEmpty
+                                    ? null
+                                    : () => _setCondition(room),
+                                child: const Text('Set condition'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
                     if (room.items.isEmpty)
                       Card(
                         child: Padding(
@@ -960,6 +1124,28 @@ class _RoomScreenState extends State<RoomScreen> {
                                     : 'Check every item against the photos and video. Your review makes this room ready for the report.',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
+                              if (_missingDetails(room) case final missing
+                                  when missing.isNotEmpty) ...[
+                                const SizedBox(height: 12),
+                                KiviloNotice(
+                                  tone: KiviloTone.warning,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Worth checking before you review',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleSmall,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      for (final detail in missing)
+                                        Text('· $detail'),
+                                    ],
+                                  ),
+                                ),
+                              ],
                               const SizedBox(height: kiviloHeadingGap),
                               if (room.items.isEmpty)
                                 OutlinedButton(
@@ -1211,7 +1397,15 @@ class _RoomScreenState extends State<RoomScreen> {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: widget.editable && !_busy ? () => _openItem(item) : null,
+        onTap: !widget.editable || _busy
+            ? null
+            : _selecting
+            ? () => setState(
+                () => _selected.contains(item.id)
+                    ? _selected.remove(item.id)
+                    : _selected.add(item.id),
+              )
+            : () => _openItem(item),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -1226,7 +1420,18 @@ class _RoomScreenState extends State<RoomScreen> {
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ),
-                  if (widget.editable) ...[
+                  if (widget.editable && _selecting)
+                    Checkbox(
+                      value: _selected.contains(item.id),
+                      onChanged: _busy
+                          ? null
+                          : (value) => setState(
+                              () => value!
+                                  ? _selected.add(item.id)
+                                  : _selected.remove(item.id),
+                            ),
+                    )
+                  else if (widget.editable) ...[
                     const Padding(
                       padding: EdgeInsets.all(8),
                       child: Icon(Icons.chevron_right, size: 22),
@@ -1241,13 +1446,28 @@ class _RoomScreenState extends State<RoomScreen> {
                 ],
               ),
               const SizedBox(height: 5),
-              Wrap(
-                spacing: 7,
-                runSpacing: 7,
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  _itemTag(item.category.replaceAll('_', ' ')),
-                  _itemTag(item.condition.replaceAll('_', ' ')),
-                  _itemTag('Qty ${item.quantity}'),
+                  Expanded(
+                    child: Wrap(
+                      spacing: 7,
+                      runSpacing: 7,
+                      children: [
+                        _itemTag(item.category.replaceAll('_', ' ')),
+                        _itemTag(item.condition.replaceAll('_', ' ')),
+                        _itemTag('Qty ${item.quantity}'),
+                      ],
+                    ),
+                  ),
+                  if (widget.editable && !_selecting)
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      onPressed: _busy ? null : () => _duplicateItem(item),
+                      child: const Text('Duplicate'),
+                    ),
                 ],
               ),
               if (item.identifier != null) ...[

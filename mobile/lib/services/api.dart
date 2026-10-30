@@ -1116,6 +1116,28 @@ class Api {
     );
   });
 
+  /// A copy of a line with its structure only: no serial, reading, notes or photos.
+  Future<String> duplicateItem(String inspectionId, String itemId) =>
+      _call(() async {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/api/v1/inspections/$inspectionId/items/$itemId/duplicate',
+        );
+        return response.data!['id'] as String;
+      });
+
+  /// One condition for lines selected in one room.
+  Future<void> setItemsCondition(
+    String inspectionId,
+    String roomId,
+    List<String> itemIds,
+    String condition,
+  ) => _call(() async {
+    await _dio.post(
+      '/api/v1/inspections/$inspectionId/rooms/$roomId/items/condition',
+      data: {'itemIds': itemIds, 'condition': condition},
+    );
+  });
+
   Future<void> deleteItem(String inspectionId, String itemId) =>
       _call(() async {
         await _dio.delete('/api/v1/inspections/$inspectionId/items/$itemId');

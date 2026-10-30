@@ -833,6 +833,75 @@ export async function addItem(roomId: string, inspectionId: string) {
   return item.id
 }
 
+/// A copy of a line to edit into the next one ("Dining chair" twice). Structure only:
+/// the serial, meter reading, notes, photos and check-in line belong to the original
+/// item, so none of them is copied.
+export async function duplicateItem(itemId: string, inspectionId: string) {
+  const agent = await requireAgent()
+  await authorizeItem(itemId, inspectionId, agent.id)
+
+  const item = await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const source = await tx.inspectionItem.findUniqueOrThrow({
+      where: { id: itemId }, include: { room: { select: { name: true } } },
+    })
+    const created = await tx.inspectionItem.create({
+      data: {
+        roomId: source.roomId,
+        name: source.name,
+        category: source.category,
+        condition: source.condition,
+        quantity: source.quantity,
+        editedByHuman: true,
+      },
+    })
+    await recordEvent(tx, {
+      ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ITEM_ADDED',
+      summary: `added a copy of ${source.name} to ${source.room.name}`,
+    })
+    return created
+  })
+  revalidate(inspectionId)
+  return item.id
+}
+
+/// One condition for several lines the inspector selected in one room. Every id must be
+/// a line of that room, so another room or report is never touched, and the open-report
+/// lock refuses it once the report is sent. Each changed line gets its own history.
+export async function setItemsCondition(
+  roomId: string,
+  inspectionId: string,
+  itemIds: string[],
+  condition: ItemCondition,
+) {
+  const agent = await requireAgent()
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId) throw new Error('Room not found')
+  assertOpen(room.inspection)
+  const ids = [...new Set(itemIds)]
+
+  await editOpenInspection(inspectionId, agent.id, async (tx) => {
+    const items = await tx.inspectionItem.findMany({
+      where: { id: { in: ids }, roomId },
+      select: { id: true, name: true, condition: true, room: { select: { name: true } } },
+    })
+    if (items.length !== ids.length) throw new Error('Item not found')
+    const changed = items.filter((item) => item.condition !== condition)
+    await tx.inspectionItem.updateMany({
+      where: { id: { in: changed.map((item) => item.id) } },
+      data: { condition, editedByHuman: true, confidence: null },
+    })
+    const place = await inspectionPlace(tx, inspectionId)
+    for (const item of changed) {
+      await recordBurst(tx, {
+        ...place, actorId: agent.id, kind: 'ITEM_EDITED', subjectKey: `item:${item.id}`,
+        changes: fieldChanges(item, { condition }, { condition: itemFieldLabels.condition }),
+        summary: () => `edited ${item.name} in ${item.room.name}`,
+      })
+    }
+  })
+  revalidate(inspectionId)
+}
+
 // ---------------------------------------------------------------------------
 // Inspection lifecycle
 // ---------------------------------------------------------------------------
