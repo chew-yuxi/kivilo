@@ -26,14 +26,16 @@ and current review instructions are saved. Build 26 is selected for version 1.0.
 now **PREPARE_FOR_SUBMISSION**. No review reply or resubmission was sent.
 The owner cannot perform a phone purchase test yet; that remains an explicit gate.
 The owner accepted Apple's updated Developer Program License Agreement; the banner
-cleared and Free Apps now shows **Active**. Business then exposed the separate
-**Paid Apps Agreement — New**. The owner was asked to sign it and complete required
-tax/banking setup. No agreement was accepted by the agent.
+cleared and Free Apps now shows **Active**. The owner also accepted the Paid Apps
+Agreement and supplied banking and Singapore tax information. After the owner's
+explicit review and authorization, both U.S. tax forms were certified and submitted.
+A fresh Business page confirms the Paid Apps Agreement, bank account and both U.S.
+forms are **Active**; the Singapore questionnaire is **Complete**. Apple account
+setup is cleared. No developer or Paid Apps agreement was accepted by the agent.
 See `mobile/store/submission/apple-agreement-status.json`.
-The owner subsequently reported completion, but the refreshed Business page still
-showed Paid Apps **New**; activation is not yet verified. Kivilo's app availability
-is Singapore-only. The owner confirmed no planned EU distribution. App Store Connect
-now shows DSA **Active**, with the non-trader/no-planned-EU-distribution option saved.
+Kivilo's app availability is Singapore-only. The owner confirmed no planned EU
+distribution. App Store Connect shows DSA **Active**, with the
+non-trader/no-planned-EU-distribution option saved.
 The existing declaration was verified without changing it.
 
 | Rejection | Prepared change | Remaining release gate |
@@ -165,9 +167,11 @@ in production, with the migration checksum and privileges verified. The Stripe a
    all approved prices are configured, with 175 starting-price records per product
    and **READY_TO_SUBMIT** read-back. Retain the Singapore availability scope.
    The owner has accepted the updated Developer Program License Agreement, with
-   read-back confirming Free Apps Active. The separate Paid Apps Agreement is
-   **New**: the Account Holder must review/sign it and finish required tax/banking
-   setup in Business. Confirm the catalog is usable by the sandbox tester.
+   read-back confirming Free Apps Active. The owner also accepted the separate
+   Paid Apps Agreement. After the owner's confirmation, both U.S. tax forms were
+   submitted. Fresh read-back confirms Paid Apps, banking and both U.S. forms
+   **Active**, with Singapore tax **Complete**. Account setup is cleared.
+   Confirm the catalog is usable by the sandbox tester on the final build.
 4. **Deployed and verified:** App Store Server Notifications **v2**, Production
    and Sandbox, point to `https://my.kivilo.app/api/apple/notifications`.
    Saving through the API initially left Apple's test service returning 4040007

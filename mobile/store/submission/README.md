@@ -12,11 +12,11 @@ removed; the description, App Privacy and current review notes are saved.
 The billing backend is live and signed Sandbox TEST notification delivery succeeds.
 All 21 private subscription review images are COMPLETE. Apple's separate bulk-quantity
 purchasing is disabled; the selected team SKU already determines its seat count.
-The owner cannot perform a phone purchase test yet. Real purchase/restore verification,
-Account Holder completion of the separate Paid Apps Agreement (currently New) and
-required tax/banking setup, subscription/group attachment and App Store resubmission
-remain. The owner accepted the updated Developer Program License Agreement; Free
-Apps is Active. Current
+The owner cannot perform a phone purchase test yet. Real purchase/restore and final
+distribution-update verification, subscription/group attachment and App Store
+resubmission remain. Apple account setup is cleared: both agreements, banking and
+the two U.S. tax forms are Active; Singapore tax is Complete. The U.S. forms were
+submitted after the owner's explicit certification approval. Current
 remediation, provenance and gates: `plans/apple-billing.md`,
 `apple-prepared-build.json`, `apple-screenshot-replacements.json`,
 `apple-privacy-published.json`, `apple-review-notes.txt` and `apple-agreement-status.json`.

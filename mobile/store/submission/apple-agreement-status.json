@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-30",
+  "checkedAt": "2026-10-30T15:33:06Z",
   "provider": "NOTTOOSWEETLABS PTE. LTD.",
   "source": "https://appstoreconnect.apple.com/business",
   "developerProgramLicense": "Owner accepted; update banner cleared on read-back",
@@ -10,17 +10,36 @@
     },
     {
       "type": "Paid Apps Agreement",
-      "status": "New"
+      "status": "Active"
     }
   ],
-  "paidAppsAgreementVerifiedActive": false,
+  "paidAppsAgreementVerifiedActive": true,
   "ownerReportsPaidAgreementCompleted": true,
-  "readbackNote": "After the owner's completion report, a refreshed Business page still shows Paid Apps Agreement as New; activation is not yet verified.",
-  "kiviloAvailableTerritories": ["SGP"],
+  "readbackNote": "Fresh Business page after both U.S. tax submissions confirms Paid Apps Agreement, Free Apps Agreement, bank account and both U.S. forms Active; Singapore Tax Questionnaire Complete and DSA Active. No account setup notices remain.",
+  "remainingAccountSetup": [],
+  "kiviloAvailableTerritories": [
+    "SGP"
+  ],
   "dsaDeclarationSubmittedByAgent": false,
   "dsaComplianceStatus": "Active",
   "dsaSelectedOption": "I'm not a trader under the DSA or I don't plan to distribute in the EU",
   "dsaOwnerIntent": "Owner confirmed no EU distribution planned. The saved non-EU option and Active status were verified in App Store Connect; no change was needed.",
-  "action": "Account Holder must review and sign the Paid Apps Agreement, then complete required tax and banking setup in App Store Connect Business before purchase testing and resubmission. Owner has been asked.",
-  "agreementsAcceptedByAgent": false
+  "action": "Apple account setup is cleared. Complete real Apple sandbox purchase/restore and final distribution-update verification before attaching subscriptions and resubmitting the app.",
+  "agreementsAcceptedByAgent": false,
+  "bankAccountStatus": "Active",
+  "singaporeTaxStatus": "Complete",
+  "usTaxForms": [
+    {
+      "form": "U.S. Certificate of Foreign Status of Beneficial Owner",
+      "status": "Active"
+    },
+    {
+      "form": "U.S. Substitute Form W-8BEN-E",
+      "status": "Active"
+    }
+  ],
+  "usTaxFormsPreparedForOwnerReview": true,
+  "taxFormsSubmittedByAgent": true,
+  "ownerAuthorizedTaxCertificationAndSubmission": true,
+  "taxSubmissionAuthorization": "Owner reviewed the prepared details and declarations, confirmed signing authority, and explicitly instructed: Confirmed, submit both."
 }

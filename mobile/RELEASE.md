@@ -76,8 +76,10 @@ starting-price records Apple requires, equalized from the approved SGD amount;
 only Singapore is available for sale. Attach the subscription groups
 and products when resubmitting; public review remains separate from the completed
 TestFlight release. The owner accepted Apple's updated Developer Program License
-Agreement; Free Apps is Active. The separate Paid Apps Agreement is New and requires
-the Account Holder's review/signature and required tax/banking setup.
+Agreement and Paid Apps Agreement. Both U.S. tax forms were submitted after the
+owner's explicit certification approval. Fresh read-back confirms both agreements,
+banking and the U.S. forms Active, with Singapore tax Complete. Apple account setup
+is cleared; the real purchase/restore and distribution-update gates remain.
 See `plans/apple-billing.md` for the exact boundaries, checks and remaining steps.
 
 ## Duplicate a line, one condition for several, missing-detail hints: 30 October 2026 Singapore time

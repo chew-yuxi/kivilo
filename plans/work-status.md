@@ -33,11 +33,13 @@ the SDK's Production app-ID check occurring before its environment check.
 Verifying Sandbox first fixes the missing sandbox appAppleId without weakening
 signature or identity checks. Six regressions cover acceptance and rejection.
 The owner accepted the updated Developer Program License Agreement; the banner
-cleared and Free Apps is Active. Business now shows the separate Paid Apps Agreement
-as **New**. The owner was asked to review/sign it and finish required tax/banking
-setup and reported completion, but refreshed read-back still showed New; activation
-is not yet verified. No agreement was accepted by the agent. The owner cannot run a phone purchase
-test yet. Real Sandbox purchase/restore and
+cleared and Free Apps is Active. The owner also accepted the Paid Apps Agreement
+and explicitly authorized certification and submission of the two prepared U.S.
+tax forms. Fresh read-back confirms Paid Apps, banking and both U.S. forms **Active**;
+Singapore tax is **Complete**. DSA is Active with the no-planned-EU option saved;
+Kivilo remains Singapore-only. Apple account setup is cleared. No developer or
+Paid Apps agreement was accepted by the agent.
+The owner cannot run a phone purchase test yet. Real Sandbox purchase/restore and
 distribution-update denial remain release gates. Attach the subscriptions and
 groups together with the app when resubmitting; no extra draft submission remains.
 
