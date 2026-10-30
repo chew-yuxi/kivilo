@@ -285,7 +285,8 @@ export async function casesForAgent(agentId: string) {
     select: {
       id: true, status: true, clientRole: true, createdAt: true, updatedAt: true,
       client: { select: { name: true } },
-      particulars: { select: { legalName: true } },
+      particulars: { select: { legalName: true, idSightedAt: true } },
+      riskAssessment: { select: { level: true } },
       tenancy: { select: { id: true, property: { select: { line1: true, unit: true } } } },
       screeningRuns: {
         orderBy: { ranAt: 'desc' },
@@ -304,6 +305,9 @@ export async function casesForAgent(agentId: string) {
       tenancyId: found.tenancy?.id ?? null,
       openMatches: found.screeningRuns[0]?.candidates.length ?? 0,
       screened: found.screeningRuns.length > 0,
+      particularsIn: found.particulars !== null,
+      idSighted: Boolean(found.particulars?.idSightedAt),
+      riskAssessed: found.riskAssessment !== null,
       createdAt: found.createdAt,
       updatedAt: found.updatedAt,
     }))
@@ -320,13 +324,16 @@ export async function caseForAgent(caseId: string, agentId: string) {
       client: { select: { id: true, name: true, email: true } },
       particulars: true,
       riskAssessment: true,
+      events: { where: { kind: 'REQUEST_SENT' }, orderBy: { createdAt: 'desc' }, take: 1, select: { createdAt: true } },
       screeningRuns: { orderBy: { ranAt: 'desc' }, include: { candidates: { orderBy: { score: 'desc' } } } },
     },
   })
-  const { particulars, riskAssessment, ...rest } = found
+  const { particulars, riskAssessment, events, ...rest } = found
   return {
     ...rest,
     reference: caseReference(found.id),
+    /// When the form was last emailed to the client, so the agent knows it went.
+    requestedAt: events[0]?.createdAt ?? null,
     riskAssessment: riskAssessment && {
       checklistVersion: riskAssessment.checklistVersion,
       answers: riskAssessment.answers,

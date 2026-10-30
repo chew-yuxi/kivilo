@@ -68,9 +68,11 @@ export function LoginForm() {
   return (
     <form onSubmit={stage === 'email' ? sendCode : verify} className="mt-4 space-y-5" aria-busy={busy}>
       <p className="mb-8 text-lg leading-relaxed text-gray-600">
-        {stage === 'email'
-          ? 'Enter your email to get started or sign back in.'
-          : 'Check your email and enter the code to continue.'}
+        {stage !== 'email'
+          ? 'Check your email and enter the code to continue.'
+          : next.startsWith('/cdd/')
+            ? 'Your agent asked you to verify your identity. Sign in with the email address their request was sent to.'
+            : 'Enter your email to get started or sign back in.'}
       </p>
       <label className="block text-lg font-medium text-gray-700">
         Email

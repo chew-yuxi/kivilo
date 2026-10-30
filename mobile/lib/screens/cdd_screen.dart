@@ -97,8 +97,9 @@ class _CddListScreenState extends State<CddListScreen> {
                 else if (cases.isEmpty)
                   const KiviloMessage(
                     icon: Icons.fact_check_outlined,
-                    title: 'No deals yet',
-                    body: 'Start a deal when you take on a landlord or tenant, before anything is signed.',
+                    title: 'No clients checked yet',
+                    body: 'Start a deal when you take on a landlord or tenant. Kivilo asks them for '
+                        'their details, checks the sanctions lists and keeps the record for you.',
                   )
                 else
                   for (final item in cases) ...[
@@ -123,43 +124,78 @@ class _CaseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final attention = item.status == 'ESCALATED' || item.status == 'NEEDS_REVIEW';
-    final detail = [
-      _role(item.clientRole),
-      ?item.property,
-      if (item.openMatches > 0) '${item.openMatches} to decide',
-    ].join(' · ');
+    final complete = item.status == 'COMPLETE';
+    final (fill, ink) = switch (item.status) {
+      'ESCALATED' => (KiviloColors.redSoft, KiviloColors.red),
+      'COMPLETE' => (KiviloColors.greenSoft, KiviloColors.green),
+      'NEEDS_REVIEW' => (KiviloColors.pinkSoft, KiviloColors.pinkDark),
+      _ => (KiviloColors.canvas, KiviloColors.muted),
+    };
+    final detail = [_role(item.clientRole), ?item.property].join(' · ');
     return Card(
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(item.clientName, style: text.titleMedium),
-                    const SizedBox(height: 2),
-                    Text(detail, style: text.bodySmall),
-                    const SizedBox(height: 8),
-                    Text(
-                      _statusLabels[item.status] ?? item.status,
-                      style: text.labelLarge?.copyWith(
-                        color: item.status == 'ESCALATED'
-                            ? KiviloColors.red
-                            : attention
-                            ? KiviloColors.pinkDark
-                            : KiviloColors.muted,
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(12)),
+                    child: complete
+                        ? Icon(Icons.check_rounded, color: ink, size: 22)
+                        : Text(item.clientName.characters.first.toUpperCase(), style: text.titleMedium?.copyWith(color: ink)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(item.clientName, style: text.titleMedium),
+                        const SizedBox(height: 2),
+                        Text(detail, style: text.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(999)),
+                    child: Text(
+                      item.openMatches > 0 && item.status != 'ESCALATED'
+                          ? '${item.openMatches} to decide'
+                          : _statusLabels[item.status] ?? item.status,
+                      style: text.labelMedium?.copyWith(color: ink),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: item.stepsDone / 5,
+                        minHeight: 4,
+                        backgroundColor: KiviloColors.border,
+                        color: complete ? KiviloColors.green : KiviloColors.pink,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text('${item.stepsDone}/5', style: text.labelMedium?.copyWith(color: KiviloColors.muted)),
+                ],
               ),
-              const Icon(Icons.chevron_right, color: KiviloColors.subtle),
             ],
           ),
         ),
@@ -324,10 +360,10 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     if (saved == true && mounted) await _refresh();
   }
 
-  Future<void> _decide(CddMatch match) async {
+  Future<void> _decide(CddCase item, CddMatch match) async {
     final decision = await showKiviloDrawer<({bool confirmed, String reason})>(
       context: context,
-      builder: (_) => _DecisionDrawer(match: match),
+      builder: (_) => _DecisionDrawer(match: match, client: item.particulars!),
     );
     if (decision == null) return;
     await _run(() => _api.decideMatch(match.id, confirmed: decision.confirmed, reason: decision.reason));
@@ -371,6 +407,39 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
       ),
     ),
   );
+
+  Future<void> _checkId(CddCase item) async {
+    final p = item.particulars!;
+    final document = p.idType == 'PASSPORT' ? 'passport' : p.idType;
+    final sure = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: Text('Seen ${item.clientName}’s $document?'),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Confirm you have seen the original document, in person or on a video call, and that '
+              'it matches what the client sent. This is recorded under your name.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            _Facts(rows: [
+              ('Name', p.legalName),
+              (p.idType == 'PASSPORT' ? 'Passport' : p.idType, 'ends ${p.idNumber.replaceAll('*', '')}'),
+              if (p.dateOfBirth case final born?) ('Date of birth', _date(DateTime.parse(born))),
+              ('Nationality', p.nationality),
+            ]),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('It matches')),
+        ],
+      ),
+    );
+    if (sure == true) await _run(() => _api.confirmIdSighted(item.id));
+  }
 
   Future<void> _assess(CddCase item) async {
     final saved = await Navigator.of(context).push<bool>(
@@ -452,7 +521,10 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                         p.submittedInPerson ? 'Taken in person' : 'Sent by the client',
                         if (p.submittedAt case final at?) _dateTime(at),
                       ].join(' · ')
-                    : 'Waiting for ${item.clientName}',
+                    : [
+                        'Waiting for ${item.clientName}',
+                        if (item.requestedAt case final at?) 'form emailed ${_dateTime(at)}',
+                      ].join(' · '),
                 children: received
                     ? const []
                     : [
@@ -460,7 +532,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                           FilledButton.icon(
                             onPressed: _busy ? null : () => _request(item, share: false),
                             icon: const Icon(Icons.mail_outline, size: 20),
-                            label: const Text('Email the form'),
+                            label: Text(item.requestedAt == null ? 'Email the form' : 'Email it again'),
                           ),
                           const SizedBox(height: kiviloButtonGap),
                         ],
@@ -487,13 +559,15 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     : _StepState.pending,
                 status: idSeen
                     ? ['Original ID seen', if (p!.idSightedAt case final at?) _dateTime(at)].join(' · ')
+                    : escalated
+                    ? 'Stopped by the confirmed match'
                     : received
                     ? 'Compare the particulars below with the original ID, in person or on a video call'
                     : 'After the particulars arrive',
                 children: [
                   if (received && !idSeen && !escalated)
                     FilledButton(
-                      onPressed: _busy ? null : () => _run(() => _api.confirmIdSighted(item.id)),
+                      onPressed: _busy ? null : () => _checkId(item),
                       child: const Text('I’ve seen the original ID'),
                     ),
                 ],
@@ -526,7 +600,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ),
                   if (run != null && (item.openMatches.isNotEmpty || escalated))
                     for (final match in run.matches) ...[
-                      _MatchCard(match: match, onDecide: _busy || match.decision != null ? null : () => _decide(match)),
+                      _MatchCard(match: match, onDecide: _busy || match.decision != null ? null : () => _decide(item, match)),
                       const SizedBox(height: 8),
                     ],
                 ],
@@ -543,6 +617,8 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ? item.riskLevel == 'HIGHER'
                           ? 'Higher risk · source of funds recorded'
                           : 'Standard risk'
+                    : escalated
+                    ? 'Stopped by the confirmed match'
                     : idSeen && screened
                     ? '${item.riskQuestions.length} questions about this client and deal'
                     : 'After the ID check and screening',
@@ -574,6 +650,8 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                         'Locked',
                         if (item.completedAt case final at?) _dateTime(at),
                       ].join(' · ')
+                    : escalated
+                    ? 'Stopped by the confirmed match'
                     : idSeen && screened && assessed
                     ? 'Lock the record. Nothing in it can change after this'
                     : 'When every step above is done',
@@ -721,9 +799,10 @@ String? _listedFacts(CddMatch match) {
 }
 
 class _DecisionDrawer extends StatefulWidget {
-  const _DecisionDrawer({required this.match});
+  const _DecisionDrawer({required this.match, required this.client});
 
   final CddMatch match;
+  final CddParticulars client;
 
   @override
   State<_DecisionDrawer> createState() => _DecisionDrawerState();
@@ -741,24 +820,57 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
     final ready = _confirmed != null && _reason.text.trim().isNotEmpty;
+    final match = widget.match;
+    final client = widget.client;
+    final born = client.dateOfBirth == null ? null : _date(DateTime.parse(client.dateOfBirth!));
+    final cards = [
+      _Compared(
+        label: 'Your client',
+        name: client.legalName,
+        facts: [if (born != null) 'Born $born', client.nationality],
+      ),
+      _Compared(
+        label: match.source == 'SG' ? 'Singapore list' : 'UN list',
+        name: match.matchedName,
+        facts: [
+          if (match.birthYears.isNotEmpty) 'Born ${match.birthYears.join(' or ')}',
+          if (match.nationalities.isNotEmpty) match.nationalities.join(', '),
+          match.reference,
+        ],
+        listed: true,
+      ),
+    ];
     return KiviloDrawer(
       title: const Text('Is this your client?'),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            'Compare the name, date of birth and nationality with the client’s ID. Your '
-            'decision and reason are recorded and cannot be changed.',
-          ),
-          const SizedBox(height: 12),
-          KiviloNotice(
-            tone: KiviloTone.info,
-            child: Text(
-              [widget.match.matchedName, ?_listedFacts(widget.match)].join('\n'),
-            ),
+          Text(
+            'Compare your client with the listed person. Your decision and reason are recorded '
+            'and cannot be changed.',
+            style: text.bodyMedium,
           ),
           const SizedBox(height: 16),
+          // Side by side while both fit; stacked when large text would squeeze them.
+          if (MediaQuery.textScalerOf(context).scale(16) > 20)
+            ...[cards[0], const SizedBox(height: 8), cards[1]]
+          else
+            IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(child: cards[0]),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 6),
+                    child: Center(child: Text('vs', style: TextStyle(color: KiviloColors.subtle, fontWeight: FontWeight.w600))),
+                  ),
+                  Expanded(child: cards[1]),
+                ],
+              ),
+            ),
+          const SizedBox(height: 20),
           KiviloSegmentedControl<bool>(
             value: _confirmed,
             allowEmptySelection: true,
@@ -768,6 +880,13 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
             ],
             onChanged: (value) => setState(() => _confirmed = value),
           ),
+          if (_confirmed == true) ...[
+            const SizedBox(height: 12),
+            const KiviloNotice(
+              tone: KiviloTone.error,
+              child: Text('This stops the deal. You must not tell the client, and must report it.'),
+            ),
+          ],
           const SizedBox(height: 16),
           TextField(
             controller: _reason,
@@ -796,6 +915,37 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
   }
 }
 
+class _Compared extends StatelessWidget {
+  const _Compared({required this.label, required this.name, required this.facts, this.listed = false});
+
+  final String label;
+  final String name;
+  final List<String> facts;
+  final bool listed;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: listed ? KiviloColors.redSoft : KiviloColors.canvas,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: listed ? KiviloColors.redBorder : KiviloColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: text.labelMedium?.copyWith(color: listed ? KiviloColors.red : KiviloColors.muted)),
+          const SizedBox(height: 6),
+          Text(name, style: text.titleSmall),
+          for (final fact in facts) ...[const SizedBox(height: 3), Text(fact, style: text.bodySmall)],
+        ],
+      ),
+    );
+  }
+}
+
 class CddParticularsScreen extends StatefulWidget {
   const CddParticularsScreen({super.key, required this.caseId, required this.clientName, this.api});
 
@@ -818,7 +968,10 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
   String _idType = 'NRIC';
   DateTime? _dateOfBirth;
   bool _pep = false;
+  bool _sighted = false;
   bool _saving = false;
+
+  String? get _idProblem => _idNumber.text.trim().isEmpty ? null : idNumberProblem(_idType, _idNumber.text);
   String? _error;
 
   @override
@@ -844,6 +997,11 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
 
   Future<void> _save() async {
     final born = _dateOfBirth;
+    final idProblem = _idNumber.text.trim().isEmpty ? 'Enter the ID number' : _idProblem;
+    if (idProblem != null) {
+      setState(() => _error = idProblem);
+      return;
+    }
     if (born == null) {
       setState(() => _error = 'Enter the date of birth as it appears on the ID');
       return;
@@ -856,7 +1014,7 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
       await _api.submitParticularsInPerson(widget.caseId, {
         'legalName': _name.text.trim(),
         'idType': _idType,
-        'idNumber': _idNumber.text.trim(),
+        'idNumber': normalizeIdNumber(_idNumber.text),
         'nationality': _nationality.text.trim(),
         'dateOfBirth': '${born.year.toString().padLeft(4, '0')}-${born.month.toString().padLeft(2, '0')}-${born.day.toString().padLeft(2, '0')}',
         'address': _address.text.trim(),
@@ -882,8 +1040,7 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
           padding: kiviloScreenPadding,
           children: [
             Text(
-              'Copy the details from the client’s ID while they are with you. Saving records '
-              'that you have seen it.',
+              'Copy the details from the client’s original ID while they are with you.',
               style: text.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -907,7 +1064,16 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
               controller: _idNumber,
               textCapitalization: TextCapitalization.characters,
               autocorrect: false,
-              decoration: const InputDecoration(labelText: 'ID number'),
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(
+                labelText: 'ID number',
+                // A complete NRIC or FIN is nine characters; judge it once it could be one.
+                errorText: _idProblem != null && normalizeIdNumber(_idNumber.text).length >= 9 ? _idProblem : null,
+                errorMaxLines: 2,
+                suffixIcon: _idNumber.text.trim().isNotEmpty && _idProblem == null
+                    ? const Icon(Icons.check_rounded, color: KiviloColors.green)
+                    : null,
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -961,8 +1127,34 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
               KiviloNotice(tone: KiviloTone.error, child: Text(_error!)),
             ],
             const SizedBox(height: 20),
+            Material(
+              color: _sighted ? KiviloColors.pinkSoft : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(color: _sighted ? KiviloColors.pinkBorder : KiviloColors.border),
+              ),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                onTap: () => setState(() => _sighted = !_sighted),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 14, 8),
+                  child: Row(
+                    children: [
+                      Checkbox(value: _sighted, onChanged: (value) => setState(() => _sighted = value!)),
+                      Expanded(
+                        child: Text(
+                          'The client’s original ID is in front of me, and these details match it.',
+                          style: text.bodyMedium,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             FilledButton(
-              onPressed: _saving ? null : _save,
+              onPressed: _saving || !_sighted ? null : _save,
               child: Text(_saving ? 'Saving…' : 'Save particulars'),
             ),
           ],

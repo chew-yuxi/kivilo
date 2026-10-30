@@ -8,6 +8,9 @@ class CddCaseSummary {
     required this.property,
     required this.openMatches,
     required this.screened,
+    this.particularsIn = false,
+    this.idSighted = false,
+    this.riskAssessed = false,
   });
 
   final String id;
@@ -17,6 +20,18 @@ class CddCaseSummary {
   final String? property;
   final int openMatches;
   final bool screened;
+  final bool particularsIn;
+  final bool idSighted;
+  final bool riskAssessed;
+
+  /// The five review steps done, the same rule the case screen draws.
+  int get stepsDone => [
+    particularsIn,
+    idSighted,
+    screened && openMatches == 0 && status != 'ESCALATED',
+    riskAssessed,
+    status == 'COMPLETE',
+  ].where((done) => done).length;
 
   factory CddCaseSummary.fromJson(Map<String, dynamic> json) => CddCaseSummary(
     id: json['id'] as String,
@@ -26,6 +41,9 @@ class CddCaseSummary {
     property: json['property'] as String?,
     openMatches: (json['openMatches'] as num?)?.toInt() ?? 0,
     screened: json['screened'] as bool? ?? false,
+    particularsIn: json['particularsIn'] as bool? ?? false,
+    idSighted: json['idSighted'] as bool? ?? false,
+    riskAssessed: json['riskAssessed'] as bool? ?? false,
   );
 }
 
@@ -160,7 +178,11 @@ class CddCase {
     this.riskQuestions = const [],
     this.completedAt,
     this.contentHash,
+    this.requestedAt,
   });
+
+  /// When the form was last emailed to the client.
+  final DateTime? requestedAt;
 
   final String id;
   final String reference;
@@ -203,6 +225,7 @@ class CddCase {
       ],
       completedAt: DateTime.tryParse(json['completedAt'] as String? ?? ''),
       contentHash: json['contentHash'] as String?,
+      requestedAt: DateTime.tryParse(json['requestedAt'] as String? ?? ''),
       id: json['id'] as String,
       status: json['status'] as String,
       clientRole: json['clientRole'] as String,
@@ -229,4 +252,42 @@ class CddRiskQuestion {
     text: json['text'] as String,
     help: json['help'] as String?,
   );
+}
+
+const _idWeights = [2, 7, 6, 5, 4, 3, 2];
+const _idOffsets = {'S': 0, 'T': 4, 'F': 0, 'G': 4, 'M': 3};
+const _idLetters = {
+  'S': 'JZIHGFEDCBA',
+  'T': 'JZIHGFEDCBA',
+  'F': 'XWUTRQPNMLK',
+  'G': 'XWUTRQPNMLK',
+  'M': 'XWUTRQPNJLK',
+};
+
+/// As printed on the document: upper case, no spaces or dashes.
+String normalizeIdNumber(String idNumber) => idNumber.toUpperCase().replaceAll(RegExp(r'[\s-]'), '');
+
+/// Why this ID number cannot be right for its type, or null when it can be. The same rule
+/// as the server's `idNumberProblem` (src/lib/cdd/id-number.ts), which stays the authority:
+/// NRIC and FIN numbers end in a check letter computed from the rest.
+String? idNumberProblem(String idType, String idNumber) {
+  final id = normalizeIdNumber(idNumber);
+  if (idType == 'PASSPORT') {
+    return RegExp(r'^[A-Z0-9]{5,20}$').hasMatch(id) ? null : 'Check the passport number: letters and digits only';
+  }
+  final parts = RegExp(r'^([STFGM])(\d{7})([A-Z])$').firstMatch(id);
+  if (parts == null) {
+    return 'An $idType is a letter, seven digits and a letter, like ${idType == 'NRIC' ? 'S1234567D' : 'G1234567X'}';
+  }
+  final prefix = parts.group(1)!;
+  final digits = parts.group(2)!;
+  final nric = prefix == 'S' || prefix == 'T';
+  if (idType == 'NRIC' && !nric) return 'This is a FIN number. Choose FIN as the ID type';
+  if (idType == 'FIN' && nric) return 'This is an NRIC number. Choose NRIC as the ID type';
+  var sum = _idOffsets[prefix]!;
+  for (var i = 0; i < 7; i++) {
+    sum += int.parse(digits[i]) * _idWeights[i];
+  }
+  if (_idLetters[prefix]![sum % 11] != parts.group(3)) return 'This $idType number is not valid. Check it against the card';
+  return null;
 }

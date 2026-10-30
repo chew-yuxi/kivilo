@@ -173,17 +173,36 @@ export function agencyInvitationEmail(notification: { title: string; body: strin
 export function cddRequestEmail(notification: { title: string; body: string; href: string }) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')
+  const link = new URL(notification.href, origin).href
+  const safe = (value: string) => value.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
   return {
     subject: notification.title,
-    text: [notification.body, '', `Fill in your details: ${new URL(notification.href, origin).href}`, '',
+    text: [notification.body, '', `Fill in your details: ${link}`, '',
       'Sign in using the email address this message was sent to. Your ID number is encrypted, and only its last four characters are ever shown.',
     ].join('\n'),
+    html: `<!doctype html>
+<html>
+  <body style="margin:0;padding:24px;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827">
+    <div style="max-width:460px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;padding:32px">
+      <p style="margin:0 0 20px;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#be185d">Identity check for your rental</p>
+      <h1 style="margin:0 0 12px;font-size:20px;line-height:28px;font-weight:700">${safe(notification.title)}</h1>
+      <p style="margin:0 0 24px;font-size:15px;line-height:23px;color:#4b5563">${safe(notification.body)}</p>
+      <a href="${safe(link)}" style="display:block;background:#ec4899;color:#ffffff;text-decoration:none;text-align:center;font-size:15px;font-weight:600;padding:14px 20px;border-radius:12px">Verify your identity</a>
+      <p style="margin:24px 0 0;padding:16px;background:#f9fafb;border-radius:12px;font-size:13px;line-height:20px;color:#6b7280">
+        Sign in with the email address this message was sent to. Your ID number is encrypted,
+        and only its last four characters are ever shown. Your agent keeps the record for five
+        years, as Singapore law requires.
+      </p>
+    </div>
+    <p style="max-width:460px;margin:16px auto 0;text-align:center;font-size:12px;color:#9ca3af">Sent by Kivilo on behalf of your property agent</p>
+  </body>
+</html>`,
   }
 }
 
 export async function sendCddRequest(to: string, notification: { id: string; title: string; body: string; href: string }) {
-  const { subject, text } = cddRequestEmail(notification)
-  const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
+  const { subject, text, html } = cddRequestEmail(notification)
+  const { error } = await resend().emails.send({ from: sender(), to, subject, text, html }, {
     idempotencyKey: `cdd-request-${notification.id}`,
   })
   if (error) throw new Error(`Resend refused the particulars request: ${error.message}`)
