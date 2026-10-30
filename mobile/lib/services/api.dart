@@ -438,6 +438,22 @@ class Api {
     await _dio.post<Object>('/api/v1/cdd/$id/rescreen');
   });
 
+  Future<void> confirmIdSighted(String id) => _call(() async {
+    await _dio.post<Object>('/api/v1/cdd/$id/id-check');
+  });
+
+  Future<void> assessRisk(String id, Map<String, bool> answers, {String? sourceOfFunds}) =>
+      _call(() async {
+        await _dio.post<Object>(
+          '/api/v1/cdd/$id/risk',
+          data: {'answers': answers, 'sourceOfFunds': ?sourceOfFunds},
+        );
+      });
+
+  Future<void> completeCase(String id) => _call(() async {
+    await _dio.post<Object>('/api/v1/cdd/$id/complete');
+  });
+
   Future<void> decideMatch(String matchId, {required bool confirmed, required String reason}) =>
       _call(() async {
         await _dio.post<Object>(

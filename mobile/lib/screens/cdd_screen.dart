@@ -372,14 +372,60 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     ),
   );
 
+  Future<void> _assess(CddCase item) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => CddRiskScreen(item: item, api: _api)),
+    );
+    if (saved == true && mounted) await _refresh();
+  }
+
+  Future<void> _complete(CddCase item) async {
+    final sure = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Complete due diligence?'),
+        content: Text(
+          'The record of ${item.clientName} is locked and fingerprinted. Nothing in it can change '
+          'after this.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Complete')),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      await _api.completeCase(item.id);
+      final done = await _api.cddCase(item.id);
+      if (!mounted) return;
+      await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => CddCompletedScreen(item: done)));
+      if (mounted) await _refresh();
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
   List<Widget> _sections(BuildContext context, CddCase item) {
     final text = Theme.of(context).textTheme;
-    final particulars = item.particulars;
+    final p = item.particulars;
+    final run = item.runs.firstOrNull;
+    final escalated = item.status == 'ESCALATED';
+    final complete = item.status == 'COMPLETE';
+
+    final received = p != null;
+    final idSeen = p?.idSighted ?? false;
+    final screened = run != null && item.openMatches.isEmpty && !escalated;
+    final assessed = item.riskLevel != null;
+    final done = [received, idSeen, screened, assessed, complete].where((step) => step).length;
+
+    final ruledOut = run?.matches.length ?? 0;
     return [
-      Text(item.clientName, style: text.headlineMedium),
-      const SizedBox(height: 4),
-      Text('${_role(item.clientRole)} · ${_statusLabels[item.status] ?? item.status}', style: text.bodyMedium),
-      if (item.status == 'ESCALATED') ...[
+      _Summary(item: item, done: done),
+      if (escalated) ...[
         const SizedBox(height: 16),
         const KiviloNotice(
           tone: KiviloTone.error,
@@ -390,85 +436,196 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
           ),
         ),
       ],
-      if (item.status == 'WAITING_FOR_CLIENT') ...[
-        const SizedBox(height: kiviloSectionGap),
-        const KiviloSectionHeading(
-          title: 'Client’s particulars',
-          subtitle: 'Ask your client to fill them in, or fill them in together with their ID in front of you.',
-        ),
-        const SizedBox(height: kiviloHeadingGap),
-        if (item.clientEmail != null) ...[
-          FilledButton.icon(
-            onPressed: _busy ? null : () => _request(item, share: false),
-            icon: const Icon(Icons.mail_outline, size: 20),
-            label: const Text('Email the form'),
+      const SizedBox(height: 16),
+      Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 18, 16, 6),
+          child: Column(
+            children: [
+              _Step(
+                icon: Icons.description_outlined,
+                title: 'Particulars received',
+                state: received ? _StepState.done : _StepState.current,
+                status: received
+                    ? [
+                        p.submittedInPerson ? 'Taken in person' : 'Sent by the client',
+                        if (p.submittedAt case final at?) _dateTime(at),
+                      ].join(' · ')
+                    : 'Waiting for ${item.clientName}',
+                children: received
+                    ? const []
+                    : [
+                        if (item.clientEmail != null) ...[
+                          FilledButton.icon(
+                            onPressed: _busy ? null : () => _request(item, share: false),
+                            icon: const Icon(Icons.mail_outline, size: 20),
+                            label: const Text('Email the form'),
+                          ),
+                          const SizedBox(height: kiviloButtonGap),
+                        ],
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : () => _request(item, share: true),
+                          icon: const Icon(Icons.share_outlined, size: 18),
+                          label: const Text('Share the link'),
+                        ),
+                        const SizedBox(height: kiviloButtonGap),
+                        OutlinedButton.icon(
+                          onPressed: _busy ? null : () => _inPerson(item),
+                          icon: const Icon(Icons.person_outline, size: 18),
+                          label: const Text('Fill in together'),
+                        ),
+                      ],
+              ),
+              _Step(
+                icon: Icons.person_outline,
+                title: 'ID checked',
+                state: idSeen
+                    ? _StepState.done
+                    : received && !escalated
+                    ? _StepState.current
+                    : _StepState.pending,
+                status: idSeen
+                    ? ['Original ID seen', if (p!.idSightedAt case final at?) _dateTime(at)].join(' · ')
+                    : received
+                    ? 'Compare the particulars below with the original ID, in person or on a video call'
+                    : 'After the particulars arrive',
+                children: [
+                  if (received && !idSeen && !escalated)
+                    FilledButton(
+                      onPressed: _busy ? null : () => _run(() => _api.confirmIdSighted(item.id)),
+                      child: const Text('I’ve seen the original ID'),
+                    ),
+                ],
+              ),
+              _Step(
+                icon: Icons.fact_check_outlined,
+                title: 'Sanctions screening',
+                state: escalated
+                    ? _StepState.failed
+                    : screened
+                    ? _StepState.done
+                    : received
+                    ? _StepState.current
+                    : _StepState.pending,
+                status: escalated
+                    ? 'Confirmed match'
+                    : screened
+                    ? '${ruledOut == 0 ? 'No match' : '$ruledOut possible ${ruledOut == 1 ? 'match' : 'matches'} ruled out'} · ${run.lists.join(', ')}'
+                    : !received
+                    ? 'Runs when the particulars arrive'
+                    : run == null
+                    ? 'Not screened yet. The lists could not be checked when the particulars arrived'
+                    : '${item.openMatches.length} possible ${item.openMatches.length == 1 ? 'match' : 'matches'} to decide',
+                children: [
+                  if (received && run == null)
+                    FilledButton.icon(
+                      onPressed: _busy ? null : () => _run(() => _api.rescreen(item.id)),
+                      icon: const Icon(Icons.refresh, size: 20),
+                      label: const Text('Screen now'),
+                    ),
+                  if (run != null && (item.openMatches.isNotEmpty || escalated))
+                    for (final match in run.matches) ...[
+                      _MatchCard(match: match, onDecide: _busy || match.decision != null ? null : () => _decide(match)),
+                      const SizedBox(height: 8),
+                    ],
+                ],
+              ),
+              _Step(
+                icon: Icons.verified_outlined,
+                title: 'Risk assessment',
+                state: assessed
+                    ? _StepState.done
+                    : idSeen && screened
+                    ? _StepState.current
+                    : _StepState.pending,
+                status: assessed
+                    ? item.riskLevel == 'HIGHER'
+                          ? 'Higher risk · source of funds recorded'
+                          : 'Standard risk'
+                    : idSeen && screened
+                    ? '${item.riskQuestions.length} questions about this client and deal'
+                    : 'After the ID check and screening',
+                children: [
+                  if (idSeen && screened && !assessed)
+                    FilledButton(
+                      onPressed: _busy ? null : () => _assess(item),
+                      child: const Text('Assess risk'),
+                    ),
+                  if (assessed && !complete)
+                    TextButton(
+                      style: kiviloTertiary,
+                      onPressed: _busy ? null : () => _assess(item),
+                      child: const Text('Change answers'),
+                    ),
+                ],
+              ),
+              _Step(
+                icon: Icons.lock_outline,
+                title: 'Complete',
+                last: true,
+                state: complete
+                    ? _StepState.done
+                    : idSeen && screened && assessed
+                    ? _StepState.current
+                    : _StepState.pending,
+                status: complete
+                    ? [
+                        'Locked',
+                        if (item.completedAt case final at?) _dateTime(at),
+                      ].join(' · ')
+                    : idSeen && screened && assessed
+                    ? 'Lock the record. Nothing in it can change after this'
+                    : 'When every step above is done',
+                children: [
+                  if (!complete && idSeen && screened && assessed)
+                    FilledButton(
+                      onPressed: _busy ? null : () => _complete(item),
+                      child: const Text('Complete due diligence'),
+                    ),
+                  if (complete)
+                    OutlinedButton(
+                      onPressed: () => Navigator.of(context).push<void>(
+                        MaterialPageRoute(builder: (_) => CddCompletedScreen(item: item)),
+                      ),
+                      child: const Text('View record'),
+                    ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: kiviloButtonGap),
-        ],
-        OutlinedButton.icon(
-          onPressed: _busy ? null : () => _request(item, share: true),
-          icon: const Icon(Icons.share_outlined, size: 18),
-          label: const Text('Share the link'),
         ),
-        const SizedBox(height: kiviloButtonGap),
-        OutlinedButton.icon(
-          onPressed: _busy ? null : () => _inPerson(item),
-          icon: const Icon(Icons.person_outline, size: 18),
-          label: const Text('Fill in together'),
-        ),
+      ),
+      if (p != null) ...[
+        const SizedBox(height: kiviloSectionGap),
+        KiviloSectionHeading(title: 'Particulars', subtitle: idSeen ? null : 'Check these against the original ID'),
+        const SizedBox(height: kiviloHeadingGap),
+        _Facts(rows: _particularsRows(p)),
       ],
-      if (particulars != null) ...[
-        const SizedBox(height: kiviloSectionGap),
-        const KiviloSectionHeading(title: 'Particulars'),
-        const SizedBox(height: kiviloHeadingGap),
-        _Facts(rows: [
-          ('Name', particulars.legalName),
-          (particulars.idType == 'PASSPORT' ? 'Passport' : particulars.idType, particulars.idNumber),
-          ('Nationality', particulars.nationality),
-          if (particulars.dateOfBirth case final born?) ('Date of birth', _date(DateTime.parse(born))),
-          ('Address', particulars.address),
-          ('Public position', particulars.pepDeclared ? particulars.pepDetails ?? 'Declared' : 'None declared'),
-          ('Sent by', particulars.submittedInPerson ? 'You, with the client' : 'The client'),
-        ]),
-        if (!particulars.idSighted && item.status != 'ESCALATED') ...[
-          const SizedBox(height: 12),
-          const KiviloNotice(
-            tone: KiviloTone.info,
-            child: Text('Check these against the client’s ID, in person or on a video call, before the deal.'),
-          ),
-        ],
-        const SizedBox(height: kiviloSectionGap),
-        KiviloSectionHeading(
-          title: 'Screening',
-          subtitle: item.runs.isEmpty
-              ? null
-              : 'Checked ${_date(item.runs.first.ranAt)} against ${item.runs.first.lists.join(', ')}.',
-        ),
-        const SizedBox(height: kiviloHeadingGap),
-        if (item.runs.isEmpty) ...[
-          const KiviloNotice(
-            tone: KiviloTone.warning,
-            child: Text('Not screened yet. Kivilo could not check the lists when the particulars arrived.'),
-          ),
-          const SizedBox(height: kiviloButtonGap),
-          FilledButton.icon(
-            onPressed: _busy ? null : () => _run(() => _api.rescreen(item.id)),
-            icon: const Icon(Icons.refresh, size: 20),
-            label: const Text('Screen now'),
-          ),
-        ] else if (item.runs.first.matches.isEmpty)
-          const KiviloNotice(
-            tone: KiviloTone.success,
-            child: Text('No match on the UN or Singapore sanctions lists.'),
-          )
-        else
-          for (final match in item.runs.first.matches) ...[
-            _MatchCard(match: match, onDecide: _busy || match.decision != null ? null : () => _decide(match)),
-            const SizedBox(height: 8),
-          ],
-      ],
+      const SizedBox(height: 24),
+      Text(
+        'Reference ${item.reference}',
+        textAlign: TextAlign.center,
+        style: text.bodySmall?.copyWith(color: KiviloColors.subtle),
+      ),
     ];
   }
+}
+
+List<(String, String)> _particularsRows(CddParticulars p) => [
+  ('Name', p.legalName),
+  (p.idType == 'PASSPORT' ? 'Passport' : p.idType, p.idNumber),
+  ('Nationality', p.nationality),
+  if (p.dateOfBirth case final born?) ('Date of birth', _date(DateTime.parse(born))),
+  ('Address', p.address),
+  ('Public position', p.pepDeclared ? p.pepDetails ?? 'Declared' : 'None declared'),
+];
+
+String _dateTime(DateTime value) {
+  final local = value.toLocal();
+  final hour = local.hour % 12 == 0 ? 12 : local.hour % 12;
+  final minute = local.minute.toString().padLeft(2, '0');
+  return '${_date(local)}, $hour:$minute ${local.hour < 12 ? 'am' : 'pm'}';
 }
 
 String _date(DateTime value) {
@@ -808,6 +965,381 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
               onPressed: _saving ? null : _save,
               child: Text(_saving ? 'Saving…' : 'Save particulars'),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Summary extends StatelessWidget {
+  const _Summary({required this.item, required this.done});
+
+  final CddCase item;
+  final int done;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final complete = item.status == 'COMPLETE';
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: complete ? KiviloColors.greenSoft : KiviloColors.pinkSoft,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    item.clientName.characters.first.toUpperCase(),
+                    style: text.titleLarge?.copyWith(color: complete ? KiviloColors.green : KiviloColors.pinkDark),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(item.clientName, style: text.titleLarge),
+                      const SizedBox(height: 2),
+                      Text('${_role(item.clientRole)} · ${_statusLabels[item.status] ?? item.status}', style: text.bodySmall),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(child: Text(complete ? 'All 5 steps done' : '$done of 5 steps done', style: text.labelLarge)),
+                const SizedBox(width: 8),
+                Text(item.reference, style: text.bodySmall?.copyWith(color: KiviloColors.subtle)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: done / 5,
+                minHeight: 6,
+                backgroundColor: KiviloColors.border,
+                color: complete ? KiviloColors.green : KiviloColors.pink,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+enum _StepState { done, current, pending, failed }
+
+/// One row of the case's progress: a marker, the line joining it to the next, and the
+/// step's action underneath while it is the one to do.
+class _Step extends StatelessWidget {
+  const _Step({
+    required this.icon,
+    required this.title,
+    required this.state,
+    required this.status,
+    this.children = const [],
+    this.last = false,
+  });
+
+  final IconData icon;
+  final String title;
+  final _StepState state;
+  final String status;
+  final List<Widget> children;
+  final bool last;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final (fill, ink, statusInk) = switch (state) {
+      _StepState.done => (KiviloColors.greenSoft, KiviloColors.green, KiviloColors.green),
+      _StepState.current => (KiviloColors.pinkSoft, KiviloColors.pinkDark, KiviloColors.pinkDark),
+      _StepState.failed => (KiviloColors.redSoft, KiviloColors.red, KiviloColors.red),
+      _StepState.pending => (KiviloColors.canvas, KiviloColors.subtle, KiviloColors.muted),
+    };
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: fill,
+                  shape: BoxShape.circle,
+                  border: state == _StepState.current ? Border.all(color: KiviloColors.pinkBorder, width: 2) : null,
+                ),
+                child: Icon(
+                  switch (state) {
+                    _StepState.done => Icons.check_rounded,
+                    _StepState.failed => Icons.error_outline,
+                    _ => icon,
+                  },
+                  size: 20,
+                  color: ink,
+                ),
+              ),
+              if (!last)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    color: state == _StepState.done ? KiviloColors.greenBorder : KiviloColors.border,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(top: 9, bottom: last ? 12 : 22),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    title,
+                    style: text.titleMedium?.copyWith(
+                      color: state == _StepState.pending ? KiviloColors.muted : KiviloColors.ink,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(status, style: text.bodySmall?.copyWith(color: statusInk)),
+                  if (children.isNotEmpty) ...[const SizedBox(height: 12), ...children],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The risk checklist the server sent with the case, answered yes or no. A yes asks
+/// where the client's funds come from; the server decides the level and refuses without it.
+class CddRiskScreen extends StatefulWidget {
+  const CddRiskScreen({super.key, required this.item, this.api});
+
+  final CddCase item;
+  final Api? api;
+
+  @override
+  State<CddRiskScreen> createState() => _CddRiskScreenState();
+}
+
+class _CddRiskScreenState extends State<CddRiskScreen> {
+  late final _api = widget.api ?? Api();
+  late final Map<String, bool?> _answers = {
+    for (final question in widget.item.riskQuestions)
+      question.key: widget.item.riskAnswers[question.key] as bool? ??
+          (question.key == 'pep' && widget.item.particulars?.pepDeclared == true ? true : null),
+  };
+  late final _funds = TextEditingController(text: widget.item.riskAnswers['sourceOfFunds'] as String? ?? '');
+  bool _saving = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _funds.dispose();
+    super.dispose();
+  }
+
+  bool get _higher => _answers.values.any((answer) => answer == true);
+  bool get _answered => _answers.values.every((answer) => answer != null);
+
+  Future<void> _save() async {
+    setState(() {
+      _saving = true;
+      _error = null;
+    });
+    try {
+      await _api.assessRisk(
+        widget.item.id,
+        {for (final entry in _answers.entries) entry.key: entry.value!},
+        sourceOfFunds: _higher ? _funds.text.trim() : null,
+      );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Risk assessment')),
+      body: KiviloContent(
+        maxWidth: 720,
+        child: ListView(
+          padding: kiviloScreenPadding,
+          children: [
+            Text(
+              'Answer for ${widget.item.clientName} and this deal. A yes to any question makes the '
+              'client higher risk, and CEA then expects you to record where their funds come from.',
+              style: text.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            for (final (i, question) in widget.item.riskQuestions.indexed) ...[
+              Card(
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      KiviloEyebrow('Question ${i + 1} of ${widget.item.riskQuestions.length}'),
+                      const SizedBox(height: 6),
+                      Text(question.text, style: text.titleMedium),
+                      if (question.help case final help?) ...[
+                        const SizedBox(height: 4),
+                        Text(help, style: text.bodySmall),
+                      ],
+                      const SizedBox(height: 12),
+                      KiviloSegmentedControl<bool>(
+                        value: _answers[question.key],
+                        allowEmptySelection: true,
+                        options: const [
+                          KiviloSegmentOption(value: false, label: 'No'),
+                          KiviloSegmentOption(value: true, label: 'Yes'),
+                        ],
+                        onChanged: (value) => setState(() => _answers[question.key] = value),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            if (_answered)
+              KiviloNotice(
+                tone: _higher ? KiviloTone.warning : KiviloTone.success,
+                child: Text(_higher ? 'Higher risk' : 'Standard risk', style: text.titleSmall),
+              ),
+            if (_higher) ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _funds,
+                minLines: 2,
+                maxLines: 5,
+                onChanged: (_) => setState(() {}),
+                decoration: const InputDecoration(
+                  labelText: 'Where the client’s funds come from',
+                  hintText: 'For example: salary, payslips from DBS seen',
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ],
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              KiviloNotice(tone: KiviloTone.error, child: Text(_error!)),
+            ],
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: _saving || !_answered || (_higher && _funds.text.trim().isEmpty) ? null : _save,
+              child: Text(_saving ? 'Saving…' : 'Save assessment'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The finished record: what was checked, against what, and the fingerprint that proves
+/// it has not changed since.
+class CddCompletedScreen extends StatelessWidget {
+  const CddCompletedScreen({super.key, required this.item});
+
+  final CddCase item;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final p = item.particulars;
+    final run = item.runs.firstOrNull;
+    final ruledOut = run?.matches.length ?? 0;
+    final hash = item.contentHash;
+    return Scaffold(
+      appBar: AppBar(),
+      body: KiviloContent(
+        maxWidth: 560,
+        child: ListView(
+          padding: kiviloScreenPadding,
+          children: [
+            const SizedBox(height: 8),
+            Center(
+              child: SizedBox(
+                width: 96,
+                height: 72,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(color: KiviloColors.pink, borderRadius: BorderRadius.circular(18)),
+                      child: const Icon(Icons.fact_check_outlined, color: Colors.white, size: 32),
+                    ),
+                    Positioned(
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: KiviloColors.green,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                        ),
+                        child: const Icon(Icons.check_rounded, color: Colors.white, size: 24),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text('Due diligence complete', textAlign: TextAlign.center, style: text.headlineMedium),
+            const SizedBox(height: 6),
+            Text(item.clientName, textAlign: TextAlign.center, style: text.bodyLarge),
+            const SizedBox(height: 24),
+            _Facts(rows: [
+              ('Client', '${item.clientName}, ${_role(item.clientRole).toLowerCase()}'),
+              if (p != null) (p.idType == 'PASSPORT' ? 'Passport' : p.idType, '${p.idNumber}, original seen'),
+              ('Screening', ruledOut == 0 ? 'No match' : '$ruledOut ruled out'),
+              if (run != null) ('Lists', run.lists.join(', ')),
+              ('Risk', item.riskLevel == 'HIGHER' ? 'Higher, source of funds recorded' : 'Standard'),
+              if (item.completedAt case final at?) ('Completed', _dateTime(at)),
+              ('Reference', item.reference),
+              if (hash != null) ('Fingerprint', '${hash.substring(0, 8)}…${hash.substring(hash.length - 4)}'),
+            ]),
+            const SizedBox(height: 12),
+            Text(
+              'This record is locked. Kivilo keeps it for five years, as CEA requires.',
+              textAlign: TextAlign.center,
+              style: text.bodySmall,
+            ),
+            const SizedBox(height: 24),
+            FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
           ],
         ),
       ),

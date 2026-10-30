@@ -41,6 +41,8 @@ class CddParticulars {
     required this.pepDetails,
     required this.submittedInPerson,
     required this.idSighted,
+    this.submittedAt,
+    this.idSightedAt,
   });
 
   final String legalName;
@@ -55,6 +57,8 @@ class CddParticulars {
   final String? pepDetails;
   final bool submittedInPerson;
   final bool idSighted;
+  final DateTime? submittedAt;
+  final DateTime? idSightedAt;
 
   factory CddParticulars.fromJson(Map<String, dynamic> json) => CddParticulars(
     legalName: json['legalName'] as String,
@@ -67,6 +71,8 @@ class CddParticulars {
     pepDetails: json['pepDetails'] as String?,
     submittedInPerson: json['submittedInPerson'] as bool? ?? false,
     idSighted: json['idSighted'] as bool? ?? false,
+    submittedAt: DateTime.tryParse(json['submittedAt'] as String? ?? ''),
+    idSightedAt: DateTime.tryParse(json['idSightedAt'] as String? ?? ''),
   );
 }
 
@@ -147,9 +153,29 @@ class CddCase {
     required this.clientEmail,
     required this.particulars,
     required this.runs,
+    this.reference = '',
+    this.riskLevel,
+    this.riskAssessedAt,
+    this.riskAnswers = const {},
+    this.riskQuestions = const [],
+    this.completedAt,
+    this.contentHash,
   });
 
   final String id;
+  final String reference;
+
+  /// STANDARD or HIGHER once the risk checklist is answered.
+  final String? riskLevel;
+  final DateTime? riskAssessedAt;
+  final Map<String, Object?> riskAnswers;
+
+  /// The checklist the server asks today, in order.
+  final List<CddRiskQuestion> riskQuestions;
+  final DateTime? completedAt;
+
+  /// SHA-256 of the locked record, set at completion.
+  final String? contentHash;
   final String status;
   final String clientRole;
   final String clientName;
@@ -165,7 +191,18 @@ class CddCase {
   factory CddCase.fromJson(Map<String, dynamic> json) {
     final client = (json['client'] as Map).cast<String, dynamic>();
     final particulars = json['particulars'] as Map?;
+    final risk = (json['riskAssessment'] as Map?)?.cast<String, dynamic>();
     return CddCase(
+      reference: json['reference'] as String? ?? '',
+      riskLevel: risk?['level'] as String?,
+      riskAssessedAt: DateTime.tryParse(risk?['assessedAt'] as String? ?? ''),
+      riskAnswers: (risk?['answers'] as Map?)?.cast<String, Object?>() ?? const {},
+      riskQuestions: [
+        for (final question in json['riskQuestions'] as List? ?? const [])
+          CddRiskQuestion.fromJson((question as Map).cast<String, dynamic>()),
+      ],
+      completedAt: DateTime.tryParse(json['completedAt'] as String? ?? ''),
+      contentHash: json['contentHash'] as String?,
       id: json['id'] as String,
       status: json['status'] as String,
       clientRole: json['clientRole'] as String,
@@ -178,4 +215,18 @@ class CddCase {
       ],
     );
   }
+}
+
+class CddRiskQuestion {
+  const CddRiskQuestion({required this.key, required this.text, this.help});
+
+  final String key;
+  final String text;
+  final String? help;
+
+  factory CddRiskQuestion.fromJson(Map<String, dynamic> json) => CddRiskQuestion(
+    key: json['key'] as String,
+    text: json['text'] as String,
+    help: json['help'] as String?,
+  );
 }
