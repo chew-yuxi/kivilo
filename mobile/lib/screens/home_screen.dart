@@ -10,6 +10,7 @@ import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/handover_guide.dart';
 import '../ui/kivilo_illustration.dart';
+import 'cdd_screen.dart';
 import 'inspection_screen.dart';
 import 'home_tasks.dart';
 import 'party_homes_screen.dart';
@@ -438,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               if (work) ...[
                 const SizedBox(height: 16),
-                firstUse ? _startCard() : _shortcuts(latest),
+                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: data.dueDiligence),
               ],
               for (final group in groups) ...[
                 const SizedBox(height: kiviloSectionGap),
@@ -476,7 +477,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The newest inspection still open, and a new one: the two things an agent does
   /// most, without repeating the rows below.
-  Widget _shortcuts(HomeTask? latest) {
+  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence}) {
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -523,6 +524,16 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.add, size: 20),
             label: const Text('New check-in'),
           ),
+        if (dueDiligence) ...[
+          const SizedBox(height: kiviloButtonGap),
+          OutlinedButton.icon(
+            onPressed: () => Navigator.of(context).push<void>(
+              MaterialPageRoute(builder: (_) => CddListScreen(api: _api)),
+            ),
+            icon: const Icon(Icons.fact_check_outlined, size: 18),
+            label: const Text('Due diligence'),
+          ),
+        ],
       ],
     );
   }
