@@ -38,7 +38,7 @@ test('an agent runs due diligence through the app API, and nobody else can', asy
   expect(asked).toEqual({ url: `http://localhost:3111/cdd/${id}?email=${encodeURIComponent(clientEmail)}`, emailed: true })
 
   const inPerson = {
-    legalName: 'Tan Jun Jie', idType: 'NRIC', idNumber: 'T0712345B', nationality: 'Singapore',
+    legalName: 'Tan Jun Jie', idType: 'NRIC', idNumber: 'T0712345G', nationality: 'Singapore',
     dateOfBirth: '2007-03-19', address: '2 Jurong East Street 21', pepDeclared: false,
   }
   expect((await request.post(`/api/v1/cdd/${id}/particulars`, { headers: agent, data: inPerson })).ok()).toBe(true)
@@ -47,8 +47,8 @@ test('an agent runs due diligence through the app API, and nobody else can', asy
   expect(await again.json()).toEqual({ error: 'invalid_state', message: 'Particulars are already in' })
 
   const view = await (await request.get(`/api/v1/cdd/${id}`, { headers: agent })).json()
-  expect(view).toMatchObject({ status: 'NEEDS_REVIEW', particulars: { idNumber: '*****345B', idSighted: true } })
-  expect(JSON.stringify(view)).not.toContain('T0712345B')
+  expect(view).toMatchObject({ status: 'NEEDS_REVIEW', particulars: { idNumber: '*****345G', idSighted: true } })
+  expect(JSON.stringify(view)).not.toContain('T0712345G')
   const [match] = view.screeningRuns[0].candidates
   expect(match).toMatchObject({ source: 'SG', reference: 'TSFA First Schedule 2(zzb)', decision: null })
 

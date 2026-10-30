@@ -14,7 +14,11 @@ export function CddParticularsForm({ caseId }: { caseId: string }) {
   // Disabled until hydrated: this page usually arrives by a full load straight after sign-in.
   const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false)
 
-  const submit = (form: FormData) =>
+  // onSubmit rather than a form action: React resets a form after its action, which
+  // would clear every field the client typed whenever one of them is refused.
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = new FormData(event.currentTarget)
     startTransition(async () => {
       setError(null)
       const text = (name: string) => String(form.get(name) ?? '')
@@ -35,9 +39,10 @@ export function CddParticularsForm({ caseId }: { caseId: string }) {
         setError('Could not send your details. Reload the page and try again.')
       }
     })
+  }
 
   return (
-    <form action={submit} className="space-y-4">
+    <form onSubmit={submit} className="space-y-4">
       <label className="block text-sm font-medium">
         Full name, as on your ID
         <input name="legalName" required autoComplete="name" className={input} />

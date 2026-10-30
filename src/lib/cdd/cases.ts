@@ -7,6 +7,7 @@ import { currentSanctionsLists } from '@/lib/screening/lists'
 import { recordServerError } from '@/lib/errors'
 import { encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
+import { idNumberProblem } from './id-number'
 
 export { CddInputError, CddStateError }
 
@@ -104,7 +105,8 @@ function checkedParticulars(input: Particulars) {
     throw new CddInputError('Enter the date of birth as it appears on the ID')
   }
   if (input.pepDeclared && !input.pepDetails?.trim()) throw new CddInputError('Say which public position is held')
-  if (input.idNumber.replace(/[\s-]/g, '').length < 4) throw new CddInputError('Check the ID number')
+  const idProblem = idNumberProblem(input.idType, input.idNumber)
+  if (idProblem) throw new CddInputError(idProblem)
   const { encrypted, last4 } = encryptIdNumber(input.idNumber)
   return {
     kind: input.kind,

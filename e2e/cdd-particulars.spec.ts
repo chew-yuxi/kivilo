@@ -41,6 +41,10 @@ test('a client sends their due-diligence particulars from the emailed link', asy
   await page.getByLabel('Date of birth').fill('1985-04-12')
   await page.getByLabel('Residential address').fill('1 Orchard Road, #10-01, Singapore 238823')
   await page.getByRole('button', { name: 'Send my details' }).click()
+  // A mistyped number fails its check letter and is never stored.
+  await expect(page.getByText('This NRIC number is not valid. Check it against the card')).toBeVisible()
+  await page.getByLabel('ID number').fill('S1234567D')
+  await page.getByRole('button', { name: 'Send my details' }).click()
 
   await expect(page.getByRole('heading', { name: 'Thank you' })).toBeVisible()
   await expect(page.getByText('Your details have been sent to Jane Agent.')).toBeVisible()
@@ -49,7 +53,7 @@ test('a client sends their due-diligence particulars from the emailed link', asy
   for (const word of ['screen', 'sanction', 'match', 'review']) expect(shown).not.toContain(word)
 
   const stored = await db.cddParticulars.findUniqueOrThrow({ where: { caseId: deal.id } })
-  expect(stored).toMatchObject({ legalName: 'Tan Wei Ming', idNumberLast4: '567A', submittedInPerson: false })
+  expect(stored).toMatchObject({ legalName: 'Tan Wei Ming', idNumberLast4: '567D', submittedInPerson: false })
   expect(stored.idNumberEncrypted).not.toContain('1234567')
   expect((await db.cddCase.findUniqueOrThrow({ where: { id: deal.id } })).status).toBe('NEEDS_REVIEW')
 })

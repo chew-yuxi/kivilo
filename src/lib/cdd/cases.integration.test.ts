@@ -21,7 +21,7 @@ async function person(name: string) {
 }
 
 const ordinary: Particulars = {
-  kind: 'INDIVIDUAL', legalName: 'Tan Wei Ming', idType: 'NRIC', idNumber: 's 1234567a',
+  kind: 'INDIVIDUAL', legalName: 'Tan Wei Ming', idType: 'NRIC', idNumber: 's 1234567d',
   nationality: 'Singapore', dateOfBirth: '1985-04-12', address: '1 Orchard Road', pepDeclared: false,
 }
 
@@ -79,7 +79,7 @@ describe('due diligence cases', () => {
     expect(stored.idNumberEncrypted).not.toContain('1234567')
     const view = await caseForAgent(started.id, agent.id)
     expect(view.status).toBe('NEEDS_REVIEW')
-    expect(view.particulars).toMatchObject({ idNumber: '*****567A', submittedInPerson: false, idSighted: false })
+    expect(view.particulars).toMatchObject({ idNumber: '*****567D', submittedInPerson: false, idSighted: false })
     expect(view.screeningRuns).toHaveLength(1)
     expect(view.screeningRuns[0].candidates).toEqual([])
     expect((view.screeningRuns[0].listVersions as { source: string }[]).map((version) => version.source)).toEqual(['UN', 'SG'])
