@@ -12,6 +12,8 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../services/play_billing.dart';
+import '../services/apple_billing.dart';
+import '../services/store_billing.dart';
 import '../services/push_notifications.dart';
 import '../services/saved_signature.dart';
 import '../ui/handover_guide.dart';
@@ -65,12 +67,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _error;
   String? _signOutError;
   StreamSubscription<void>? _planChanges;
+  StoreBilling? get _billing => AppleBilling.current ?? PlayBilling.current;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _planChanges = PlayBilling.current?.planChanges.listen(
+    _planChanges = _billing?.planChanges.listen(
       (_) => _refreshPlan(),
     );
   }
@@ -95,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   }
 
   Future<void> _openBilling() async {
-    final billing = PlayBilling.current;
+    final billing = _billing;
     if (billing == null) return;
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
@@ -105,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _refreshPlan();
   }
 
-  Future<WorkspacePlan> _loadPlan() => PlayBilling.supported && PlayBilling.current != null
+  Future<WorkspacePlan> _loadPlan() => _billing != null
       ? _api.selectedWorkspacePlan()
       : _api.plan();
 
@@ -390,7 +393,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 : [
                     plan.pro ? 'Pro' : 'Free',
                     if (plan.team != null) plan.team!
-                    else if (PlayBilling.supported && PlayBilling.current != null) 'Personal',
+                    else if (_billing != null) 'Personal',
                   ].join(' · '),
           ),
           subtitle: Text(
@@ -400,10 +403,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 ? 'Loading'
                 : '${plan.activeProperties} of ${plan.limit} active $noun in use',
           ),
-          trailing: PlayBilling.supported && PlayBilling.current != null
+          trailing: _billing != null
               ? const Icon(Icons.chevron_right)
               : null,
-          onTap: PlayBilling.supported && PlayBilling.current != null ? _openBilling : null,
+          onTap: _billing != null ? _openBilling : null,
         ),
       );
     },
@@ -602,6 +605,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                       'We aim to complete eligible deletion within 30 days of your request.',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
+                    if (AppleBilling.supported) ...[
+                      const SizedBox(height: kiviloHeadingGap),
+                      const Text('An Apple subscription continues until you cancel it in your Apple Account. Deleting your Kivilo account does not cancel it.'),
+                      const SizedBox(height: kiviloButtonGap),
+                      TextButton(
+                        onPressed: () => _openPage('https://apps.apple.com/account/subscriptions'),
+                        child: const Text('Manage App Store subscriptions'),
+                      ),
+                    ],
                     if (deletion != null) ...[
                       const SizedBox(height: 14),
                       Container(

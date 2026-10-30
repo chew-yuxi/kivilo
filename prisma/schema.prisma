@@ -74,6 +74,7 @@ model Stakeholder {
   subscription         Subscription?  @relation("OwnSubscription")
   subscriptionsManaged Subscription[] @relation("ManagedSubscriptions")
   googlePlayBillingAccounts GooglePlayBillingAccount[]
+  appleBillingAccounts AppleBillingAccount[]
 
   @@index([name])
   @@index([teamId])
@@ -210,6 +211,7 @@ model Subscription {
   stripeCustomerId     String?   @unique
   stripeSubscriptionId String?   @unique
   googlePlayPurchaseId String?   @unique
+  applePurchaseId      String?   @unique
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean   @default(false)
   /// The member who manages billing. Null once they delete their account, and then any
@@ -223,6 +225,44 @@ model Subscription {
   stakeholder Stakeholder? @relation("OwnSubscription", fields: [stakeholderId], references: [id], onDelete: Cascade)
   managedBy   Stakeholder? @relation("ManagedSubscriptions", fields: [managedById], references: [id], onDelete: SetNull)
   googlePlayPurchase GooglePlayPurchase? @relation(fields: [googlePlayPurchaseId], references: [id], onDelete: Restrict)
+  applePurchase ApplePurchase? @relation(fields: [applePurchaseId], references: [id], onDelete: Restrict)
+}
+
+/// Opaque StoreKit appAccountToken, created only for a verified payer/workspace.
+/// Erasure keeps the binding as a non-transferable purchase tombstone.
+model AppleBillingAccount {
+  id String @id @default(uuid())
+  workspaceKey String
+  stakeholderId String?
+  retirementStartedAt DateTime?
+  createdAt DateTime @default(now())
+  stakeholder Stakeholder? @relation(fields: [stakeholderId], references: [id], onDelete: SetNull)
+  purchases ApplePurchase[]
+
+  @@unique([workspaceKey, stakeholderId])
+  @@index([stakeholderId])
+}
+
+/// One renewal chain, always re-read from Apple's signed subscription status API.
+model ApplePurchase {
+  id String @id @default(cuid())
+  originalTransactionId String @unique
+  transactionId String
+  accountId String
+  productId String
+  environment String
+  state String
+  expiresAt DateTime
+  autoRenewing Boolean
+  grantedAt DateTime?
+  rejectedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account AppleBillingAccount @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  subscription Subscription?
+
+  @@index([accountId])
 }
 
 /// Server-verified Google Play purchase history. Tokens never leave the server after

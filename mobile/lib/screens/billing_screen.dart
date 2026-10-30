@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/agency.dart';
 import '../models/billing.dart';
 import '../services/api.dart';
-import '../services/play_billing.dart';
+import '../config.dart';
+import '../services/store_billing.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
@@ -15,7 +16,7 @@ import '../ui/kivilo_theme.dart';
 class BillingScreen extends StatefulWidget {
   const BillingScreen({super.key, required this.api, required this.billing});
   final Api api;
-  final PlayBilling billing;
+  final StoreBilling billing;
 
   @override
   State<BillingScreen> createState() => _BillingScreenState();
@@ -25,8 +26,8 @@ class _BillingScreenState extends State<BillingScreen>
     with WidgetsBindingObserver {
   List<AgencySummary> _teams = [];
   String _workspace = 'personal';
-  PlayBillingStatus? _status;
-  List<GooglePlayProductDetails> _products = [];
+  StoreBillingStatus? _status;
+  List<ProductDetails> _products = [];
   String? _selectedProduct;
   String? _error;
   bool _loading = true;
@@ -83,10 +84,10 @@ class _BillingScreenState extends State<BillingScreen>
       _error = null;
     });
     try {
-      final status = await widget.api.playBillingStatus(_workspace);
+      final status = await widget.billing.status(_workspace);
       final products = status.canPurchase
           ? await widget.billing.products(status.products)
-          : <GooglePlayProductDetails>[];
+          : <ProductDetails>[];
       if (!mounted || generation != _generation) return;
       final selected = products.any((product) => product.id == _selectedProduct)
           ? _selectedProduct
@@ -112,16 +113,26 @@ class _BillingScreenState extends State<BillingScreen>
   }
 
   Future<void> _manage() async {
-    final uri = Uri.https('play.google.com', '/store/account/subscriptions', {
+    final uri = widget.billing.provider == 'apple' ? Uri.parse('https://apps.apple.com/account/subscriptions') : Uri.https('play.google.com', '/store/account/subscriptions', {
       'package': 'one.kivilo.kivilo',
       if (_status?.currentProductId case final String id) 'sku': id,
     });
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-        throw const ApiFailure(
-          'Could not open Google Play. Open Play Store → Payments and subscriptions → Subscriptions.',
+        throw ApiFailure(
+          'Could not open ${widget.billing.storeName}. Open your device’s subscription settings.',
           null,
         );
+      }
+    } catch (error) {
+      if (mounted) setState(() => _error = plainError(error));
+    }
+  }
+
+  Future<void> _openTerms(String url) async {
+    try {
+      if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
+        throw const ApiFailure('Could not open the page. Try again.', null);
       }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
@@ -230,12 +241,12 @@ class _BillingScreenState extends State<BillingScreen>
                         'This plan was purchased on the Kivilo website. You can use it in the app.',
                       ),
                     ],
-                    if (status.provider == 'google_play' &&
+                    if (status.provider == widget.billing.provider &&
                         status.canManageBilling) ...[
                       const SizedBox(height: 16),
                       OutlinedButton(
                         onPressed: busy ? null : _manage,
-                        child: const Text('Manage in Google Play'),
+                        child: Text('Manage in ${widget.billing.storeName}'),
                       ),
                     ],
                     if (status.canPurchase) ...[
@@ -251,12 +262,14 @@ class _BillingScreenState extends State<BillingScreen>
                         Text(
                           '25 active properties per seat, shared across this team. Choose at least ${status.seatsNeeded} ${status.seatsNeeded == 1 ? 'seat' : 'seats'} for its current members.',
                         ),
+                        if (widget.billing.provider == 'apple') ...[
+                          const SizedBox(height: kiviloHeadingGap),
+                          const Text('Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.'),
+                        ],
                       ],
                       const SizedBox(height: 16),
                       if (_products.isEmpty && !_loading)
-                        const Text(
-                          'Google Play has no plans available for this account yet. Check your Play Store account and try again.',
-                        ),
+                        Text('${widget.billing.storeName} has no plans available for this account yet. Check your store account and try again.'),
                       if (_products.isNotEmpty) ...[
                         if (team != null) ...[
                           KiviloSelectField<String>(
@@ -289,17 +302,15 @@ class _BillingScreenState extends State<BillingScreen>
                             '${_seats(selected.id) * 25} active properties',
                           ),
                           const SizedBox(height: kiviloHeadingGap),
-                          const Text(
-                            'Renews automatically until canceled in Google Play.',
-                          ),
+                          Text('Renews automatically until canceled in ${widget.billing.storeName}.'),
                         ],
                         if (team != null &&
-                            status.provider == 'google_play' &&
+                            status.provider == widget.billing.provider &&
                             !currentPlan) ...[
                           const SizedBox(height: kiviloHeadingGap),
-                          const Text(
-                            'A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.',
-                          ),
+                          Text(widget.billing.provider == 'apple'
+                              ? 'More seats take effect immediately. Fewer seats take effect at renewal. Apple confirms the price and timing before you agree.'
+                              : 'A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.'),
                         ],
                         if (!currentPlan) ...[
                           const SizedBox(height: kiviloButtonGap),
@@ -311,9 +322,9 @@ class _BillingScreenState extends State<BillingScreen>
                                     product: selected,
                                   ),
                             child: Text(
-                              status.provider == 'google_play'
-                                  ? 'Change plan in Google Play'
-                                  : 'Subscribe with Google Play',
+                              status.provider == widget.billing.provider
+                                  ? 'Change plan in ${widget.billing.storeName}'
+                                  : 'Subscribe with ${widget.billing.storeName}',
                             ),
                           ),
                         ],
@@ -321,9 +332,7 @@ class _BillingScreenState extends State<BillingScreen>
                     ] else if (status.canManageBilling &&
                         status.provider == null) ...[
                       const SizedBox(height: 16),
-                      const Text(
-                        'Google Play subscriptions are not available for this workspace yet.',
-                      ),
+                      Text('${widget.billing.storeName} subscriptions are not available for this workspace yet.'),
                     ],
                   ],
                   if (widget.billing.errorMessage != null) ...[
@@ -347,9 +356,21 @@ class _BillingScreenState extends State<BillingScreen>
                     child: const Text('Restore purchases'),
                   ),
                   const SizedBox(height: kiviloHeadingGap),
-                  const Text(
-                    'Use the Google Play and Kivilo accounts that made the purchase. Restoring does not charge you.',
-                  ),
+                  Text('Use the ${widget.billing.storeName} and Kivilo accounts that made the purchase. Restoring does not charge you.'),
+                  if (widget.billing.provider == 'apple') ...[
+                    const SizedBox(height: kiviloHeadingGap),
+                    const Text('Payment is charged to your Apple Account when you confirm. Cancel in App Store subscriptions at least 24 hours before renewal to avoid the next charge. Deleting Kivilo or its account does not cancel an Apple subscription.'),
+                    const SizedBox(height: kiviloButtonGap),
+                    TextButton(
+                      onPressed: () => _openTerms('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
+                      child: const Text('Terms of Use'),
+                    ),
+                    const SizedBox(height: kiviloButtonGap),
+                    TextButton(
+                      onPressed: () => _openTerms(Uri.parse(Config.apiBase).resolve('/privacy').toString()),
+                      child: const Text('Privacy policy'),
+                    ),
+                  ],
                 ],
               ),
             );

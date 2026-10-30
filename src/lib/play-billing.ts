@@ -51,7 +51,7 @@ export async function playBillingStatus(agent: Agent, agencyId?: string | null) 
   const subscription = workspace.subscription
   const current = subscription?.googlePlayPurchaseId
     ? await db.googlePlayPurchase.findUniqueOrThrow({ where: { id: subscription.googlePlayPurchaseId } }) : null
-  const provider = current ? 'google_play' : subscription?.stripeSubscriptionId ? 'stripe' : subscription?.status === 'comped' ? 'comped' : null
+  const provider = current ? 'google_play' : subscription?.applePurchaseId ? 'apple' : subscription?.stripeSubscriptionId ? 'stripe' : subscription?.status === 'comped' ? 'comped' : null
   const isManager = context.canManage && workspace.isManager
   const blockedProvider = !!subscription && !current && subscriptionCanResume(subscription)
   const kind = context.kind === 'stakeholder' ? 'personal' : 'team'
@@ -197,7 +197,7 @@ export async function reconcilePlayPurchase(purchaseToken: string, expectedOwner
       }
       const data = { plan: 'PRO' as const, seats: state.product.seats, status: state.state,
         currentPeriodEnd: state.expiresAt, cancelAtPeriodEnd: !state.autoRenewing,
-        googlePlayPurchaseId: row.id, stripeSubscriptionId: null, stripeCustomerId: null }
+        googlePlayPurchaseId: row.id, applePurchaseId: null, stripeSubscriptionId: null, stripeCustomerId: null }
       await tx.subscription.upsert({
         where: context.where,
         create: { ...context.where, ...data, managedById: account.stakeholderId },

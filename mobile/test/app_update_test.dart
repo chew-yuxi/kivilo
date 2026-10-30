@@ -36,7 +36,7 @@ class _FakePatchUpdate implements PatchUpdate {
   Future<PatchAvailability> check() async => availability;
 
   @override
-  Future<void> installAndClose() async {
+  Future<void> install() async {
     installs++;
   }
 }
@@ -174,9 +174,13 @@ void main() {
       await tester.tap(find.text('Update'));
       await tester.pump();
       expect(patch.installs, 1);
+      expect(find.text('Update ready'), findsOneWidget);
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('count 0'), findsOneWidget);
     });
 
-    testWidgets('asks to close when Shorebird already staged the patch', (
+    testWidgets('keeps working when Shorebird already staged the patch', (
       tester,
     ) async {
       final patch = _FakePatchUpdate(PatchAvailability.restartRequired);
@@ -184,7 +188,23 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Update ready'), findsOneWidget);
-      expect(find.text('Close and update'), findsOneWidget);
+      await tester.tap(find.text('Continue'));
+      await tester.pumpAndSettle();
+      expect(find.text('count 0'), findsOneWidget);
+      expect(patch.installs, 0);
+    });
+
+    testWidgets('can defer a patch without losing the mounted app', (tester) async {
+      final check = Completer<String?>();
+      final patch = _FakePatchUpdate(PatchAvailability.downloadRequired);
+      await tester.pumpWidget(app(() => check.future, patchUpdate: patch));
+      await tester.tap(find.text('count 0'));
+      check.complete(null);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Not now'));
+      await tester.pumpAndSettle();
+      expect(find.text('count 1'), findsOneWidget);
+      expect(patch.installs, 0);
     });
 
     testWidgets('a required store release takes precedence over a patch', (

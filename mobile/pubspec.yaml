@@ -60,6 +60,7 @@ dependencies:
   in_app_purchase_android: ^0.5.5
   in_app_purchase_platform_interface: ^1.4.0
   crypto: ^3.0.7
+  in_app_purchase_storekit: ^0.4.15
 
 dev_dependencies:
   flutter_test:

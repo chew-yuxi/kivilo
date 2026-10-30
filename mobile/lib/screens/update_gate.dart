@@ -64,6 +64,7 @@ class _UpdateGateState extends State<UpdateGate> {
           _PatchUpdateRequired(
             patchUpdate: widget.patchUpdate,
             restartOnly: patch == PatchAvailability.restartRequired,
+            onContinue: () => setState(() => _patch = PatchAvailability.none),
           ),
       ],
     );
@@ -74,10 +75,12 @@ class _PatchUpdateRequired extends StatefulWidget {
   const _PatchUpdateRequired({
     required this.patchUpdate,
     required this.restartOnly,
+    required this.onContinue,
   });
 
   final PatchUpdate patchUpdate;
   final bool restartOnly;
+  final VoidCallback onContinue;
 
   @override
   State<_PatchUpdateRequired> createState() => _PatchUpdateRequiredState();
@@ -85,6 +88,7 @@ class _PatchUpdateRequired extends StatefulWidget {
 
 class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
   bool _installing = false;
+  late bool _ready = widget.restartOnly;
   String? _error;
 
   Future<void> _install() async {
@@ -93,7 +97,13 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
       _error = null;
     });
     try {
-      await widget.patchUpdate.installAndClose();
+      await widget.patchUpdate.install();
+      if (mounted) {
+        setState(() {
+          _installing = false;
+          _ready = true;
+        });
+      }
     } catch (error) {
       debugPrint('Shorebird update install error: $error');
       if (mounted) {
@@ -121,14 +131,14 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                   const Center(child: KiviloMark(size: 68)),
                   const SizedBox(height: 48),
                   Text(
-                    widget.restartOnly ? 'Update ready' : 'Update Kivilo',
+                    _ready ? 'Update ready' : 'Update Kivilo',
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.restartOnly
-                        ? 'The update is downloaded. Kivilo will close, then notify you when it is ready to reopen.'
-                        : 'A Kivilo update is available. Download it now; Kivilo will close, then notify you when it is ready to reopen.',
+                    _ready
+                        ? 'The update is downloaded and will take effect the next time Kivilo starts. You can keep working now.'
+                        : 'A Kivilo update is available. Download it now or keep working and update later.',
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   if (_error != null) ...[
@@ -143,16 +153,23 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: _installing ? null : _install,
+                    onPressed: _installing ? null : _ready ? widget.onContinue : _install,
                     child: _installing
                         ? const SizedBox.square(
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(
-                            widget.restartOnly ? 'Close and update' : 'Update',
+                            _ready ? 'Continue' : 'Update',
                           ),
                   ),
+                  if (!_ready) ...[
+                    const SizedBox(height: 12),
+                    OutlinedButton(
+                      onPressed: _installing ? null : widget.onContinue,
+                      child: const Text('Not now'),
+                    ),
+                  ],
                 ],
               ),
             ),

@@ -67,12 +67,12 @@ GooglePlayProductDetails product(
   ),
 ).single;
 
-const solo = PlayPlanProduct(
+const solo = StorePlanProduct(
   productId: 'kivilo_pro',
   basePlanId: 'monthly',
   seats: 1,
 );
-const team = PlayPlanProduct(
+const team = StorePlanProduct(
   productId: 'kivilo_pro_team_2',
   basePlanId: 'monthly',
   seats: 2,
@@ -134,10 +134,10 @@ class BillingApi extends Api {
   );
 
   @override
-  Future<PlayBillingStatus> playBillingStatus(String agencyId) async {
+  Future<StoreBillingStatus> playBillingStatus(String agencyId) async {
     statusCalls.add(agencyId);
     final agency = agencyId == 'agency';
-    return PlayBillingStatus(
+    return StoreBillingStatus(
       products: [agency ? team : solo],
       canPurchase: !agency || teamCanManage,
       canManageBilling: !agency || teamCanManage,

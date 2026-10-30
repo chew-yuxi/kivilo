@@ -9,10 +9,11 @@ import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_inte
 
 import '../models/billing.dart';
 import 'api.dart';
+import 'store_billing.dart';
 
 /// The store supplies the price and purchase token. Only Kivilo's server verifies,
 /// grants and acknowledges it. Play keeps unacknowledged purchases across restarts.
-class PlayBilling extends ChangeNotifier {
+class PlayBilling extends StoreBilling {
   PlayBilling({
     required this.api,
     required this.store,
@@ -63,10 +64,17 @@ class PlayBilling extends ChangeNotifier {
   }
 
   final Api api;
+  @override
+  String get provider => 'google_play';
+  @override
+  String get storeName => 'Google Play';
+  @override
+  Future<StoreBillingStatus> status(String workspace) => api.playBillingStatus(workspace);
   final InAppPurchasePlatform store;
   final Future<List<GooglePlayPurchaseDetails>> Function() ownedPurchases;
   late final StreamSubscription<List<PurchaseDetails>> _subscription;
   final _changes = StreamController<void>.broadcast();
+  @override
   Stream<void> get planChanges => _changes.stream;
   Future<void> _processing = Future.value();
   Future<void>? _restoring;
@@ -79,12 +87,16 @@ class PlayBilling extends ChangeNotifier {
   bool _disposed = false;
   bool _foreground = true;
   String? _owner;
+  @override
   String? errorMessage;
+  @override
   String? message;
+  @override
   bool get busy => _purchasing || _verifying || _restoring != null;
 
+  @override
   Future<List<GooglePlayProductDetails>> products(
-    List<PlayPlanProduct> catalog,
+    List<StorePlanProduct> catalog,
   ) async {
     if (catalog.isEmpty) return [];
     if (!await store.isAvailable()) {
@@ -130,10 +142,14 @@ class PlayBilling extends ChangeNotifier {
     );
   }
 
+  @override
   Future<void> purchase({
     required String agencyId,
-    required GooglePlayProductDetails product,
+    required ProductDetails product,
   }) async {
+    if (product is! GooglePlayProductDetails) {
+      throw const ApiFailure('Choose an available Google Play plan.', 400);
+    }
     if (busy) return;
     final owner = _syncOwner();
     if (owner == null) {
@@ -250,6 +266,7 @@ class PlayBilling extends ChangeNotifier {
     _retry = null;
   }
 
+  @override
   Future<void> restore({bool quiet = false}) {
     if (_disposed) return Future.value();
     final owner = _syncOwner();

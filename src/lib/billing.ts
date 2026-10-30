@@ -62,6 +62,7 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
       googlePlayPurchaseId: null,
+      applePurchaseId: null,
       // A cancellation set for a date rather than the period end still ends it then.
       currentPeriodEnd: new Date((subscription.cancel_at ?? item.current_period_end) * 1000),
       cancelAtPeriodEnd: subscription.cancel_at_period_end || subscription.cancel_at !== null,
@@ -96,9 +97,9 @@ export async function syncSubscription(subscriptionId: string, expectedCustomerI
     if (!existing) {
       return tx.subscription.create({ data: { ...where, ...state, managedById: managedById || null } })
     }
-    if (existing.googlePlayPurchaseId && subscriptionCanResume(existing)) {
+    if ((existing.googlePlayPurchaseId || existing.applePurchaseId) && subscriptionCanResume(existing)) {
       if (!isLive(subscription.status)) return existing
-      throw new Error('Workspace already pays through Google Play; refusing a second paid subscription')
+      throw new Error('Workspace already pays through an app store; refusing a second paid subscription')
     }
     if (existing.stripeSubscriptionId === subscription.id) {
       // The manager is set when the subscription first lands and is ours after that:

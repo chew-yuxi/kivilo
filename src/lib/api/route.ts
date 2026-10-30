@@ -3,6 +3,7 @@ import { currentStakeholder } from '@/lib/auth'
 import { recordServerError } from '@/lib/errors'
 import type { Stakeholder } from '@/generated/prisma'
 import { PlayBillingError } from '@/lib/play-billing-errors'
+import { AppleBillingError } from '@/lib/apple-billing-errors'
 import { ZodError } from 'zod'
 import { MoveInDefectStaleTargetError } from '@/lib/move-in-defects'
 import { AgencyActionError } from '@/lib/agency-errors'
@@ -38,7 +39,7 @@ export function authed<P>(
       // cannot be used to discover which ids are real. Nothing else is echoed back: the
       // thrown message can carry a Prisma model name or a driver error.
       const message = error instanceof Error ? error.message : ''
-      if (error instanceof PlayBillingError) {
+      if (error instanceof PlayBillingError || error instanceof AppleBillingError) {
         const status = error.code === 'billing_unavailable' ? 503 : error.code === 'purchase_not_found' ? 404 : error.code === 'invalid_purchase' ? 400 : 409
         return Response.json({ error: error.code, message: error.message }, { status })
       }

@@ -1,24 +1,24 @@
-class PlayPlanProduct {
-  const PlayPlanProduct({
+class StorePlanProduct {
+  const StorePlanProduct({
     required this.productId,
-    required this.basePlanId,
+    this.basePlanId,
     required this.seats,
   });
 
   final String productId;
-  final String basePlanId;
+  final String? basePlanId;
   final int seats;
 
-  factory PlayPlanProduct.fromJson(Map<String, dynamic> json) =>
-      PlayPlanProduct(
+  factory StorePlanProduct.fromJson(Map<String, dynamic> json) =>
+      StorePlanProduct(
         productId: json['productId'] as String,
-        basePlanId: json['basePlanId'] as String,
+        basePlanId: json['basePlanId'] as String?,
         seats: json['seats'] as int,
       );
 }
 
-class PlayBillingStatus {
-  const PlayBillingStatus({
+class StoreBillingStatus {
+  const StoreBillingStatus({
     required this.products,
     required this.canPurchase,
     required this.canManageBilling,
@@ -35,7 +35,7 @@ class PlayBillingStatus {
     this.managedByName,
   });
 
-  final List<PlayPlanProduct> products;
+  final List<StorePlanProduct> products;
   final bool canPurchase;
   final bool canManageBilling;
   final int seats;
@@ -50,11 +50,11 @@ class PlayBillingStatus {
   final bool cancelAtPeriodEnd;
   final String? managedByName;
 
-  factory PlayBillingStatus.fromJson(Map<String, dynamic> json) =>
-      PlayBillingStatus(
+  factory StoreBillingStatus.fromJson(Map<String, dynamic> json) =>
+      StoreBillingStatus(
         products: (json['products'] as List<dynamic>)
             .map(
-              (item) => PlayPlanProduct.fromJson(item as Map<String, dynamic>),
+              (item) => StorePlanProduct.fromJson(item as Map<String, dynamic>),
             )
             .toList(),
         canPurchase: json['canPurchase'] as bool,

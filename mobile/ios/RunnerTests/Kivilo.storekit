@@ -1,0 +1,510 @@
+{
+  "identifier": "KiviloAppleReview20261030",
+  "nonRenewingSubscriptions": [],
+  "products": [
+    {
+      "displayPrice": "0.01",
+      "familyShareable": false,
+      "internalID": "KiviloZeroIDSeed",
+      "localizations": [
+        {
+          "description": "Reserves the local StoreKit zero-ID sentinel for native tests.",
+          "displayName": "Test transaction seed",
+          "locale": "en_GB"
+        }
+      ],
+      "productID": "kivilo_test_seed",
+      "referenceName": "Test transaction seed",
+      "type": "NonConsumable"
+    }
+  ],
+  "settings": {
+    "_applicationInternalID": "6821514302",
+    "_developerTeamID": "4N9TA3WSYM",
+    "_failTransactionsEnabled": false,
+    "_locale": "en_SG",
+    "_storefront": "SGP"
+  },
+  "subscriptionGroups": [
+    {
+      "id": "22528923",
+      "localizations": [],
+      "name": "Kivilo Personal",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "39.0",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6828831737",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "25 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Personal",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Personal",
+          "subscriptionGroupID": "22528923",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        }
+      ]
+    },
+    {
+      "id": "22528973",
+      "localizations": [],
+      "name": "Kivilo Team",
+      "subscriptions": [
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "39.0",
+          "familyShareable": false,
+          "groupNumber": 20,
+          "internalID": "6828834709",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "25 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 1 seat",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_1_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 1 seat",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "78.0",
+          "familyShareable": false,
+          "groupNumber": 19,
+          "internalID": "6828834868",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "50 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 2 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_2_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 2 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "116.98",
+          "familyShareable": false,
+          "groupNumber": 18,
+          "internalID": "6828835615",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "75 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 3 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_3_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 3 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "154.98",
+          "familyShareable": false,
+          "groupNumber": 17,
+          "internalID": "6828835930",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "100 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 4 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_4_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 4 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "194.98",
+          "familyShareable": false,
+          "groupNumber": 16,
+          "internalID": "6828835951",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "125 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 5 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_5_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 5 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "229.98",
+          "familyShareable": false,
+          "groupNumber": 15,
+          "internalID": "6828836122",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "150 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 6 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_6_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 6 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "269.98",
+          "familyShareable": false,
+          "groupNumber": 14,
+          "internalID": "6828835699",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "175 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 7 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_7_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 7 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "309.98",
+          "familyShareable": false,
+          "groupNumber": 13,
+          "internalID": "6828836410",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "200 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 8 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_8_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 8 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "350.0",
+          "familyShareable": false,
+          "groupNumber": 12,
+          "internalID": "6828836333",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "225 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 9 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_9_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 9 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "389.98",
+          "familyShareable": false,
+          "groupNumber": 11,
+          "internalID": "6828836589",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "250 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 10 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_10_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 10 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "429.0",
+          "familyShareable": false,
+          "groupNumber": 10,
+          "internalID": "6828837827",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "275 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 11 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_11_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 11 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "464.98",
+          "familyShareable": false,
+          "groupNumber": 9,
+          "internalID": "6828837866",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "300 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 12 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_12_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 12 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "500.0",
+          "familyShareable": false,
+          "groupNumber": 8,
+          "internalID": "6828838101",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "325 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 13 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_13_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 13 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "539.98",
+          "familyShareable": false,
+          "groupNumber": 7,
+          "internalID": "6828838077",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "350 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 14 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_14_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 14 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "579.98",
+          "familyShareable": false,
+          "groupNumber": 6,
+          "internalID": "6828838086",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "375 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 15 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_15_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 15 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "619.98",
+          "familyShareable": false,
+          "groupNumber": 5,
+          "internalID": "6828838429",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "400 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 16 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_16_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 16 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "659.98",
+          "familyShareable": false,
+          "groupNumber": 4,
+          "internalID": "6828838378",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "425 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 17 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_17_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 17 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "700.0",
+          "familyShareable": false,
+          "groupNumber": 3,
+          "internalID": "6828838488",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "450 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 18 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_18_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 18 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "739.98",
+          "familyShareable": false,
+          "groupNumber": 2,
+          "internalID": "6828838788",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "475 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 19 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_19_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 19 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        },
+        {
+          "adHocOffers": [],
+          "codeOffers": [],
+          "displayPrice": "779.98",
+          "familyShareable": false,
+          "groupNumber": 1,
+          "internalID": "6828838833",
+          "introductoryOffer": null,
+          "localizations": [
+            {
+              "description": "500 active properties. Reports, evidence and signing.",
+              "displayName": "Kivilo Pro Team 20 seats",
+              "locale": "en_GB"
+            }
+          ],
+          "productID": "kivilo_pro_team_20_monthly",
+          "recurringSubscriptionPeriod": "P1M",
+          "referenceName": "Kivilo Pro Team 20 seats",
+          "subscriptionGroupID": "22528973",
+          "type": "RecurringSubscription",
+          "winbackOffers": []
+        }
+      ]
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 0
+  }
+}

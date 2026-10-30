@@ -423,14 +423,56 @@ class Api {
     );
   }
 
-  Future<PlayBillingStatus> playBillingStatus(String agencyId) async =>
-      PlayBillingStatus.fromJson(
+  Future<StoreBillingStatus> playBillingStatus(String agencyId) async =>
+      StoreBillingStatus.fromJson(
         (await _get<Map<String, dynamic>>(
           '/api/v1/billing/google-play',
           queryParameters: {'agencyId': agencyId},
           expectedOwnerId: currentOwnerId,
         )).data!,
       );
+
+  Future<StoreBillingStatus> appleBillingStatus(String agencyId) async =>
+      StoreBillingStatus.fromJson(
+        (await _get<Map<String, dynamic>>(
+          '/api/v1/billing/apple',
+          queryParameters: {'agencyId': agencyId},
+          expectedOwnerId: currentOwnerId,
+        )).data!,
+      );
+
+  Future<Map<String, dynamic>> applePurchaseContext({
+    required String agencyId,
+    required String productId,
+    required String expectedOwnerId,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/billing/apple/purchase-context',
+      data: {'agencyId': agencyId, 'productId': productId},
+      options: Options(
+        extra: {'expectedOwnerId': expectedOwnerId},
+        sendTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 45),
+      ),
+    );
+    return response.data!;
+  });
+
+  Future<bool> verifyApplePurchase({
+    required String signedTransaction,
+    required String expectedOwnerId,
+  }) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/v1/billing/apple/verify',
+      data: {'signedTransaction': signedTransaction},
+      options: Options(
+        extra: {'expectedOwnerId': expectedOwnerId},
+        sendTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 60),
+      ),
+    );
+    return response.data!['verified'] == true;
+  });
 
   Future<PlayPurchaseContext> playPurchaseContext({
     required String agencyId,

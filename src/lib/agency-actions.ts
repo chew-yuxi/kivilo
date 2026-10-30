@@ -147,7 +147,7 @@ export async function changeAgencyMember(agencyId: string, memberId: string, raw
     if (member.status === 'ACTIVE' && (('role' in input && input.role === 'AGENT') || ('action' in input && input.action === 'remove'))) {
       const subscription = await tx.subscription.findUnique({ where: { agencyId } })
       if (subscription?.managedById === member.stakeholderId &&
-          (subscription.stripeSubscriptionId || subscription.googlePlayPurchaseId) && subscriptionCanResume(subscription)) {
+          (subscription.stripeSubscriptionId || subscription.googlePlayPurchaseId || subscription.applePurchaseId) && subscriptionCanResume(subscription)) {
         throw new AgencyActionError('This member manages the team’s paid subscription. Cancel it and wait until it ends before removing their billing access.')
       }
       if (subscription?.managedById === member.stakeholderId) {

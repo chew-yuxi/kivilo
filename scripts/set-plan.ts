@@ -30,6 +30,9 @@ async function main(email: string, plan: 'pro' | 'free', seats: number) {
   const workspace = agent.teamId ? `team ${agent.teamId}` : email
 
   const existing = await db.subscription.findUnique({ where })
+  if (existing?.applePurchaseId) {
+    throw new Error(`${workspace} has an App Store purchase; change it in the App Store`)
+  }
   if (existing?.googlePlayPurchaseId) {
     throw new Error(`${workspace} has a Google Play purchase; change it in Google Play`)
   }

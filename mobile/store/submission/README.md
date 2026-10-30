@@ -1,7 +1,12 @@
 # Kivilo public submission request set
 
 These JSON bodies are prepared for app `one.kivilo.kivilo` under NotTooSweetLabs
-Pte. Ltd. Android build 25 is published; iOS build 24 is waiting for review.
+Pte. Ltd. iOS **1.0.0 (24) was rejected on 30 October 2026** under 2.1(a), 3.1.1,
+and 4.5.4. Its review submission is `628f3b8a-64c9-43fe-bc57-3305e6d25aa6`.
+All 21 Apple subscription prices are configured in draft. Signed replacement build
+26 is prepared locally (`apple-prepared-build.json`); its Shorebird release is not
+published and no replacement build or resubmission has been uploaded. Current
+remediation and gates: `plans/apple-billing.md`.
 The older submission records below are retained as history.
 
 Android build 13 replaces the native-upload

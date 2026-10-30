@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { db } from '@/lib/db'
 import { sendAccountDeletionComplete } from '@/lib/email'
 import { retirePlayBilling } from '@/lib/play-billing'
+import { retireAppleBilling } from '@/lib/apple-billing'
 import { syncSubscription } from '@/lib/billing'
 import { isLive } from '@/lib/plan'
 import { stripe } from '@/lib/stripe'
@@ -159,6 +160,9 @@ export async function fulfillAccountDeletion(requestId: string | undefined, poli
     // for the member who manages the plan, so nobody reaches the deleted payer's invoices.
     // Stripe is re-read first, so a rerun after a partial failure never cancels twice.
     await retirePlayBilling(person.id)
+    // Apple requires the subscriber to cancel in their Apple Account. Keep a
+    // tombstone so a renewed/restored receipt cannot recreate an erased account.
+    await retireAppleBilling(person.id)
     const managed = await db.subscription.findMany({ where: { managedById: person.id } })
     for (const { stripeSubscriptionId, status } of managed) {
       if (!stripeSubscriptionId || !isLive(status)) continue

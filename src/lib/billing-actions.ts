@@ -32,8 +32,8 @@ export async function startCheckout(formData?: FormData) {
     const target = await resolveBillingWorkspace(agent, agencyId, tx)
     await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${target.lockKey}, 0))`
     const workspace = await workspacePlan(agent, agencyId, tx)
-    if (workspace.subscription?.googlePlayPurchaseId && subscriptionCanResume(workspace.subscription)) {
-      throw new Error('Manage your existing subscription in Google Play before changing billing providers')
+    if ((workspace.subscription?.googlePlayPurchaseId || workspace.subscription?.applePurchaseId) && subscriptionCanResume(workspace.subscription)) {
+      throw new Error('Manage your existing app store subscription before changing billing providers')
     }
     if (workspace.plan === 'PRO') throw new Error('This workspace is already on Pro')
     if (!workspace.isManager) throw new Error('Only the member who manages billing can subscribe')
@@ -78,7 +78,7 @@ export async function openBillingPortal(formData?: FormData) {
   const agencyId = typeof selection === 'string' && selection !== 'personal' ? selection : null
   const workspace = await workspacePlan(agent, agencyId)
   const { subscription } = workspace
-  if (!workspace.isManager || subscription?.googlePlayPurchaseId || !subscription?.stripeCustomerId || subscription.managedById !== agent.id) {
+  if (!workspace.isManager || subscription?.googlePlayPurchaseId || subscription?.applePurchaseId || !subscription?.stripeCustomerId || subscription.managedById !== agent.id) {
     throw new Error('Not found')
   }
 

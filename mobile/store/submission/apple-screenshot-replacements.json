@@ -1,0 +1,47 @@
+{
+  "capturedAt": "2026-10-30",
+  "bundleId": "one.kivilo.kivilo",
+  "version": "1.0.0",
+  "simulatorBuild": 26,
+  "configuration": "Debug simulator, production API; final distribution build not yet made",
+  "content": "Dedicated Apple reviewer account; fictional unsigned, unshared tenancy; no party emails, real tenants, passwords, QA labels or DEMO ONLY labels in these screenshots",
+  "notifications": "Declined on both devices with native XCTest; inventory remains accessible",
+  "images": [
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/01-property.png",
+      "width": 2064,
+      "height": 2752,
+      "sha256": "d183059ff49af14ee74f7a90795bb804c05b7f5f36f866b5e188ab1f15ed2963"
+    },
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/02-check-in.png",
+      "width": 2064,
+      "height": 2752,
+      "sha256": "ee6f170a6e0709c4cc737c3c29b9609e07adddcf8e8b7d379281d9732d617186"
+    },
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/ipad/03-inventory.png",
+      "width": 2064,
+      "height": 2752,
+      "sha256": "29bfe2a38a82f15933b9d1f1618ab43094cc08e7f6935fd0216824e4ba7a6e95"
+    },
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/01-property.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "6e621230f1e0b1f7c095b68837bd5efbd2f96e7da62e93de2ea58c46238c9ca4"
+    },
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/02-check-in.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "df1644f33a005468ca8b244795fb4db6828c642a97494facb37b3120c58b4539"
+    },
+    {
+      "file": "mobile/build/store-screenshots/ios/rejection-20261030/iphone/03-inventory.png",
+      "width": 1206,
+      "height": 2622,
+      "sha256": "e48809a0737a819ee2a3e1b417408f2660930a96e20ea6934fff006f3b609c9d"
+    }
+  ]
+}

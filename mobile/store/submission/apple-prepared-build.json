@@ -1,0 +1,19 @@
+{
+  "builtAt": "2026-10-30",
+  "version": "1.0.0",
+  "buildNumber": "26",
+  "bundleId": "one.kivilo.kivilo",
+  "method": "shorebird release ios --dry-run",
+  "flutterVersion": "3.47.2",
+  "entryPoint": "lib/main.dart",
+  "sha256": "9278c2cdb3c261ee9dd5924f86f47cc144f05c2ff7b4a5a7e7f49fe329876ead",
+  "sizeBytes": 31484399,
+  "signatureVerified": true,
+  "getTaskAllow": false,
+  "apsEnvironment": "production",
+  "storeKitFrameworkIncluded": true,
+  "testFixturesIncluded": false,
+  "shorebirdReleasePublished": false,
+  "uploadedToApple": false,
+  "artifact": "mobile/build/release-artifacts/ios/build26-prepared/kivilo.ipa"
+}

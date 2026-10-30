@@ -61,6 +61,17 @@ export type AgencyActivity = $Result.DefaultSelection<Prisma.$AgencyActivityPayl
  */
 export type Subscription = $Result.DefaultSelection<Prisma.$SubscriptionPayload>
 /**
+ * Model AppleBillingAccount
+ * Opaque StoreKit appAccountToken, created only for a verified payer/workspace.
+ * Erasure keeps the binding as a non-transferable purchase tombstone.
+ */
+export type AppleBillingAccount = $Result.DefaultSelection<Prisma.$AppleBillingAccountPayload>
+/**
+ * Model ApplePurchase
+ * One renewal chain, always re-read from Apple's signed subscription status API.
+ */
+export type ApplePurchase = $Result.DefaultSelection<Prisma.$ApplePurchasePayload>
+/**
  * Model GooglePlayBillingAccount
  * Server-verified Google Play purchase history. Tokens never leave the server after
  * submission and are never logged. Owner erasure retains a non-transferable tombstone.
@@ -1058,6 +1069,26 @@ export class PrismaClient<
   get subscription(): Prisma.SubscriptionDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.appleBillingAccount`: Exposes CRUD operations for the **AppleBillingAccount** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AppleBillingAccounts
+    * const appleBillingAccounts = await prisma.appleBillingAccount.findMany()
+    * ```
+    */
+  get appleBillingAccount(): Prisma.AppleBillingAccountDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.applePurchase`: Exposes CRUD operations for the **ApplePurchase** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ApplePurchases
+    * const applePurchases = await prisma.applePurchase.findMany()
+    * ```
+    */
+  get applePurchase(): Prisma.ApplePurchaseDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.googlePlayBillingAccount`: Exposes CRUD operations for the **GooglePlayBillingAccount** model.
     * Example usage:
     * ```ts
@@ -1961,6 +1992,8 @@ export namespace Prisma {
     AgencyMembership: 'AgencyMembership',
     AgencyActivity: 'AgencyActivity',
     Subscription: 'Subscription',
+    AppleBillingAccount: 'AppleBillingAccount',
+    ApplePurchase: 'ApplePurchase',
     GooglePlayBillingAccount: 'GooglePlayBillingAccount',
     GooglePlayPurchase: 'GooglePlayPurchase',
     AgentBranding: 'AgentBranding',
@@ -2021,7 +2054,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "photoPoster" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
+      modelProps: "stakeholder" | "accountAcquisition" | "team" | "agency" | "agencyBranding" | "agencyMembership" | "agencyActivity" | "subscription" | "appleBillingAccount" | "applePurchase" | "googlePlayBillingAccount" | "googlePlayPurchase" | "agentBranding" | "property" | "propertyEvent" | "binItem" | "tenancy" | "tenancyCollaborator" | "inspection" | "inspectionAccessGrant" | "capture" | "photoPoster" | "room" | "inspectionItem" | "itemEvidence" | "propertyAsset" | "maintenanceCase" | "maintenanceEvent" | "maintenanceVisit" | "maintenanceEvidence" | "maintenanceVerification" | "responsibilityProposal" | "serviceProvider" | "supportingDocumentRequest" | "supportingDocumentFile" | "deviceInstallation" | "notification" | "notificationPushDelivery" | "finding" | "findingPhotoDraft" | "findingPhoto" | "signature" | "reportEmail" | "assessmentVersion" | "reportAddendum" | "reportAddendumEntry" | "reportAddendumPhoto" | "addendumAcknowledgement" | "accountDeletionRequest" | "accountDeletionStoragePurge" | "storagePurge" | "errorEvent" | "productEvent" | "issuedReportFile" | "assessmentResponse"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2614,6 +2647,154 @@ export namespace Prisma {
           count: {
             args: Prisma.SubscriptionCountArgs<ExtArgs>
             result: $Utils.Optional<SubscriptionCountAggregateOutputType> | number
+          }
+        }
+      }
+      AppleBillingAccount: {
+        payload: Prisma.$AppleBillingAccountPayload<ExtArgs>
+        fields: Prisma.AppleBillingAccountFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AppleBillingAccountFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AppleBillingAccountFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          findFirst: {
+            args: Prisma.AppleBillingAccountFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AppleBillingAccountFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          findMany: {
+            args: Prisma.AppleBillingAccountFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>[]
+          }
+          create: {
+            args: Prisma.AppleBillingAccountCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          createMany: {
+            args: Prisma.AppleBillingAccountCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AppleBillingAccountCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>[]
+          }
+          delete: {
+            args: Prisma.AppleBillingAccountDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          update: {
+            args: Prisma.AppleBillingAccountUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          deleteMany: {
+            args: Prisma.AppleBillingAccountDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AppleBillingAccountUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AppleBillingAccountUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>[]
+          }
+          upsert: {
+            args: Prisma.AppleBillingAccountUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AppleBillingAccountPayload>
+          }
+          aggregate: {
+            args: Prisma.AppleBillingAccountAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAppleBillingAccount>
+          }
+          groupBy: {
+            args: Prisma.AppleBillingAccountGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AppleBillingAccountGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AppleBillingAccountCountArgs<ExtArgs>
+            result: $Utils.Optional<AppleBillingAccountCountAggregateOutputType> | number
+          }
+        }
+      }
+      ApplePurchase: {
+        payload: Prisma.$ApplePurchasePayload<ExtArgs>
+        fields: Prisma.ApplePurchaseFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.ApplePurchaseFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ApplePurchaseFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          findFirst: {
+            args: Prisma.ApplePurchaseFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ApplePurchaseFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          findMany: {
+            args: Prisma.ApplePurchaseFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>[]
+          }
+          create: {
+            args: Prisma.ApplePurchaseCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          createMany: {
+            args: Prisma.ApplePurchaseCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.ApplePurchaseCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>[]
+          }
+          delete: {
+            args: Prisma.ApplePurchaseDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          update: {
+            args: Prisma.ApplePurchaseUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          deleteMany: {
+            args: Prisma.ApplePurchaseDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ApplePurchaseUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.ApplePurchaseUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>[]
+          }
+          upsert: {
+            args: Prisma.ApplePurchaseUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$ApplePurchasePayload>
+          }
+          aggregate: {
+            args: Prisma.ApplePurchaseAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApplePurchase>
+          }
+          groupBy: {
+            args: Prisma.ApplePurchaseGroupByArgs<ExtArgs>
+            result: $Utils.Optional<ApplePurchaseGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ApplePurchaseCountArgs<ExtArgs>
+            result: $Utils.Optional<ApplePurchaseCountAggregateOutputType> | number
           }
         }
       }
@@ -6078,6 +6259,8 @@ export namespace Prisma {
     agencyMembership?: AgencyMembershipOmit
     agencyActivity?: AgencyActivityOmit
     subscription?: SubscriptionOmit
+    appleBillingAccount?: AppleBillingAccountOmit
+    applePurchase?: ApplePurchaseOmit
     googlePlayBillingAccount?: GooglePlayBillingAccountOmit
     googlePlayPurchase?: GooglePlayPurchaseOmit
     agentBranding?: AgentBrandingOmit
@@ -6235,6 +6418,7 @@ export namespace Prisma {
     supportingDocumentFiles: number
     subscriptionsManaged: number
     googlePlayBillingAccounts: number
+    appleBillingAccounts: number
   }
 
   export type StakeholderCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6270,6 +6454,7 @@ export namespace Prisma {
     supportingDocumentFiles?: boolean | StakeholderCountOutputTypeCountSupportingDocumentFilesArgs
     subscriptionsManaged?: boolean | StakeholderCountOutputTypeCountSubscriptionsManagedArgs
     googlePlayBillingAccounts?: boolean | StakeholderCountOutputTypeCountGooglePlayBillingAccountsArgs
+    appleBillingAccounts?: boolean | StakeholderCountOutputTypeCountAppleBillingAccountsArgs
   }
 
   // Custom InputTypes
@@ -6507,6 +6692,13 @@ export namespace Prisma {
     where?: GooglePlayBillingAccountWhereInput
   }
 
+  /**
+   * StakeholderCountOutputType without action
+   */
+  export type StakeholderCountOutputTypeCountAppleBillingAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AppleBillingAccountWhereInput
+  }
+
 
   /**
    * Count Type TeamCountOutputType
@@ -6625,6 +6817,37 @@ export namespace Prisma {
    */
   export type AgencyMembershipCountOutputTypeCountNotificationsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: NotificationWhereInput
+  }
+
+
+  /**
+   * Count Type AppleBillingAccountCountOutputType
+   */
+
+  export type AppleBillingAccountCountOutputType = {
+    purchases: number
+  }
+
+  export type AppleBillingAccountCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    purchases?: boolean | AppleBillingAccountCountOutputTypeCountPurchasesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * AppleBillingAccountCountOutputType without action
+   */
+  export type AppleBillingAccountCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccountCountOutputType
+     */
+    select?: AppleBillingAccountCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * AppleBillingAccountCountOutputType without action
+   */
+  export type AppleBillingAccountCountOutputTypeCountPurchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApplePurchaseWhereInput
   }
 
 
@@ -7784,6 +8007,7 @@ export namespace Prisma {
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
+    appleBillingAccounts?: boolean | Stakeholder$appleBillingAccountsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["stakeholder"]>
 
@@ -7866,6 +8090,7 @@ export namespace Prisma {
     subscription?: boolean | Stakeholder$subscriptionArgs<ExtArgs>
     subscriptionsManaged?: boolean | Stakeholder$subscriptionsManagedArgs<ExtArgs>
     googlePlayBillingAccounts?: boolean | Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>
+    appleBillingAccounts?: boolean | Stakeholder$appleBillingAccountsArgs<ExtArgs>
     _count?: boolean | StakeholderCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StakeholderIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7917,6 +8142,7 @@ export namespace Prisma {
       subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
       subscriptionsManaged: Prisma.$SubscriptionPayload<ExtArgs>[]
       googlePlayBillingAccounts: Prisma.$GooglePlayBillingAccountPayload<ExtArgs>[]
+      appleBillingAccounts: Prisma.$AppleBillingAccountPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8371,6 +8597,7 @@ export namespace Prisma {
     subscription<T extends Stakeholder$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptionsManaged<T extends Stakeholder$subscriptionsManagedArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$subscriptionsManagedArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     googlePlayBillingAccounts<T extends Stakeholder$googlePlayBillingAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$googlePlayBillingAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GooglePlayBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    appleBillingAccounts<T extends Stakeholder$appleBillingAccountsArgs<ExtArgs> = {}>(args?: Subset<T, Stakeholder$appleBillingAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9652,6 +9879,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: GooglePlayBillingAccountScalarFieldEnum | GooglePlayBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * Stakeholder.appleBillingAccounts
+   */
+  export type Stakeholder$appleBillingAccountsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    where?: AppleBillingAccountWhereInput
+    orderBy?: AppleBillingAccountOrderByWithRelationInput | AppleBillingAccountOrderByWithRelationInput[]
+    cursor?: AppleBillingAccountWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AppleBillingAccountScalarFieldEnum | AppleBillingAccountScalarFieldEnum[]
   }
 
   /**
@@ -16551,6 +16802,7 @@ export namespace Prisma {
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
     googlePlayPurchaseId: string | null
+    applePurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean | null
     managedById: string | null
@@ -16569,6 +16821,7 @@ export namespace Prisma {
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
     googlePlayPurchaseId: string | null
+    applePurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean | null
     managedById: string | null
@@ -16587,6 +16840,7 @@ export namespace Prisma {
     stripeCustomerId: number
     stripeSubscriptionId: number
     googlePlayPurchaseId: number
+    applePurchaseId: number
     currentPeriodEnd: number
     cancelAtPeriodEnd: number
     managedById: number
@@ -16615,6 +16869,7 @@ export namespace Prisma {
     stripeCustomerId?: true
     stripeSubscriptionId?: true
     googlePlayPurchaseId?: true
+    applePurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16633,6 +16888,7 @@ export namespace Prisma {
     stripeCustomerId?: true
     stripeSubscriptionId?: true
     googlePlayPurchaseId?: true
+    applePurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16651,6 +16907,7 @@ export namespace Prisma {
     stripeCustomerId?: true
     stripeSubscriptionId?: true
     googlePlayPurchaseId?: true
+    applePurchaseId?: true
     currentPeriodEnd?: true
     cancelAtPeriodEnd?: true
     managedById?: true
@@ -16756,6 +17013,7 @@ export namespace Prisma {
     stripeCustomerId: string | null
     stripeSubscriptionId: string | null
     googlePlayPurchaseId: string | null
+    applePurchaseId: string | null
     currentPeriodEnd: Date | null
     cancelAtPeriodEnd: boolean
     managedById: string | null
@@ -16793,6 +17051,7 @@ export namespace Prisma {
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
     googlePlayPurchaseId?: boolean
+    applePurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
@@ -16803,6 +17062,7 @@ export namespace Prisma {
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -16816,6 +17076,7 @@ export namespace Prisma {
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
     googlePlayPurchaseId?: boolean
+    applePurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
@@ -16826,6 +17087,7 @@ export namespace Prisma {
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -16839,6 +17101,7 @@ export namespace Prisma {
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
     googlePlayPurchaseId?: boolean
+    applePurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
@@ -16849,6 +17112,7 @@ export namespace Prisma {
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }, ExtArgs["result"]["subscription"]>
 
   export type SubscriptionSelectScalar = {
@@ -16862,6 +17126,7 @@ export namespace Prisma {
     stripeCustomerId?: boolean
     stripeSubscriptionId?: boolean
     googlePlayPurchaseId?: boolean
+    applePurchaseId?: boolean
     currentPeriodEnd?: boolean
     cancelAtPeriodEnd?: boolean
     managedById?: boolean
@@ -16869,13 +17134,14 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agencyId" | "teamId" | "stakeholderId" | "plan" | "seats" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "managedById" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+  export type SubscriptionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "agencyId" | "teamId" | "stakeholderId" | "plan" | "seats" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId" | "applePurchaseId" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "managedById" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
   export type SubscriptionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
     agency?: boolean | Subscription$agencyArgs<ExtArgs>
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }
   export type SubscriptionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
@@ -16883,6 +17149,7 @@ export namespace Prisma {
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }
   export type SubscriptionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Subscription$teamArgs<ExtArgs>
@@ -16890,6 +17157,7 @@ export namespace Prisma {
     stakeholder?: boolean | Subscription$stakeholderArgs<ExtArgs>
     managedBy?: boolean | Subscription$managedByArgs<ExtArgs>
     googlePlayPurchase?: boolean | Subscription$googlePlayPurchaseArgs<ExtArgs>
+    applePurchase?: boolean | Subscription$applePurchaseArgs<ExtArgs>
   }
 
   export type $SubscriptionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -16900,6 +17168,7 @@ export namespace Prisma {
       stakeholder: Prisma.$StakeholderPayload<ExtArgs> | null
       managedBy: Prisma.$StakeholderPayload<ExtArgs> | null
       googlePlayPurchase: Prisma.$GooglePlayPurchasePayload<ExtArgs> | null
+      applePurchase: Prisma.$ApplePurchasePayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -16916,6 +17185,7 @@ export namespace Prisma {
       stripeCustomerId: string | null
       stripeSubscriptionId: string | null
       googlePlayPurchaseId: string | null
+      applePurchaseId: string | null
       currentPeriodEnd: Date | null
       cancelAtPeriodEnd: boolean
       /**
@@ -17324,6 +17594,7 @@ export namespace Prisma {
     stakeholder<T extends Subscription$stakeholderArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$stakeholderArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     managedBy<T extends Subscription$managedByArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$managedByArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     googlePlayPurchase<T extends Subscription$googlePlayPurchaseArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$googlePlayPurchaseArgs<ExtArgs>>): Prisma__GooglePlayPurchaseClient<$Result.GetResult<Prisma.$GooglePlayPurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    applePurchase<T extends Subscription$applePurchaseArgs<ExtArgs> = {}>(args?: Subset<T, Subscription$applePurchaseArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -17363,6 +17634,7 @@ export namespace Prisma {
     readonly stripeCustomerId: FieldRef<"Subscription", 'String'>
     readonly stripeSubscriptionId: FieldRef<"Subscription", 'String'>
     readonly googlePlayPurchaseId: FieldRef<"Subscription", 'String'>
+    readonly applePurchaseId: FieldRef<"Subscription", 'String'>
     readonly currentPeriodEnd: FieldRef<"Subscription", 'DateTime'>
     readonly cancelAtPeriodEnd: FieldRef<"Subscription", 'Boolean'>
     readonly managedById: FieldRef<"Subscription", 'String'>
@@ -17864,6 +18136,25 @@ export namespace Prisma {
   }
 
   /**
+   * Subscription.applePurchase
+   */
+  export type Subscription$applePurchaseArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    where?: ApplePurchaseWhereInput
+  }
+
+  /**
    * Subscription without action
    */
   export type SubscriptionDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -17879,6 +18170,2308 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: SubscriptionInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model AppleBillingAccount
+   */
+
+  export type AggregateAppleBillingAccount = {
+    _count: AppleBillingAccountCountAggregateOutputType | null
+    _min: AppleBillingAccountMinAggregateOutputType | null
+    _max: AppleBillingAccountMaxAggregateOutputType | null
+  }
+
+  export type AppleBillingAccountMinAggregateOutputType = {
+    id: string | null
+    workspaceKey: string | null
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AppleBillingAccountMaxAggregateOutputType = {
+    id: string | null
+    workspaceKey: string | null
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date | null
+  }
+
+  export type AppleBillingAccountCountAggregateOutputType = {
+    id: number
+    workspaceKey: number
+    stakeholderId: number
+    retirementStartedAt: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AppleBillingAccountMinAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+  }
+
+  export type AppleBillingAccountMaxAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+  }
+
+  export type AppleBillingAccountCountAggregateInputType = {
+    id?: true
+    workspaceKey?: true
+    stakeholderId?: true
+    retirementStartedAt?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AppleBillingAccountAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AppleBillingAccount to aggregate.
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AppleBillingAccounts to fetch.
+     */
+    orderBy?: AppleBillingAccountOrderByWithRelationInput | AppleBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AppleBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AppleBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AppleBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AppleBillingAccounts
+    **/
+    _count?: true | AppleBillingAccountCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AppleBillingAccountMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AppleBillingAccountMaxAggregateInputType
+  }
+
+  export type GetAppleBillingAccountAggregateType<T extends AppleBillingAccountAggregateArgs> = {
+        [P in keyof T & keyof AggregateAppleBillingAccount]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAppleBillingAccount[P]>
+      : GetScalarType<T[P], AggregateAppleBillingAccount[P]>
+  }
+
+
+
+
+  export type AppleBillingAccountGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AppleBillingAccountWhereInput
+    orderBy?: AppleBillingAccountOrderByWithAggregationInput | AppleBillingAccountOrderByWithAggregationInput[]
+    by: AppleBillingAccountScalarFieldEnum[] | AppleBillingAccountScalarFieldEnum
+    having?: AppleBillingAccountScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AppleBillingAccountCountAggregateInputType | true
+    _min?: AppleBillingAccountMinAggregateInputType
+    _max?: AppleBillingAccountMaxAggregateInputType
+  }
+
+  export type AppleBillingAccountGroupByOutputType = {
+    id: string
+    workspaceKey: string
+    stakeholderId: string | null
+    retirementStartedAt: Date | null
+    createdAt: Date
+    _count: AppleBillingAccountCountAggregateOutputType | null
+    _min: AppleBillingAccountMinAggregateOutputType | null
+    _max: AppleBillingAccountMaxAggregateOutputType | null
+  }
+
+  type GetAppleBillingAccountGroupByPayload<T extends AppleBillingAccountGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AppleBillingAccountGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AppleBillingAccountGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AppleBillingAccountGroupByOutputType[P]>
+            : GetScalarType<T[P], AppleBillingAccountGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AppleBillingAccountSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+    purchases?: boolean | AppleBillingAccount$purchasesArgs<ExtArgs>
+    _count?: boolean | AppleBillingAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["appleBillingAccount"]>
+
+  export type AppleBillingAccountSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["appleBillingAccount"]>
+
+  export type AppleBillingAccountSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+  }, ExtArgs["result"]["appleBillingAccount"]>
+
+  export type AppleBillingAccountSelectScalar = {
+    id?: boolean
+    workspaceKey?: boolean
+    stakeholderId?: boolean
+    retirementStartedAt?: boolean
+    createdAt?: boolean
+  }
+
+  export type AppleBillingAccountOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workspaceKey" | "stakeholderId" | "retirementStartedAt" | "createdAt", ExtArgs["result"]["appleBillingAccount"]>
+  export type AppleBillingAccountInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+    purchases?: boolean | AppleBillingAccount$purchasesArgs<ExtArgs>
+    _count?: boolean | AppleBillingAccountCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type AppleBillingAccountIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+  }
+  export type AppleBillingAccountIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    stakeholder?: boolean | AppleBillingAccount$stakeholderArgs<ExtArgs>
+  }
+
+  export type $AppleBillingAccountPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "AppleBillingAccount"
+    objects: {
+      stakeholder: Prisma.$StakeholderPayload<ExtArgs> | null
+      purchases: Prisma.$ApplePurchasePayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      workspaceKey: string
+      stakeholderId: string | null
+      retirementStartedAt: Date | null
+      createdAt: Date
+    }, ExtArgs["result"]["appleBillingAccount"]>
+    composites: {}
+  }
+
+  type AppleBillingAccountGetPayload<S extends boolean | null | undefined | AppleBillingAccountDefaultArgs> = $Result.GetResult<Prisma.$AppleBillingAccountPayload, S>
+
+  type AppleBillingAccountCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AppleBillingAccountFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AppleBillingAccountCountAggregateInputType | true
+    }
+
+  export interface AppleBillingAccountDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AppleBillingAccount'], meta: { name: 'AppleBillingAccount' } }
+    /**
+     * Find zero or one AppleBillingAccount that matches the filter.
+     * @param {AppleBillingAccountFindUniqueArgs} args - Arguments to find a AppleBillingAccount
+     * @example
+     * // Get one AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AppleBillingAccountFindUniqueArgs>(args: SelectSubset<T, AppleBillingAccountFindUniqueArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one AppleBillingAccount that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AppleBillingAccountFindUniqueOrThrowArgs} args - Arguments to find a AppleBillingAccount
+     * @example
+     * // Get one AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AppleBillingAccountFindUniqueOrThrowArgs>(args: SelectSubset<T, AppleBillingAccountFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AppleBillingAccount that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountFindFirstArgs} args - Arguments to find a AppleBillingAccount
+     * @example
+     * // Get one AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AppleBillingAccountFindFirstArgs>(args?: SelectSubset<T, AppleBillingAccountFindFirstArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first AppleBillingAccount that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountFindFirstOrThrowArgs} args - Arguments to find a AppleBillingAccount
+     * @example
+     * // Get one AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AppleBillingAccountFindFirstOrThrowArgs>(args?: SelectSubset<T, AppleBillingAccountFindFirstOrThrowArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more AppleBillingAccounts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AppleBillingAccounts
+     * const appleBillingAccounts = await prisma.appleBillingAccount.findMany()
+     * 
+     * // Get first 10 AppleBillingAccounts
+     * const appleBillingAccounts = await prisma.appleBillingAccount.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const appleBillingAccountWithIdOnly = await prisma.appleBillingAccount.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AppleBillingAccountFindManyArgs>(args?: SelectSubset<T, AppleBillingAccountFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a AppleBillingAccount.
+     * @param {AppleBillingAccountCreateArgs} args - Arguments to create a AppleBillingAccount.
+     * @example
+     * // Create one AppleBillingAccount
+     * const AppleBillingAccount = await prisma.appleBillingAccount.create({
+     *   data: {
+     *     // ... data to create a AppleBillingAccount
+     *   }
+     * })
+     * 
+     */
+    create<T extends AppleBillingAccountCreateArgs>(args: SelectSubset<T, AppleBillingAccountCreateArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many AppleBillingAccounts.
+     * @param {AppleBillingAccountCreateManyArgs} args - Arguments to create many AppleBillingAccounts.
+     * @example
+     * // Create many AppleBillingAccounts
+     * const appleBillingAccount = await prisma.appleBillingAccount.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AppleBillingAccountCreateManyArgs>(args?: SelectSubset<T, AppleBillingAccountCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many AppleBillingAccounts and returns the data saved in the database.
+     * @param {AppleBillingAccountCreateManyAndReturnArgs} args - Arguments to create many AppleBillingAccounts.
+     * @example
+     * // Create many AppleBillingAccounts
+     * const appleBillingAccount = await prisma.appleBillingAccount.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many AppleBillingAccounts and only return the `id`
+     * const appleBillingAccountWithIdOnly = await prisma.appleBillingAccount.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AppleBillingAccountCreateManyAndReturnArgs>(args?: SelectSubset<T, AppleBillingAccountCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a AppleBillingAccount.
+     * @param {AppleBillingAccountDeleteArgs} args - Arguments to delete one AppleBillingAccount.
+     * @example
+     * // Delete one AppleBillingAccount
+     * const AppleBillingAccount = await prisma.appleBillingAccount.delete({
+     *   where: {
+     *     // ... filter to delete one AppleBillingAccount
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AppleBillingAccountDeleteArgs>(args: SelectSubset<T, AppleBillingAccountDeleteArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one AppleBillingAccount.
+     * @param {AppleBillingAccountUpdateArgs} args - Arguments to update one AppleBillingAccount.
+     * @example
+     * // Update one AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AppleBillingAccountUpdateArgs>(args: SelectSubset<T, AppleBillingAccountUpdateArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more AppleBillingAccounts.
+     * @param {AppleBillingAccountDeleteManyArgs} args - Arguments to filter AppleBillingAccounts to delete.
+     * @example
+     * // Delete a few AppleBillingAccounts
+     * const { count } = await prisma.appleBillingAccount.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AppleBillingAccountDeleteManyArgs>(args?: SelectSubset<T, AppleBillingAccountDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AppleBillingAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AppleBillingAccounts
+     * const appleBillingAccount = await prisma.appleBillingAccount.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AppleBillingAccountUpdateManyArgs>(args: SelectSubset<T, AppleBillingAccountUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AppleBillingAccounts and returns the data updated in the database.
+     * @param {AppleBillingAccountUpdateManyAndReturnArgs} args - Arguments to update many AppleBillingAccounts.
+     * @example
+     * // Update many AppleBillingAccounts
+     * const appleBillingAccount = await prisma.appleBillingAccount.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more AppleBillingAccounts and only return the `id`
+     * const appleBillingAccountWithIdOnly = await prisma.appleBillingAccount.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AppleBillingAccountUpdateManyAndReturnArgs>(args: SelectSubset<T, AppleBillingAccountUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one AppleBillingAccount.
+     * @param {AppleBillingAccountUpsertArgs} args - Arguments to update or create a AppleBillingAccount.
+     * @example
+     * // Update or create a AppleBillingAccount
+     * const appleBillingAccount = await prisma.appleBillingAccount.upsert({
+     *   create: {
+     *     // ... data to create a AppleBillingAccount
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AppleBillingAccount we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AppleBillingAccountUpsertArgs>(args: SelectSubset<T, AppleBillingAccountUpsertArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of AppleBillingAccounts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountCountArgs} args - Arguments to filter AppleBillingAccounts to count.
+     * @example
+     * // Count the number of AppleBillingAccounts
+     * const count = await prisma.appleBillingAccount.count({
+     *   where: {
+     *     // ... the filter for the AppleBillingAccounts we want to count
+     *   }
+     * })
+    **/
+    count<T extends AppleBillingAccountCountArgs>(
+      args?: Subset<T, AppleBillingAccountCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AppleBillingAccountCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AppleBillingAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AppleBillingAccountAggregateArgs>(args: Subset<T, AppleBillingAccountAggregateArgs>): Prisma.PrismaPromise<GetAppleBillingAccountAggregateType<T>>
+
+    /**
+     * Group by AppleBillingAccount.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AppleBillingAccountGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AppleBillingAccountGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AppleBillingAccountGroupByArgs['orderBy'] }
+        : { orderBy?: AppleBillingAccountGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AppleBillingAccountGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAppleBillingAccountGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the AppleBillingAccount model
+   */
+  readonly fields: AppleBillingAccountFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AppleBillingAccount.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AppleBillingAccountClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    stakeholder<T extends AppleBillingAccount$stakeholderArgs<ExtArgs> = {}>(args?: Subset<T, AppleBillingAccount$stakeholderArgs<ExtArgs>>): Prisma__StakeholderClient<$Result.GetResult<Prisma.$StakeholderPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    purchases<T extends AppleBillingAccount$purchasesArgs<ExtArgs> = {}>(args?: Subset<T, AppleBillingAccount$purchasesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the AppleBillingAccount model
+   */
+  interface AppleBillingAccountFieldRefs {
+    readonly id: FieldRef<"AppleBillingAccount", 'String'>
+    readonly workspaceKey: FieldRef<"AppleBillingAccount", 'String'>
+    readonly stakeholderId: FieldRef<"AppleBillingAccount", 'String'>
+    readonly retirementStartedAt: FieldRef<"AppleBillingAccount", 'DateTime'>
+    readonly createdAt: FieldRef<"AppleBillingAccount", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * AppleBillingAccount findUnique
+   */
+  export type AppleBillingAccountFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which AppleBillingAccount to fetch.
+     */
+    where: AppleBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * AppleBillingAccount findUniqueOrThrow
+   */
+  export type AppleBillingAccountFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which AppleBillingAccount to fetch.
+     */
+    where: AppleBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * AppleBillingAccount findFirst
+   */
+  export type AppleBillingAccountFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which AppleBillingAccount to fetch.
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AppleBillingAccounts to fetch.
+     */
+    orderBy?: AppleBillingAccountOrderByWithRelationInput | AppleBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AppleBillingAccounts.
+     */
+    cursor?: AppleBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AppleBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AppleBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AppleBillingAccounts.
+     */
+    distinct?: AppleBillingAccountScalarFieldEnum | AppleBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * AppleBillingAccount findFirstOrThrow
+   */
+  export type AppleBillingAccountFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which AppleBillingAccount to fetch.
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AppleBillingAccounts to fetch.
+     */
+    orderBy?: AppleBillingAccountOrderByWithRelationInput | AppleBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AppleBillingAccounts.
+     */
+    cursor?: AppleBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AppleBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AppleBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AppleBillingAccounts.
+     */
+    distinct?: AppleBillingAccountScalarFieldEnum | AppleBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * AppleBillingAccount findMany
+   */
+  export type AppleBillingAccountFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter, which AppleBillingAccounts to fetch.
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AppleBillingAccounts to fetch.
+     */
+    orderBy?: AppleBillingAccountOrderByWithRelationInput | AppleBillingAccountOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AppleBillingAccounts.
+     */
+    cursor?: AppleBillingAccountWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AppleBillingAccounts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AppleBillingAccounts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AppleBillingAccounts.
+     */
+    distinct?: AppleBillingAccountScalarFieldEnum | AppleBillingAccountScalarFieldEnum[]
+  }
+
+  /**
+   * AppleBillingAccount create
+   */
+  export type AppleBillingAccountCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AppleBillingAccount.
+     */
+    data: XOR<AppleBillingAccountCreateInput, AppleBillingAccountUncheckedCreateInput>
+  }
+
+  /**
+   * AppleBillingAccount createMany
+   */
+  export type AppleBillingAccountCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AppleBillingAccounts.
+     */
+    data: AppleBillingAccountCreateManyInput | AppleBillingAccountCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * AppleBillingAccount createManyAndReturn
+   */
+  export type AppleBillingAccountCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * The data used to create many AppleBillingAccounts.
+     */
+    data: AppleBillingAccountCreateManyInput | AppleBillingAccountCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AppleBillingAccount update
+   */
+  export type AppleBillingAccountUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AppleBillingAccount.
+     */
+    data: XOR<AppleBillingAccountUpdateInput, AppleBillingAccountUncheckedUpdateInput>
+    /**
+     * Choose, which AppleBillingAccount to update.
+     */
+    where: AppleBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * AppleBillingAccount updateMany
+   */
+  export type AppleBillingAccountUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AppleBillingAccounts.
+     */
+    data: XOR<AppleBillingAccountUpdateManyMutationInput, AppleBillingAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which AppleBillingAccounts to update
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * Limit how many AppleBillingAccounts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * AppleBillingAccount updateManyAndReturn
+   */
+  export type AppleBillingAccountUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * The data used to update AppleBillingAccounts.
+     */
+    data: XOR<AppleBillingAccountUpdateManyMutationInput, AppleBillingAccountUncheckedUpdateManyInput>
+    /**
+     * Filter which AppleBillingAccounts to update
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * Limit how many AppleBillingAccounts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * AppleBillingAccount upsert
+   */
+  export type AppleBillingAccountUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AppleBillingAccount to update in case it exists.
+     */
+    where: AppleBillingAccountWhereUniqueInput
+    /**
+     * In case the AppleBillingAccount found by the `where` argument doesn't exist, create a new AppleBillingAccount with this data.
+     */
+    create: XOR<AppleBillingAccountCreateInput, AppleBillingAccountUncheckedCreateInput>
+    /**
+     * In case the AppleBillingAccount was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AppleBillingAccountUpdateInput, AppleBillingAccountUncheckedUpdateInput>
+  }
+
+  /**
+   * AppleBillingAccount delete
+   */
+  export type AppleBillingAccountDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+    /**
+     * Filter which AppleBillingAccount to delete.
+     */
+    where: AppleBillingAccountWhereUniqueInput
+  }
+
+  /**
+   * AppleBillingAccount deleteMany
+   */
+  export type AppleBillingAccountDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AppleBillingAccounts to delete
+     */
+    where?: AppleBillingAccountWhereInput
+    /**
+     * Limit how many AppleBillingAccounts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * AppleBillingAccount.stakeholder
+   */
+  export type AppleBillingAccount$stakeholderArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Stakeholder
+     */
+    select?: StakeholderSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Stakeholder
+     */
+    omit?: StakeholderOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StakeholderInclude<ExtArgs> | null
+    where?: StakeholderWhereInput
+  }
+
+  /**
+   * AppleBillingAccount.purchases
+   */
+  export type AppleBillingAccount$purchasesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    where?: ApplePurchaseWhereInput
+    orderBy?: ApplePurchaseOrderByWithRelationInput | ApplePurchaseOrderByWithRelationInput[]
+    cursor?: ApplePurchaseWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ApplePurchaseScalarFieldEnum | ApplePurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * AppleBillingAccount without action
+   */
+  export type AppleBillingAccountDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AppleBillingAccount
+     */
+    select?: AppleBillingAccountSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the AppleBillingAccount
+     */
+    omit?: AppleBillingAccountOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AppleBillingAccountInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model ApplePurchase
+   */
+
+  export type AggregateApplePurchase = {
+    _count: ApplePurchaseCountAggregateOutputType | null
+    _min: ApplePurchaseMinAggregateOutputType | null
+    _max: ApplePurchaseMaxAggregateOutputType | null
+  }
+
+  export type ApplePurchaseMinAggregateOutputType = {
+    id: string | null
+    originalTransactionId: string | null
+    transactionId: string | null
+    accountId: string | null
+    productId: string | null
+    environment: string | null
+    state: string | null
+    expiresAt: Date | null
+    autoRenewing: boolean | null
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ApplePurchaseMaxAggregateOutputType = {
+    id: string | null
+    originalTransactionId: string | null
+    transactionId: string | null
+    accountId: string | null
+    productId: string | null
+    environment: string | null
+    state: string | null
+    expiresAt: Date | null
+    autoRenewing: boolean | null
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ApplePurchaseCountAggregateOutputType = {
+    id: number
+    originalTransactionId: number
+    transactionId: number
+    accountId: number
+    productId: number
+    environment: number
+    state: number
+    expiresAt: number
+    autoRenewing: number
+    grantedAt: number
+    rejectedAt: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ApplePurchaseMinAggregateInputType = {
+    id?: true
+    originalTransactionId?: true
+    transactionId?: true
+    accountId?: true
+    productId?: true
+    environment?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    grantedAt?: true
+    rejectedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ApplePurchaseMaxAggregateInputType = {
+    id?: true
+    originalTransactionId?: true
+    transactionId?: true
+    accountId?: true
+    productId?: true
+    environment?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    grantedAt?: true
+    rejectedAt?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ApplePurchaseCountAggregateInputType = {
+    id?: true
+    originalTransactionId?: true
+    transactionId?: true
+    accountId?: true
+    productId?: true
+    environment?: true
+    state?: true
+    expiresAt?: true
+    autoRenewing?: true
+    grantedAt?: true
+    rejectedAt?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ApplePurchaseAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApplePurchase to aggregate.
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplePurchases to fetch.
+     */
+    orderBy?: ApplePurchaseOrderByWithRelationInput | ApplePurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ApplePurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplePurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplePurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ApplePurchases
+    **/
+    _count?: true | ApplePurchaseCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ApplePurchaseMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ApplePurchaseMaxAggregateInputType
+  }
+
+  export type GetApplePurchaseAggregateType<T extends ApplePurchaseAggregateArgs> = {
+        [P in keyof T & keyof AggregateApplePurchase]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApplePurchase[P]>
+      : GetScalarType<T[P], AggregateApplePurchase[P]>
+  }
+
+
+
+
+  export type ApplePurchaseGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: ApplePurchaseWhereInput
+    orderBy?: ApplePurchaseOrderByWithAggregationInput | ApplePurchaseOrderByWithAggregationInput[]
+    by: ApplePurchaseScalarFieldEnum[] | ApplePurchaseScalarFieldEnum
+    having?: ApplePurchaseScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ApplePurchaseCountAggregateInputType | true
+    _min?: ApplePurchaseMinAggregateInputType
+    _max?: ApplePurchaseMaxAggregateInputType
+  }
+
+  export type ApplePurchaseGroupByOutputType = {
+    id: string
+    originalTransactionId: string
+    transactionId: string
+    accountId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date
+    autoRenewing: boolean
+    grantedAt: Date | null
+    rejectedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ApplePurchaseCountAggregateOutputType | null
+    _min: ApplePurchaseMinAggregateOutputType | null
+    _max: ApplePurchaseMaxAggregateOutputType | null
+  }
+
+  type GetApplePurchaseGroupByPayload<T extends ApplePurchaseGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<ApplePurchaseGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ApplePurchaseGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ApplePurchaseGroupByOutputType[P]>
+            : GetScalarType<T[P], ApplePurchaseGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ApplePurchaseSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalTransactionId?: boolean
+    transactionId?: boolean
+    accountId?: boolean
+    productId?: boolean
+    environment?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+    subscription?: boolean | ApplePurchase$subscriptionArgs<ExtArgs>
+  }, ExtArgs["result"]["applePurchase"]>
+
+  export type ApplePurchaseSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalTransactionId?: boolean
+    transactionId?: boolean
+    accountId?: boolean
+    productId?: boolean
+    environment?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["applePurchase"]>
+
+  export type ApplePurchaseSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    originalTransactionId?: boolean
+    transactionId?: boolean
+    accountId?: boolean
+    productId?: boolean
+    environment?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["applePurchase"]>
+
+  export type ApplePurchaseSelectScalar = {
+    id?: boolean
+    originalTransactionId?: boolean
+    transactionId?: boolean
+    accountId?: boolean
+    productId?: boolean
+    environment?: boolean
+    state?: boolean
+    expiresAt?: boolean
+    autoRenewing?: boolean
+    grantedAt?: boolean
+    rejectedAt?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ApplePurchaseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "originalTransactionId" | "transactionId" | "accountId" | "productId" | "environment" | "state" | "expiresAt" | "autoRenewing" | "grantedAt" | "rejectedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["applePurchase"]>
+  export type ApplePurchaseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+    subscription?: boolean | ApplePurchase$subscriptionArgs<ExtArgs>
+  }
+  export type ApplePurchaseIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+  }
+  export type ApplePurchaseIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    account?: boolean | AppleBillingAccountDefaultArgs<ExtArgs>
+  }
+
+  export type $ApplePurchasePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "ApplePurchase"
+    objects: {
+      account: Prisma.$AppleBillingAccountPayload<ExtArgs>
+      subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      originalTransactionId: string
+      transactionId: string
+      accountId: string
+      productId: string
+      environment: string
+      state: string
+      expiresAt: Date
+      autoRenewing: boolean
+      grantedAt: Date | null
+      rejectedAt: Date | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["applePurchase"]>
+    composites: {}
+  }
+
+  type ApplePurchaseGetPayload<S extends boolean | null | undefined | ApplePurchaseDefaultArgs> = $Result.GetResult<Prisma.$ApplePurchasePayload, S>
+
+  type ApplePurchaseCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<ApplePurchaseFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: ApplePurchaseCountAggregateInputType | true
+    }
+
+  export interface ApplePurchaseDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ApplePurchase'], meta: { name: 'ApplePurchase' } }
+    /**
+     * Find zero or one ApplePurchase that matches the filter.
+     * @param {ApplePurchaseFindUniqueArgs} args - Arguments to find a ApplePurchase
+     * @example
+     * // Get one ApplePurchase
+     * const applePurchase = await prisma.applePurchase.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends ApplePurchaseFindUniqueArgs>(args: SelectSubset<T, ApplePurchaseFindUniqueArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one ApplePurchase that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {ApplePurchaseFindUniqueOrThrowArgs} args - Arguments to find a ApplePurchase
+     * @example
+     * // Get one ApplePurchase
+     * const applePurchase = await prisma.applePurchase.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends ApplePurchaseFindUniqueOrThrowArgs>(args: SelectSubset<T, ApplePurchaseFindUniqueOrThrowArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApplePurchase that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseFindFirstArgs} args - Arguments to find a ApplePurchase
+     * @example
+     * // Get one ApplePurchase
+     * const applePurchase = await prisma.applePurchase.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends ApplePurchaseFindFirstArgs>(args?: SelectSubset<T, ApplePurchaseFindFirstArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first ApplePurchase that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseFindFirstOrThrowArgs} args - Arguments to find a ApplePurchase
+     * @example
+     * // Get one ApplePurchase
+     * const applePurchase = await prisma.applePurchase.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends ApplePurchaseFindFirstOrThrowArgs>(args?: SelectSubset<T, ApplePurchaseFindFirstOrThrowArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more ApplePurchases that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ApplePurchases
+     * const applePurchases = await prisma.applePurchase.findMany()
+     * 
+     * // Get first 10 ApplePurchases
+     * const applePurchases = await prisma.applePurchase.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const applePurchaseWithIdOnly = await prisma.applePurchase.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends ApplePurchaseFindManyArgs>(args?: SelectSubset<T, ApplePurchaseFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a ApplePurchase.
+     * @param {ApplePurchaseCreateArgs} args - Arguments to create a ApplePurchase.
+     * @example
+     * // Create one ApplePurchase
+     * const ApplePurchase = await prisma.applePurchase.create({
+     *   data: {
+     *     // ... data to create a ApplePurchase
+     *   }
+     * })
+     * 
+     */
+    create<T extends ApplePurchaseCreateArgs>(args: SelectSubset<T, ApplePurchaseCreateArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many ApplePurchases.
+     * @param {ApplePurchaseCreateManyArgs} args - Arguments to create many ApplePurchases.
+     * @example
+     * // Create many ApplePurchases
+     * const applePurchase = await prisma.applePurchase.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends ApplePurchaseCreateManyArgs>(args?: SelectSubset<T, ApplePurchaseCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many ApplePurchases and returns the data saved in the database.
+     * @param {ApplePurchaseCreateManyAndReturnArgs} args - Arguments to create many ApplePurchases.
+     * @example
+     * // Create many ApplePurchases
+     * const applePurchase = await prisma.applePurchase.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many ApplePurchases and only return the `id`
+     * const applePurchaseWithIdOnly = await prisma.applePurchase.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends ApplePurchaseCreateManyAndReturnArgs>(args?: SelectSubset<T, ApplePurchaseCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a ApplePurchase.
+     * @param {ApplePurchaseDeleteArgs} args - Arguments to delete one ApplePurchase.
+     * @example
+     * // Delete one ApplePurchase
+     * const ApplePurchase = await prisma.applePurchase.delete({
+     *   where: {
+     *     // ... filter to delete one ApplePurchase
+     *   }
+     * })
+     * 
+     */
+    delete<T extends ApplePurchaseDeleteArgs>(args: SelectSubset<T, ApplePurchaseDeleteArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one ApplePurchase.
+     * @param {ApplePurchaseUpdateArgs} args - Arguments to update one ApplePurchase.
+     * @example
+     * // Update one ApplePurchase
+     * const applePurchase = await prisma.applePurchase.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends ApplePurchaseUpdateArgs>(args: SelectSubset<T, ApplePurchaseUpdateArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more ApplePurchases.
+     * @param {ApplePurchaseDeleteManyArgs} args - Arguments to filter ApplePurchases to delete.
+     * @example
+     * // Delete a few ApplePurchases
+     * const { count } = await prisma.applePurchase.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends ApplePurchaseDeleteManyArgs>(args?: SelectSubset<T, ApplePurchaseDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApplePurchases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ApplePurchases
+     * const applePurchase = await prisma.applePurchase.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends ApplePurchaseUpdateManyArgs>(args: SelectSubset<T, ApplePurchaseUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ApplePurchases and returns the data updated in the database.
+     * @param {ApplePurchaseUpdateManyAndReturnArgs} args - Arguments to update many ApplePurchases.
+     * @example
+     * // Update many ApplePurchases
+     * const applePurchase = await prisma.applePurchase.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more ApplePurchases and only return the `id`
+     * const applePurchaseWithIdOnly = await prisma.applePurchase.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends ApplePurchaseUpdateManyAndReturnArgs>(args: SelectSubset<T, ApplePurchaseUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one ApplePurchase.
+     * @param {ApplePurchaseUpsertArgs} args - Arguments to update or create a ApplePurchase.
+     * @example
+     * // Update or create a ApplePurchase
+     * const applePurchase = await prisma.applePurchase.upsert({
+     *   create: {
+     *     // ... data to create a ApplePurchase
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ApplePurchase we want to update
+     *   }
+     * })
+     */
+    upsert<T extends ApplePurchaseUpsertArgs>(args: SelectSubset<T, ApplePurchaseUpsertArgs<ExtArgs>>): Prisma__ApplePurchaseClient<$Result.GetResult<Prisma.$ApplePurchasePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of ApplePurchases.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseCountArgs} args - Arguments to filter ApplePurchases to count.
+     * @example
+     * // Count the number of ApplePurchases
+     * const count = await prisma.applePurchase.count({
+     *   where: {
+     *     // ... the filter for the ApplePurchases we want to count
+     *   }
+     * })
+    **/
+    count<T extends ApplePurchaseCountArgs>(
+      args?: Subset<T, ApplePurchaseCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ApplePurchaseCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ApplePurchase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ApplePurchaseAggregateArgs>(args: Subset<T, ApplePurchaseAggregateArgs>): Prisma.PrismaPromise<GetApplePurchaseAggregateType<T>>
+
+    /**
+     * Group by ApplePurchase.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ApplePurchaseGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ApplePurchaseGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ApplePurchaseGroupByArgs['orderBy'] }
+        : { orderBy?: ApplePurchaseGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ApplePurchaseGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApplePurchaseGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the ApplePurchase model
+   */
+  readonly fields: ApplePurchaseFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ApplePurchase.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__ApplePurchaseClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    account<T extends AppleBillingAccountDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AppleBillingAccountDefaultArgs<ExtArgs>>): Prisma__AppleBillingAccountClient<$Result.GetResult<Prisma.$AppleBillingAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    subscription<T extends ApplePurchase$subscriptionArgs<ExtArgs> = {}>(args?: Subset<T, ApplePurchase$subscriptionArgs<ExtArgs>>): Prisma__SubscriptionClient<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the ApplePurchase model
+   */
+  interface ApplePurchaseFieldRefs {
+    readonly id: FieldRef<"ApplePurchase", 'String'>
+    readonly originalTransactionId: FieldRef<"ApplePurchase", 'String'>
+    readonly transactionId: FieldRef<"ApplePurchase", 'String'>
+    readonly accountId: FieldRef<"ApplePurchase", 'String'>
+    readonly productId: FieldRef<"ApplePurchase", 'String'>
+    readonly environment: FieldRef<"ApplePurchase", 'String'>
+    readonly state: FieldRef<"ApplePurchase", 'String'>
+    readonly expiresAt: FieldRef<"ApplePurchase", 'DateTime'>
+    readonly autoRenewing: FieldRef<"ApplePurchase", 'Boolean'>
+    readonly grantedAt: FieldRef<"ApplePurchase", 'DateTime'>
+    readonly rejectedAt: FieldRef<"ApplePurchase", 'DateTime'>
+    readonly createdAt: FieldRef<"ApplePurchase", 'DateTime'>
+    readonly updatedAt: FieldRef<"ApplePurchase", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * ApplePurchase findUnique
+   */
+  export type ApplePurchaseFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which ApplePurchase to fetch.
+     */
+    where: ApplePurchaseWhereUniqueInput
+  }
+
+  /**
+   * ApplePurchase findUniqueOrThrow
+   */
+  export type ApplePurchaseFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which ApplePurchase to fetch.
+     */
+    where: ApplePurchaseWhereUniqueInput
+  }
+
+  /**
+   * ApplePurchase findFirst
+   */
+  export type ApplePurchaseFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which ApplePurchase to fetch.
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplePurchases to fetch.
+     */
+    orderBy?: ApplePurchaseOrderByWithRelationInput | ApplePurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApplePurchases.
+     */
+    cursor?: ApplePurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplePurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplePurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApplePurchases.
+     */
+    distinct?: ApplePurchaseScalarFieldEnum | ApplePurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * ApplePurchase findFirstOrThrow
+   */
+  export type ApplePurchaseFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which ApplePurchase to fetch.
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplePurchases to fetch.
+     */
+    orderBy?: ApplePurchaseOrderByWithRelationInput | ApplePurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ApplePurchases.
+     */
+    cursor?: ApplePurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplePurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplePurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApplePurchases.
+     */
+    distinct?: ApplePurchaseScalarFieldEnum | ApplePurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * ApplePurchase findMany
+   */
+  export type ApplePurchaseFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter, which ApplePurchases to fetch.
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ApplePurchases to fetch.
+     */
+    orderBy?: ApplePurchaseOrderByWithRelationInput | ApplePurchaseOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ApplePurchases.
+     */
+    cursor?: ApplePurchaseWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ApplePurchases from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ApplePurchases.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ApplePurchases.
+     */
+    distinct?: ApplePurchaseScalarFieldEnum | ApplePurchaseScalarFieldEnum[]
+  }
+
+  /**
+   * ApplePurchase create
+   */
+  export type ApplePurchaseCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ApplePurchase.
+     */
+    data: XOR<ApplePurchaseCreateInput, ApplePurchaseUncheckedCreateInput>
+  }
+
+  /**
+   * ApplePurchase createMany
+   */
+  export type ApplePurchaseCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ApplePurchases.
+     */
+    data: ApplePurchaseCreateManyInput | ApplePurchaseCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * ApplePurchase createManyAndReturn
+   */
+  export type ApplePurchaseCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * The data used to create many ApplePurchases.
+     */
+    data: ApplePurchaseCreateManyInput | ApplePurchaseCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ApplePurchase update
+   */
+  export type ApplePurchaseUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ApplePurchase.
+     */
+    data: XOR<ApplePurchaseUpdateInput, ApplePurchaseUncheckedUpdateInput>
+    /**
+     * Choose, which ApplePurchase to update.
+     */
+    where: ApplePurchaseWhereUniqueInput
+  }
+
+  /**
+   * ApplePurchase updateMany
+   */
+  export type ApplePurchaseUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ApplePurchases.
+     */
+    data: XOR<ApplePurchaseUpdateManyMutationInput, ApplePurchaseUncheckedUpdateManyInput>
+    /**
+     * Filter which ApplePurchases to update
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * Limit how many ApplePurchases to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApplePurchase updateManyAndReturn
+   */
+  export type ApplePurchaseUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * The data used to update ApplePurchases.
+     */
+    data: XOR<ApplePurchaseUpdateManyMutationInput, ApplePurchaseUncheckedUpdateManyInput>
+    /**
+     * Filter which ApplePurchases to update
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * Limit how many ApplePurchases to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * ApplePurchase upsert
+   */
+  export type ApplePurchaseUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ApplePurchase to update in case it exists.
+     */
+    where: ApplePurchaseWhereUniqueInput
+    /**
+     * In case the ApplePurchase found by the `where` argument doesn't exist, create a new ApplePurchase with this data.
+     */
+    create: XOR<ApplePurchaseCreateInput, ApplePurchaseUncheckedCreateInput>
+    /**
+     * In case the ApplePurchase was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ApplePurchaseUpdateInput, ApplePurchaseUncheckedUpdateInput>
+  }
+
+  /**
+   * ApplePurchase delete
+   */
+  export type ApplePurchaseDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
+    /**
+     * Filter which ApplePurchase to delete.
+     */
+    where: ApplePurchaseWhereUniqueInput
+  }
+
+  /**
+   * ApplePurchase deleteMany
+   */
+  export type ApplePurchaseDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ApplePurchases to delete
+     */
+    where?: ApplePurchaseWhereInput
+    /**
+     * Limit how many ApplePurchases to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * ApplePurchase.subscription
+   */
+  export type ApplePurchase$subscriptionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Subscription
+     */
+    select?: SubscriptionSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Subscription
+     */
+    omit?: SubscriptionOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SubscriptionInclude<ExtArgs> | null
+    where?: SubscriptionWhereInput
+  }
+
+  /**
+   * ApplePurchase without action
+   */
+  export type ApplePurchaseDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ApplePurchase
+     */
+    select?: ApplePurchaseSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the ApplePurchase
+     */
+    omit?: ApplePurchaseOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: ApplePurchaseInclude<ExtArgs> | null
   }
 
 
@@ -72156,6 +74749,7 @@ export namespace Prisma {
     stripeCustomerId: 'stripeCustomerId',
     stripeSubscriptionId: 'stripeSubscriptionId',
     googlePlayPurchaseId: 'googlePlayPurchaseId',
+    applePurchaseId: 'applePurchaseId',
     currentPeriodEnd: 'currentPeriodEnd',
     cancelAtPeriodEnd: 'cancelAtPeriodEnd',
     managedById: 'managedById',
@@ -72164,6 +74758,36 @@ export namespace Prisma {
   };
 
   export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+  export const AppleBillingAccountScalarFieldEnum: {
+    id: 'id',
+    workspaceKey: 'workspaceKey',
+    stakeholderId: 'stakeholderId',
+    retirementStartedAt: 'retirementStartedAt',
+    createdAt: 'createdAt'
+  };
+
+  export type AppleBillingAccountScalarFieldEnum = (typeof AppleBillingAccountScalarFieldEnum)[keyof typeof AppleBillingAccountScalarFieldEnum]
+
+
+  export const ApplePurchaseScalarFieldEnum: {
+    id: 'id',
+    originalTransactionId: 'originalTransactionId',
+    transactionId: 'transactionId',
+    accountId: 'accountId',
+    productId: 'productId',
+    environment: 'environment',
+    state: 'state',
+    expiresAt: 'expiresAt',
+    autoRenewing: 'autoRenewing',
+    grantedAt: 'grantedAt',
+    rejectedAt: 'rejectedAt',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ApplePurchaseScalarFieldEnum = (typeof ApplePurchaseScalarFieldEnum)[keyof typeof ApplePurchaseScalarFieldEnum]
 
 
   export const GooglePlayBillingAccountScalarFieldEnum: {
@@ -73618,6 +76242,7 @@ export namespace Prisma {
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
     googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
+    appleBillingAccounts?: AppleBillingAccountListRelationFilter
   }
 
   export type StakeholderOrderByWithRelationInput = {
@@ -73667,6 +76292,7 @@ export namespace Prisma {
     subscription?: SubscriptionOrderByWithRelationInput
     subscriptionsManaged?: SubscriptionOrderByRelationAggregateInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountOrderByRelationAggregateInput
+    appleBillingAccounts?: AppleBillingAccountOrderByRelationAggregateInput
   }
 
   export type StakeholderWhereUniqueInput = Prisma.AtLeast<{
@@ -73719,6 +76345,7 @@ export namespace Prisma {
     subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
     subscriptionsManaged?: SubscriptionListRelationFilter
     googlePlayBillingAccounts?: GooglePlayBillingAccountListRelationFilter
+    appleBillingAccounts?: AppleBillingAccountListRelationFilter
   }, "id" | "email" | "authUserId">
 
   export type StakeholderOrderByWithAggregationInput = {
@@ -74204,6 +76831,7 @@ export namespace Prisma {
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
     googlePlayPurchaseId?: StringNullableFilter<"Subscription"> | string | null
+    applePurchaseId?: StringNullableFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     managedById?: StringNullableFilter<"Subscription"> | string | null
@@ -74214,6 +76842,7 @@ export namespace Prisma {
     stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     managedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     googlePlayPurchase?: XOR<GooglePlayPurchaseNullableScalarRelationFilter, GooglePlayPurchaseWhereInput> | null
+    applePurchase?: XOR<ApplePurchaseNullableScalarRelationFilter, ApplePurchaseWhereInput> | null
   }
 
   export type SubscriptionOrderByWithRelationInput = {
@@ -74227,6 +76856,7 @@ export namespace Prisma {
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
     googlePlayPurchaseId?: SortOrderInput | SortOrder
+    applePurchaseId?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrderInput | SortOrder
@@ -74237,6 +76867,7 @@ export namespace Prisma {
     stakeholder?: StakeholderOrderByWithRelationInput
     managedBy?: StakeholderOrderByWithRelationInput
     googlePlayPurchase?: GooglePlayPurchaseOrderByWithRelationInput
+    applePurchase?: ApplePurchaseOrderByWithRelationInput
   }
 
   export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -74247,6 +76878,7 @@ export namespace Prisma {
     stripeCustomerId?: string
     stripeSubscriptionId?: string
     googlePlayPurchaseId?: string
+    applePurchaseId?: string
     AND?: SubscriptionWhereInput | SubscriptionWhereInput[]
     OR?: SubscriptionWhereInput[]
     NOT?: SubscriptionWhereInput | SubscriptionWhereInput[]
@@ -74263,7 +76895,8 @@ export namespace Prisma {
     stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     managedBy?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
     googlePlayPurchase?: XOR<GooglePlayPurchaseNullableScalarRelationFilter, GooglePlayPurchaseWhereInput> | null
-  }, "id" | "agencyId" | "teamId" | "stakeholderId" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId">
+    applePurchase?: XOR<ApplePurchaseNullableScalarRelationFilter, ApplePurchaseWhereInput> | null
+  }, "id" | "agencyId" | "teamId" | "stakeholderId" | "stripeCustomerId" | "stripeSubscriptionId" | "googlePlayPurchaseId" | "applePurchaseId">
 
   export type SubscriptionOrderByWithAggregationInput = {
     id?: SortOrder
@@ -74276,6 +76909,7 @@ export namespace Prisma {
     stripeCustomerId?: SortOrderInput | SortOrder
     stripeSubscriptionId?: SortOrderInput | SortOrder
     googlePlayPurchaseId?: SortOrderInput | SortOrder
+    applePurchaseId?: SortOrderInput | SortOrder
     currentPeriodEnd?: SortOrderInput | SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrderInput | SortOrder
@@ -74302,11 +76936,169 @@ export namespace Prisma {
     stripeCustomerId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     googlePlayPurchaseId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
+    applePurchaseId?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableWithAggregatesFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolWithAggregatesFilter<"Subscription"> | boolean
     managedById?: StringNullableWithAggregatesFilter<"Subscription"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Subscription"> | Date | string
+  }
+
+  export type AppleBillingAccountWhereInput = {
+    AND?: AppleBillingAccountWhereInput | AppleBillingAccountWhereInput[]
+    OR?: AppleBillingAccountWhereInput[]
+    NOT?: AppleBillingAccountWhereInput | AppleBillingAccountWhereInput[]
+    id?: StringFilter<"AppleBillingAccount"> | string
+    workspaceKey?: StringFilter<"AppleBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"AppleBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"AppleBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"AppleBillingAccount"> | Date | string
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    purchases?: ApplePurchaseListRelationFilter
+  }
+
+  export type AppleBillingAccountOrderByWithRelationInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    retirementStartedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    stakeholder?: StakeholderOrderByWithRelationInput
+    purchases?: ApplePurchaseOrderByRelationAggregateInput
+  }
+
+  export type AppleBillingAccountWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    workspaceKey_stakeholderId?: AppleBillingAccountWorkspaceKeyStakeholderIdCompoundUniqueInput
+    AND?: AppleBillingAccountWhereInput | AppleBillingAccountWhereInput[]
+    OR?: AppleBillingAccountWhereInput[]
+    NOT?: AppleBillingAccountWhereInput | AppleBillingAccountWhereInput[]
+    workspaceKey?: StringFilter<"AppleBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"AppleBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"AppleBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"AppleBillingAccount"> | Date | string
+    stakeholder?: XOR<StakeholderNullableScalarRelationFilter, StakeholderWhereInput> | null
+    purchases?: ApplePurchaseListRelationFilter
+  }, "id" | "workspaceKey_stakeholderId">
+
+  export type AppleBillingAccountOrderByWithAggregationInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrderInput | SortOrder
+    retirementStartedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: AppleBillingAccountCountOrderByAggregateInput
+    _max?: AppleBillingAccountMaxOrderByAggregateInput
+    _min?: AppleBillingAccountMinOrderByAggregateInput
+  }
+
+  export type AppleBillingAccountScalarWhereWithAggregatesInput = {
+    AND?: AppleBillingAccountScalarWhereWithAggregatesInput | AppleBillingAccountScalarWhereWithAggregatesInput[]
+    OR?: AppleBillingAccountScalarWhereWithAggregatesInput[]
+    NOT?: AppleBillingAccountScalarWhereWithAggregatesInput | AppleBillingAccountScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"AppleBillingAccount"> | string
+    workspaceKey?: StringWithAggregatesFilter<"AppleBillingAccount"> | string
+    stakeholderId?: StringNullableWithAggregatesFilter<"AppleBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableWithAggregatesFilter<"AppleBillingAccount"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"AppleBillingAccount"> | Date | string
+  }
+
+  export type ApplePurchaseWhereInput = {
+    AND?: ApplePurchaseWhereInput | ApplePurchaseWhereInput[]
+    OR?: ApplePurchaseWhereInput[]
+    NOT?: ApplePurchaseWhereInput | ApplePurchaseWhereInput[]
+    id?: StringFilter<"ApplePurchase"> | string
+    originalTransactionId?: StringFilter<"ApplePurchase"> | string
+    transactionId?: StringFilter<"ApplePurchase"> | string
+    accountId?: StringFilter<"ApplePurchase"> | string
+    productId?: StringFilter<"ApplePurchase"> | string
+    environment?: StringFilter<"ApplePurchase"> | string
+    state?: StringFilter<"ApplePurchase"> | string
+    expiresAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    autoRenewing?: BoolFilter<"ApplePurchase"> | boolean
+    grantedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    account?: XOR<AppleBillingAccountScalarRelationFilter, AppleBillingAccountWhereInput>
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+  }
+
+  export type ApplePurchaseOrderByWithRelationInput = {
+    id?: SortOrder
+    originalTransactionId?: SortOrder
+    transactionId?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    environment?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    grantedAt?: SortOrderInput | SortOrder
+    rejectedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    account?: AppleBillingAccountOrderByWithRelationInput
+    subscription?: SubscriptionOrderByWithRelationInput
+  }
+
+  export type ApplePurchaseWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    originalTransactionId?: string
+    AND?: ApplePurchaseWhereInput | ApplePurchaseWhereInput[]
+    OR?: ApplePurchaseWhereInput[]
+    NOT?: ApplePurchaseWhereInput | ApplePurchaseWhereInput[]
+    transactionId?: StringFilter<"ApplePurchase"> | string
+    accountId?: StringFilter<"ApplePurchase"> | string
+    productId?: StringFilter<"ApplePurchase"> | string
+    environment?: StringFilter<"ApplePurchase"> | string
+    state?: StringFilter<"ApplePurchase"> | string
+    expiresAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    autoRenewing?: BoolFilter<"ApplePurchase"> | boolean
+    grantedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    account?: XOR<AppleBillingAccountScalarRelationFilter, AppleBillingAccountWhereInput>
+    subscription?: XOR<SubscriptionNullableScalarRelationFilter, SubscriptionWhereInput> | null
+  }, "id" | "originalTransactionId">
+
+  export type ApplePurchaseOrderByWithAggregationInput = {
+    id?: SortOrder
+    originalTransactionId?: SortOrder
+    transactionId?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    environment?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    grantedAt?: SortOrderInput | SortOrder
+    rejectedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ApplePurchaseCountOrderByAggregateInput
+    _max?: ApplePurchaseMaxOrderByAggregateInput
+    _min?: ApplePurchaseMinOrderByAggregateInput
+  }
+
+  export type ApplePurchaseScalarWhereWithAggregatesInput = {
+    AND?: ApplePurchaseScalarWhereWithAggregatesInput | ApplePurchaseScalarWhereWithAggregatesInput[]
+    OR?: ApplePurchaseScalarWhereWithAggregatesInput[]
+    NOT?: ApplePurchaseScalarWhereWithAggregatesInput | ApplePurchaseScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    originalTransactionId?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    transactionId?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    accountId?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    productId?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    environment?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    state?: StringWithAggregatesFilter<"ApplePurchase"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"ApplePurchase"> | Date | string
+    autoRenewing?: BoolWithAggregatesFilter<"ApplePurchase"> | boolean
+    grantedAt?: DateTimeNullableWithAggregatesFilter<"ApplePurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableWithAggregatesFilter<"ApplePurchase"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"ApplePurchase"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"ApplePurchase"> | Date | string
   }
 
   export type GooglePlayBillingAccountWhereInput = {
@@ -78381,6 +81173,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateInput = {
@@ -78429,6 +81222,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUpdateInput = {
@@ -78477,6 +81271,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateInput = {
@@ -78525,6 +81320,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateManyInput = {
@@ -79060,6 +81856,7 @@ export namespace Prisma {
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
     googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateInput = {
@@ -79073,6 +81870,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -79096,6 +81894,7 @@ export namespace Prisma {
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
     googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateInput = {
@@ -79109,6 +81908,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -79127,6 +81927,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -79158,9 +81959,184 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AppleBillingAccountCreateInput = {
+    id?: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    stakeholder?: StakeholderCreateNestedOneWithoutAppleBillingAccountsInput
+    purchases?: ApplePurchaseCreateNestedManyWithoutAccountInput
+  }
+
+  export type AppleBillingAccountUncheckedCreateInput = {
+    id?: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: ApplePurchaseUncheckedCreateNestedManyWithoutAccountInput
+  }
+
+  export type AppleBillingAccountUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneWithoutAppleBillingAccountsNestedInput
+    purchases?: ApplePurchaseUpdateManyWithoutAccountNestedInput
+  }
+
+  export type AppleBillingAccountUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: ApplePurchaseUncheckedUpdateManyWithoutAccountNestedInput
+  }
+
+  export type AppleBillingAccountCreateManyInput = {
+    id?: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AppleBillingAccountUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AppleBillingAccountUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplePurchaseCreateInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    account: AppleBillingAccountCreateNestedOneWithoutPurchasesInput
+    subscription?: SubscriptionCreateNestedOneWithoutApplePurchaseInput
+  }
+
+  export type ApplePurchaseUncheckedCreateInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    accountId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutApplePurchaseInput
+  }
+
+  export type ApplePurchaseUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    account?: AppleBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput
+    subscription?: SubscriptionUpdateOneWithoutApplePurchaseNestedInput
+  }
+
+  export type ApplePurchaseUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUncheckedUpdateOneWithoutApplePurchaseNestedInput
+  }
+
+  export type ApplePurchaseCreateManyInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    accountId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApplePurchaseUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplePurchaseUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -83729,6 +86705,12 @@ export namespace Prisma {
     none?: GooglePlayBillingAccountWhereInput
   }
 
+  export type AppleBillingAccountListRelationFilter = {
+    every?: AppleBillingAccountWhereInput
+    some?: AppleBillingAccountWhereInput
+    none?: AppleBillingAccountWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -83831,6 +86813,10 @@ export namespace Prisma {
   }
 
   export type GooglePlayBillingAccountOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AppleBillingAccountOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -84305,6 +87291,11 @@ export namespace Prisma {
     isNot?: GooglePlayPurchaseWhereInput | null
   }
 
+  export type ApplePurchaseNullableScalarRelationFilter = {
+    is?: ApplePurchaseWhereInput | null
+    isNot?: ApplePurchaseWhereInput | null
+  }
+
   export type SubscriptionCountOrderByAggregateInput = {
     id?: SortOrder
     agencyId?: SortOrder
@@ -84316,6 +87307,7 @@ export namespace Prisma {
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
     googlePlayPurchaseId?: SortOrder
+    applePurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -84338,6 +87330,7 @@ export namespace Prisma {
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
     googlePlayPurchaseId?: SortOrder
+    applePurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -84356,6 +87349,7 @@ export namespace Prisma {
     stripeCustomerId?: SortOrder
     stripeSubscriptionId?: SortOrder
     googlePlayPurchaseId?: SortOrder
+    applePurchaseId?: SortOrder
     currentPeriodEnd?: SortOrder
     cancelAtPeriodEnd?: SortOrder
     managedById?: SortOrder
@@ -84391,6 +87385,98 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type ApplePurchaseListRelationFilter = {
+    every?: ApplePurchaseWhereInput
+    some?: ApplePurchaseWhereInput
+    none?: ApplePurchaseWhereInput
+  }
+
+  export type ApplePurchaseOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AppleBillingAccountWorkspaceKeyStakeholderIdCompoundUniqueInput = {
+    workspaceKey: string
+    stakeholderId: string
+  }
+
+  export type AppleBillingAccountCountOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AppleBillingAccountMaxOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AppleBillingAccountMinOrderByAggregateInput = {
+    id?: SortOrder
+    workspaceKey?: SortOrder
+    stakeholderId?: SortOrder
+    retirementStartedAt?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type AppleBillingAccountScalarRelationFilter = {
+    is?: AppleBillingAccountWhereInput
+    isNot?: AppleBillingAccountWhereInput
+  }
+
+  export type ApplePurchaseCountOrderByAggregateInput = {
+    id?: SortOrder
+    originalTransactionId?: SortOrder
+    transactionId?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    environment?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ApplePurchaseMaxOrderByAggregateInput = {
+    id?: SortOrder
+    originalTransactionId?: SortOrder
+    transactionId?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    environment?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ApplePurchaseMinOrderByAggregateInput = {
+    id?: SortOrder
+    originalTransactionId?: SortOrder
+    transactionId?: SortOrder
+    accountId?: SortOrder
+    productId?: SortOrder
+    environment?: SortOrder
+    state?: SortOrder
+    expiresAt?: SortOrder
+    autoRenewing?: SortOrder
+    grantedAt?: SortOrder
+    rejectedAt?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type GooglePlayPurchaseListRelationFilter = {
@@ -87753,6 +90839,13 @@ export namespace Prisma {
     connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
   }
 
+  export type AppleBillingAccountCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput> | AppleBillingAccountCreateWithoutStakeholderInput[] | AppleBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutStakeholderInput | AppleBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AppleBillingAccountCreateManyStakeholderInputEnvelope
+    connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+  }
+
   export type AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -87993,6 +91086,13 @@ export namespace Prisma {
     connectOrCreate?: GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput | GooglePlayBillingAccountCreateOrConnectWithoutStakeholderInput[]
     createMany?: GooglePlayBillingAccountCreateManyStakeholderInputEnvelope
     connect?: GooglePlayBillingAccountWhereUniqueInput | GooglePlayBillingAccountWhereUniqueInput[]
+  }
+
+  export type AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput> | AppleBillingAccountCreateWithoutStakeholderInput[] | AppleBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutStakeholderInput | AppleBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    createMany?: AppleBillingAccountCreateManyStakeholderInputEnvelope
+    connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -88499,6 +91599,20 @@ export namespace Prisma {
     deleteMany?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
   }
 
+  export type AppleBillingAccountUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput> | AppleBillingAccountCreateWithoutStakeholderInput[] | AppleBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutStakeholderInput | AppleBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AppleBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput | AppleBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AppleBillingAccountCreateManyStakeholderInputEnvelope
+    set?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    disconnect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    delete?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    update?: AppleBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput | AppleBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AppleBillingAccountUpdateManyWithWhereWithoutStakeholderInput | AppleBillingAccountUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
+  }
+
   export type AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput = {
     create?: XOR<AgencyMembershipCreateWithoutStakeholderInput, AgencyMembershipUncheckedCreateWithoutStakeholderInput> | AgencyMembershipCreateWithoutStakeholderInput[] | AgencyMembershipUncheckedCreateWithoutStakeholderInput[]
     connectOrCreate?: AgencyMembershipCreateOrConnectWithoutStakeholderInput | AgencyMembershipCreateOrConnectWithoutStakeholderInput[]
@@ -88977,6 +92091,20 @@ export namespace Prisma {
     deleteMany?: GooglePlayBillingAccountScalarWhereInput | GooglePlayBillingAccountScalarWhereInput[]
   }
 
+  export type AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput> | AppleBillingAccountCreateWithoutStakeholderInput[] | AppleBillingAccountUncheckedCreateWithoutStakeholderInput[]
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutStakeholderInput | AppleBillingAccountCreateOrConnectWithoutStakeholderInput[]
+    upsert?: AppleBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput | AppleBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput[]
+    createMany?: AppleBillingAccountCreateManyStakeholderInputEnvelope
+    set?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    disconnect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    delete?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    connect?: AppleBillingAccountWhereUniqueInput | AppleBillingAccountWhereUniqueInput[]
+    update?: AppleBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput | AppleBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput[]
+    updateMany?: AppleBillingAccountUpdateManyWithWhereWithoutStakeholderInput | AppleBillingAccountUpdateManyWithWhereWithoutStakeholderInput[]
+    deleteMany?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
+  }
+
   export type StakeholderCreateNestedOneWithoutAcquisitionInput = {
     create?: XOR<StakeholderCreateWithoutAcquisitionInput, StakeholderUncheckedCreateWithoutAcquisitionInput>
     connectOrCreate?: StakeholderCreateOrConnectWithoutAcquisitionInput
@@ -89449,6 +92577,12 @@ export namespace Prisma {
     connect?: GooglePlayPurchaseWhereUniqueInput
   }
 
+  export type ApplePurchaseCreateNestedOneWithoutSubscriptionInput = {
+    create?: XOR<ApplePurchaseCreateWithoutSubscriptionInput, ApplePurchaseUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutSubscriptionInput
+    connect?: ApplePurchaseWhereUniqueInput
+  }
+
   export type EnumPlanFieldUpdateOperationsInput = {
     set?: $Enums.Plan
   }
@@ -89509,6 +92643,120 @@ export namespace Prisma {
     delete?: GooglePlayPurchaseWhereInput | boolean
     connect?: GooglePlayPurchaseWhereUniqueInput
     update?: XOR<XOR<GooglePlayPurchaseUpdateToOneWithWhereWithoutSubscriptionInput, GooglePlayPurchaseUpdateWithoutSubscriptionInput>, GooglePlayPurchaseUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type ApplePurchaseUpdateOneWithoutSubscriptionNestedInput = {
+    create?: XOR<ApplePurchaseCreateWithoutSubscriptionInput, ApplePurchaseUncheckedCreateWithoutSubscriptionInput>
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutSubscriptionInput
+    upsert?: ApplePurchaseUpsertWithoutSubscriptionInput
+    disconnect?: ApplePurchaseWhereInput | boolean
+    delete?: ApplePurchaseWhereInput | boolean
+    connect?: ApplePurchaseWhereUniqueInput
+    update?: XOR<XOR<ApplePurchaseUpdateToOneWithWhereWithoutSubscriptionInput, ApplePurchaseUpdateWithoutSubscriptionInput>, ApplePurchaseUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type StakeholderCreateNestedOneWithoutAppleBillingAccountsInput = {
+    create?: XOR<StakeholderCreateWithoutAppleBillingAccountsInput, StakeholderUncheckedCreateWithoutAppleBillingAccountsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAppleBillingAccountsInput
+    connect?: StakeholderWhereUniqueInput
+  }
+
+  export type ApplePurchaseCreateNestedManyWithoutAccountInput = {
+    create?: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput> | ApplePurchaseCreateWithoutAccountInput[] | ApplePurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutAccountInput | ApplePurchaseCreateOrConnectWithoutAccountInput[]
+    createMany?: ApplePurchaseCreateManyAccountInputEnvelope
+    connect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+  }
+
+  export type ApplePurchaseUncheckedCreateNestedManyWithoutAccountInput = {
+    create?: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput> | ApplePurchaseCreateWithoutAccountInput[] | ApplePurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutAccountInput | ApplePurchaseCreateOrConnectWithoutAccountInput[]
+    createMany?: ApplePurchaseCreateManyAccountInputEnvelope
+    connect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+  }
+
+  export type StakeholderUpdateOneWithoutAppleBillingAccountsNestedInput = {
+    create?: XOR<StakeholderCreateWithoutAppleBillingAccountsInput, StakeholderUncheckedCreateWithoutAppleBillingAccountsInput>
+    connectOrCreate?: StakeholderCreateOrConnectWithoutAppleBillingAccountsInput
+    upsert?: StakeholderUpsertWithoutAppleBillingAccountsInput
+    disconnect?: StakeholderWhereInput | boolean
+    delete?: StakeholderWhereInput | boolean
+    connect?: StakeholderWhereUniqueInput
+    update?: XOR<XOR<StakeholderUpdateToOneWithWhereWithoutAppleBillingAccountsInput, StakeholderUpdateWithoutAppleBillingAccountsInput>, StakeholderUncheckedUpdateWithoutAppleBillingAccountsInput>
+  }
+
+  export type ApplePurchaseUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput> | ApplePurchaseCreateWithoutAccountInput[] | ApplePurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutAccountInput | ApplePurchaseCreateOrConnectWithoutAccountInput[]
+    upsert?: ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput | ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: ApplePurchaseCreateManyAccountInputEnvelope
+    set?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    disconnect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    delete?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    connect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    update?: ApplePurchaseUpdateWithWhereUniqueWithoutAccountInput | ApplePurchaseUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: ApplePurchaseUpdateManyWithWhereWithoutAccountInput | ApplePurchaseUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: ApplePurchaseScalarWhereInput | ApplePurchaseScalarWhereInput[]
+  }
+
+  export type ApplePurchaseUncheckedUpdateManyWithoutAccountNestedInput = {
+    create?: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput> | ApplePurchaseCreateWithoutAccountInput[] | ApplePurchaseUncheckedCreateWithoutAccountInput[]
+    connectOrCreate?: ApplePurchaseCreateOrConnectWithoutAccountInput | ApplePurchaseCreateOrConnectWithoutAccountInput[]
+    upsert?: ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput | ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput[]
+    createMany?: ApplePurchaseCreateManyAccountInputEnvelope
+    set?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    disconnect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    delete?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    connect?: ApplePurchaseWhereUniqueInput | ApplePurchaseWhereUniqueInput[]
+    update?: ApplePurchaseUpdateWithWhereUniqueWithoutAccountInput | ApplePurchaseUpdateWithWhereUniqueWithoutAccountInput[]
+    updateMany?: ApplePurchaseUpdateManyWithWhereWithoutAccountInput | ApplePurchaseUpdateManyWithWhereWithoutAccountInput[]
+    deleteMany?: ApplePurchaseScalarWhereInput | ApplePurchaseScalarWhereInput[]
+  }
+
+  export type AppleBillingAccountCreateNestedOneWithoutPurchasesInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutPurchasesInput, AppleBillingAccountUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutPurchasesInput
+    connect?: AppleBillingAccountWhereUniqueInput
+  }
+
+  export type SubscriptionCreateNestedOneWithoutApplePurchaseInput = {
+    create?: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutApplePurchaseInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type SubscriptionUncheckedCreateNestedOneWithoutApplePurchaseInput = {
+    create?: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutApplePurchaseInput
+    connect?: SubscriptionWhereUniqueInput
+  }
+
+  export type AppleBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput = {
+    create?: XOR<AppleBillingAccountCreateWithoutPurchasesInput, AppleBillingAccountUncheckedCreateWithoutPurchasesInput>
+    connectOrCreate?: AppleBillingAccountCreateOrConnectWithoutPurchasesInput
+    upsert?: AppleBillingAccountUpsertWithoutPurchasesInput
+    connect?: AppleBillingAccountWhereUniqueInput
+    update?: XOR<XOR<AppleBillingAccountUpdateToOneWithWhereWithoutPurchasesInput, AppleBillingAccountUpdateWithoutPurchasesInput>, AppleBillingAccountUncheckedUpdateWithoutPurchasesInput>
+  }
+
+  export type SubscriptionUpdateOneWithoutApplePurchaseNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutApplePurchaseInput
+    upsert?: SubscriptionUpsertWithoutApplePurchaseInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutApplePurchaseInput, SubscriptionUpdateWithoutApplePurchaseInput>, SubscriptionUncheckedUpdateWithoutApplePurchaseInput>
+  }
+
+  export type SubscriptionUncheckedUpdateOneWithoutApplePurchaseNestedInput = {
+    create?: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+    connectOrCreate?: SubscriptionCreateOrConnectWithoutApplePurchaseInput
+    upsert?: SubscriptionUpsertWithoutApplePurchaseInput
+    disconnect?: SubscriptionWhereInput | boolean
+    delete?: SubscriptionWhereInput | boolean
+    connect?: SubscriptionWhereUniqueInput
+    update?: XOR<XOR<SubscriptionUpdateToOneWithWhereWithoutApplePurchaseInput, SubscriptionUpdateWithoutApplePurchaseInput>, SubscriptionUncheckedUpdateWithoutApplePurchaseInput>
   }
 
   export type StakeholderCreateNestedOneWithoutGooglePlayBillingAccountsInput = {
@@ -95612,6 +98860,7 @@ export namespace Prisma {
     agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
     googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutStakeholderInput = {
@@ -95624,6 +98873,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -95651,6 +98901,7 @@ export namespace Prisma {
     agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutManagedByInput = {
@@ -95664,6 +98915,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     createdAt?: Date | string
@@ -95703,6 +98955,32 @@ export namespace Prisma {
 
   export type GooglePlayBillingAccountCreateManyStakeholderInputEnvelope = {
     data: GooglePlayBillingAccountCreateManyStakeholderInput | GooglePlayBillingAccountCreateManyStakeholderInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AppleBillingAccountCreateWithoutStakeholderInput = {
+    id?: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: ApplePurchaseCreateNestedManyWithoutAccountInput
+  }
+
+  export type AppleBillingAccountUncheckedCreateWithoutStakeholderInput = {
+    id?: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    purchases?: ApplePurchaseUncheckedCreateNestedManyWithoutAccountInput
+  }
+
+  export type AppleBillingAccountCreateOrConnectWithoutStakeholderInput = {
+    where: AppleBillingAccountWhereUniqueInput
+    create: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AppleBillingAccountCreateManyStakeholderInputEnvelope = {
+    data: AppleBillingAccountCreateManyStakeholderInput | AppleBillingAccountCreateManyStakeholderInput[]
     skipDuplicates?: boolean
   }
 
@@ -96700,6 +99978,7 @@ export namespace Prisma {
     agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
     googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutStakeholderInput = {
@@ -96712,6 +99991,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -96749,6 +100029,7 @@ export namespace Prisma {
     stripeCustomerId?: StringNullableFilter<"Subscription"> | string | null
     stripeSubscriptionId?: StringNullableFilter<"Subscription"> | string | null
     googlePlayPurchaseId?: StringNullableFilter<"Subscription"> | string | null
+    applePurchaseId?: StringNullableFilter<"Subscription"> | string | null
     currentPeriodEnd?: DateTimeNullableFilter<"Subscription"> | Date | string | null
     cancelAtPeriodEnd?: BoolFilter<"Subscription"> | boolean
     managedById?: StringNullableFilter<"Subscription"> | string | null
@@ -96781,6 +100062,33 @@ export namespace Prisma {
     stakeholderId?: StringNullableFilter<"GooglePlayBillingAccount"> | string | null
     retirementStartedAt?: DateTimeNullableFilter<"GooglePlayBillingAccount"> | Date | string | null
     createdAt?: DateTimeFilter<"GooglePlayBillingAccount"> | Date | string
+  }
+
+  export type AppleBillingAccountUpsertWithWhereUniqueWithoutStakeholderInput = {
+    where: AppleBillingAccountWhereUniqueInput
+    update: XOR<AppleBillingAccountUpdateWithoutStakeholderInput, AppleBillingAccountUncheckedUpdateWithoutStakeholderInput>
+    create: XOR<AppleBillingAccountCreateWithoutStakeholderInput, AppleBillingAccountUncheckedCreateWithoutStakeholderInput>
+  }
+
+  export type AppleBillingAccountUpdateWithWhereUniqueWithoutStakeholderInput = {
+    where: AppleBillingAccountWhereUniqueInput
+    data: XOR<AppleBillingAccountUpdateWithoutStakeholderInput, AppleBillingAccountUncheckedUpdateWithoutStakeholderInput>
+  }
+
+  export type AppleBillingAccountUpdateManyWithWhereWithoutStakeholderInput = {
+    where: AppleBillingAccountScalarWhereInput
+    data: XOR<AppleBillingAccountUpdateManyMutationInput, AppleBillingAccountUncheckedUpdateManyWithoutStakeholderInput>
+  }
+
+  export type AppleBillingAccountScalarWhereInput = {
+    AND?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
+    OR?: AppleBillingAccountScalarWhereInput[]
+    NOT?: AppleBillingAccountScalarWhereInput | AppleBillingAccountScalarWhereInput[]
+    id?: StringFilter<"AppleBillingAccount"> | string
+    workspaceKey?: StringFilter<"AppleBillingAccount"> | string
+    stakeholderId?: StringNullableFilter<"AppleBillingAccount"> | string | null
+    retirementStartedAt?: DateTimeNullableFilter<"AppleBillingAccount"> | Date | string | null
+    createdAt?: DateTimeFilter<"AppleBillingAccount"> | Date | string
   }
 
   export type StakeholderCreateWithoutAcquisitionInput = {
@@ -96828,6 +100136,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAcquisitionInput = {
@@ -96875,6 +100184,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAcquisitionInput = {
@@ -96938,6 +100248,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAcquisitionInput = {
@@ -96985,6 +100296,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutTeamInput = {
@@ -97032,6 +100344,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTeamInput = {
@@ -97079,6 +100392,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTeamInput = {
@@ -97106,6 +100420,7 @@ export namespace Prisma {
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
     googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutTeamInput = {
@@ -97118,6 +100433,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -97188,6 +100504,7 @@ export namespace Prisma {
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
     googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutTeamInput = {
@@ -97200,6 +100517,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -97373,6 +100691,7 @@ export namespace Prisma {
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
     googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutAgencyInput = {
@@ -97385,6 +100704,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -97588,6 +100908,7 @@ export namespace Prisma {
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
     googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutAgencyInput = {
@@ -97600,6 +100921,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -97761,6 +101083,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAgencyMembershipsInput = {
@@ -97808,6 +101131,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAgencyMembershipsInput = {
@@ -97954,6 +101278,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAgencyMembershipsInput = {
@@ -98001,6 +101326,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutAgencyMembershipInput = {
@@ -98178,6 +101504,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionInput = {
@@ -98225,6 +101552,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionInput = {
@@ -98277,6 +101605,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSubscriptionsManagedInput = {
@@ -98324,6 +101653,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSubscriptionsManagedInput = {
@@ -98374,6 +101704,43 @@ export namespace Prisma {
   export type GooglePlayPurchaseCreateOrConnectWithoutSubscriptionInput = {
     where: GooglePlayPurchaseWhereUniqueInput
     create: XOR<GooglePlayPurchaseCreateWithoutSubscriptionInput, GooglePlayPurchaseUncheckedCreateWithoutSubscriptionInput>
+  }
+
+  export type ApplePurchaseCreateWithoutSubscriptionInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    account: AppleBillingAccountCreateNestedOneWithoutPurchasesInput
+  }
+
+  export type ApplePurchaseUncheckedCreateWithoutSubscriptionInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    accountId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApplePurchaseCreateOrConnectWithoutSubscriptionInput = {
+    where: ApplePurchaseWhereUniqueInput
+    create: XOR<ApplePurchaseCreateWithoutSubscriptionInput, ApplePurchaseUncheckedCreateWithoutSubscriptionInput>
   }
 
   export type TeamUpsertWithoutSubscriptionInput = {
@@ -98494,6 +101861,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionInput = {
@@ -98541,6 +101909,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutSubscriptionsManagedInput = {
@@ -98599,6 +101968,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSubscriptionsManagedInput = {
@@ -98646,6 +102016,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type GooglePlayPurchaseUpsertWithoutSubscriptionInput = {
@@ -98699,6 +102070,470 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ApplePurchaseUpsertWithoutSubscriptionInput = {
+    update: XOR<ApplePurchaseUpdateWithoutSubscriptionInput, ApplePurchaseUncheckedUpdateWithoutSubscriptionInput>
+    create: XOR<ApplePurchaseCreateWithoutSubscriptionInput, ApplePurchaseUncheckedCreateWithoutSubscriptionInput>
+    where?: ApplePurchaseWhereInput
+  }
+
+  export type ApplePurchaseUpdateToOneWithWhereWithoutSubscriptionInput = {
+    where?: ApplePurchaseWhereInput
+    data: XOR<ApplePurchaseUpdateWithoutSubscriptionInput, ApplePurchaseUncheckedUpdateWithoutSubscriptionInput>
+  }
+
+  export type ApplePurchaseUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    account?: AppleBillingAccountUpdateOneRequiredWithoutPurchasesNestedInput
+  }
+
+  export type ApplePurchaseUncheckedUpdateWithoutSubscriptionInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    accountId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type StakeholderCreateWithoutAppleBillingAccountsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutMembersInput
+    agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderUncheckedCreateWithoutAppleBillingAccountsInput = {
+    id?: string
+    kind?: $Enums.StakeholderKind
+    name: string
+    idNumber?: string | null
+    email?: string | null
+    phone?: string | null
+    authUserId?: string | null
+    teamId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
+    tenanciesAsLandlord?: TenancyUncheckedCreateNestedManyWithoutLandlordInput
+    tenanciesAsTenant?: TenancyUncheckedCreateNestedManyWithoutTenantInput
+    tenanciesAsAgent?: TenancyUncheckedCreateNestedManyWithoutAgentInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedCreateNestedManyWithoutStakeholderInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedCreateNestedManyWithoutGrantedByInput
+    inspectionsRun?: InspectionUncheckedCreateNestedManyWithoutConductedByInput
+    reportInspections?: InspectionUncheckedCreateNestedManyWithoutReportAgentInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedCreateNestedManyWithoutStakeholderInput
+    signatures?: SignatureUncheckedCreateNestedManyWithoutStakeholderInput
+    deletionRequests?: AccountDeletionRequestUncheckedCreateNestedManyWithoutStakeholderInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedCreateNestedManyWithoutReportedByInput
+    maintenanceEvents?: MaintenanceEventUncheckedCreateNestedManyWithoutActorInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedCreateNestedManyWithoutVerifiedByInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedCreateNestedManyWithoutUploadedByInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedCreateNestedManyWithoutProposedByInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedCreateNestedManyWithoutRespondedByInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutRecipientInput
+    deviceInstallations?: DeviceInstallationUncheckedCreateNestedManyWithoutStakeholderInput
+    branding?: AgentBrandingUncheckedCreateNestedOneWithoutStakeholderInput
+    errorEvents?: ErrorEventUncheckedCreateNestedManyWithoutStakeholderInput
+    productEvents?: ProductEventUncheckedCreateNestedManyWithoutStakeholderInput
+    acquisition?: AccountAcquisitionUncheckedCreateNestedOneWithoutStakeholderInput
+    reportEmails?: ReportEmailUncheckedCreateNestedManyWithoutRecipientInput
+    addendaCreated?: ReportAddendumUncheckedCreateNestedManyWithoutCreatedByInput
+    addendaPublished?: ReportAddendumUncheckedCreateNestedManyWithoutPublishedByInput
+    addendaDisputed?: ReportAddendumUncheckedCreateNestedManyWithoutDisputedByInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedCreateNestedManyWithoutStakeholderInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedCreateNestedManyWithoutCreatedByInput
+    assessmentResponses?: AssessmentResponseUncheckedCreateNestedManyWithoutStakeholderInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedCreateNestedManyWithoutRequestedByInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
+    subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+  }
+
+  export type StakeholderCreateOrConnectWithoutAppleBillingAccountsInput = {
+    where: StakeholderWhereUniqueInput
+    create: XOR<StakeholderCreateWithoutAppleBillingAccountsInput, StakeholderUncheckedCreateWithoutAppleBillingAccountsInput>
+  }
+
+  export type ApplePurchaseCreateWithoutAccountInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionCreateNestedOneWithoutApplePurchaseInput
+  }
+
+  export type ApplePurchaseUncheckedCreateWithoutAccountInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    subscription?: SubscriptionUncheckedCreateNestedOneWithoutApplePurchaseInput
+  }
+
+  export type ApplePurchaseCreateOrConnectWithoutAccountInput = {
+    where: ApplePurchaseWhereUniqueInput
+    create: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput>
+  }
+
+  export type ApplePurchaseCreateManyAccountInputEnvelope = {
+    data: ApplePurchaseCreateManyAccountInput | ApplePurchaseCreateManyAccountInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type StakeholderUpsertWithoutAppleBillingAccountsInput = {
+    update: XOR<StakeholderUpdateWithoutAppleBillingAccountsInput, StakeholderUncheckedUpdateWithoutAppleBillingAccountsInput>
+    create: XOR<StakeholderCreateWithoutAppleBillingAccountsInput, StakeholderUncheckedCreateWithoutAppleBillingAccountsInput>
+    where?: StakeholderWhereInput
+  }
+
+  export type StakeholderUpdateToOneWithWhereWithoutAppleBillingAccountsInput = {
+    where?: StakeholderWhereInput
+    data: XOR<StakeholderUpdateWithoutAppleBillingAccountsInput, StakeholderUncheckedUpdateWithoutAppleBillingAccountsInput>
+  }
+
+  export type StakeholderUpdateWithoutAppleBillingAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutMembersNestedInput
+    agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type StakeholderUncheckedUpdateWithoutAppleBillingAccountsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    kind?: EnumStakeholderKindFieldUpdateOperationsInput | $Enums.StakeholderKind
+    name?: StringFieldUpdateOperationsInput | string
+    idNumber?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenanciesAsLandlord?: TenancyUncheckedUpdateManyWithoutLandlordNestedInput
+    tenanciesAsTenant?: TenancyUncheckedUpdateManyWithoutTenantNestedInput
+    tenanciesAsAgent?: TenancyUncheckedUpdateManyWithoutAgentNestedInput
+    tenancyCollaborations?: TenancyCollaboratorUncheckedUpdateManyWithoutStakeholderNestedInput
+    tenancyAccessGranted?: TenancyCollaboratorUncheckedUpdateManyWithoutGrantedByNestedInput
+    inspectionsRun?: InspectionUncheckedUpdateManyWithoutConductedByNestedInput
+    reportInspections?: InspectionUncheckedUpdateManyWithoutReportAgentNestedInput
+    inspectionAccessGrants?: InspectionAccessGrantUncheckedUpdateManyWithoutStakeholderNestedInput
+    signatures?: SignatureUncheckedUpdateManyWithoutStakeholderNestedInput
+    deletionRequests?: AccountDeletionRequestUncheckedUpdateManyWithoutStakeholderNestedInput
+    maintenanceCasesReported?: MaintenanceCaseUncheckedUpdateManyWithoutReportedByNestedInput
+    maintenanceEvents?: MaintenanceEventUncheckedUpdateManyWithoutActorNestedInput
+    maintenanceVerifications?: MaintenanceVerificationUncheckedUpdateManyWithoutVerifiedByNestedInput
+    maintenanceEvidenceUploaded?: MaintenanceEvidenceUncheckedUpdateManyWithoutUploadedByNestedInput
+    responsibilityProposed?: ResponsibilityProposalUncheckedUpdateManyWithoutProposedByNestedInput
+    responsibilityResponded?: ResponsibilityProposalUncheckedUpdateManyWithoutRespondedByNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+    deviceInstallations?: DeviceInstallationUncheckedUpdateManyWithoutStakeholderNestedInput
+    branding?: AgentBrandingUncheckedUpdateOneWithoutStakeholderNestedInput
+    errorEvents?: ErrorEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    productEvents?: ProductEventUncheckedUpdateManyWithoutStakeholderNestedInput
+    acquisition?: AccountAcquisitionUncheckedUpdateOneWithoutStakeholderNestedInput
+    reportEmails?: ReportEmailUncheckedUpdateManyWithoutRecipientNestedInput
+    addendaCreated?: ReportAddendumUncheckedUpdateManyWithoutCreatedByNestedInput
+    addendaPublished?: ReportAddendumUncheckedUpdateManyWithoutPublishedByNestedInput
+    addendaDisputed?: ReportAddendumUncheckedUpdateManyWithoutDisputedByNestedInput
+    addendumAcknowledgements?: AddendumAcknowledgementUncheckedUpdateManyWithoutStakeholderNestedInput
+    findingPhotoDrafts?: FindingPhotoDraftUncheckedUpdateManyWithoutCreatedByNestedInput
+    assessmentResponses?: AssessmentResponseUncheckedUpdateManyWithoutStakeholderNestedInput
+    supportingDocumentRequests?: SupportingDocumentRequestUncheckedUpdateManyWithoutRequestedByNestedInput
+    supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
+    subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
+    subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+  }
+
+  export type ApplePurchaseUpsertWithWhereUniqueWithoutAccountInput = {
+    where: ApplePurchaseWhereUniqueInput
+    update: XOR<ApplePurchaseUpdateWithoutAccountInput, ApplePurchaseUncheckedUpdateWithoutAccountInput>
+    create: XOR<ApplePurchaseCreateWithoutAccountInput, ApplePurchaseUncheckedCreateWithoutAccountInput>
+  }
+
+  export type ApplePurchaseUpdateWithWhereUniqueWithoutAccountInput = {
+    where: ApplePurchaseWhereUniqueInput
+    data: XOR<ApplePurchaseUpdateWithoutAccountInput, ApplePurchaseUncheckedUpdateWithoutAccountInput>
+  }
+
+  export type ApplePurchaseUpdateManyWithWhereWithoutAccountInput = {
+    where: ApplePurchaseScalarWhereInput
+    data: XOR<ApplePurchaseUpdateManyMutationInput, ApplePurchaseUncheckedUpdateManyWithoutAccountInput>
+  }
+
+  export type ApplePurchaseScalarWhereInput = {
+    AND?: ApplePurchaseScalarWhereInput | ApplePurchaseScalarWhereInput[]
+    OR?: ApplePurchaseScalarWhereInput[]
+    NOT?: ApplePurchaseScalarWhereInput | ApplePurchaseScalarWhereInput[]
+    id?: StringFilter<"ApplePurchase"> | string
+    originalTransactionId?: StringFilter<"ApplePurchase"> | string
+    transactionId?: StringFilter<"ApplePurchase"> | string
+    accountId?: StringFilter<"ApplePurchase"> | string
+    productId?: StringFilter<"ApplePurchase"> | string
+    environment?: StringFilter<"ApplePurchase"> | string
+    state?: StringFilter<"ApplePurchase"> | string
+    expiresAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    autoRenewing?: BoolFilter<"ApplePurchase"> | boolean
+    grantedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    rejectedAt?: DateTimeNullableFilter<"ApplePurchase"> | Date | string | null
+    createdAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+    updatedAt?: DateTimeFilter<"ApplePurchase"> | Date | string
+  }
+
+  export type AppleBillingAccountCreateWithoutPurchasesInput = {
+    id?: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+    stakeholder?: StakeholderCreateNestedOneWithoutAppleBillingAccountsInput
+  }
+
+  export type AppleBillingAccountUncheckedCreateWithoutPurchasesInput = {
+    id?: string
+    workspaceKey: string
+    stakeholderId?: string | null
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AppleBillingAccountCreateOrConnectWithoutPurchasesInput = {
+    where: AppleBillingAccountWhereUniqueInput
+    create: XOR<AppleBillingAccountCreateWithoutPurchasesInput, AppleBillingAccountUncheckedCreateWithoutPurchasesInput>
+  }
+
+  export type SubscriptionCreateWithoutApplePurchaseInput = {
+    id?: string
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    team?: TeamCreateNestedOneWithoutSubscriptionInput
+    agency?: AgencyCreateNestedOneWithoutSubscriptionInput
+    stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
+    managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    googlePlayPurchase?: GooglePlayPurchaseCreateNestedOneWithoutSubscriptionInput
+  }
+
+  export type SubscriptionUncheckedCreateWithoutApplePurchaseInput = {
+    id?: string
+    agencyId?: string | null
+    teamId?: string | null
+    stakeholderId?: string | null
+    plan: $Enums.Plan
+    seats: number
+    status: string
+    stripeCustomerId?: string | null
+    stripeSubscriptionId?: string | null
+    googlePlayPurchaseId?: string | null
+    currentPeriodEnd?: Date | string | null
+    cancelAtPeriodEnd?: boolean
+    managedById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type SubscriptionCreateOrConnectWithoutApplePurchaseInput = {
+    where: SubscriptionWhereUniqueInput
+    create: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+  }
+
+  export type AppleBillingAccountUpsertWithoutPurchasesInput = {
+    update: XOR<AppleBillingAccountUpdateWithoutPurchasesInput, AppleBillingAccountUncheckedUpdateWithoutPurchasesInput>
+    create: XOR<AppleBillingAccountCreateWithoutPurchasesInput, AppleBillingAccountUncheckedCreateWithoutPurchasesInput>
+    where?: AppleBillingAccountWhereInput
+  }
+
+  export type AppleBillingAccountUpdateToOneWithWhereWithoutPurchasesInput = {
+    where?: AppleBillingAccountWhereInput
+    data: XOR<AppleBillingAccountUpdateWithoutPurchasesInput, AppleBillingAccountUncheckedUpdateWithoutPurchasesInput>
+  }
+
+  export type AppleBillingAccountUpdateWithoutPurchasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    stakeholder?: StakeholderUpdateOneWithoutAppleBillingAccountsNestedInput
+  }
+
+  export type AppleBillingAccountUncheckedUpdateWithoutPurchasesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SubscriptionUpsertWithoutApplePurchaseInput = {
+    update: XOR<SubscriptionUpdateWithoutApplePurchaseInput, SubscriptionUncheckedUpdateWithoutApplePurchaseInput>
+    create: XOR<SubscriptionCreateWithoutApplePurchaseInput, SubscriptionUncheckedCreateWithoutApplePurchaseInput>
+    where?: SubscriptionWhereInput
+  }
+
+  export type SubscriptionUpdateToOneWithWhereWithoutApplePurchaseInput = {
+    where?: SubscriptionWhereInput
+    data: XOR<SubscriptionUpdateWithoutApplePurchaseInput, SubscriptionUncheckedUpdateWithoutApplePurchaseInput>
+  }
+
+  export type SubscriptionUpdateWithoutApplePurchaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    team?: TeamUpdateOneWithoutSubscriptionNestedInput
+    agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
+    stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
+    managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+  }
+
+  export type SubscriptionUncheckedUpdateWithoutApplePurchaseInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    agencyId?: NullableStringFieldUpdateOperationsInput | string | null
+    teamId?: NullableStringFieldUpdateOperationsInput | string | null
+    stakeholderId?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+    seats?: IntFieldUpdateOperationsInput | number
+    status?: StringFieldUpdateOperationsInput | string
+    stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
+    stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
+    managedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type StakeholderCreateWithoutGooglePlayBillingAccountsInput = {
     id?: string
     kind?: $Enums.StakeholderKind
@@ -98744,6 +102579,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutGooglePlayBillingAccountsInput = {
@@ -98791,6 +102627,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedCreateNestedManyWithoutSubmittedByInput
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutGooglePlayBillingAccountsInput = {
@@ -98904,6 +102741,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutGooglePlayBillingAccountsInput = {
@@ -98951,6 +102789,7 @@ export namespace Prisma {
     supportingDocumentFiles?: SupportingDocumentFileUncheckedUpdateManyWithoutSubmittedByNestedInput
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type GooglePlayPurchaseUpsertWithWhereUniqueWithoutAccountInput = {
@@ -99028,6 +102867,7 @@ export namespace Prisma {
     agency?: AgencyCreateNestedOneWithoutSubscriptionInput
     stakeholder?: StakeholderCreateNestedOneWithoutSubscriptionInput
     managedBy?: StakeholderCreateNestedOneWithoutSubscriptionsManagedInput
+    applePurchase?: ApplePurchaseCreateNestedOneWithoutSubscriptionInput
   }
 
   export type SubscriptionUncheckedCreateWithoutGooglePlayPurchaseInput = {
@@ -99040,6 +102880,7 @@ export namespace Prisma {
     status: string
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     managedById?: string | null
@@ -99105,6 +102946,7 @@ export namespace Prisma {
     agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     managedBy?: StakeholderUpdateOneWithoutSubscriptionsManagedNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutGooglePlayPurchaseInput = {
@@ -99117,6 +102959,7 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     managedById?: NullableStringFieldUpdateOperationsInput | string | null
@@ -99169,6 +103012,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutBrandingInput = {
@@ -99216,6 +103060,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutBrandingInput = {
@@ -99279,6 +103124,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutBrandingInput = {
@@ -99326,6 +103172,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateWithoutPropertyInput = {
@@ -100010,6 +103857,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsLandlordInput = {
@@ -100057,6 +103905,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsLandlordInput = {
@@ -100109,6 +103958,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsTenantInput = {
@@ -100156,6 +104006,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsTenantInput = {
@@ -100208,6 +104059,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenanciesAsAgentInput = {
@@ -100255,6 +104107,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenanciesAsAgentInput = {
@@ -100754,6 +104607,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsLandlordInput = {
@@ -100801,6 +104655,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsTenantInput = {
@@ -100859,6 +104714,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsTenantInput = {
@@ -100906,6 +104762,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenanciesAsAgentInput = {
@@ -100964,6 +104821,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenanciesAsAgentInput = {
@@ -101011,6 +104869,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyUpsertWithoutTenanciesInput = {
@@ -101362,6 +105221,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyCollaborationsInput = {
@@ -101409,6 +105269,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyCollaborationsInput = {
@@ -101461,6 +105322,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutTenancyAccessGrantedInput = {
@@ -101508,6 +105370,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutTenancyAccessGrantedInput = {
@@ -101636,6 +105499,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyCollaborationsInput = {
@@ -101683,6 +105547,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutTenancyAccessGrantedInput = {
@@ -101741,6 +105606,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTenancyAccessGrantedInput = {
@@ -101788,6 +105654,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyCreateWithoutInspectionsInput = {
@@ -101894,6 +105761,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionsRunInput = {
@@ -101941,6 +105809,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionsRunInput = {
@@ -101993,6 +105862,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportInspectionsInput = {
@@ -102040,6 +105910,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportInspectionsInput = {
@@ -102717,6 +106588,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionsRunInput = {
@@ -102764,6 +106636,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutReportInspectionsInput = {
@@ -102822,6 +106695,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportInspectionsInput = {
@@ -102869,6 +106743,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyUpsertWithoutReportInspectionsInput = {
@@ -103402,6 +107277,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutInspectionAccessGrantsInput = {
@@ -103449,6 +107325,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutInspectionAccessGrantsInput = {
@@ -103591,6 +107468,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutInspectionAccessGrantsInput = {
@@ -103638,6 +107516,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type RoomCreateWithoutCapturesInput = {
@@ -105211,6 +109090,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceCasesReportedInput = {
@@ -105258,6 +109138,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceCasesReportedInput = {
@@ -105783,6 +109664,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceCasesReportedInput = {
@@ -105830,6 +109712,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceEventUpsertWithWhereUniqueWithoutMaintenanceCaseInput = {
@@ -106181,6 +110064,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEventsInput = {
@@ -106228,6 +110112,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEventsInput = {
@@ -106356,6 +110241,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEventsInput = {
@@ -106403,6 +110289,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutVisitsInput = {
@@ -106838,6 +110725,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceEvidenceUploadedInput = {
@@ -106885,6 +110773,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceEvidenceUploadedInput = {
@@ -107050,6 +110939,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceEvidenceUploadedInput = {
@@ -107097,6 +110987,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutVerificationInput = {
@@ -107175,6 +111066,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutMaintenanceVerificationsInput = {
@@ -107222,6 +111114,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutMaintenanceVerificationsInput = {
@@ -107322,6 +111215,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutMaintenanceVerificationsInput = {
@@ -107369,6 +111263,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceCaseCreateWithoutResponsibilityProposalsInput = {
@@ -107475,6 +111370,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityProposedInput = {
@@ -107522,6 +111418,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityProposedInput = {
@@ -107574,6 +111471,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutResponsibilityRespondedInput = {
@@ -107621,6 +111519,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutResponsibilityRespondedInput = {
@@ -107749,6 +111648,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityProposedInput = {
@@ -107796,6 +111696,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutResponsibilityRespondedInput = {
@@ -107854,6 +111755,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutResponsibilityRespondedInput = {
@@ -107901,6 +111803,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type MaintenanceVisitCreateWithoutProviderInput = {
@@ -108059,6 +111962,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentRequestsInput = {
@@ -108106,6 +112010,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentRequestsInput = {
@@ -108268,6 +112173,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentRequestsInput = {
@@ -108315,6 +112221,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type SupportingDocumentFileUpsertWithWhereUniqueWithoutRequestInput = {
@@ -108403,6 +112310,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSupportingDocumentFilesInput = {
@@ -108450,6 +112358,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSupportingDocumentFilesInput = {
@@ -108544,6 +112453,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSupportingDocumentFilesInput = {
@@ -108591,6 +112501,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutDeviceInstallationsInput = {
@@ -108638,6 +112549,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeviceInstallationsInput = {
@@ -108685,6 +112597,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeviceInstallationsInput = {
@@ -108780,6 +112693,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeviceInstallationsInput = {
@@ -108827,6 +112741,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type NotificationPushDeliveryUpsertWithWhereUniqueWithoutInstallationInput = {
@@ -108905,6 +112820,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutNotificationsInput = {
@@ -108952,6 +112868,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutNotificationsInput = {
@@ -109139,6 +113056,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutNotificationsInput = {
@@ -109186,6 +113104,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type TenancyUpsertWithoutNotificationsInput = {
@@ -110185,6 +114104,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutFindingPhotoDraftsInput = {
@@ -110232,6 +114152,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutFindingPhotoDraftsInput = {
@@ -110455,6 +114376,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutFindingPhotoDraftsInput = {
@@ -110502,6 +114424,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type FindingUpsertWithoutPhotoDraftsInput = {
@@ -110833,6 +114756,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutSignaturesInput = {
@@ -110880,6 +114804,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutSignaturesInput = {
@@ -111022,6 +114947,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutSignaturesInput = {
@@ -111069,6 +114995,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutReportEmailsInput = {
@@ -111189,6 +115116,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutReportEmailsInput = {
@@ -111236,6 +115164,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutReportEmailsInput = {
@@ -111378,6 +115307,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutReportEmailsInput = {
@@ -111425,6 +115355,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
@@ -111745,6 +115676,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaCreatedInput = {
@@ -111792,6 +115724,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaCreatedInput = {
@@ -111844,6 +115777,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaPublishedInput = {
@@ -111891,6 +115825,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaPublishedInput = {
@@ -112076,6 +116011,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendaDisputedInput = {
@@ -112123,6 +116059,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendaDisputedInput = {
@@ -112265,6 +116202,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaCreatedInput = {
@@ -112312,6 +116250,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUpsertWithoutAddendaPublishedInput = {
@@ -112370,6 +116309,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaPublishedInput = {
@@ -112417,6 +116357,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type ReportAddendumEntryUpsertWithWhereUniqueWithoutAddendumInput = {
@@ -112572,6 +116513,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendaDisputedInput = {
@@ -112619,6 +116561,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type ReportAddendumCreateWithoutEntriesInput = {
@@ -113169,6 +117112,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAddendumAcknowledgementsInput = {
@@ -113216,6 +117160,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAddendumAcknowledgementsInput = {
@@ -113334,6 +117279,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAddendumAcknowledgementsInput = {
@@ -113381,6 +117327,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutDeletionRequestsInput = {
@@ -113428,6 +117375,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutDeletionRequestsInput = {
@@ -113475,6 +117423,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutDeletionRequestsInput = {
@@ -113562,6 +117511,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutDeletionRequestsInput = {
@@ -113609,6 +117559,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AccountDeletionStoragePurgeUpsertWithWhereUniqueWithoutRequestInput = {
@@ -113751,6 +117702,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutErrorEventsInput = {
@@ -113798,6 +117750,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutErrorEventsInput = {
@@ -113861,6 +117814,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutErrorEventsInput = {
@@ -113908,6 +117862,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderCreateWithoutProductEventsInput = {
@@ -113955,6 +117910,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutProductEventsInput = {
@@ -114002,6 +117958,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutProductEventsInput = {
@@ -114065,6 +118022,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutProductEventsInput = {
@@ -114112,6 +118070,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type InspectionCreateWithoutIssuedReportFilesInput = {
@@ -114336,6 +118295,7 @@ export namespace Prisma {
     subscription?: SubscriptionCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderUncheckedCreateWithoutAssessmentResponsesInput = {
@@ -114383,6 +118343,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedCreateNestedOneWithoutStakeholderInput
     subscriptionsManaged?: SubscriptionUncheckedCreateNestedManyWithoutManagedByInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedCreateNestedManyWithoutStakeholderInput
   }
 
   export type StakeholderCreateOrConnectWithoutAssessmentResponsesInput = {
@@ -114477,6 +118438,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutAssessmentResponsesInput = {
@@ -114524,6 +118486,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type AgencyMembershipCreateManyStakeholderInput = {
@@ -114962,6 +118925,7 @@ export namespace Prisma {
     stripeCustomerId?: string | null
     stripeSubscriptionId?: string | null
     googlePlayPurchaseId?: string | null
+    applePurchaseId?: string | null
     currentPeriodEnd?: Date | string | null
     cancelAtPeriodEnd?: boolean
     createdAt?: Date | string
@@ -114970,6 +118934,13 @@ export namespace Prisma {
 
   export type GooglePlayBillingAccountCreateManyStakeholderInput = {
     id: string
+    workspaceKey: string
+    retirementStartedAt?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type AppleBillingAccountCreateManyStakeholderInput = {
+    id?: string
     workspaceKey: string
     retirementStartedAt?: Date | string | null
     createdAt?: Date | string
@@ -116383,6 +120354,7 @@ export namespace Prisma {
     agency?: AgencyUpdateOneWithoutSubscriptionNestedInput
     stakeholder?: StakeholderUpdateOneWithoutSubscriptionNestedInput
     googlePlayPurchase?: GooglePlayPurchaseUpdateOneWithoutSubscriptionNestedInput
+    applePurchase?: ApplePurchaseUpdateOneWithoutSubscriptionNestedInput
   }
 
   export type SubscriptionUncheckedUpdateWithoutManagedByInput = {
@@ -116396,6 +120368,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -116413,6 +120386,7 @@ export namespace Prisma {
     stripeCustomerId?: NullableStringFieldUpdateOperationsInput | string | null
     stripeSubscriptionId?: NullableStringFieldUpdateOperationsInput | string | null
     googlePlayPurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
+    applePurchaseId?: NullableStringFieldUpdateOperationsInput | string | null
     currentPeriodEnd?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     cancelAtPeriodEnd?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -116436,6 +120410,29 @@ export namespace Prisma {
   }
 
   export type GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AppleBillingAccountUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: ApplePurchaseUpdateManyWithoutAccountNestedInput
+  }
+
+  export type AppleBillingAccountUncheckedUpdateWithoutStakeholderInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    workspaceKey?: StringFieldUpdateOperationsInput | string
+    retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    purchases?: ApplePurchaseUncheckedUpdateManyWithoutAccountNestedInput
+  }
+
+  export type AppleBillingAccountUncheckedUpdateManyWithoutStakeholderInput = {
     id?: StringFieldUpdateOperationsInput | string
     workspaceKey?: StringFieldUpdateOperationsInput | string
     retirementStartedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -116499,6 +120496,7 @@ export namespace Prisma {
     subscription?: SubscriptionUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateWithoutTeamInput = {
@@ -116546,6 +120544,7 @@ export namespace Prisma {
     subscription?: SubscriptionUncheckedUpdateOneWithoutStakeholderNestedInput
     subscriptionsManaged?: SubscriptionUncheckedUpdateManyWithoutManagedByNestedInput
     googlePlayBillingAccounts?: GooglePlayBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
+    appleBillingAccounts?: AppleBillingAccountUncheckedUpdateManyWithoutStakeholderNestedInput
   }
 
   export type StakeholderUncheckedUpdateManyWithoutTeamInput = {
@@ -116936,6 +120935,68 @@ export namespace Prisma {
     emailError?: NullableStringFieldUpdateOperationsInput | string | null
     pushExpandedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ApplePurchaseCreateManyAccountInput = {
+    id?: string
+    originalTransactionId: string
+    transactionId: string
+    productId: string
+    environment: string
+    state: string
+    expiresAt: Date | string
+    autoRenewing: boolean
+    grantedAt?: Date | string | null
+    rejectedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ApplePurchaseUpdateWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUpdateOneWithoutApplePurchaseNestedInput
+  }
+
+  export type ApplePurchaseUncheckedUpdateWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    subscription?: SubscriptionUncheckedUpdateOneWithoutApplePurchaseNestedInput
+  }
+
+  export type ApplePurchaseUncheckedUpdateManyWithoutAccountInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    originalTransactionId?: StringFieldUpdateOperationsInput | string
+    transactionId?: StringFieldUpdateOperationsInput | string
+    productId?: StringFieldUpdateOperationsInput | string
+    environment?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    autoRenewing?: BoolFieldUpdateOperationsInput | boolean
+    grantedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    rejectedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GooglePlayPurchaseCreateManyAccountInput = {

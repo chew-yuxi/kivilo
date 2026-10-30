@@ -208,9 +208,34 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
   googlePlayPurchaseId: 'googlePlayPurchaseId',
+  applePurchaseId: 'applePurchaseId',
   currentPeriodEnd: 'currentPeriodEnd',
   cancelAtPeriodEnd: 'cancelAtPeriodEnd',
   managedById: 'managedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AppleBillingAccountScalarFieldEnum = {
+  id: 'id',
+  workspaceKey: 'workspaceKey',
+  stakeholderId: 'stakeholderId',
+  retirementStartedAt: 'retirementStartedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ApplePurchaseScalarFieldEnum = {
+  id: 'id',
+  originalTransactionId: 'originalTransactionId',
+  transactionId: 'transactionId',
+  accountId: 'accountId',
+  productId: 'productId',
+  environment: 'environment',
+  state: 'state',
+  expiresAt: 'expiresAt',
+  autoRenewing: 'autoRenewing',
+  grantedAt: 'grantedAt',
+  rejectedAt: 'rejectedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -1111,6 +1136,8 @@ exports.Prisma.ModelName = {
   AgencyMembership: 'AgencyMembership',
   AgencyActivity: 'AgencyActivity',
   Subscription: 'Subscription',
+  AppleBillingAccount: 'AppleBillingAccount',
+  ApplePurchase: 'ApplePurchase',
   GooglePlayBillingAccount: 'GooglePlayBillingAccount',
   GooglePlayPurchase: 'GooglePlayPurchase',
   AgentBranding: 'AgentBranding',

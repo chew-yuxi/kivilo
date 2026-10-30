@@ -5,6 +5,37 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Apple rejection remediation: 30 October 2026 (not released)
+
+Apple rejected **1.0.0 (24)** under 2.1(a), 3.1.1 and 4.5.4. The working tree now
+includes native StoreKit 2 billing and optional Shorebird update continuation; it
+requires a new native iOS release. A Flutter simulator build numbered 26 compiles,
+and native iPhone/iPad tests can decline notifications and open inventory. All 525
+Flutter tests and analysis pass. A signed **1.0.0 (26)** IPA was prepared with
+`shorebird release ios --dry-run --flutter-version=3.47.2 --target=lib/main.dart`
+and the existing export options. Strict deep signature verification passes;
+`get-task-allow=false`, production APNs, and the StoreKit framework are confirmed.
+The test fixture is absent. Artifact: `build/release-artifacts/ios/build26-prepared/kivilo.ipa`;
+hash/provenance: `store/submission/apple-prepared-build.json`. The dry run does not
+publish a Shorebird release; register that release before uploading the store build.
+No new release/patch has been published or build uploaded for this work.
+
+Seven native StoreKit cases pass on each simulator with a fake backend and the real
+billing UI/plugin. Restore now excludes historical entries without signed receipts;
+signed restoration events and unfinished purchases remain verified before finishing.
+The production verifier rejects the local Xcode test transaction. These checks do
+not replace real App Store sandbox purchase and notification delivery verification.
+The fixture and reproducible commands are in `test_support/README.md`.
+
+The Apple catalog has 21 draft products with prices saved and read back; three seats
+is S$116.98, with remaining tiers rounded down to an available price. The supplied
+IAP key authenticates to Sandbox and is staged in Vercel with billing disabled. Real
+sandbox purchase verification remains. Production
+migration/deployment, v2 notification setup, final subscription review screenshots,
+replacement listing screenshots and resubmission remain. Six simulator screenshot
+previews and their provenance are prepared; existing store screenshots are unchanged.
+See `plans/apple-billing.md` for the exact boundaries, checks and remaining steps.
+
 ## Duplicate a line, one condition for several, missing-detail hints: 30 October 2026 Singapore time
 
 Source `8e73b14`, pushed to `origin/main` and deployed by Vercel (READY; the new

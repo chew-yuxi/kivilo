@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 26 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 30 October 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -38,6 +38,12 @@ export default function PrivacyPage() {
           notifications use a device token and notification history.
         </p>
         <p>
+          For paid plans, we keep the billing provider, purchase and subscription
+          identifiers, plan, seat count, renewal status and paid-through date, linked
+          to the account and workspace. We use these records to verify purchases,
+          restore access and apply subscription changes.
+        </p>
+        <p>
           When something goes wrong in the app, we record an error report: the error
           message and where in our code it happened, the page, the app version, your
           browser or device type, and which account was signed in. We do not record
@@ -49,7 +55,7 @@ export default function PrivacyPage() {
           stores your sign-in session there.
         </p>
         <p>
-          We record which screens signed-in web users open, when, and which account
+          We record which screens signed-in web and mobile users open, when, and which account
           is signed in, to understand use and improve Kivilo. These records use screen
           categories, without property addresses, report links, page queries, photos,
           free text or IP addresses. Unsent screen events wait on your device until a
@@ -96,8 +102,9 @@ export default function PrivacyPage() {
           their content and delivery logs in the United States. Firebase Cloud
           Messaging and Apple Push Notification service route optional mobile
           notifications; Firebase may process data globally. Stripe processes
-          payment for Pro plans bought on our website and keeps the card details; we
-          never see or store a card number.
+          payment for Pro plans bought on our website. Apple and Google process
+          subscriptions bought through their app stores. These providers handle the
+          payment details; we never see or store a card number.
         </p>
         <p>
           We keep report media in a private bucket. Anyone who holds a
@@ -137,8 +144,11 @@ export default function PrivacyPage() {
           The acquisition cookie expires 30 days after the first recorded visit. You can
           remove it in your browser settings. Account-linked acquisition categories and
           first report and payment milestones are kept while your account remains open
-          and removed when we fulfill account deletion. Stripe retains its own payment
-          records separately.
+          and removed when we fulfill account deletion. Payment providers retain their
+          own payment records separately. We keep subscription transaction records and
+          retired Apple purchase bindings to reconcile billing and prevent purchases
+          from being reassigned after account deletion. These records can retain
+          transaction and workspace identifiers.
         </p>
         <p>
           Some service-provider copies can remain after deletion from Kivilo&apos;s
@@ -164,8 +174,10 @@ export default function PrivacyPage() {
           history, error reports, acquisition and conversion records, and screen usage events recorded while you were signed in. We remove
           unsigned drafts that belong solely to the requesting account and verify that
           their stored media is removed after outstanding upload links expire. We
-          cancel a Pro plan you pay for; Stripe keeps its payment records as the law
-          requires.
+          cancel website and Google Play Pro plans you pay for. Apple subscriptions
+          must be canceled in your Apple account&apos;s subscription settings; deleting
+          your Kivilo account does not cancel Apple&apos;s recurring charge. You can
+          request account deletion without first canceling a subscription.
         </p>
         <p>
           Signed reports and unsigned work involving another party may retain your

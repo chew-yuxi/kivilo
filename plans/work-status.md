@@ -1,5 +1,36 @@
 # Kivilo work tracker
 
+## Apple review rejection — 30 October (prepared, not released)
+
+iOS 1.0.0 (24) was rejected for demo screenshot content, missing Apple IAP for Pro,
+and mandatory notifications. StoreKit 2 Personal/team purchases, server verification,
+restore and v2 notifications are implemented locally; the migration is local only.
+The updater now allows Not now/Continue without notification permission or process
+exit. Native iPhone/iPad tests confirm denial leaves inventory accessible. Six actual
+simulator screenshot replacements use finished fictional property details.
+
+The 21 Apple products are drafts with prices configured and read back. The owner's
+S$116.98 choice for three seats was applied as nearest-at-or-below pricing for team
+tiers. The supplied IAP key authenticates to Apple's Sandbox API. Its credentials
+are staged as sensitive Production-only Vercel variables with billing disabled.
+Real sandbox purchase and notification delivery verification remain. Signed iOS
+build 26 passed a Shorebird dry run and signature inspection; publishing the
+Shorebird release, build upload, backend deployment, final screenshots and
+resubmission remain.
+Nothing was deployed, uploaded as a build, sent to App Review or resubmitted.
+
+Native StoreKit tests pass seven cases on each of iPhone and iPad using the real
+billing screen/plugin and a fake API. They found and fixed restore submitting
+metadata-only historical entries without a signed receipt. The production verifier
+correctly rejects an actual local Xcode transaction. Real Apple sandbox purchases
+still require a device/TestFlight run.
+
+Typecheck, lint, production build, 242 web unit and 525 Flutter tests pass; targeted
+billing integration passes 91 cases. The eight known broad Postgres failures remain.
+Browser checks pass 25/26 across the full run and Node 24 PDF rerun; local Stripe
+configuration blocks the remaining checkout case. Full details and release gates:
+`plans/apple-billing.md`.
+
 ## Photo capture and loading — 30 October (released)
 
 The multi-shot camera now caps JPEGs at 2048px, with quality 85, after saving the

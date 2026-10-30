@@ -18,6 +18,9 @@ import { isLive, subscriptionCanResume } from '@/lib/plan'
 /// they cancel it in Manage billing and move once it has ended.
 export async function setTeam(email: string, team: string) {
   const own = await db.subscription.findFirst({ where: { stakeholder: { email } } })
+  if (team && own?.applePurchaseId && subscriptionCanResume(own)) {
+    throw new Error(`${email} pays through the App Store; cancel there and wait until the subscription ends before joining a billing team`)
+  }
   if (team && own?.googlePlayPurchaseId && subscriptionCanResume(own)) {
     throw new Error(`${email} pays through Google Play; cancel there and wait until the subscription ends before joining a billing team`)
   }
@@ -32,7 +35,10 @@ export async function setTeam(email: string, team: string) {
     include: { team: { select: { name: true } } },
   })
   if (managed?.team && managed.team.name !== team &&
-      (managed.stripeSubscriptionId || managed.googlePlayPurchaseId) && subscriptionCanResume(managed)) {
+      (managed.stripeSubscriptionId || managed.googlePlayPurchaseId || managed.applePurchaseId) && subscriptionCanResume(managed)) {
+    if (managed.applePurchaseId) {
+      throw new Error(`${email} manages ${managed.team.name}'s App Store subscription; cancel it in the App Store and wait until it ends before leaving`)
+    }
     if (managed.googlePlayPurchaseId) {
       throw new Error(`${email} manages ${managed.team.name}'s Google Play subscription; cancel it in Google Play and wait until it ends before leaving`)
     }

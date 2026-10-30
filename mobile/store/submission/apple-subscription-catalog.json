@@ -1,0 +1,367 @@
+{
+  "appId": "6821514302",
+  "subscriptions": [
+    {
+      "productId": "kivilo_pro_monthly",
+      "id": "6828831737",
+      "groupId": "22528923",
+      "seats": 1,
+      "desiredMonthlySGD": "39",
+      "exactPriceAvailable": true,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "39.0"
+      ],
+      "pricePolicy": "at-or-below"
+    },
+    {
+      "productId": "kivilo_pro_team_1_monthly",
+      "id": "6828834709",
+      "groupId": "22528973",
+      "seats": 1,
+      "desiredMonthlySGD": "39",
+      "exactPriceAvailable": true,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "39.0"
+      ],
+      "pricePolicy": "at-or-below"
+    },
+    {
+      "productId": "kivilo_pro_team_2_monthly",
+      "id": "6828834868",
+      "groupId": "22528973",
+      "seats": 2,
+      "desiredMonthlySGD": "78",
+      "exactPriceAvailable": true,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "78.0"
+      ],
+      "pricePolicy": "at-or-below"
+    },
+    {
+      "productId": "kivilo_pro_team_3_monthly",
+      "id": "6828835615",
+      "groupId": "22528973",
+      "seats": 3,
+      "desiredMonthlySGD": "117",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "116.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "116.98",
+        "117.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_4_monthly",
+      "id": "6828835930",
+      "groupId": "22528973",
+      "seats": 4,
+      "desiredMonthlySGD": "156",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "154.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "154.98",
+        "159.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_5_monthly",
+      "id": "6828835951",
+      "groupId": "22528973",
+      "seats": 5,
+      "desiredMonthlySGD": "195",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "194.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "194.98",
+        "199.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_6_monthly",
+      "id": "6828836122",
+      "groupId": "22528973",
+      "seats": 6,
+      "desiredMonthlySGD": "234",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "229.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "234.98",
+        "229.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_7_monthly",
+      "id": "6828835699",
+      "groupId": "22528973",
+      "seats": 7,
+      "desiredMonthlySGD": "273",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "269.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "274.98",
+        "269.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_8_monthly",
+      "id": "6828836410",
+      "groupId": "22528973",
+      "seats": 8,
+      "desiredMonthlySGD": "312",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "309.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "309.98",
+        "314.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_9_monthly",
+      "id": "6828836333",
+      "groupId": "22528973",
+      "seats": 9,
+      "desiredMonthlySGD": "351",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "350.0"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "350.0",
+        "349.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_10_monthly",
+      "id": "6828836589",
+      "groupId": "22528973",
+      "seats": 10,
+      "desiredMonthlySGD": "390",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "389.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "389.98",
+        "389.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_11_monthly",
+      "id": "6828837827",
+      "groupId": "22528973",
+      "seats": 11,
+      "desiredMonthlySGD": "429",
+      "exactPriceAvailable": true,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "429.0"
+      ],
+      "pricePolicy": "at-or-below"
+    },
+    {
+      "productId": "kivilo_pro_team_12_monthly",
+      "id": "6828837866",
+      "groupId": "22528973",
+      "seats": 12,
+      "desiredMonthlySGD": "468",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "464.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "469.0",
+        "469.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_13_monthly",
+      "id": "6828838101",
+      "groupId": "22528973",
+      "seats": 13,
+      "desiredMonthlySGD": "507",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "500.0"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "509.0",
+        "509.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_14_monthly",
+      "id": "6828838077",
+      "groupId": "22528973",
+      "seats": 14,
+      "desiredMonthlySGD": "546",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "539.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "549.0",
+        "549.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_15_monthly",
+      "id": "6828838086",
+      "groupId": "22528973",
+      "seats": 15,
+      "desiredMonthlySGD": "585",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "579.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "588.0",
+        "589.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_16_monthly",
+      "id": "6828838429",
+      "groupId": "22528973",
+      "seats": 16,
+      "desiredMonthlySGD": "624",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "619.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "619.98",
+        "619.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_17_monthly",
+      "id": "6828838378",
+      "groupId": "22528973",
+      "seats": 17,
+      "desiredMonthlySGD": "663",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "659.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "659.98",
+        "659.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_18_monthly",
+      "id": "6828838488",
+      "groupId": "22528973",
+      "seats": 18,
+      "desiredMonthlySGD": "702",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "700.0"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "700.0",
+        "699.98"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_19_monthly",
+      "id": "6828838788",
+      "groupId": "22528973",
+      "seats": 19,
+      "desiredMonthlySGD": "741",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "739.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "739.98",
+        "739.0"
+      ]
+    },
+    {
+      "productId": "kivilo_pro_team_20_monthly",
+      "id": "6828838833",
+      "groupId": "22528973",
+      "seats": 20,
+      "desiredMonthlySGD": "780",
+      "exactPriceAvailable": false,
+      "priceConfigured": true,
+      "state": "MISSING_METADATA",
+      "configuredPricesSGD": [
+        "779.98"
+      ],
+      "pricePolicy": "at-or-below",
+      "nearestPricesSGD": [
+        "779.98",
+        "779.0"
+      ]
+    }
+  ]
+}

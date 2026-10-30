@@ -547,9 +547,9 @@ than a caption, and the report is the artefact both parties are signing.
 
 ## Billing
 
-Plans and limits are decided only in `src/lib/plan.ts` (`plans/billing.md`). Stripe is the
-truth about what was paid; the `Subscription` row is a copy, written only by
-`syncSubscription` in `src/lib/billing.ts`, which re-reads the subscription from Stripe
+Plans and limits are decided only in `src/lib/plan.ts` (`plans/billing.md`). Each billing
+provider is the truth about what it was paid; the `Subscription` row is a copy. For
+Stripe, `syncSubscription` in `src/lib/billing.ts` re-reads the subscription from Stripe
 under a workspace advisory lock, verifies mode and the supported Kivilo catalog, then
 writes the current state. It refuses to replace a
 workspace's different live subscription and throws, which error tracking alerts on.
@@ -587,8 +587,16 @@ Review them in `/admin` and act in Stripe. Their retention is 90 days.
 
 **Store rule:** the web sells Personal and operational-team plans through Stripe.
 Android uses Google Play Billing for Personal and team plans, with server verification,
-acknowledgement and authenticated renewal notifications. iOS keeps its existing
-consumption-only behavior. Never link Android/iOS digital upgrades to Stripe checkout.
+acknowledgement and authenticated renewal notifications. iOS uses StoreKit 2 for
+Personal and team subscriptions (`plans/apple-billing.md`); it requires a new native
+build and server configuration before release. Apple-signed transactions and v2
+notifications are verified with Apple's library, and current subscription status is
+re-read under the same workspace lock. The opaque app-account UUID binds purchases
+to their payer and workspace. Never transfer a receipt between accounts, finish a
+transaction before durable verification, or replace another resumable provider.
+Deleting a Kivilo account retires its Apple binding but cannot cancel Apple's billing;
+the account and deletion screens explain cancellation through Apple.
+Never link Android/iOS digital upgrades to Stripe checkout.
 The current catalog, workspace boundary and release gates are in
 `plans/google-play-billing.md`. New Android billing requires a new native store build.
 
@@ -684,8 +692,9 @@ for personal work. Sharing does not charge the collaborator's workspace. **`src/
 `src/lib/plan.ts` enforces them**, and `createInspection`, the only place a property
 is made, calls its guard; the API answers 403 `plan_limit`. An active property is one
 whose tenancy runs and whose check-out is not signed, counted through `agentTenancies` so
-there is still one rule for who an agent is. Nothing is locked over the limit. Android shows Google Play's prices and a native purchase flow. iOS keeps its current
-read-only plan view. Team owners/managers may start billing, and only the recorded payer
+there is still one rule for who an agent is. Nothing is locked over the limit. Android
+shows Google Play's prices and iOS shows Apple's prices with native purchase flows.
+Team owners/managers may start billing, and only the recorded payer
 manages an existing subscription. Comps go through `pnpm plan:set`; buying is under
 "Billing" above.
 

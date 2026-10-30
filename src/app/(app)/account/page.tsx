@@ -32,10 +32,12 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
   const pro = workspace.plan === 'PRO'
   const comped = subscription?.status === 'comped'
   const play = !!subscription?.googlePlayPurchaseId
+  const apple = !!subscription?.applePurchaseId
   const playCanResume = play && subscriptionCanResume(subscription!)
-  const canCheckout = !pro && !playCanResume && workspace.isManager && checkoutOpen()
+  const appleCanResume = apple && subscriptionCanResume(subscription!)
+  const canCheckout = !pro && !playCanResume && !appleCanResume && workspace.isManager && checkoutOpen()
   // Strictly the payer: the portal shows their card and invoices.
-  const managesBilling = !play && !!subscription?.stripeCustomerId && subscription.managedById === agent.id && workspace.isManager
+  const managesBilling = !play && !apple && !!subscription?.stripeCustomerId && subscription.managedById === agent.id && workspace.isManager
   const date = (value: Date) => value.toLocaleDateString('en-SG', { dateStyle: 'long' })
 
   return (
@@ -98,6 +100,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
               {subscription.seats} {subscription.seats === 1 ? 'seat' : 'seats'}
               {comped && ' · complimentary'}
               {play && ' · paid through Google Play'}
+              {apple && ' · paid through the App Store'}
             </p>
             {(subscription.status === 'past_due' || subscription.status === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD') && (
               <p className="text-red-600">The last payment failed. Your payment provider is retrying it.</p>
@@ -120,7 +123,8 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
         {workspace.team && <p className="mt-3 text-sm text-gray-600">{workspace.seatsNeeded} active team {workspace.seatsNeeded === 1 ? 'member' : 'members'}.</p>}
         {workspace.needsMoreSeats && <p className="mt-3 text-sm text-red-600">Add a seat for every active team member before adding more properties. Existing work stays available.</p>}
         {playCanResume && !pro && <p className="mt-4 text-sm text-gray-600">Resolve or resume this subscription in Google Play to restore Pro.</p>}
-        {!pro && !playCanResume && (
+        {appleCanResume && !pro && <p className="mt-4 text-sm text-gray-600">Resolve or resume this subscription in the App Store to restore Pro.</p>}
+        {!pro && !playCanResume && !appleCanResume && (
           <p className="mt-4 text-sm leading-relaxed text-gray-600">
             Pro is S$39 per agent each month and includes {PRO_ACTIVE_PROPERTIES_PER_SEAT}{' '}
             active properties for each agent{workspace.team ? ', shared across this team' : ''}.
@@ -135,7 +139,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
             )}
           </p>
         )}
-        {(managesBilling || canCheckout || (play && workspace.isManager)) && (
+        {(managesBilling || canCheckout || ((play || apple) && workspace.isManager)) && (
           <div className="mt-4 flex flex-wrap gap-3">
             {canCheckout && (
               <form action={startCheckout} className="space-y-3">
@@ -153,6 +157,9 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
             )}
             {play && workspace.isManager && (
               <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener noreferrer" className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Manage in Google Play</a>
+            )}
+            {apple && workspace.isManager && (
+              <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer" className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Manage in the App Store</a>
             )}
             {managesBilling && (
               <form action={openBillingPortal}>

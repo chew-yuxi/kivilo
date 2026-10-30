@@ -20,11 +20,13 @@ export function isLive(status: string) {
   return LIVE_STATUSES.includes(status)
 }
 
-type SubscriptionState = Pick<Subscription, 'status' | 'googlePlayPurchaseId' | 'currentPeriodEnd'>
+type SubscriptionState = Pick<Subscription, 'status' | 'googlePlayPurchaseId' | 'currentPeriodEnd'> & Partial<Pick<Subscription, 'applePurchaseId'>>
 
 /// Google cancellation preserves the paid period; expiry is enforced locally even if
 /// a notification is delayed. Grace gives access, account hold and pause do not.
 export function subscriptionIsLive(subscription: SubscriptionState, now = new Date()) {
+  if (subscription.applePurchaseId) return ['APPLE_ACTIVE', 'APPLE_CANCELED', 'APPLE_GRACE_PERIOD', 'APPLE_RETIRED'].includes(subscription.status) &&
+    !!subscription.currentPeriodEnd && subscription.currentPeriodEnd > now
   if (!subscription.googlePlayPurchaseId) return isLive(subscription.status)
   return ['SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD', 'SUBSCRIPTION_STATE_CANCELED']
     .includes(subscription.status) && !!subscription.currentPeriodEnd && subscription.currentPeriodEnd > now
@@ -33,6 +35,9 @@ export function subscriptionIsLive(subscription: SubscriptionState, now = new Da
 /// A suspended/paused Play subscription can resume billing without another purchase.
 /// Keep it with its provider until Google confirms it has ended.
 export function subscriptionCanResume(subscription: SubscriptionState, now = new Date()) {
+  if (subscription.applePurchaseId) return ['APPLE_CANCELED', 'APPLE_RETIRED'].includes(subscription.status)
+    ? !!subscription.currentPeriodEnd && subscription.currentPeriodEnd > now
+    : ['APPLE_ACTIVE', 'APPLE_GRACE_PERIOD', 'APPLE_BILLING_RETRY'].includes(subscription.status)
   if (!subscription.googlePlayPurchaseId) return isLive(subscription.status)
   if (['SUBSCRIPTION_STATE_EXPIRED', 'SUBSCRIPTION_STATE_PENDING_PURCHASE_CANCELED'].includes(subscription.status)) return false
   if (subscription.status === 'SUBSCRIPTION_STATE_CANCELED') return !!subscription.currentPeriodEnd && subscription.currentPeriodEnd > now

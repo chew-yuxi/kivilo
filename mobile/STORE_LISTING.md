@@ -50,6 +50,12 @@ Description:
 > Invite colleagues to specific tenancies and manage assigned work through agency workspaces. Keep the property record accessible to the people who need it.
 >
 > The free plan includes 5 active properties with no credit card required.
+>
+> OPTIONAL PRO SUBSCRIPTION
+> Pro is available as an auto-renewing monthly subscription for Personal and team workspaces, with 25 active properties per seat. The App Store shows the price before purchase. Payment is charged to your Apple Account when you confirm. Manage or cancel in your App Store subscriptions; cancel at least 24 hours before renewal to avoid the next charge. Deleting your Kivilo account does not cancel an Apple subscription.
+>
+> Privacy policy: https://my.kivilo.app/privacy
+> Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 Keywords (maximum 100 characters): **rental,inspection,inventory,tenancy,property,condition,handover,check-in,check-out,Singapore**
 
@@ -57,7 +63,8 @@ Keywords (maximum 100 characters): **rental,inspection,inventory,tenancy,propert
 
 Short description (maximum 80 characters): **Rental inspections, inventories, photos and signatures for Singapore agents.**
 
-Full description: use the Apple description above, without the block quote markup.
+Full description: use the shared product description above, ending at the free-plan
+sentence, without the block quote markup. The Apple subscription paragraph is iOS-only.
 
 ## Screenshot sequence
 
@@ -75,3 +82,9 @@ from the tested release behavior, including property media, audio, signatures,
 account details, notifications and user-generated content. The current product has
 no AI inventory drafting or external AI extraction service. Historical release notes
 do not describe the current data flow.
+
+Apple rejected the October 18 screenshot set on October 30 because it showed
+"DEMO ONLY", "Review Lane", and "iPhone capture QA" records. Replace every affected
+phone and tablet image with actual app captures of finished fictional property data.
+Keep the synthetic-data explanation in private review notes, outside the screenshots.
+The replacement build and metadata remain pending the gates in `plans/apple-billing.md`.

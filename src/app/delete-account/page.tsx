@@ -36,6 +36,12 @@ export default async function DeleteAccountPage() {
         You can request deletion of your account and personal data here. We will confirm
         the request, complete it within 30 days, and tell you when it is done.
       </p>
+      <p className="mt-3 text-sm leading-relaxed text-gray-600">
+        If you subscribe through Apple, deleting this account does not cancel that
+        subscription. You can cancel it in{' '}
+        <a href="https://apps.apple.com/account/subscriptions" className="text-brand-600 underline">your App Store subscriptions</a>.
+        You can still request deletion before canceling.
+      </p>
       <section className="mt-6 space-y-3 text-sm leading-relaxed text-gray-600">
         <h2 className="font-semibold text-gray-900">What we delete and retain</h2>
         <p>
