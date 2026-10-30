@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/cdd.dart';
+import '../models/countries.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
@@ -962,6 +963,8 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
   late final _name = TextEditingController(text: widget.clientName);
   final _idNumber = TextEditingController();
   final _nationality = TextEditingController();
+  String? _country;
+  ParticularsProblem? _problem;
   final _address = TextEditingController();
   final _pepDetails = TextEditingController();
   final _born = TextEditingController();
@@ -993,20 +996,48 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
     if (picked == null) return;
     _dateOfBirth = picked;
     _born.text = _date(picked);
+    _clear('dateOfBirth');
   }
+
+  Future<void> _pickCountry() async {
+    final picked = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => _CountryPicker(selected: _country)),
+    );
+    if (picked == null) return;
+    _country = picked;
+    _nationality.text = picked;
+    _clear('nationality');
+  }
+
+  /// Editing the field a problem was on clears it; the next Save checks again.
+  void _clear(String field) {
+    if (_problem?.field == field) setState(() => _problem = null);
+  }
+
+  String? _errorFor(String field) => _problem?.field == field ? _problem!.message : null;
 
   Future<void> _save() async {
     final born = _dateOfBirth;
-    final idProblem = _idNumber.text.trim().isEmpty ? 'Enter the ID number' : _idProblem;
-    if (idProblem != null) {
-      setState(() => _error = idProblem);
-      return;
-    }
-    if (born == null) {
-      setState(() => _error = 'Enter the date of birth as it appears on the ID');
+    // The same rules the server applies; anything that cannot be right is fixed here first.
+    final problem = particularsProblem(
+      legalName: _name.text,
+      idType: _idType,
+      idNumber: _idNumber.text.trim().isEmpty ? '' : _idNumber.text,
+      nationality: _country,
+      dateOfBirth: born,
+      address: _address.text,
+      pepDeclared: _pep,
+      pepDetails: _pepDetails.text,
+    );
+    if (problem != null || born == null) {
+      setState(() {
+        _problem = problem;
+        _error = problem?.message;
+      });
       return;
     }
     setState(() {
+      _problem = null;
       _saving = true;
       _error = null;
     });
@@ -1015,7 +1046,7 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
         'legalName': _name.text.trim(),
         'idType': _idType,
         'idNumber': normalizeIdNumber(_idNumber.text),
-        'nationality': _nationality.text.trim(),
+        'nationality': _country,
         'dateOfBirth': '${born.year.toString().padLeft(4, '0')}-${born.month.toString().padLeft(2, '0')}-${born.day.toString().padLeft(2, '0')}',
         'address': _address.text.trim(),
         'pepDeclared': _pep,
@@ -1047,7 +1078,8 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
             TextField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Full name, as on the ID'),
+              onChanged: (_) => _clear('legalName'),
+              decoration: InputDecoration(labelText: 'Full name, as on the ID', errorText: _errorFor('legalName'), errorMaxLines: 2),
             ),
             const SizedBox(height: 16),
             KiviloSegmentedControl<String>(
@@ -1057,20 +1089,26 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
                 KiviloSegmentOption(value: 'FIN', label: 'FIN'),
                 KiviloSegmentOption(value: 'PASSPORT', label: 'Passport'),
               ],
-              onChanged: (value) => setState(() => _idType = value!),
+              onChanged: (value) => setState(() {
+                _idType = value!;
+                if (_problem?.field == 'idNumber') _problem = null;
+              }),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _idNumber,
               textCapitalization: TextCapitalization.characters,
               autocorrect: false,
-              onChanged: (_) => setState(() {}),
+              onChanged: (_) => setState(() {
+                if (_problem?.field == 'idNumber') _problem = null;
+              }),
               decoration: InputDecoration(
                 labelText: 'ID number',
                 // A complete NRIC or FIN is nine characters; judge it once it could be one.
-                errorText: _idProblem != null && normalizeIdNumber(_idNumber.text).length >= 9 ? _idProblem : null,
+                errorText: _errorFor('idNumber') ??
+                    (_idProblem != null && normalizeIdNumber(_idNumber.text).length >= 9 ? _idProblem : null),
                 errorMaxLines: 2,
-                suffixIcon: _idNumber.text.trim().isNotEmpty && _idProblem == null
+                suffixIcon: _idNumber.text.trim().isNotEmpty && _idProblem == null && _errorFor('idNumber') == null
                     ? const Icon(Icons.check_rounded, color: KiviloColors.green)
                     : null,
               ),
@@ -1078,17 +1116,24 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
             const SizedBox(height: 12),
             TextField(
               controller: _nationality,
-              textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Nationality'),
+              readOnly: true,
+              onTap: _pickCountry,
+              decoration: InputDecoration(
+                labelText: 'Nationality',
+                errorText: _errorFor('nationality'),
+                suffixIcon: const Icon(Icons.chevron_right),
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
               readOnly: true,
               onTap: _pickDate,
               controller: _born,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Date of birth',
-                suffixIcon: Icon(Icons.calendar_today_outlined, size: 18),
+                errorText: _errorFor('dateOfBirth'),
+                errorMaxLines: 2,
+                suffixIcon: const Icon(Icons.calendar_today_outlined, size: 18),
               ),
             ),
             const SizedBox(height: 12),
@@ -1096,7 +1141,14 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
               controller: _address,
               minLines: 2,
               maxLines: 4,
-              decoration: const InputDecoration(labelText: 'Residential address', alignLabelWithHint: true),
+              onChanged: (_) => _clear('address'),
+              decoration: InputDecoration(
+                labelText: 'Residential address',
+                hintText: 'Blk 231 Bishan Street 23, #10-120, Singapore 570231',
+                errorText: _errorFor('address'),
+                errorMaxLines: 2,
+                alignLabelWithHint: true,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
@@ -1119,7 +1171,12 @@ class _CddParticularsScreenState extends State<CddParticularsScreen> {
                 controller: _pepDetails,
                 minLines: 2,
                 maxLines: 4,
-                decoration: const InputDecoration(labelText: 'Which position, and who holds it', alignLabelWithHint: true),
+                onChanged: (_) => _clear('pepDetails'),
+                decoration: InputDecoration(
+                  labelText: 'Which position, and who holds it',
+                  errorText: _errorFor('pepDetails'),
+                  alignLabelWithHint: true,
+                ),
               ),
             ],
             if (_error != null) ...[
@@ -1532,6 +1589,62 @@ class CddCompletedScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Every nationality the server accepts, searchable, with the common ones first.
+class _CountryPicker extends StatefulWidget {
+  const _CountryPicker({this.selected});
+
+  final String? selected;
+
+  @override
+  State<_CountryPicker> createState() => _CountryPickerState();
+}
+
+class _CountryPickerState extends State<_CountryPicker> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final query = _query.trim().toLowerCase();
+    final found = [for (final country in countries) if (country.toLowerCase().contains(query)) country];
+    Widget row(String country) => ListTile(
+      title: Text(country),
+      trailing: country == widget.selected ? const Icon(Icons.check_rounded, color: KiviloColors.pink) : null,
+      onTap: () => Navigator.of(context).pop(country),
+    );
+    return Scaffold(
+      appBar: AppBar(title: const Text('Nationality')),
+      body: KiviloContent(
+        maxWidth: 720,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: TextField(
+                autofocus: true,
+                onChanged: (value) => setState(() => _query = value),
+                decoration: const InputDecoration(hintText: 'Search countries'),
+              ),
+            ),
+            if (query.isEmpty) ...[
+              Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: KiviloEyebrow('Common')),
+              for (final country in commonCountries) row(country),
+              Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 4), child: KiviloEyebrow('All countries')),
+            ],
+            for (final country in found) row(country),
+            if (found.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text('No country matches “$_query”.', textAlign: TextAlign.center, style: text.bodyMedium),
+              ),
           ],
         ),
       ),

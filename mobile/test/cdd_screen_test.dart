@@ -204,10 +204,11 @@ void main() {
 
     expect(find.widgetWithText(TextField, 'Full name, as on the ID'), findsOneWidget);
     final save = find.widgetWithText(FilledButton, 'Save particulars');
+    await tester.scrollUntilVisible(save, 200, scrollable: find.byType(Scrollable).first);
     expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'the original ID must be in front of the agent');
     await _tap(tester, find.textContaining('original ID is in front of me'));
     await _tap(tester, save);
-    expect(find.text('Enter the ID number'), findsOneWidget);
+    expect(find.text('Enter the date of birth as it appears on the ID'), findsWidgets);
     await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567a');
     await tester.pump();
     expect(find.text('This NRIC number is not valid. Check it against the card'), findsOneWidget);
@@ -217,20 +218,27 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567d');
     await tester.pump();
     expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-    await tester.enterText(find.widgetWithText(TextField, 'Nationality'), 'Singaporean');
-    await tester.enterText(find.widgetWithText(TextField, 'Residential address'), '8 Jalan Kayu #04-11');
     await _tap(tester, find.widgetWithText(TextField, 'Date of birth'));
     await tester.tap(find.byIcon(Icons.edit_outlined));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, '04/02/1990');
     await _tap(tester, find.text('OK'));
+    await _tap(tester, find.widgetWithText(TextField, 'Nationality'));
+    await tester.enterText(find.widgetWithText(TextField, 'Search countries'), 'singa');
+    await tester.pumpAndSettle();
+    await _tap(tester, find.text('Singapore'));
+    await tester.enterText(find.widgetWithText(TextField, 'Residential address'), 'Jalan Kayu');
+    await _tap(tester, find.text('Save particulars'));
+    expect(find.textContaining('Enter the full residential address'), findsWidgets);
+    expect(api.inPerson, isEmpty);
+    await tester.enterText(find.widgetWithText(TextField, 'Residential address'), '8 Jalan Kayu #04-11');
     await _tap(tester, find.text('Save particulars'));
 
     expect(api.inPerson.single, {
       'legalName': 'Tan Wei Ling',
       'idType': 'NRIC',
       'idNumber': 'S1234567D',
-      'nationality': 'Singaporean',
+      'nationality': 'Singapore',
       'dateOfBirth': '1990-04-02',
       'address': '8 Jalan Kayu #04-11',
       'pepDeclared': false,
