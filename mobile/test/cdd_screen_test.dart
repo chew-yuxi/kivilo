@@ -177,8 +177,12 @@ void main() {
     await _tap(tester, find.widgetWithText(FilledButton, 'Decide'));
     final record = find.widgetWithText(FilledButton, 'Record');
     expect(tester.widget<FilledButton>(record).onPressed, isNull);
+    expect(find.text('Your client'), findsOneWidget);
+    expect(find.text('Born 2 Apr 1990'), findsOneWidget);
+    expect(find.text('UN list'), findsOneWidget);
     await tester.tap(find.text('Yes'));
     await tester.pump();
+    expect(find.textContaining('This stops the deal'), findsOneWidget);
     expect(tester.widget<FilledButton>(record).onPressed, isNull, reason: 'a reason is required');
     await tester.enterText(find.widgetWithText(TextField, 'Reason'), 'Same name and passport photo');
     await _tap(tester, record);
@@ -199,12 +203,20 @@ void main() {
     await _tap(tester, find.text('Fill in together'));
 
     expect(find.widgetWithText(TextField, 'Full name, as on the ID'), findsOneWidget);
-    await _tap(tester, find.text('Save particulars'));
-    expect(find.text('Enter the date of birth as it appears on the ID'), findsOneWidget);
+    final save = find.widgetWithText(FilledButton, 'Save particulars');
+    expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'the original ID must be in front of the agent');
+    await _tap(tester, find.textContaining('original ID is in front of me'));
+    await _tap(tester, save);
+    expect(find.text('Enter the ID number'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567a');
+    await tester.pump();
+    expect(find.text('This NRIC number is not valid. Check it against the card'), findsOneWidget);
     expect(api.inPerson, isEmpty);
 
     await tester.enterText(find.widgetWithText(TextField, 'Full name, as on the ID'), 'Tan Wei Ling');
     await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567d');
+    await tester.pump();
+    expect(find.byIcon(Icons.check_rounded), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'Nationality'), 'Singaporean');
     await tester.enterText(find.widgetWithText(TextField, 'Residential address'), '8 Jalan Kayu #04-11');
     await _tap(tester, find.widgetWithText(TextField, 'Date of birth'));
@@ -217,7 +229,7 @@ void main() {
     expect(api.inPerson.single, {
       'legalName': 'Tan Wei Ling',
       'idType': 'NRIC',
-      'idNumber': 's1234567d',
+      'idNumber': 'S1234567D',
       'nationality': 'Singaporean',
       'dateOfBirth': '1990-04-02',
       'address': '8 Jalan Kayu #04-11',
@@ -236,6 +248,8 @@ void main() {
     expect(find.text('Assess risk'), findsNothing, reason: 'the ID check comes first');
 
     await _tap(tester, find.text('I’ve seen the original ID'));
+    expect(find.text('ends 567A'), findsOneWidget);
+    await _tap(tester, find.text('It matches'));
     await _tap(tester, find.text('Assess risk'));
     expect(find.byType(CddRiskScreen), findsOneWidget);
     final save = find.widgetWithText(FilledButton, 'Save assessment');
