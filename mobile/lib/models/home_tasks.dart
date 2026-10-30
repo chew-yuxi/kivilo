@@ -56,8 +56,11 @@ class HomeTask {
 }
 
 class HomeTasks {
-  const HomeTasks({required this.tasks, this.truncated = false});
+  const HomeTasks({required this.tasks, this.truncated = false, this.dueDiligence = false});
   final List<HomeTask> tasks;
+
+  /// Whether Home offers Due diligence. False from a server that predates it.
+  final bool dueDiligence;
 
   /// A source reached the server's bound: counts are "at least", never the whole.
   final bool truncated;
@@ -70,5 +73,6 @@ class HomeTasks {
         .map((row) => HomeTask.fromJson(row as Map<String, dynamic>))
         .toList(),
     truncated: json['truncated'] as bool? ?? false,
+    dueDiligence: json['dueDiligence'] as bool? ?? false,
   );
 }
