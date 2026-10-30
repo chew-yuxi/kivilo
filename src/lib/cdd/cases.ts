@@ -10,6 +10,7 @@ import { reportBranding } from '@/lib/report-agent'
 import { encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
 import { idNumberProblem } from './id-number'
+import { RISK_QUESTIONS } from './risk'
 
 export { CddInputError, CddStateError }
 
@@ -33,7 +34,7 @@ export function cddCaseScope(actorId: string): Prisma.CddCaseWhereInput {
   }
 }
 
-async function caseInScope(caseId: string, actorId: string, client: Prisma.TransactionClient = db) {
+export async function caseInScope(caseId: string, actorId: string, client: Prisma.TransactionClient = db) {
   const found = await client.cddCase.findFirst({ where: { id: caseId, ...cddCaseScope(actorId) } })
   if (!found) throw new Error(NOT_FOUND)
   return found
@@ -244,6 +245,7 @@ export async function screenCase(caseId: string) {
 export async function rescreen(caseId: string, agentId: string) {
   const found = await caseInScope(caseId, agentId)
   if (found.status === 'WAITING_FOR_CLIENT') throw new CddStateError('The client has not sent their particulars yet')
+  if (found.status === 'COMPLETE') throw new CddStateError('This due diligence is complete and locked')
   await screenCase(caseId)
 }
 
@@ -317,12 +319,22 @@ export async function caseForAgent(caseId: string, agentId: string) {
     include: {
       client: { select: { id: true, name: true, email: true } },
       particulars: true,
+      riskAssessment: true,
       screeningRuns: { orderBy: { ranAt: 'desc' }, include: { candidates: { orderBy: { score: 'desc' } } } },
     },
   })
-  const { particulars, ...rest } = found
+  const { particulars, riskAssessment, ...rest } = found
   return {
     ...rest,
+    reference: caseReference(found.id),
+    riskAssessment: riskAssessment && {
+      checklistVersion: riskAssessment.checklistVersion,
+      answers: riskAssessment.answers,
+      level: riskAssessment.level,
+      assessedAt: riskAssessment.assessedAt,
+    },
+    /// The questions the app asks, so the checklist changes in one place.
+    riskQuestions: RISK_QUESTIONS,
     particulars: particulars && {
       kind: particulars.kind,
       legalName: particulars.legalName,
@@ -335,6 +347,7 @@ export async function caseForAgent(caseId: string, agentId: string) {
       pepDetails: particulars.pepDetails,
       submittedInPerson: particulars.submittedInPerson,
       idSighted: particulars.idSightedAt !== null,
+      idSightedAt: particulars.idSightedAt,
       submittedAt: particulars.submittedAt,
     },
   }

@@ -5,8 +5,24 @@ import 'package:kivilo/screens/cdd_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
-Map<String, dynamic> _case({String status = 'WAITING_FOR_CLIENT', bool submitted = false, String? decision}) => {
+const _questions = [
+  {'key': 'pep', 'text': 'Is the client a politically exposed person?', 'help': null},
+  {'key': 'cash', 'text': 'Will any deposit or rent be paid in cash?', 'help': null},
+];
+
+Map<String, dynamic> _case({
+  String status = 'WAITING_FOR_CLIENT',
+  bool submitted = false,
+  String? decision,
+  bool idSighted = false,
+  String? risk,
+}) => {
   'id': 'case-1',
+  'reference': 'DD-1A2B3C4D',
+  'riskQuestions': _questions,
+  'riskAssessment': risk == null ? null : {'level': risk, 'answers': {'pep': false, 'cash': false}, 'assessedAt': '2026-10-31T03:00:00.000Z'},
+  'completedAt': status == 'COMPLETE' ? '2026-10-31T03:05:00.000Z' : null,
+  'contentHash': status == 'COMPLETE' ? 'ab12cd34ef56${'0' * 48}9f9f' : null,
   'status': status,
   'clientRole': 'TENANT',
   'client': {'id': 'client-1', 'name': 'Wei Ling', 'email': 'wei@example.com'},
@@ -22,7 +38,8 @@ Map<String, dynamic> _case({String status = 'WAITING_FOR_CLIENT', bool submitted
           'pepDeclared': false,
           'pepDetails': null,
           'submittedInPerson': false,
-          'idSighted': false,
+          'submittedAt': '2026-10-30T06:14:00.000Z',
+          'idSighted': idSighted,
         }
       : null,
   'screeningRuns': submitted
@@ -90,6 +107,26 @@ class _Api extends Api {
     json = _case(status: confirmed ? 'ESCALATED' : 'NEEDS_REVIEW', submitted: true, decision: confirmed ? 'CONFIRMED_MATCH' : 'NOT_A_MATCH');
   }
 
+  final risks = <Map<String, bool>>[];
+  int completions = 0;
+
+  @override
+  Future<void> confirmIdSighted(String id) async {
+    json = _case(status: 'NEEDS_REVIEW', submitted: true, decision: 'NOT_A_MATCH', idSighted: true);
+  }
+
+  @override
+  Future<void> assessRisk(String id, Map<String, bool> answers, {String? sourceOfFunds}) async {
+    risks.add(answers);
+    json = _case(status: 'NEEDS_REVIEW', submitted: true, decision: 'NOT_A_MATCH', idSighted: true, risk: 'STANDARD');
+  }
+
+  @override
+  Future<void> completeCase(String id) async {
+    completions++;
+    json = _case(status: 'COMPLETE', submitted: true, decision: 'NOT_A_MATCH', idSighted: true, risk: 'STANDARD');
+  }
+
   @override
   Future<void> submitParticularsInPerson(String id, Map<String, dynamic> particulars) async {
     inPerson.add(particulars);
@@ -134,9 +171,8 @@ void main() {
   testWidgets('a match needs a decision and a reason, and a confirmed one escalates', (tester) async {
     final api = _Api(_case(status: 'NEEDS_REVIEW', submitted: true));
     await _show(tester, CddCaseScreen(id: 'case-1', api: api));
-    expect(find.text('*****567A'), findsOneWidget);
+    expect(find.text('1 possible match to decide'), findsOneWidget);
     expect(find.text('Born 1961 · Indonesia'), findsOneWidget);
-    expect(find.text('Checked 29 Oct 2026 against UN 2026-10-28, SG 2026-08-26.'), findsOneWidget);
 
     await _tap(tester, find.widgetWithText(FilledButton, 'Decide'));
     final record = find.widgetWithText(FilledButton, 'Record');
@@ -148,9 +184,13 @@ void main() {
     await _tap(tester, record);
 
     expect(api.decisions.single, (id: 'match-1', confirmed: true, reason: 'Same name and passport photo'));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+    await tester.pumpAndSettle();
     expect(find.textContaining('do not tell them'), findsOneWidget);
+    expect(find.text('Confirmed match'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Decide'), findsNothing);
     expect(find.text('CONFIRMED MATCH'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('*****567A'), 200, scrollable: find.byType(Scrollable).first);
   });
 
   testWidgets('particulars taken in person are sent with the date of birth', (tester) async {
@@ -164,7 +204,7 @@ void main() {
     expect(api.inPerson, isEmpty);
 
     await tester.enterText(find.widgetWithText(TextField, 'Full name, as on the ID'), 'Tan Wei Ling');
-    await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567a');
+    await tester.enterText(find.widgetWithText(TextField, 'ID number'), 's1234567d');
     await tester.enterText(find.widgetWithText(TextField, 'Nationality'), 'Singaporean');
     await tester.enterText(find.widgetWithText(TextField, 'Residential address'), '8 Jalan Kayu #04-11');
     await _tap(tester, find.widgetWithText(TextField, 'Date of birth'));
@@ -177,7 +217,7 @@ void main() {
     expect(api.inPerson.single, {
       'legalName': 'Tan Wei Ling',
       'idType': 'NRIC',
-      'idNumber': 's1234567a',
+      'idNumber': 's1234567d',
       'nationality': 'Singaporean',
       'dateOfBirth': '1990-04-02',
       'address': '8 Jalan Kayu #04-11',
@@ -185,6 +225,42 @@ void main() {
       'pepDetails': null,
     });
     expect(find.byType(CddCaseScreen), findsOneWidget);
-    expect(find.text('Particulars'), findsOneWidget);
+    expect(find.text('Sent by the client · 30 Oct 2026, 2:14 pm'), findsOneWidget);
+  });
+
+  testWidgets('the agent checks the ID, assesses the risk and completes a locked record', (tester) async {
+    final api = _Api(_case(status: 'NEEDS_REVIEW', submitted: true, decision: 'NOT_A_MATCH'));
+    await _show(tester, CddCaseScreen(id: 'case-1', api: api));
+    expect(find.text('2 of 5 steps done'), findsOneWidget);
+    expect(find.text('1 possible match ruled out · UN 2026-10-28, SG 2026-08-26'), findsOneWidget);
+    expect(find.text('Assess risk'), findsNothing, reason: 'the ID check comes first');
+
+    await _tap(tester, find.text('I’ve seen the original ID'));
+    await _tap(tester, find.text('Assess risk'));
+    expect(find.byType(CddRiskScreen), findsOneWidget);
+    final save = find.widgetWithText(FilledButton, 'Save assessment');
+    expect(tester.widget<FilledButton>(save).onPressed, isNull, reason: 'every question needs an answer');
+    for (final no in find.text('No').evaluate().toList()) {
+      await tester.tap(find.byWidget(no.widget));
+    }
+    await tester.pumpAndSettle();
+    expect(find.text('Standard risk'), findsOneWidget);
+    await _tap(tester, save);
+    expect(api.risks.single, {'pep': false, 'cash': false});
+
+    expect(find.text('Standard risk'), findsOneWidget);
+    await _tap(tester, find.text('Complete due diligence'));
+    await _tap(tester, find.widgetWithText(FilledButton, 'Complete'));
+    expect(api.completions, 1);
+    expect(find.text('Due diligence complete'), findsOneWidget);
+    expect(find.text('ab12cd34…9f9f'), findsOneWidget);
+    expect(find.text('DD-1A2B3C4D'), findsOneWidget);
+
+    await _tap(tester, find.text('Done'));
+    expect(find.text('View record'), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 2000));
+    await tester.pumpAndSettle();
+    expect(find.text('All 5 steps done'), findsOneWidget);
+    expect(find.text('Complete due diligence'), findsNothing);
   });
 }

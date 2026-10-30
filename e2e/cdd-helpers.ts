@@ -30,6 +30,7 @@ export async function removeCases(where: { caseIds?: string[]; people?: string[]
   await db.screeningCandidate.deleteMany({ where: { run: { caseId: { in: ids } } } })
   await db.screeningRun.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddEvent.deleteMany({ where: { caseId: { in: ids } } })
+  await db.cddRiskAssessment.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddParticulars.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddCase.deleteMany({ where: { id: { in: ids } } })
 }

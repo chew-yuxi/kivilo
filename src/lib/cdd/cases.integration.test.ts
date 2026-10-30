@@ -9,6 +9,8 @@ import {
   caseForAgent, caseForClient, decideCandidate, particularsStillWanted, requestParticulars, rescreen, startDeal,
   submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
+import { addendumHash } from '@/lib/addenda'
+import { assessRisk, completeCase, completedRecord, confirmIdSighted } from './review'
 
 const tag = randomUUID().slice(0, 8)
 const people: string[] = []
@@ -44,6 +46,7 @@ afterAll(async () => {
   await db.screeningRun.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddEvent.deleteMany({ where: { caseId: { in: ids } } })
   await db.notification.deleteMany({ where: { kind: 'CDD_REQUEST', recipientId: { in: people } } })
+  await db.cddRiskAssessment.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddParticulars.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddCase.deleteMany({ where: { id: { in: ids } } })
   await db.sanctionsList.deleteMany()
@@ -169,3 +172,50 @@ describe('due diligence cases', () => {
   })
 })
 
+describe('reviewing a case', () => {
+  const clear = { pep: false, highRiskCountry: false, cash: false, actingForAnother: false, unusual: false }
+
+  it('takes the steps in order, then locks the record under a recomputable fingerprint', async () => {
+    const agent = await person('Agent Review')
+    const client = await person('Client Review')
+    const started = await startDeal(agent.id, { clientName: client.name, clientEmail: client.email, clientRole: 'TENANT' })
+    await expect(confirmIdSighted(started.id, agent.id)).rejects.toThrow('The client has not sent their particulars yet')
+    // Shares a name with the listed Mohamad Latiff bin Rahim, so there is a match to decide.
+    await submitOwnParticulars(started.id, client.id, { ...ordinary, legalName: 'Mohamad Latiff bin Rahim', dateOfBirth: '1990-01-01' })
+
+    await expect(assessRisk(started.id, agent.id, clear)).rejects.toThrow('Check the client’s ID first')
+    await confirmIdSighted(started.id, agent.id)
+    await expect(assessRisk(started.id, agent.id, clear)).rejects.toThrow('Decide every possible match first')
+    const [candidate] = (await caseForAgent(started.id, agent.id)).screeningRuns[0].candidates
+    await decideCandidate(candidate.id, agent.id, 'NOT_A_MATCH', 'Born 1990, the listed person 1983')
+    await expect(completeCase(started.id, agent.id)).rejects.toThrow('Assess the client’s risk first')
+
+    await expect(assessRisk(started.id, agent.id, { ...clear, cash: true })).rejects.toThrow('Record where the client’s funds come from')
+    await assessRisk(started.id, agent.id, { ...clear, cash: true }, 'Salary, DBS payslips seen')
+    const { contentHash } = await completeCase(started.id, agent.id)
+
+    const view = await caseForAgent(started.id, agent.id)
+    expect(view).toMatchObject({ status: 'COMPLETE', riskLevel: 'HIGHER', contentHash, riskAssessment: { level: 'HIGHER' } })
+    expect(view.reference).toMatch(/^DD-[0-9A-F]{8}$/)
+    expect(addendumHash(await completedRecord(db, started.id, agent.id))).toBe(contentHash)
+
+    for (const step of [
+      () => confirmIdSighted(started.id, agent.id),
+      () => assessRisk(started.id, agent.id, clear),
+      () => completeCase(started.id, agent.id),
+      () => rescreen(started.id, agent.id),
+    ]) await expect(step()).rejects.toThrow('This due diligence is complete and locked')
+  })
+
+  it('refuses another agent every step, as a missing case', async () => {
+    const agent = await person('Agent Owner')
+    const stranger = await person('Agent Stranger')
+    const started = await startDeal(agent.id, { clientName: 'Walk-in Six', clientRole: 'LANDLORD' })
+    await submitParticularsInPerson(started.id, agent.id, ordinary)
+    for (const step of [
+      () => confirmIdSighted(started.id, stranger.id),
+      () => assessRisk(started.id, stranger.id, clear),
+      () => completeCase(started.id, stranger.id),
+    ]) await expect(step()).rejects.toThrow('Case not found')
+  })
+})

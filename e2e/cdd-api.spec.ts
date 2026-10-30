@@ -74,3 +74,36 @@ test('an agent runs due diligence through the app API, and nobody else can', asy
   expect((await (await request.get(`/api/v1/cdd/${id}`, { headers: agent })).json()).status).toBe('ESCALATED')
   expect((await (await request.get('/api/v1/cdd', { headers: agent })).json()).cases[0]).toMatchObject({ id, status: 'ESCALATED', openMatches: 0 })
 })
+
+/// The rest of the review over the API: the ID seen, the risk checklist the case read
+/// returned, then completion, which locks the record under its fingerprint.
+test('an agent checks the ID, assesses the risk and completes a case', async ({ request }) => {
+  await ensureSanctionsLists()
+  const agentEmail = freshEmail('cdd-api-reviewer')
+  emails.push(agentEmail)
+  const agent = { Authorization: `Bearer ${await accessTokenFor(agentEmail)}` }
+  const { id } = await (await request.post('/api/v1/cdd', { headers: agent, data: { clientName: 'Lim Mei Hua', clientRole: 'LANDLORD' } })).json()
+  const sent = await request.post(`/api/v1/cdd/${id}/particulars`, {
+    headers: agent,
+    data: {
+      legalName: 'Lim Mei Hua', idType: 'NRIC', idNumber: 'S1234567D', nationality: 'Singapore',
+      dateOfBirth: '1979-06-02', address: '9 Bishan Street 22', pepDeclared: false,
+    },
+  })
+  expect(sent.ok()).toBe(true)
+
+  const early = await request.post(`/api/v1/cdd/${id}/complete`, { headers: agent })
+  expect(await early.json()).toEqual({ error: 'invalid_state', message: 'Assess the client’s risk first' })
+
+  const { riskQuestions } = await (await request.get(`/api/v1/cdd/${id}`, { headers: agent })).json()
+  const answers = Object.fromEntries(riskQuestions.map((question: { key: string }) => [question.key, false]))
+  expect((await request.post(`/api/v1/cdd/${id}/id-check`, { headers: agent })).ok()).toBe(true)
+  expect((await request.post(`/api/v1/cdd/${id}/risk`, { headers: agent, data: { answers } })).ok()).toBe(true)
+  const completed = await (await request.post(`/api/v1/cdd/${id}/complete`, { headers: agent })).json()
+  expect(completed.contentHash).toMatch(/^[0-9a-f]{64}$/)
+
+  const view = await (await request.get(`/api/v1/cdd/${id}`, { headers: agent })).json()
+  expect(view).toMatchObject({ status: 'COMPLETE', riskLevel: 'STANDARD', contentHash: completed.contentHash })
+  const locked = await request.post(`/api/v1/cdd/${id}/risk`, { headers: agent, data: { answers } })
+  expect(await locked.json()).toEqual({ error: 'invalid_state', message: 'This due diligence is complete and locked' })
+})
