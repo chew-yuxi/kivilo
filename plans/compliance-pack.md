@@ -152,11 +152,22 @@ in, while ID data belongs to each case.
   the answer to remote ID checks later. Cynopsis Artemis: a Singapore compliance suite, price
   on request, more competitor or partner than supplier. Singpass MyInfo: government-verified
   identity for residents, needs onboarding approval, a later version.
-- **Still to test (needs an owner action):** match quality on real Singaporean names for
-  **Dilisense (first choice for PEP checks)** and OpenSanctions, each with a free key. One
-  afternoon: run the same 50 names (Parliament members, list entries, ordinary names) through
-  both and count misses and false positives. Pick the better one; the provider interface
-  keeps switching cheap.
+- **Dilisense tested 30 October 2026** (`GET api.dilisense.com/v1/checkIndividual?names=&dob=`,
+  header `x-api-key`), 50 names, name only, against Kivilo's own matcher on the same day's
+  lists:
+  - PEPs: 20 of 20 found (15 ministers and MPs, 5 reordered or full legal names such as
+    "Wong Shyun Tsai Lawrence"). Kivilo has no PEP data, so this is what the provider is for.
+  - Sanctions: both found 15 of 15 (5 UN, 5 UN with the name reversed, 5 from the SG First
+    Schedule). Dilisense carries the First Schedule as `sg_statutes_online_terrorism_act`.
+  - Ordinary names: 12 of 15 clean on both. Dilisense flagged "Rajesh Kumar" (32 records,
+    mostly Indian judges and officials), "Ahmad bin Ismail" (1) and "Mohamed Ali" (632);
+    Kivilo flagged only "Mohamed Ali" (2). A `dob` drops only records whose own date
+    disagrees, so undated records stay ("Mohamed Ali" with a date: 392). The full legal name
+    does the work: "Mohamed Ali bin Hassan" with a date returned 2, neither a PEP.
+  - Decision: Dilisense for PEPs only. Send the full legal name and date of birth, keep
+    `source_type: PEP` records, re-score them with Kivilo's matcher before an agent sees
+    them, and keep sanctions on the official lists. OpenSanctions not tested; not needed
+    unless Dilisense's terms or price fail legal check 5.
 
 ## Screening
 
