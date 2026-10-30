@@ -5,6 +5,30 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Due diligence review and client verification: 31 October 2026 Singapore time
+
+Server source `9fb43d8` on `origin/main`, deployed by Vercel (READY; `/api/v1/cdd/[id]/id-check`,
+`/risk` and `/complete` answer 401 signed out, an unknown sibling 404), no migration. The
+client's `/cdd/[caseId]` is a branded three-step verification with the ID checked as it
+is typed and a confirmation with a reference; the request email is HTML. The agent's case
+is a five-step review (particulars, original ID seen, screening decided, CEA risk
+checklist, completion that locks the record under a recomputable SHA-256). Home still
+offers it only to `ADMIN_EMAILS`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **21** / `764365` | **stable** |
+| iOS TestFlight `1.0.0+25` | **49** / `764375` | **stable** |
+
+Patch source `ea7e5c6` on local branch `claude/cdd-patch` (the line from `bfe4074`, still
+without main's StoreKit work); its due-diligence files were compared byte for byte with
+main's. Explicit build numbers read back (`versionCode="29"`; `CFBundleVersion` 25). All
+21 icons used exist in both base sources. Android's `--allow-asset-diffs` covered the
+icon font and `NOTICES.Z`; iOS needed none and shared 60.0% of Dart code. Checks: 519
+mobile tests on the patch source, 531 on main; lint, typecheck, build, 282 unit, 448
+integration, the due-diligence e2e specs, and 28 of 29 full e2e (the billing spec needs
+Stripe keys this worktree lacks; no billing file changed). Physical devices **NOT RUN**.
+
 ## Due diligence preview: 30 October 2026 Singapore time
 
 Server source `f8dc676`, pushed to `origin/main` and deployed by Vercel (READY, `sin1`;
