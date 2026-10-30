@@ -5,6 +5,35 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Duplicate a line, one condition for several, missing-detail hints: 30 October 2026 Singapore time
+
+Source `8e73b14`, pushed to `origin/main` and deployed by Vercel (READY; the new
+`POST /api/v1/inspections/[id]/items/[itemId]/duplicate` and
+`POST /api/v1/inspections/[id]/rooms/[roomId]/items/condition` answer 401 signed
+out) before the patches were set to stable; no migration. Phase 4 of
+`plans/app-first-ux-20261025.md`, first slice: duplicate copies structure only (no
+serial, reading, notes, photos, check-in line or asset); one condition for lines
+selected in one room after a confirmation naming the room, refused on a sent report;
+before review, specific missing details as a non-blocking note. Built on the photo
+performance release `3734be3`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **19** / `762874` | **stable** |
+| iOS TestFlight `1.0.0+25` | **47** / `762891` | **stable** |
+
+Built from one pinned worktree with production defines and explicit
+`--build-number=29` / `--build-number=25`, read back from the artifacts
+(`versionCode="29"`; `CFBundleVersion` 25, `1.0.0`), published to staging, then set to
+stable with Yuxi's go. Android patches 9 to 17 and iOS patches 36 to 45 from 28 to 30
+October were built without an explicit build number (pubspec says `+24`); Shorebird
+targets patches by `--release-version` and the build number is native, so they are
+expected to be unaffected, but their artifacts were not read back. Flutter analysis
+was clean and all **513 mobile tests** passed; typecheck, lint, build, **227** unit and
+the focused integration tests passed. No icon added; `--allow-asset-diffs` covered the
+icon font and `NOTICES.Z`. No native difference. iOS shared 60.5% of Dart code with
+its possible-slower-execution warning. Physical devices **NOT RUN**.
+
 ## Photo capture, caching and report previews: 30 October 2026 Singapore time
 
 Source `3734be3`, pushed to `origin/main` and deployed by Vercel as
