@@ -1,19 +1,28 @@
 {
   "builtAt": "2026-10-30",
+  "sourceCommit": "9a06bbd148bf56abcd1d6a5ae376336a4fd537a9",
   "version": "1.0.0",
   "buildNumber": "26",
   "bundleId": "one.kivilo.kivilo",
-  "method": "shorebird release ios --dry-run",
+  "method": "shorebird release ios",
   "flutterVersion": "3.47.2",
   "entryPoint": "lib/main.dart",
-  "sha256": "9278c2cdb3c261ee9dd5924f86f47cc144f05c2ff7b4a5a7e7f49fe329876ead",
-  "sizeBytes": 31484399,
+  "sha256": "56eef58eec7ea400d272360fa899807efee21edb7bfd8063623063c451dc69fc",
+  "sizeBytes": 31489852,
   "signatureVerified": true,
   "getTaskAllow": false,
   "apsEnvironment": "production",
   "storeKitFrameworkIncluded": true,
   "testFixturesIncluded": false,
-  "shorebirdReleasePublished": false,
-  "uploadedToApple": false,
-  "artifact": "mobile/build/release-artifacts/ios/build26-prepared/kivilo.ipa"
+  "shorebirdReleasePublished": true,
+  "uploadedToApple": true,
+  "artifact": "mobile/build/release-artifacts/ios/build26/kivilo.ipa",
+  "permissions": {
+    "NSPhotoLibraryUsageDescription": "Choose photos and videos for property evidence, document attachments and your agency logo.",
+    "NSCameraUsageDescription": "Record property walkthroughs and photograph evidence or documents you choose to attach.",
+    "NSMicrophoneUsageDescription": "Record narration alongside room walkthrough videos."
+  },
+  "shorebirdReleaseId": 922723,
+  "appleUploadDeliveryId": "7b22e7e8-92f5-4e60-bd6a-6bb6f33284a2",
+  "appleProcessingState": "awaiting_readback"
 }
