@@ -51,7 +51,10 @@ export async function verifyAppleTransaction(signedTransaction: string) {
 }
 
 export async function verifyAppleNotification(signedPayload: string) {
-  for (const environment of [Environment.PRODUCTION, Environment.SANDBOX]) {
+  // Sandbox notifications omit appAppleId. Apple's SDK checks that identifier
+  // before the environment, so a Production-first attempt rejects a valid
+  // Sandbox payload before it can reach the Sandbox verifier.
+  for (const environment of [Environment.SANDBOX, Environment.PRODUCTION]) {
     try {
       return await verifier(environment).verifyAndDecodeNotification(signedPayload)
     } catch (error) {

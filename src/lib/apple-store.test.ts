@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
-import { Environment, InAppOwnershipType, Status, Type } from '@apple/app-store-server-library'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { Environment, InAppOwnershipType, NotificationTypeV2, SignedDataVerifier, Status, Type } from '@apple/app-store-server-library'
+import { APPLE_APP_ID, APPLE_BUNDLE_ID } from '@/lib/apple-catalog'
 import { appleSubscriptionState, verifyAppleNotification, verifyAppleTransaction } from '@/lib/apple-store'
 import { subscriptionCanResume, subscriptionIsLive } from '@/lib/plan'
 
@@ -11,6 +12,8 @@ const transaction = {
   expiresDate: Date.now() + 86400000,
 }
 const renewal = { originalTransactionId: '100', autoRenewStatus: 1, environment: Environment.SANDBOX }
+
+afterEach(() => vi.restoreAllMocks())
 
 describe('Apple subscription validation', () => {
   it('uses the signed catalog and normalizes its opaque account binding', () => {
@@ -40,6 +43,27 @@ describe('Apple subscription validation', () => {
     const forged = ['eyJhbGciOiJub25lIn0', Buffer.from(JSON.stringify(transaction)).toString('base64url'), 'fake'].join('.')
     await expect(verifyAppleTransaction(forged)).rejects.toMatchObject({ code: 'invalid_purchase' })
     await expect(verifyAppleNotification(forged)).rejects.toMatchObject({ code: 'invalid_purchase' })
+  })
+  it.each([
+    { environment: Environment.SANDBOX, bundleId: APPLE_BUNDLE_ID },
+    { environment: Environment.PRODUCTION, bundleId: APPLE_BUNDLE_ID, appAppleId: APPLE_APP_ID },
+  ])('accepts verified $environment notifications with the identifiers Apple supplies', async (data) => {
+    const payload = { notificationType: NotificationTypeV2.TEST, data }
+    // Stub signature verification only. The SDK's real notification identifier
+    // and environment checks reproduce Sandbox's missing appAppleId behavior.
+    vi.spyOn(SignedDataVerifier.prototype as unknown as { verifyJWT: () => Promise<unknown> }, 'verifyJWT')
+      .mockResolvedValue(payload)
+    await expect(verifyAppleNotification('verified-test-notification')).resolves.toEqual(payload)
+  })
+  it.each([
+    { environment: Environment.SANDBOX, bundleId: 'another.app' },
+    { environment: Environment.PRODUCTION, bundleId: APPLE_BUNDLE_ID },
+    { environment: Environment.PRODUCTION, bundleId: APPLE_BUNDLE_ID, appAppleId: APPLE_APP_ID + 1 },
+    { environment: Environment.XCODE, bundleId: APPLE_BUNDLE_ID },
+  ])('rejects a verified notification for unsupported identifiers %j', async (data) => {
+    vi.spyOn(SignedDataVerifier.prototype as unknown as { verifyJWT: () => Promise<unknown> }, 'verifyJWT')
+      .mockResolvedValue({ notificationType: NotificationTypeV2.TEST, data })
+    await expect(verifyAppleNotification('verified-test-notification')).rejects.toMatchObject({ code: 'invalid_purchase' })
   })
   it('enforces expiry without a webhook and blocks a provider switch during billing retry', () => {
     const subscription = { applePurchaseId: 'apple', googlePlayPurchaseId: null, status: 'APPLE_ACTIVE', currentPeriodEnd: new Date(Date.now() - 1000) }
