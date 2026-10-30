@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto'
+import { normalizeIdNumber } from './id-number'
 
 /// Identity numbers collected for CEA due diligence are encrypted in the application, so a
 /// database copy alone never reveals them (plans/compliance-pack.md). Keys live in the
@@ -18,10 +19,6 @@ function keys(): Key[] {
   })
 }
 
-/// As printed on the document: upper case, no spaces or dashes.
-export function normalizeIdNumber(idNumber: string) {
-  return idNumber.toUpperCase().replace(/[\s-]/g, '')
-}
 
 export function encryptIdNumber(idNumber: string) {
   const plain = normalizeIdNumber(idNumber)

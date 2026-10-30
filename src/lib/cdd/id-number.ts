@@ -1,6 +1,11 @@
 import type { CddIdType } from '@/generated/prisma'
-import { normalizeIdNumber } from './crypto'
 
+/// As printed on the document: upper case, no spaces or dashes.
+export function normalizeIdNumber(idNumber: string) {
+  return idNumber.toUpperCase().replace(/[\s-]/g, '')
+}
+
+/// Pure, so the client's form runs the same check as the server as they type.
 /// Singapore NRIC and FIN numbers end in a check letter computed from the rest, so a
 /// mistyped number is caught here rather than recorded and screened as if it were right.
 /// S and T are NRICs (born before and from 2000); F, G and M are FINs (M from 2022).

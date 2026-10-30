@@ -95,7 +95,12 @@ describe('due diligence cases', () => {
     expect(candidate).toMatchObject({ source: 'SG', reference: 'TSFA First Schedule 2(zw)', decision: null })
 
     const seen = JSON.stringify(await caseForClient(started.id, client.id))
-    expect(JSON.parse(seen)).toEqual({ id: started.id, agentName: agent.name, clientRole: 'TENANT', submitted: true })
+    // The agent's identity and when they sent it; nothing about what happened after.
+    expect(Object.keys(JSON.parse(seen)).sort()).toEqual([
+      'agencyLicence', 'agencyName', 'agentName', 'ceaRegistration', 'clientRole', 'id', 'logoPath',
+      'property', 'reference', 'submitted', 'submittedAt',
+    ])
+    expect(JSON.parse(seen)).toMatchObject({ id: started.id, agentName: agent.name, clientRole: 'TENANT', submitted: true })
     for (const word of ['NEEDS_REVIEW', 'TSFA', 'Latiff', 'match', 'screen']) expect(seen).not.toContain(word)
   })
 

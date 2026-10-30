@@ -41,6 +41,9 @@ test('an agent runs due diligence through the app API, and nobody else can', asy
     legalName: 'Tan Jun Jie', idType: 'NRIC', idNumber: 'T0712345G', nationality: 'Singapore',
     dateOfBirth: '2007-03-19', address: '2 Jurong East Street 21', pepDeclared: false,
   }
+  const mistyped = await request.post(`/api/v1/cdd/${id}/particulars`, { headers: agent, data: { ...inPerson, idNumber: 'T0712345B' } })
+  expect(mistyped.status()).toBe(400)
+  expect(await mistyped.json()).toEqual({ error: 'invalid_input', message: 'This NRIC number is not valid. Check it against the card' })
   expect((await request.post(`/api/v1/cdd/${id}/particulars`, { headers: agent, data: inPerson })).ok()).toBe(true)
   const again = await request.post(`/api/v1/cdd/${id}/particulars`, { headers: agent, data: inPerson })
   expect(again.status()).toBe(409)

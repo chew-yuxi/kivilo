@@ -30,24 +30,34 @@ test('a client sends their due-diligence particulars from the emailed link', asy
   await page.getByLabel('Six digit code').fill((await latestCodeFor(email))!)
   await page.getByRole('button', { name: 'Sign in' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Your details for your rental' })).toBeVisible()
-  await expect(page.getByText('Jane Agent is your property agent for this rental, as the landlord.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Verify your identity' })).toBeVisible()
+  await expect(page.getByText('Jane Agent is your agent, acting for you as the landlord.', { exact: false })).toBeVisible()
   await page.waitForLoadState('networkidle')
   await page.screenshot({ path: 'test-results/cdd-particulars-form.png', fullPage: true })
 
   await page.getByLabel('Full name, as on your ID').fill('Tan Wei Ming')
-  await page.getByLabel('ID number').fill('S1234567A')
-  await page.getByLabel('Nationality').fill('Singapore')
   await page.getByLabel('Date of birth').fill('1985-04-12')
+  await page.getByLabel('Nationality').fill('Singapore')
   await page.getByLabel('Residential address').fill('1 Orchard Road, #10-01, Singapore 238823')
-  await page.getByRole('button', { name: 'Send my details' }).click()
-  // A mistyped number fails its check letter and is never stored.
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  // A mistyped number fails its check letter as it is typed, before anything is sent.
+  await page.getByLabel('ID number').fill('S1234567A')
   await expect(page.getByText('This NRIC number is not valid. Check it against the card')).toBeVisible()
-  await page.getByLabel('ID number').fill('S1234567D')
+  await page.getByLabel('ID number').fill('s1234567d')
+  await expect(page.getByLabel('Valid')).toBeVisible()
+  await page.getByRole('button', { name: 'No', exact: true }).click()
+  await page.screenshot({ path: 'test-results/cdd-particulars-id.png', fullPage: true })
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  await expect(page.getByText('S1234567D')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Send my details' })).toBeDisabled()
+  await page.getByRole('checkbox').check()
+  await page.screenshot({ path: 'test-results/cdd-particulars-confirm.png', fullPage: true })
   await page.getByRole('button', { name: 'Send my details' }).click()
 
-  await expect(page.getByRole('heading', { name: 'Thank you' })).toBeVisible()
-  await expect(page.getByText('Your details have been sent to Jane Agent.')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Details sent' })).toBeVisible()
+  await expect(page.getByText(/^DD-[0-9A-F]{8}$/)).toBeVisible()
   await page.screenshot({ path: 'test-results/cdd-particulars-thanks.png', fullPage: true })
   const shown = (await page.locator('body').innerText()).toLowerCase()
   for (const word of ['screen', 'sanction', 'match', 'review']) expect(shown).not.toContain(word)

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import type { CddClientRole, CddIdType, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
 import { actsAsAgent } from '@/lib/auth'
 import { requireAgencyMembership } from '@/lib/agency'
@@ -5,6 +6,7 @@ import { db } from '@/lib/db'
 import { screen } from '@/lib/screening/match'
 import { currentSanctionsLists } from '@/lib/screening/lists'
 import { recordServerError } from '@/lib/errors'
+import { reportBranding } from '@/lib/report-agent'
 import { encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
 import { idNumberProblem } from './id-number'
@@ -343,8 +345,40 @@ export async function caseForAgent(caseId: string, agentId: string) {
 export async function caseForClient(caseId: string, clientId: string) {
   const found = await db.cddCase.findFirst({
     where: { id: caseId, clientId },
-    select: { id: true, clientRole: true, particulars: { select: { submittedAt: true } }, agent: { select: { name: true } } },
+    select: {
+      id: true,
+      clientRole: true,
+      particulars: { select: { submittedAt: true } },
+      agent: { select: { name: true, branding: true } },
+      agency: { select: { name: true, updatedAt: true, branding: true } },
+      property: { select: { line1: true, unit: true } },
+    },
   })
   if (!found) throw new Error(NOT_FOUND)
-  return { id: found.id, agentName: found.agent.name, clientRole: found.clientRole, submitted: found.particulars !== null }
+  // The same identity a report carries: the team's name and logo with the agent's own
+  // CEA registration, or the agent's personal branding.
+  const branding = reportBranding({
+    reportAgentFrozen: true,
+    reportAgent: found.agent,
+    reportAgency: found.agency,
+    tenancy: { agent: null, agency: null },
+  })
+  return {
+    id: found.id,
+    reference: caseReference(found.id),
+    agentName: found.agent.name,
+    agencyName: branding?.agencyName ?? null,
+    agencyLicence: branding?.agencyLicence ?? null,
+    ceaRegistration: branding?.ceaRegistration ?? null,
+    logoPath: branding?.logoPath ?? null,
+    property: found.property ? [found.property.unit, found.property.line1].filter(Boolean).join(', ') : null,
+    clientRole: found.clientRole,
+    submitted: found.particulars !== null,
+    submittedAt: found.particulars?.submittedAt ?? null,
+  }
+}
+
+/// What the client and the agent quote to each other about a case: short, and not the id.
+export function caseReference(caseId: string) {
+  return `DD-${createHash('sha256').update(caseId).digest('hex').slice(0, 8).toUpperCase()}`
 }
