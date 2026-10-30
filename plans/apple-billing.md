@@ -32,8 +32,9 @@ tax/banking setup. No agreement was accepted by the agent.
 See `mobile/store/submission/apple-agreement-status.json`.
 The owner subsequently reported completion, but the refreshed Business page still
 showed Paid Apps **New**; activation is not yet verified. Kivilo's app availability
-is Singapore-only. The DSA option for no planned EU distribution fits that rollout
-if it remains outside the EU; the owner must make the declaration.
+is Singapore-only. The owner confirmed no planned EU distribution. App Store Connect
+now shows DSA **Active**, with the non-trader/no-planned-EU-distribution option saved.
+The existing declaration was verified without changing it.
 
 | Rejection | Prepared change | Remaining release gate |
 | --- | --- | --- |

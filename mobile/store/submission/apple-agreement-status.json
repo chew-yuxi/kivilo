@@ -18,6 +18,9 @@
   "readbackNote": "After the owner's completion report, a refreshed Business page still shows Paid Apps Agreement as New; activation is not yet verified.",
   "kiviloAvailableTerritories": ["SGP"],
   "dsaDeclarationSubmittedByAgent": false,
+  "dsaComplianceStatus": "Active",
+  "dsaSelectedOption": "I'm not a trader under the DSA or I don't plan to distribute in the EU",
+  "dsaOwnerIntent": "Owner confirmed no EU distribution planned. The saved non-EU option and Active status were verified in App Store Connect; no change was needed.",
   "action": "Account Holder must review and sign the Paid Apps Agreement, then complete required tax and banking setup in App Store Connect Business before purchase testing and resubmission. Owner has been asked.",
   "agreementsAcceptedByAgent": false
 }
