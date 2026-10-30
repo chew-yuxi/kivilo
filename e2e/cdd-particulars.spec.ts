@@ -36,9 +36,14 @@ test('a client sends their due-diligence particulars from the emailed link', asy
   await page.screenshot({ path: 'test-results/cdd-particulars-form.png', fullPage: true })
 
   await page.getByLabel('Full name, as on your ID').fill('Tan Wei Ming')
-  await page.getByLabel('Date of birth').fill('1985-04-12')
-  await page.getByLabel('Nationality').fill('Singapore')
+  await page.getByLabel('Date of birth').fill('2012-04-12')
+  await page.getByLabel('Nationality').selectOption('Singapore')
   await page.getByLabel('Residential address').fill('1 Orchard Road, #10-01, Singapore 238823')
+  await page.getByRole('button', { name: 'Continue' }).click()
+  // Anything that cannot be right is refused at the step that asks for it.
+  await expect(page.getByText('A party to a tenancy must be at least 18')).toBeVisible()
+  await page.screenshot({ path: 'test-results/cdd-particulars-refused.png', fullPage: true })
+  await page.getByLabel('Date of birth').fill('1985-04-12')
   await page.getByRole('button', { name: 'Continue' }).click()
 
   // A mistyped number fails its check letter as it is typed, before anything is sent.

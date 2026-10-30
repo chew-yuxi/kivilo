@@ -110,7 +110,7 @@ describe('due diligence cases', () => {
   it('records the agent’s reasoned, final decision, and escalates a confirmed match', async () => {
     const agent = await person('Agent Five')
     const started = await startDeal(agent.id, { clientName: 'Walk-in Five', clientRole: 'LANDLORD' })
-    await submitParticularsInPerson(started.id, agent.id, { ...ordinary, legalName: 'Tan Jun Jie', dateOfBirth: '2007-03-19' })
+    await submitParticularsInPerson(started.id, agent.id, { ...ordinary, legalName: 'Tan Jun Jie', idNumber: 'T0712345G', dateOfBirth: '2007-03-19' })
     const [candidate] = (await caseForAgent(started.id, agent.id)).screeningRuns[0].candidates
     await expect(decideCandidate(candidate.id, agent.id, 'NOT_A_MATCH', '  ')).rejects.toThrow('reason')
     await decideCandidate(candidate.id, agent.id, 'CONFIRMED_MATCH', 'Same name and date of birth as the designation')

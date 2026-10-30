@@ -9,7 +9,7 @@ import { recordServerError } from '@/lib/errors'
 import { reportBranding } from '@/lib/report-agent'
 import { encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
-import { idNumberProblem } from './id-number'
+import { particularsProblem } from './particulars-rules'
 import { RISK_QUESTIONS } from './risk'
 
 export { CddInputError, CddStateError }
@@ -96,20 +96,15 @@ export type Particulars = {
 }
 
 function checkedParticulars(input: Particulars) {
+  // Companies and their owners come later (plans/compliance-pack.md); only individuals
+  // reach here today, and everything about them must be right before it is stored.
+  if (input.kind !== 'INDIVIDUAL') throw new CddInputError('Only individuals can send particulars for now')
+  const problem = particularsProblem(input)
+  if (problem) throw new CddInputError(problem.message)
   const legalName = input.legalName.trim()
-  const nationality = input.nationality.trim()
+  const nationality = input.nationality
   const address = input.address.trim()
-  if (!legalName || !nationality || !address || !input.idNumber.trim()) {
-    throw new CddInputError('Fill in every field as it appears on the ID')
-  }
-  // Without a date of birth a common name matches too many listed people to review.
-  const dateOfBirth = input.dateOfBirth ? new Date(`${input.dateOfBirth}T00:00:00Z`) : null
-  if (input.kind === 'INDIVIDUAL' && (!dateOfBirth || Number.isNaN(dateOfBirth.getTime()))) {
-    throw new CddInputError('Enter the date of birth as it appears on the ID')
-  }
-  if (input.pepDeclared && !input.pepDetails?.trim()) throw new CddInputError('Say which public position is held')
-  const idProblem = idNumberProblem(input.idType, input.idNumber)
-  if (idProblem) throw new CddInputError(idProblem)
+  const dateOfBirth = new Date(`${input.dateOfBirth}T00:00:00Z`)
   const { encrypted, last4 } = encryptIdNumber(input.idNumber)
   return {
     kind: input.kind,

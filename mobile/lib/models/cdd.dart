@@ -1,3 +1,5 @@
+import 'countries.dart';
+
 /// CEA customer due diligence for one client of one deal (plans/compliance-pack.md).
 class CddCaseSummary {
   const CddCaseSummary({
@@ -289,5 +291,76 @@ String? idNumberProblem(String idType, String idNumber) {
     sum += int.parse(digits[i]) * _idWeights[i];
   }
   if (_idLetters[prefix]![sum % 11] != parts.group(3)) return 'This $idType number is not valid. Check it against the card';
+  return null;
+}
+
+/// Which field a particulars problem belongs to, and what to fix.
+typedef ParticularsProblem = ({String field, String message});
+
+final _nameShape = RegExp(r"^[\p{L}\p{M}][\p{L}\p{M} .,'’@/()-]*$", unicode: true);
+final _letter = RegExp(r'\p{L}', unicode: true);
+
+/// The first problem with these particulars, field by field in the order the form asks,
+/// or null. The same rules as the server's `particularsProblem`
+/// (src/lib/cdd/particulars-rules.ts), which stays the authority.
+ParticularsProblem? particularsProblem({
+  required String legalName,
+  required String idType,
+  required String idNumber,
+  required String? nationality,
+  required DateTime? dateOfBirth,
+  required String address,
+  required bool pepDeclared,
+  String? pepDetails,
+  DateTime? today,
+}) {
+  final now = today ?? DateTime.now();
+  final name = legalName.trim();
+  if (name.length < 2 || _letter.allMatches(name).length < 2) {
+    return (field: 'legalName', message: 'Enter the full name as it appears on the ID');
+  }
+  if (!_nameShape.hasMatch(name) || name.length > 120) {
+    return (field: 'legalName', message: 'The name can only have letters, spaces and . , \' - @ / ( )');
+  }
+
+  final born = dateOfBirth;
+  if (born == null) return (field: 'dateOfBirth', message: 'Enter the date of birth as it appears on the ID');
+  if (born.isAfter(now)) return (field: 'dateOfBirth', message: 'The date of birth cannot be in the future');
+  var age = now.year - born.year;
+  if (now.month < born.month || (now.month == born.month && now.day < born.day)) age--;
+  if (age < 18) return (field: 'dateOfBirth', message: 'A party to a tenancy must be at least 18');
+  if (age > 120) return (field: 'dateOfBirth', message: 'Check the year of birth');
+
+  if (nationality == null || !countries.contains(nationality)) {
+    return (field: 'nationality', message: 'Choose the nationality from the list');
+  }
+
+  final place = address.trim();
+  if (place.length < 10 || !_letter.hasMatch(place) || !RegExp(r'\d').hasMatch(place)) {
+    return (field: 'address', message: 'Enter the full residential address, with the block or house number and postal code');
+  }
+
+  if (idNumberProblem(idType, idNumber) case final problem?) return (field: 'idNumber', message: problem);
+  final id = normalizeIdNumber(idNumber);
+  // S and T record the century of birth, for citizens and permanent residents alike.
+  if (idType == 'NRIC' && id.startsWith('S') && born.year >= 2000) {
+    return (
+      field: 'idNumber',
+      message: 'An NRIC starting with S is for someone born before 2000. Check the NRIC and date of birth against the card',
+    );
+  }
+  if (idType == 'NRIC' && id.startsWith('T') && born.year < 2000) {
+    return (
+      field: 'idNumber',
+      message: 'An NRIC starting with T is for someone born in 2000 or later. Check the NRIC and date of birth against the card',
+    );
+  }
+  if (idType == 'FIN' && nationality == 'Singapore') {
+    return (field: 'idNumber', message: 'A FIN is issued to foreigners. A Singapore citizen uses their NRIC');
+  }
+
+  if (pepDeclared && (pepDetails?.trim().length ?? 0) < 5) {
+    return (field: 'pepDetails', message: 'Say which public position is held, and by whom');
+  }
   return null;
 }

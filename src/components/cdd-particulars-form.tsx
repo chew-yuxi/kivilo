@@ -3,6 +3,8 @@
 import { useState, useSyncExternalStore, useTransition } from 'react'
 import { sendOwnParticulars } from '@/lib/cdd-actions'
 import { idNumberProblem, normalizeIdNumber } from '@/lib/cdd/id-number'
+import { particularsProblem, type ParticularsField, type ParticularsProblem } from '@/lib/cdd/particulars-rules'
+import { COMMON_COUNTRIES, COUNTRIES } from '@/lib/countries'
 
 const input = 'mt-1.5 block min-h-12 w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-base text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100'
 const label = 'block text-sm font-medium text-gray-700'
@@ -10,6 +12,10 @@ const primary = 'flex min-h-12 w-full items-center justify-center rounded-xl bg-
 const secondary = 'flex min-h-12 w-full items-center justify-center rounded-xl bg-brand-50 px-4 text-[15px] font-semibold text-brand-700 transition-colors hover:bg-brand-100'
 
 const STEPS = ['Your details', 'Your ID', 'Confirm'] as const
+/// Which step asks for each field, so a problem sends the client back to fix it there.
+const STEP_OF: Record<ParticularsField, number> = {
+  legalName: 0, dateOfBirth: 0, nationality: 0, address: 0, idNumber: 1, pepDetails: 1,
+}
 const ID_TYPES = [
   { value: 'NRIC', label: 'NRIC' },
   { value: 'FIN', label: 'FIN' },
@@ -38,19 +44,36 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
   const [pep, setPep] = useState<boolean | null>(null)
   const [confirmed, setConfirmed] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [problem, setProblem] = useState<ParticularsProblem | null>(null)
   const [pending, startTransition] = useTransition()
   // Disabled until hydrated: this page usually arrives by a full load straight after sign-in.
   const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false)
 
-  const set = (key: keyof Values) => (event: { target: { value: string } }) =>
+  const set = (key: keyof Values) => (event: { target: { value: string } }) => {
+    if (problem?.field === key) setProblem(null)
     setValues((current) => ({ ...current, [key]: event.target.value }))
+  }
+  const invalid = (field: ParticularsField) => problem?.field === field
+  const fieldError = (field: ParticularsField) =>
+    invalid(field) && <span className="mt-1.5 block text-sm font-normal text-red-700" role="alert">{problem!.message}</span>
+  const errorInput = 'border-red-400 focus:border-red-500 focus:ring-red-100'
   const idProblem = values.idNumber.trim() ? idNumberProblem(values.idType, values.idNumber) : null
   const idValid = values.idNumber.trim() !== '' && idProblem === null
+  // A full NRIC or FIN is nine characters; judge the shape once it could be one, and show
+  // the cross-checks (century of birth, a FIN for a citizen) when Continue finds them.
+  const idMessage = invalid('idNumber')
+    ? problem!.message
+    : idProblem && normalizeIdNumber(values.idNumber).length >= 9 ? idProblem : null
 
   const next = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     setError(null)
-    if (step === 1 && !idValid) return setError(idProblem ?? 'Enter your ID number')
+    // The same rules the server applies, so nothing that would be refused gets past a step.
+    const found = particularsProblem({ ...values, pepDeclared: pep === true, pepDetails: values.pepDetails })
+    if (found && STEP_OF[found.field] <= step) {
+      setProblem(found)
+      return setStep(STEP_OF[found.field])
+    }
     if (step === 1 && pep === null) return setError('Answer the question about public positions')
     if (step < 2) return setStep(step + 1)
     startTransition(async () => {
@@ -89,19 +112,31 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
             <h2 className="text-lg font-semibold text-gray-900">Your details</h2>
             <label className={label}>
               Full name, as on your ID
-              <input value={values.legalName} onChange={set('legalName')} required autoComplete="name" className={input} />
+              <input value={values.legalName} onChange={set('legalName')} required autoComplete="name" aria-invalid={invalid('legalName')} className={`${input} ${invalid('legalName') ? errorInput : ''}`} />
+              {fieldError('legalName')}
             </label>
             <label className={label}>
               Date of birth
-              <input value={values.dateOfBirth} onChange={set('dateOfBirth')} type="date" required autoComplete="bday" className={input} />
+              <input value={values.dateOfBirth} onChange={set('dateOfBirth')} type="date" min="1900-01-01" max={new Date().toISOString().slice(0, 10)} required autoComplete="bday" aria-invalid={invalid('dateOfBirth')} className={`${input} ${invalid('dateOfBirth') ? errorInput : ''}`} />
+              {fieldError('dateOfBirth')}
             </label>
             <label className={label}>
               Nationality
-              <input value={values.nationality} onChange={set('nationality')} required autoComplete="country-name" className={input} />
+              <select value={values.nationality} onChange={set('nationality')} required aria-invalid={invalid('nationality')} className={`${input} ${values.nationality ? '' : 'text-gray-400'} ${invalid('nationality') ? errorInput : ''}`}>
+                <option value="" disabled>Choose your nationality</option>
+                <optgroup label="Common">
+                  {COMMON_COUNTRIES.map((country) => <option key={`common-${country}`} value={country}>{country}</option>)}
+                </optgroup>
+                <optgroup label="All countries">
+                  {COUNTRIES.map((country) => <option key={country} value={country}>{country}</option>)}
+                </optgroup>
+              </select>
+              {fieldError('nationality')}
             </label>
             <label className={label}>
               Residential address
-              <textarea value={values.address} onChange={set('address')} required rows={2} autoComplete="street-address" className={input} />
+              <textarea value={values.address} onChange={set('address')} required rows={2} autoComplete="street-address" placeholder="Blk 231 Bishan Street 23, #10-120, Singapore 570231" aria-invalid={invalid('address')} className={`${input} ${invalid('address') ? errorInput : ''}`} />
+              {fieldError('address')}
             </label>
           </>
         )}
@@ -117,7 +152,10 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
                     key={type.value}
                     type="button"
                     aria-pressed={values.idType === type.value}
-                    onClick={() => setValues((current) => ({ ...current, idType: type.value }))}
+                    onClick={() => {
+                      if (problem?.field === 'idNumber') setProblem(null)
+                      setValues((current) => ({ ...current, idType: type.value }))
+                    }}
                     className={`min-h-10 rounded-lg text-sm font-semibold ${values.idType === type.value ? 'bg-brand-500 text-white shadow-sm' : 'text-gray-600'}`}
                   >
                     {type.label}
@@ -135,16 +173,16 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
                   autoComplete="off"
                   autoCapitalize="characters"
                   spellCheck={false}
-                  aria-invalid={idProblem !== null}
-                  className={`${input} pr-11 font-mono uppercase tracking-wider ${idProblem ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : ''}`}
+                  aria-invalid={idMessage !== null}
+                  className={`${input} pr-11 font-mono uppercase tracking-wider ${idMessage ? errorInput : ''}`}
                 />
-                {idValid && (
+                {idValid && !invalid('idNumber') && (
                   <svg viewBox="0 0 24 24" aria-label="Valid" className="absolute right-3.5 top-1/2 size-5 -translate-y-1/2 text-green-600" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                     <path d="m5 12.5 4.5 4.5L19 7.5" />
                   </svg>
                 )}
               </span>
-              {idProblem && values.idNumber.trim().length >= 9 && <span className="mt-1.5 block text-sm text-red-700">{idProblem}</span>}
+              {idMessage && <span className="mt-1.5 block text-sm font-normal text-red-700" role="alert">{idMessage}</span>}
             </label>
             <fieldset>
               <legend className={label}>
@@ -167,7 +205,8 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
               {pep && (
                 <label className={`${label} mt-3`}>
                   Which position, and who holds it
-                  <textarea value={values.pepDetails} onChange={set('pepDetails')} required rows={2} className={input} />
+                  <textarea value={values.pepDetails} onChange={set('pepDetails')} required rows={2} aria-invalid={invalid('pepDetails')} className={`${input} ${invalid('pepDetails') ? errorInput : ''}`} />
+                  {fieldError('pepDetails')}
                 </label>
               )}
             </fieldset>
