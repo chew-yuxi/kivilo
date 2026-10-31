@@ -5,6 +5,28 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Due diligence corrections, PEP screening and the CEA record: 31 October 2026 Singapore time
+
+Server sources `ad523ac` (corrections) and `5b86ad9` on `origin/main`, deployed by Vercel
+(READY; `/api/v1/cdd/[id]/record` and `/correction` answer 401 signed out, an unknown sibling
+404). `20261031090000_pep_screening_source` (adds `SanctionsSource.PEP`) was applied to
+production with `prisma migrate deploy` before the push. `DILISENSE_API_KEY` is set in Vercel
+Production. Screening now checks Dilisense PEP records in the same run as the UN and SG lists
+(`provider: kivilo-lists+dilisense`); a confirmed PEP raises risk rather than escalating. A
+completed case downloads as a PDF record (`src/lib/cdd/record-pdf.tsx`) whose route traces the
+same 30 pdfkit font files as the report route. Stored particulars are measured against
+today's rules on every read; failing ones block review until corrected.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **23** / `765395` | **stable** |
+| iOS TestFlight `1.0.0+25` | **51** / `765401` | **stable** |
+
+Patch source `1d99b31` on `claude/cdd-patch`; due-diligence files match main's byte for byte;
+build numbers read back (29; 25); icons all in both bases. Checks: 525 mobile tests on the
+patch source, 537 on main; lint, typecheck, build, 292 unit, 453 integration and the three
+due-diligence e2e specs (against a local Dilisense stub). Physical devices **NOT RUN**.
+
 ## Due diligence refuses particulars that cannot be right: 31 October 2026 Singapore time
 
 Server source `d175ae0` on `origin/main`, deployed by Vercel (READY, created 15 seconds
