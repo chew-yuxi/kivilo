@@ -18,6 +18,8 @@ export const reportInclude = {
       property: true, landlord: true, tenant: true,
       agent: { include: { branding: true } },
       agency: { include: { branding: true } },
+      // CEA due diligence the agent completed on either party; never anything about screening.
+      cddCases: { where: { status: 'COMPLETE' }, orderBy: { completedAt: 'desc' }, select: { clientRole: true, completedAt: true } },
     },
   },
   conductedBy: true,
@@ -190,4 +192,11 @@ function depositStatementView(
     answerAs: party && !answered(party === 'LANDLORD' ? tenancy.landlordId : tenancy.tenantId) ? party : null,
     answerInPerson: party ? [] : parties.filter((row) => !answered(row.stakeholderId)),
   }
+}
+
+/// When the agent completed CEA customer due diligence on each party, or null. Only a
+/// completed check is shown, so the report never says anything about one in progress.
+export function verifiedParties(cases: { clientRole: 'LANDLORD' | 'TENANT'; completedAt: Date | null }[]) {
+  const at = (role: 'LANDLORD' | 'TENANT') => cases.find((found) => found.clientRole === role)?.completedAt ?? null
+  return { landlord: at('LANDLORD'), tenant: at('TENANT') }
 }

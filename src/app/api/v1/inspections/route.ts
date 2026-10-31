@@ -5,6 +5,8 @@ import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
 import { createInspection } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
+import { isAdmin } from '@/lib/admin'
+import { verifyTenancyParties } from '@/lib/cdd/cases'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,6 +78,8 @@ const newInspection = z.object({
   monthlyRent: z.string().min(1),
   deposit: z.string().min(1),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
+  /// Start CEA due diligence on both parties as the check-in is made (operators' preview).
+  verifyParties: z.boolean().optional(),
 }).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
   message: 'Address and postal code are required',
 }).refine((input) => input.sameLandlord || input.landlordName, {
@@ -85,7 +89,12 @@ const newInspection = z.object({
 /// Creates the property, both stakeholders, the tenancy and the check-in in one call,
 /// exactly as the web form does. The signed-in agent is put on the tenancy, which is
 /// what makes the result visible to them and to nobody else.
-export const POST = authed(async (_agent, _params, request) => {
-  const input = newInspection.parse(await request.json())
-  return { id: await createInspection(input) }
+export const POST = authed(async (agent, _params, request) => {
+  const { verifyParties, ...input } = newInspection.parse(await request.json())
+  const id = await createInspection(input)
+  if (verifyParties && isAdmin(agent.email)) {
+    const { tenancyId } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true } })
+    await verifyTenancyParties(agent.id, tenancyId)
+  }
+  return { id }
 })

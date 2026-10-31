@@ -6,7 +6,7 @@ import { parseTsfaFirstSchedule } from '@/lib/screening/sg-tsfa'
 import { parseUnConsolidated } from '@/lib/screening/un-list'
 import { notificationScope } from '@/lib/auth'
 import {
-  caseForAgent, caseForClient, decideCandidate, particularsStillWanted, requestParticulars, rescreen, startDeal,
+  caseForAgent, caseForClient, decideCandidate, partyChecks, verifyTenancyParties, particularsStillWanted, requestParticulars, rescreen, startDeal,
   submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
 import { addendumHash } from '@/lib/addenda'
@@ -17,6 +17,8 @@ import { assessRisk, completeCase, completedRecord, confirmIdSighted, requestCor
 
 const tag = randomUUID().slice(0, 8)
 const people: string[] = []
+const tenancies: string[] = []
+const properties: string[] = []
 const fixture = (name: string) => readFileSync(new URL(`../screening/fixtures/${name}`, import.meta.url), 'utf8')
 
 async function person(name: string) {
@@ -67,6 +69,8 @@ afterAll(async () => {
   await db.cddParticulars.deleteMany({ where: { caseId: { in: ids } } })
   await db.cddCase.deleteMany({ where: { id: { in: ids } } })
   await db.sanctionsList.deleteMany()
+  await db.tenancy.deleteMany({ where: { id: { in: tenancies } } })
+  await db.property.deleteMany({ where: { id: { in: properties } } })
   const clients = await db.stakeholder.findMany({ where: { email: { endsWith: `-${tag}@example.test` } }, select: { id: true } })
   await db.stakeholder.deleteMany({ where: { id: { in: [...people, ...clients.map((client) => client.id)] } } })
 })
@@ -323,5 +327,37 @@ describe('reviewing a case', () => {
     await db.cddParticulars.update({ where: { caseId: started.id }, data: { address: '2 Orchard Road' } })
     expect((await cddRecordModel(started.id, agent.id)).verified).toBe(false)
     await expect(cddRecordModel(started.id, (await person('Agent Outsider')).id)).rejects.toThrow('Case not found')
+  })
+
+  it('starts both parties’ checks from a tenancy once, as the people already on it, and reports them per party', async () => {
+    const agent = await person('Agent Tenancy')
+    const landlord = await person('Landlord Tenancy')
+    const tenant = await db.stakeholder.create({ data: { name: `Tenant without email ${tag}` } })
+    people.push(tenant.id)
+    const property = await db.property.create({ data: { line1: '8 Jalan Kayu', postalCode: '799487', type: 'HDB' } })
+    properties.push(property.id)
+    const tenancy = await db.tenancy.create({
+      data: {
+        propertyId: property.id, landlordId: landlord.id, tenantId: tenant.id, agentId: agent.id,
+        startDate: new Date('2026-11-01'), endDate: new Date('2027-10-31'), monthlyRent: 3000, deposit: 6000,
+      },
+    })
+    tenancies.push(tenancy.id)
+
+    await expect(verifyTenancyParties((await person('Agent Elsewhere')).id, tenancy.id)).rejects.toThrow('Tenancy not found')
+    const started = await verifyTenancyParties(agent.id, tenancy.id)
+    expect(started.map((each) => each.role)).toEqual(['LANDLORD', 'TENANT'])
+    expect(await verifyTenancyParties(agent.id, tenancy.id)).toEqual([])
+
+    const cases = await db.cddCase.findMany({ where: { tenancyId: tenancy.id }, orderBy: { clientRole: 'asc' } })
+    expect(cases.map((found) => [found.clientRole, found.clientId, found.propertyId])).toEqual([
+      ['LANDLORD', landlord.id, property.id],
+      ['TENANT', tenant.id, property.id],
+    ])
+    const checks = (await partyChecks([tenancy.id], agent.id)).get(tenancy.id)!
+    // Emailed where there is an address; the tenant has none, so the agent shares the link.
+    expect(checks.landlord).toMatchObject({ status: 'WAITING_FOR_CLIENT', requestedAt: expect.any(Date) })
+    expect(checks.tenant).toMatchObject({ status: 'WAITING_FOR_CLIENT', requestedAt: null })
+    expect((await partyChecks([tenancy.id], (await person('Agent Nosy')).id)).get(tenancy.id)).toEqual({ landlord: null, tenant: null })
   })
 })

@@ -41,6 +41,8 @@ function model(rooms: ReportRoom[]): ReportModel {
     inspector: 'Alaric Yeo',
     landlord: 'Tan Wei Ming',
     tenant: 'Priya Raman',
+    landlordVerifiedAt: null,
+    tenantVerifiedAt: null,
     tenancyStart: '2025-08-22T00:00:00.000Z',
     tenancyEnd: '2027-08-21T00:00:00.000Z',
     deposit: '14400',
@@ -138,6 +140,12 @@ describe('report PDF', () => {
     expect(kitchen[0]).toContain('30 photos')
     for (const text of kitchen.slice(1)) expect(text).toContain('continued')
     expect(pages.slice(1).some((text) => text.includes('1. Entrance') && text.includes('2. Kitchen'))).toBe(false)
+  })
+
+  it('marks a party whose identity the agent verified, and says nothing for one not verified', async () => {
+    const cover = (await render({ ...model([room(1, 'Store room', 0)]), tenantVerifiedAt: '2026-10-31T03:05:00.000Z' }))[0]
+    expect(cover).toContain('Identity verified by the agent, 31 October 2026 (CEA due diligence)')
+    expect(cover.match(/Identity verified/g)).toHaveLength(1)
   })
 
   it('says so when the inspector confirmed a room had nothing to record', async () => {

@@ -149,11 +149,15 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Whether the operators' due-diligence preview is on, from the latest Home answer.
+  bool _dueDiligence = false;
+
   Future<void> _create() async {
     final id = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => NewInspectionScreen(
           api: _api,
+          offerVerification: _dueDiligence,
           initialAgency: _workspace.all
               ? _workspace.index.agencies.firstOrNull
               : _workspace.agency,
@@ -373,6 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final data = snapshot.data!;
+          _dueDiligence = data.dueDiligence;
           final text = Theme.of(context).textTheme;
           final work = _workspace.party == null;
           final firstUse = work && !_workspace.contexts.work;

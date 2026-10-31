@@ -5,7 +5,7 @@ import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { shortFingerprint } from '@/lib/report-fingerprint'
-import type { reportInclude } from '@/lib/report'
+import { verifiedParties, type reportInclude } from '@/lib/report'
 import { addendumView } from '@/lib/addenda'
 import { AddendumSection } from '@/components/addendum-section'
 import type { Prisma } from '@/generated/prisma'
@@ -31,6 +31,7 @@ export async function ReportDocument({
 }) {
   const { tenancy, kind } = inspection
   const isCheckOut = kind === 'CHECK_OUT'
+  const verified = verifiedParties(tenancy.cddCases)
 
   // Signed URLs are minted per render, so a link shared today still resolves next month
   // without the storage objects ever being public.
@@ -152,10 +153,12 @@ export async function ReportDocument({
           <div>
             <dt className="text-xs uppercase tracking-wide text-gray-500">Landlord</dt>
             <dd className="mt-0.5">{tenancy.landlord.name}</dd>
+            {verified.landlord && <IdentityVerified at={verified.landlord} />}
           </div>
           <div>
             <dt className="text-xs uppercase tracking-wide text-gray-500">Tenant</dt>
             <dd className="mt-0.5">{tenancy.tenant.name}</dd>
+            {verified.tenant && <IdentityVerified at={verified.tenant} />}
           </div>
           {agent && (
             <div>
@@ -561,5 +564,17 @@ function ReportPhoto({
         </figcaption>
       )}
     </figure>
+  )
+}
+
+/// The agent completed CEA customer due diligence on this party.
+function IdentityVerified({ at }: { at: Date }) {
+  return (
+    <dd className="mt-1 flex items-center gap-1 text-xs font-medium text-green-700">
+      <svg viewBox="0 0 24 24" aria-hidden className="size-3.5" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+        <path d="m5 12.5 4.5 4.5L19 7.5" />
+      </svg>
+      Identity verified {at.toLocaleDateString('en-SG', { timeZone: 'Asia/Singapore', dateStyle: 'medium' })}
+    </dd>
   )
 }

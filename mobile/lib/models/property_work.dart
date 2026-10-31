@@ -1,3 +1,4 @@
+import 'cdd.dart';
 import 'maintenance.dart';
 
 /// One property in the Properties tab, at the stage of its newest term.
@@ -130,7 +131,11 @@ class PropertyTerm {
     this.leadAgentName,
     this.tenancy,
     this.canOpenDocuments = false,
+    this.verification,
   });
+
+  /// CEA due diligence on each party, in the operators' preview; null otherwise.
+  final TenancyVerification? verification;
   final String tenancyId;
   final String startDate;
   final String endDate;
@@ -151,6 +156,9 @@ class PropertyTerm {
   factory PropertyTerm.fromJson(Map<String, dynamic> json) => PropertyTerm(
     tenancyId: json['tenancyId'] as String,
     canOpenDocuments: json['canOpenDocuments'] as bool? ?? false,
+    verification: json['verification'] == null
+        ? null
+        : TenancyVerification.fromJson((json['verification'] as Map).cast<String, dynamic>()),
     startDate: json['startDate'] as String,
     endDate: json['endDate'] as String,
     tenant: json['tenant'] as String,

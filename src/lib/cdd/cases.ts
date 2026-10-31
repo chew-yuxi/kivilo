@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { CddClientRole, CddIdType, CddParticulars, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
+import type { CddClientRole, CddIdType, CddParticulars, CddStatus, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
 import { actsAsAgent } from '@/lib/auth'
 import { requireAgencyMembership } from '@/lib/agency'
 import { db } from '@/lib/db'
@@ -82,6 +82,80 @@ export async function startDeal(actorId: string, input: StartDeal) {
     await tx.cddEvent.create({ data: { caseId: created.id, actorId, kind: 'STARTED', detail: { clientRole: input.clientRole } } })
     return created
   })
+}
+
+/// Starts due diligence on a tenancy's landlord and tenant, as the people already on it,
+/// and emails each one with an address. A party who already has a case on this tenancy is
+/// skipped, so a retried create or a second tap never starts anything twice; the tenancy
+/// row lock serializes two taps at once.
+export async function verifyTenancyParties(actorId: string, tenancyId: string, roles: CddClientRole[] = ['LANDLORD', 'TENANT']) {
+  const started = await db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "Tenancy" WHERE id = ${tenancyId} FOR UPDATE`
+    const tenancy = await tx.tenancy.findFirst({
+      where: { id: tenancyId, ...actsAsAgent(actorId) },
+      select: {
+        id: true, propertyId: true, agencyId: true, landlordId: true, tenantId: true,
+        cddCases: { select: { clientRole: true } },
+      },
+    })
+    if (!tenancy) throw new Error('Tenancy not found')
+    const created: { role: CddClientRole; caseId: string }[] = []
+    for (const role of roles) {
+      if (tenancy.cddCases.some((existing) => existing.clientRole === role)) continue
+      const found = await tx.cddCase.create({
+        data: {
+          agentId: actorId,
+          clientId: role === 'LANDLORD' ? tenancy.landlordId : tenancy.tenantId,
+          clientRole: role,
+          tenancyId: tenancy.id,
+          propertyId: tenancy.propertyId,
+          agencyId: tenancy.agencyId,
+        },
+      })
+      await tx.cddEvent.create({ data: { caseId: found.id, actorId, kind: 'STARTED', detail: { clientRole: role, fromTenancy: true } } })
+      created.push({ role, caseId: found.id })
+    }
+    return created
+  })
+  for (const { caseId } of started) await requestParticulars(caseId, actorId)
+  return started
+}
+
+export type PartyCheck = {
+  caseId: string
+  status: CddStatus
+  needsCorrection: boolean
+  requestedAt: Date | null
+  completedAt: Date | null
+}
+
+/// Each tenancy's landlord and tenant checks, newest case per party, for the tenancy
+/// screens and the check before signing. Only cases this agent may open are counted.
+export async function partyChecks(tenancyIds: string[], actorId: string) {
+  const cases = await db.cddCase.findMany({
+    where: { tenancyId: { in: tenancyIds }, ...cddCaseScope(actorId) },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      particulars: true,
+      events: { where: { kind: 'REQUEST_SENT' }, orderBy: { createdAt: 'desc' }, take: 1, select: { createdAt: true } },
+    },
+  })
+  const checks = new Map<string, { landlord: PartyCheck | null; tenant: PartyCheck | null }>(
+    tenancyIds.map((id) => [id, { landlord: null, tenant: null }]),
+  )
+  for (const found of cases) {
+    const entry = checks.get(found.tenancyId!)!
+    const key = found.clientRole === 'LANDLORD' ? 'landlord' : 'tenant'
+    if (entry[key]) continue
+    entry[key] = {
+      caseId: found.id,
+      status: found.status,
+      needsCorrection: Boolean(found.particulars && found.status !== 'COMPLETE' && storedParticularsProblem(found.particulars)),
+      requestedAt: found.events[0]?.createdAt ?? null,
+      completedAt: found.completedAt,
+    }
+  }
+  return checks
 }
 
 export type Particulars = {

@@ -6,9 +6,10 @@ import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
 import { reportAgent, reportBranding } from '@/lib/report-agent'
+import { verifiedParties } from '@/lib/report'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 8
+export const RENDER_VERSION = 9
 
 const reportInclude = {
   tenancy: {
@@ -18,6 +19,7 @@ const reportInclude = {
       tenant: true,
       agent: { include: { branding: true } },
       agency: { include: { branding: true } },
+      cddCases: { where: { status: 'COMPLETE' }, orderBy: { completedAt: 'desc' }, select: { clientRole: true, completedAt: true } },
     },
   },
   conductedBy: { include: { branding: true } },
@@ -174,6 +176,8 @@ export function buildReportModel(row: ReportRow) {
     inspector: row.conductedBy?.name ?? null,
     landlord: tenancy.landlord.name,
     tenant: tenancy.tenant.name,
+    landlordVerifiedAt: verifiedParties(tenancy.cddCases).landlord?.toISOString() ?? null,
+    tenantVerifiedAt: verifiedParties(tenancy.cddCases).tenant?.toISOString() ?? null,
     tenancyStart: tenancy.startDate.toISOString(),
     tenancyEnd: tenancy.endDate.toISOString(),
     deposit: tenancy.deposit.toString(),

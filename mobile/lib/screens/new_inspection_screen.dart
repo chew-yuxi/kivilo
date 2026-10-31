@@ -20,8 +20,12 @@ class NewInspectionScreen extends StatefulWidget {
     this.api,
     this.initialAgency,
     this.cache,
+    this.offerVerification = false,
   });
   final AgencySummary? initialAgency;
+
+  /// Offers to start CEA due diligence on both parties with the check-in (preview).
+  final bool offerVerification;
   final Api? api;
   final ReadCache? cache;
 
@@ -31,6 +35,7 @@ class NewInspectionScreen extends StatefulWidget {
 
 class _NewInspectionScreenState extends State<NewInspectionScreen> {
   final _form = GlobalKey<FormState>();
+  bool _verifyParties = true;
   late final _api = widget.api ?? Api();
   late final ReadCache _cache = widget.cache ?? ReadCache();
   late AgencySummary? _agency = widget.initialAgency;
@@ -453,6 +458,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'deposit': value('deposit').isEmpty ? '0' : value('deposit'),
         'clientId': _clientId,
         'rooms': _rooms,
+        if (widget.offerVerification) 'verifyParties': _verifyParties,
       });
       await _pendingDraftWrite;
       try {
@@ -757,6 +763,22 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             onPressed: _busy ? null : () => _chooseContact('TENANT'),
             child: const Text('Choose from your contacts'),
           ),
+          if (widget.offerVerification) ...[
+            const SizedBox(height: 16),
+            Card(
+              margin: EdgeInsets.zero,
+              child: SwitchListTile(
+                contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
+                title: const Text('Verify both parties (CEA)'),
+                subtitle: const Text(
+                  'Kivilo emails the landlord and tenant a short identity form and screens '
+                  'them. CEA requires this before the tenancy is signed.',
+                ),
+                value: _verifyParties,
+                onChanged: _busy ? null : (value) => setState(() => _verifyParties = value),
+              ),
+            ),
+          ],
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: kiviloSectionGap),

@@ -4,6 +4,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../models/cdd.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -159,6 +160,33 @@ class _InspectionScreenState extends State<InspectionScreen> {
         );
         return;
       }
+      // CEA requires due diligence on both parties before the tenancy is signed. A soft
+      // check: the agent can still send, but has to choose to (operators' preview).
+      final tenancyId = inspection.tenancyRecordId;
+      if (inspection.kind == 'CHECK_IN' && tenancyId != null) {
+        final checks = await _api.tenancyVerification(tenancyId);
+        if (!mounted) return;
+        if (checks != null && !checks.bothVerified) {
+          final choice = await showKiviloDrawer<String>(
+            context: context,
+            builder: (context) => _UnverifiedPartiesDrawer(checks: checks, inspection: inspection),
+          );
+          if (!mounted || choice == null) return;
+          if (choice == 'remind') {
+            await _api.verifyTenancy(tenancyId);
+            for (final check in [checks.landlord, checks.tenant]) {
+              if (check != null && check.status == 'WAITING_FOR_CLIENT') await _api.requestParticulars(check.caseId);
+            }
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Reminders sent to the parties with an email address')),
+              );
+            }
+            return;
+          }
+        }
+      }
+      if (!mounted) return;
       final agreed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
@@ -1504,4 +1532,64 @@ class _InspectionScreenState extends State<InspectionScreen> {
       style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
     ),
   );
+}
+
+/// Before a check-in goes for signature: which parties are not verified yet, and the
+/// choice to remind them or send anyway.
+class _UnverifiedPartiesDrawer extends StatelessWidget {
+  const _UnverifiedPartiesDrawer({required this.checks, required this.inspection});
+
+  final TenancyVerification checks;
+  final InspectionDetail inspection;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    String state(PartyCheck? check) => switch (check) {
+      null => 'Not started',
+      PartyCheck(verified: true) => 'Verified',
+      PartyCheck(status: 'ESCALATED') => 'Stopped: confirmed match',
+      PartyCheck(needsCorrection: true) => 'Details need correcting',
+      PartyCheck(status: 'NEEDS_REVIEW') => 'Needs your review',
+      _ => 'Waiting for their details',
+    };
+    return KiviloDrawer(
+      title: const Text('Parties not verified yet'),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'CEA requires due diligence on the landlord and tenant before the tenancy is signed.',
+            style: text.bodyMedium,
+          ),
+          const SizedBox(height: 12),
+          for (final (who, check) in [('Landlord', checks.landlord), ('Tenant', checks.tenant)])
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Icon(
+                    check?.verified ?? false ? Icons.check_circle : Icons.schedule_rounded,
+                    size: 20,
+                    color: check?.verified ?? false ? KiviloColors.green : KiviloColors.muted,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text('$who · ${state(check)}', style: text.bodyMedium)),
+                ],
+              ),
+            ),
+          const SizedBox(height: 8),
+          TextButton(
+            style: kiviloTertiary,
+            onPressed: () => Navigator.of(context).pop('send'),
+            child: const Text('Send for signature anyway'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+        FilledButton(onPressed: () => Navigator.of(context).pop('remind'), child: const Text('Send reminders')),
+      ],
+    );
+  }
 }

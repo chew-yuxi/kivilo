@@ -203,8 +203,8 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 28, borderTopWidth: 0.75, borderTopColor: INK, paddingTop: 12 }}>
         <Fact label="Inspected" value={model.conductedAt ? fullDate.format(new Date(model.conductedAt)) : 'Not recorded'} />
         <Fact label="Inspector" value={model.inspector ?? 'Not recorded'} />
-        <Fact label="Landlord" value={model.landlord} />
-        <Fact label="Tenant" value={model.tenant} />
+        <Fact label="Landlord" value={model.landlord} verified={model.landlordVerifiedAt} />
+        <Fact label="Tenant" value={model.tenant} verified={model.tenantVerifiedAt} />
         <Fact label="Tenancy" value={`${longDate.format(new Date(model.tenancyStart))} to ${longDate.format(new Date(model.tenancyEnd))}`} />
         <Fact label="Signed" value={signedBy.length > 0 ? signedBy.join('\n') : 'Not yet signed'} />
       </View>
@@ -245,11 +245,16 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
   )
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, verified }: { label: string; value: string; verified?: string | null }) {
   return (
     <View style={{ width: '50%', marginBottom: 10, paddingRight: 12 }}>
       <Text style={s.small}>{label}</Text>
       <Text style={{ fontSize: 10 }}>{value}</Text>
+      {verified && (
+        <Text style={{ fontSize: 8, color: '#047857', marginTop: 2 }}>
+          Identity verified by the agent, {longDate.format(new Date(verified))} (CEA due diligence)
+        </Text>
+      )}
     </View>
   )
 }

@@ -462,6 +462,25 @@ class Api {
     return response.data!['url'] as String;
   });
 
+  /// The landlord's and tenant's checks on a tenancy, or null outside the preview.
+  Future<TenancyVerification?> tenancyVerification(String tenancyId) async {
+    final data = (await _get<Map<String, dynamic>>('/api/v1/tenancies/$tenancyId/verification')).data!;
+    return data['enabled'] == true ? TenancyVerification.fromJson(data) : null;
+  }
+
+  /// Starts the missing checks and emails each party with an address; returns the cases.
+  Future<List<({String role, String caseId})>> verifyTenancy(String tenancyId, {List<String>? roles}) =>
+      _call(() async {
+        final response = await _dio.post<Map<String, dynamic>>(
+          '/api/v1/tenancies/$tenancyId/verification',
+          data: {'roles': ?roles},
+        );
+        return [
+          for (final started in response.data!['started'] as List)
+            (role: (started as Map)['role'] as String, caseId: started['caseId'] as String),
+        ];
+      });
+
   Future<void> completeCase(String id) => _call(() async {
     await _dio.post<Object>('/api/v1/cdd/$id/complete');
   });
