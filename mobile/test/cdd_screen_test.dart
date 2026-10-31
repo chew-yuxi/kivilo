@@ -85,8 +85,10 @@ class _Api extends Api {
   final decisions = <({String id, bool confirmed, String reason})>[];
   final inPerson = <Map<String, dynamic>>[];
 
+  int? freeChecksLeft;
+
   @override
-  Future<List<CddCaseSummary>> cddCases() async => [
+  Future<CddCaseList> cddCases() async => CddCaseList(freeChecksLeft: freeChecksLeft, cases: [
     CddCaseSummary.fromJson({
       'id': 'case-1',
       'status': json['status'],
@@ -96,7 +98,7 @@ class _Api extends Api {
       'openMatches': 0,
       'screened': false,
     }),
-  ];
+  ]);
 
   @override
   Future<CddCase> cddCase(String id) async => CddCase.fromJson(json);
@@ -385,6 +387,22 @@ void main() {
     await _tap(tester, find.text('Download record for CEA'));
     expect(api.records, 1);
     expect(pdf.requested, ('https://storage.example/record.pdf', 'Kivilo due diligence DD-1A2B3C4D'));
+  });
+
+  testWidgets('the Free plan’s client checks left show on the list, and none left stops a new one', (tester) async {
+    final api = _Api(_case())..freeChecksLeft = 2;
+    await _show(tester, CddListScreen(api: api));
+    expect(find.text('Free plan: 2 of 3 client checks left.'), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Start a deal')).onPressed, isNotNull);
+
+    await tester.pumpWidget(const SizedBox());
+    await _show(tester, CddListScreen(api: _Api(_case())..freeChecksLeft = 0));
+    expect(find.text('The Free plan includes 3 client checks per agent, and all 3 are used.'), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Start a deal')).onPressed, isNull);
+
+    await tester.pumpWidget(const SizedBox());
+    await _show(tester, CddListScreen(api: _Api(_case())));
+    expect(find.textContaining('client checks left'), findsNothing, reason: 'Pro has no limit');
   });
 }
 

@@ -36,7 +36,7 @@ class CddListScreen extends StatefulWidget {
 
 class _CddListScreenState extends State<CddListScreen> {
   late final _api = widget.api ?? Api();
-  late Loading<List<CddCaseSummary>> _loading = _api.load(_api.cddCases, retainKey: 'cdd-cases');
+  late Loading<CddCaseList> _loading = _api.load(_api.cddCases, retainKey: 'cdd-cases');
 
   Future<void> _refresh() async {
     final next = _api.load(_api.cddCases, savedFirst: false, retainKey: 'cdd-cases');
@@ -66,11 +66,12 @@ class _CddListScreenState extends State<CddListScreen> {
       maxWidth: 840,
       child: RefreshIndicator(
         onRefresh: _refresh,
-        child: StreamBuilder<List<CddCaseSummary>>(
+        child: StreamBuilder<CddCaseList>(
           stream: _loading.stream,
           builder: (context, snapshot) {
             final text = Theme.of(context).textTheme;
-            final cases = snapshot.data;
+            final cases = snapshot.data?.cases;
+            final freeLeft = snapshot.data?.freeChecksLeft;
             return ListView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: kiviloScreenPadding,
@@ -80,9 +81,20 @@ class _CddListScreenState extends State<CddListScreen> {
                   'sends their own details, Kivilo screens them, and you keep the record.',
                   style: text.bodyMedium,
                 ),
+                if (freeLeft != null) ...[
+                  const SizedBox(height: 12),
+                  KiviloNotice(
+                    tone: freeLeft > 0 ? KiviloTone.info : KiviloTone.warning,
+                    child: Text(
+                      freeLeft > 0
+                          ? 'Free plan: $freeLeft of 3 client checks left.'
+                          : 'The Free plan includes 3 client checks per agent, and all 3 are used.',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: _start,
+                  onPressed: freeLeft == 0 ? null : _start,
                   icon: const Icon(Icons.add, size: 20),
                   label: const Text('Start a deal'),
                 ),

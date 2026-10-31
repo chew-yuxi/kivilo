@@ -72,6 +72,9 @@ export function authed<P>(
       if (/^Plan limit reached/.test(message)) {
         return Response.json({ error: 'plan_limit' }, { status: 403 })
       }
+      if (/^Client check limit reached/.test(message)) {
+        return Response.json({ error: 'check_limit' }, { status: 403 })
+      }
       if (/no longer be changed/i.test(message)) {
         return Response.json({ error: 'report_frozen' }, { status: 409 })
       }

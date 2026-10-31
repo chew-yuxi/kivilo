@@ -5,7 +5,7 @@ import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
 import { createInspection } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
-import { isAdmin } from '@/lib/admin'
+import { clientChecksLeft } from '@/lib/plan'
 import { verifyTenancyParties } from '@/lib/cdd/cases'
 
 export const dynamic = 'force-dynamic'
@@ -78,7 +78,7 @@ const newInspection = z.object({
   monthlyRent: z.string().min(1),
   deposit: z.string().min(1),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
-  /// Start CEA due diligence on both parties as the check-in is made (operators' preview).
+  /// Start CEA due diligence on both parties as the check-in is made.
   verifyParties: z.boolean().optional(),
 }).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
   message: 'Address and postal code are required',
@@ -92,9 +92,10 @@ const newInspection = z.object({
 export const POST = authed(async (agent, _params, request) => {
   const { verifyParties, ...input } = newInspection.parse(await request.json())
   const id = await createInspection(input)
-  if (verifyParties && isAdmin(agent.email)) {
-    const { tenancyId } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true } })
-    await verifyTenancyParties(agent.id, tenancyId)
-  }
+  // The app offers this only while two free checks remain (or on Pro). A check-in made
+  // when the allowance ran out meanwhile is still made; its parties can be verified later.
+  const { tenancyId, tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true, tenancy: { select: { agencyId: true } } } })
+  const left = verifyParties ? await clientChecksLeft(agent, tenancy.agencyId) : 0
+  if (verifyParties && (left === null || left >= 2)) await verifyTenancyParties(agent.id, tenancyId)
   return { id }
 })

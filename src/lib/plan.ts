@@ -1,7 +1,7 @@
 import { db } from '@/lib/db'
 import type { Prisma, Stakeholder, Subscription } from '@/generated/prisma'
-import { FREE_ACTIVE_PROPERTIES, PRO_ACTIVE_PROPERTIES_PER_SEAT } from '@/lib/plan-limits'
-export { FREE_ACTIVE_PROPERTIES, PRO_ACTIVE_PROPERTIES_PER_SEAT } from '@/lib/plan-limits'
+import { FREE_ACTIVE_PROPERTIES, FREE_CLIENT_CHECKS, PRO_ACTIVE_PROPERTIES_PER_SEAT } from '@/lib/plan-limits'
+export { FREE_ACTIVE_PROPERTIES, FREE_CLIENT_CHECKS, PRO_ACTIVE_PROPERTIES_PER_SEAT } from '@/lib/plan-limits'
 
 /// What a plan allows, decided here and nowhere else. A plan belongs to a workspace: the
 /// agent's team, or the agent alone when they are on none. The Subscription row records
@@ -146,4 +146,29 @@ export async function assertCanAddProperty(
   })) return
   const { active, limit, needsMoreSeats } = await workspacePlan(agent, agencyId, client)
   if (active >= limit || needsMoreSeats) throw new Error('Plan limit reached')
+}
+
+/// Client checks this agent may still start in this workspace: null on Pro, which has no
+/// limit; on Free, what is left of the agent's own allowance, counted across workspaces.
+export async function clientChecksLeft(
+  agent: Pick<Stakeholder, 'id' | 'teamId'>,
+  agencyId: string | null = null,
+  client: Prisma.TransactionClient = db,
+) {
+  const { plan } = await workspacePlan(agent, agencyId, client)
+  if (plan === 'PRO') return null
+  const used = await client.cddCase.count({ where: { agentId: agent.id } })
+  return Math.max(0, FREE_CLIENT_CHECKS - used)
+}
+
+export async function assertCanStartClientChecks(
+  agent: Pick<Stakeholder, 'id' | 'teamId'>,
+  agencyId: string | null,
+  wanted: number,
+  client: Prisma.TransactionClient,
+) {
+  // Serializes one agent's starts, so two at once cannot both take the last free check.
+  await client.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`client-checks:${agent.id}`}))`
+  const left = await clientChecksLeft(agent, agencyId, client)
+  if (left !== null && left < wanted) throw new Error('Client check limit reached')
 }

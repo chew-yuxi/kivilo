@@ -53,6 +53,9 @@ class ApiFailure implements Exception {
       // app user at a purchase made outside the store.
       'plan_limit' =>
         'Your plan\'s active properties are all in use. A property stops counting when its check-out is signed or its tenancy ends.',
+      // Like plan_limit: what happened, and nothing about buying.
+      'check_limit' =>
+        'The Free plan includes 3 client checks per agent, and all 3 are used.',
       'maintenance_conflict' =>
         'Someone already updated this repair. Refresh and check the timeline.',
       'move_in_defect_stale_target' =>

@@ -21,10 +21,14 @@ class NewInspectionScreen extends StatefulWidget {
     this.initialAgency,
     this.cache,
     this.offerVerification = false,
+    this.freeChecksLeft,
   });
+
+  /// Free client checks left, to say what verifying both parties uses; null on Pro.
+  final int? freeChecksLeft;
   final AgencySummary? initialAgency;
 
-  /// Offers to start CEA due diligence on both parties with the check-in (preview).
+  /// Offers to start CEA due diligence on both parties with the check-in.
   final bool offerVerification;
   final Api? api;
   final ReadCache? cache;
@@ -770,9 +774,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               child: SwitchListTile(
                 contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
                 title: const Text('Verify both parties (CEA)'),
-                subtitle: const Text(
+                subtitle: Text(
                   'Kivilo emails the landlord and tenant a short identity form and screens '
-                  'them. CEA requires this before the tenancy is signed.',
+                  'them. CEA requires this before the tenancy is signed.'
+                  '${widget.freeChecksLeft == null ? '' : ' Uses 2 of your ${widget.freeChecksLeft} free client checks.'}',
                 ),
                 value: _verifyParties,
                 onChanged: _busy ? null : (value) => setState(() => _verifyParties = value),

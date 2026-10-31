@@ -269,14 +269,14 @@ void main() {
 
   testWidgets('client checks show as a card when something is due, and a button when not', (tester) async {
     await _pump(tester, _HomeApi(byContext: {
-      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 2, waiting: 1)),
+      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 2, waiting: 1, freeLeft: null)),
     }));
     expect(find.text('Client checks (KYC/CDD)'), findsOneWidget);
     expect(find.text('2 need you · 1 waiting on clients'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());
     await _pump(tester, _HomeApi(byContext: {
-      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 0, waiting: 0)),
+      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 0, waiting: 0, freeLeft: 3)),
     }));
     expect(find.text('Client checks (KYC/CDD)'), findsNothing);
     expect(find.widgetWithText(OutlinedButton, 'Verify clients (KYC/CDD)'), findsOneWidget);

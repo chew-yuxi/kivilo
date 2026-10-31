@@ -11,6 +11,7 @@ import {
 } from './cases'
 import { addendumHash } from '@/lib/addenda'
 import { renderToBuffer } from '@react-pdf/renderer'
+import { clientChecksLeft } from '@/lib/plan'
 import { pdfPageTexts } from '@/lib/report-pdf/pdf-text'
 import { CddRecordDocument, cddRecordModel } from './record-pdf'
 import { assessRisk, completeCase, completedRecord, confirmIdSighted, requestCorrection } from './review'
@@ -380,5 +381,30 @@ describe('reviewing a case', () => {
     const notices = await db.notification.findMany({ where: { recipientId: client.id, kind: 'CDD_REQUEST' }, orderBy: { createdAt: 'asc' } })
     expect(notices.map((notice) => notice.title.startsWith('Reminder: '))).toEqual([false, true, true])
     expect(await caseCounts(agent.id)).toEqual({ needsYou: 0, waiting: 2 })
+  })
+
+  it('lets a Free agent start three client checks, a two-party start only with room for both, and Pro without limit', async () => {
+    const agent = await person('Agent Free')
+    for (const n of [1, 2]) await startDeal(agent.id, { clientName: `Walk-in Free ${n}`, clientRole: 'TENANT' })
+    expect(await clientChecksLeft(agent)).toBe(1)
+
+    const property = await db.property.create({ data: { line1: '1 Free Road', postalCode: '123456', type: 'HDB' } })
+    properties.push(property.id)
+    const tenancy = await db.tenancy.create({
+      data: {
+        propertyId: property.id, landlordId: (await person('Landlord Free')).id, tenantId: (await person('Tenant Free')).id,
+        agentId: agent.id, startDate: new Date('2026-11-01'), endDate: new Date('2027-10-31'), monthlyRent: 2000, deposit: 4000,
+      },
+    })
+    tenancies.push(tenancy.id)
+    await expect(verifyTenancyParties(agent.id, tenancy.id)).rejects.toThrow('Client check limit reached')
+    expect(await db.cddCase.count({ where: { tenancyId: tenancy.id } }), 'nothing half-started').toBe(0)
+    expect(await verifyTenancyParties(agent.id, tenancy.id, ['TENANT'])).toHaveLength(1)
+    await expect(startDeal(agent.id, { clientName: 'Walk-in Free 4', clientRole: 'TENANT' })).rejects.toThrow('Client check limit reached')
+
+    await db.subscription.create({ data: { stakeholderId: agent.id, plan: 'PRO', seats: 1, status: 'comped' } })
+    expect(await clientChecksLeft(agent)).toBeNull()
+    expect(await verifyTenancyParties(agent.id, tenancy.id)).toHaveLength(1)
+    await startDeal(agent.id, { clientName: 'Walk-in Pro', clientRole: 'TENANT' })
   })
 })

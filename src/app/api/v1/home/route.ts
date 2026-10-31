@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { homeTasks } from '@/lib/home-tasks'
-import { isAdmin } from '@/lib/admin'
+import { clientChecksLeft } from '@/lib/plan'
 import { caseCounts } from '@/lib/cdd/cases'
 
 export const dynamic = 'force-dynamic'
@@ -16,9 +16,9 @@ export const GET = authed(async (stakeholder, _params, request) => {
   const tasks = await homeTasks(stakeholder.id, query.context === 'work'
     ? { kind: 'WORK', agencyId: query.agencyId, personal: query.personal }
     : { kind: query.context === 'landlord' ? 'LANDLORD' : 'TENANT' })
-  // Due diligence is in preview for the operators only, until its risk checklist and
-  // record are finished (plans/compliance-pack.md).
-  if (!isAdmin(stakeholder.email)) return { ...tasks, dueDiligence: false }
+  // Client checks (CEA due diligence) are agents' work, offered from the work context only.
+  if (query.context !== 'work') return { ...tasks, dueDiligence: false }
   // A separate field, since released builds read `dueDiligence` as a Boolean.
-  return { ...tasks, dueDiligence: true, dueDiligenceCounts: await caseCounts(stakeholder.id) }
+  const [counts, freeLeft] = await Promise.all([caseCounts(stakeholder.id), clientChecksLeft(stakeholder, query.agencyId)])
+  return { ...tasks, dueDiligence: true, dueDiligenceCounts: { ...counts, freeLeft } }
 })

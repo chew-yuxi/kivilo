@@ -379,6 +379,35 @@ never guesses from all room photos. Agreed retired original rows are excluded fr
 missing-item choices only when frozen room ownership is known; deleting a whole
 check-out room must not be mistaken for retiring its original inventory.
 
+## Client checks (CEA due diligence)
+
+CEA requires customer due diligence on both parties before a rental (`plans/compliance-pack.md`).
+A `CddCase` is one client's check: the client sends particulars from `/cdd/[caseId]` (signed in as
+themselves, like `/sign`), or the agent takes them in person; Kivilo screens them; the agent sees
+the original ID, decides each possible match with a reason, answers the risk checklist
+(`src/lib/cdd/risk.ts`, served with the case), and completes it. Completion locks the record and
+stores a SHA-256 recomputable by `completedRecord`; `src/lib/cdd/review.ts` enforces the order
+and the lock, and the app's stepper only shows them.
+
+- **Never tip off.** The client, their page, the request email and the report only ever learn
+  that particulars arrived or the identity was verified, never anything about screening.
+- **ID numbers** are AES-256-GCM encrypted with `CDD_ID_KEYS` (production copy also in the
+  operator's Keychain, `kivilo-cdd-id-keys`; losing it makes them unreadable) and shown masked.
+- **One rule set**, `src/lib/cdd/particulars-rules.ts`, runs on the server, live on the web form
+  and, ported, in `mobile/lib/models/cdd.dart`; nationalities come from `src/lib/countries.ts`,
+  whose app copy `countries.test.ts` pins equal. Stored particulars are re-checked against
+  today's rules on every read; failing ones block review until `requestCorrection`.
+- **Screening** is one run over the official UN and SG lists (loaded daily by
+  `/api/internal/sanctions-lists`) and Dilisense PEP records (`DILISENSE_API_KEY`), all through
+  Kivilo's own matcher. A confirmed sanctions match escalates; a confirmed PEP raises the risk.
+  Tests stub Dilisense and e2e runs a local stub on 3113, so nothing spends the paid quota.
+- **In the deal:** new check-ins can start both parties' cases (`verifyTenancyParties`), the
+  property page shows each party, Send for signature warns about an unverified party (soft),
+  and the report and PDF mark a verified party. `/api/internal/cdd-reminders` reminds clients
+  hourly at 24 then 48 hours. A completed case downloads as the CEA record PDF.
+- **Plan:** an agent on Free may start `FREE_CLIENT_CHECKS` (3) in total; Pro has no limit
+  (`clientChecksLeft` in `src/lib/plan.ts`; the API answers 403 `check_limit`).
+
 ## Signing
 
 There are three ways to sign, and all of them end in `recordSignature`: on the agent's

@@ -8,6 +8,7 @@ import { currentSanctionsLists } from '@/lib/screening/lists'
 import { pepEntries, type PepEntry } from '@/lib/screening/dilisense'
 import { recordServerError } from '@/lib/errors'
 import { reportBranding } from '@/lib/report-agent'
+import { assertCanStartClientChecks } from '@/lib/plan'
 import { decryptIdNumber, encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
 import { particularsProblem } from './particulars-rules'
@@ -66,6 +67,7 @@ export async function startDeal(actorId: string, input: StartDeal) {
     }
     const agencyId = tenancy?.agencyId ?? input.agencyId ?? null
     if (agencyId && !tenancy) await requireAgencyMembership(agencyId, actorId, tx)
+    await assertCanStartClientChecks(await tx.stakeholder.findUniqueOrThrow({ where: { id: actorId } }), agencyId, 1, tx)
     const client = email
       ? await tx.stakeholder.upsert({ where: { email }, update: {}, create: { name, email } })
       : await tx.stakeholder.create({ data: { name } })
@@ -99,6 +101,10 @@ export async function verifyTenancyParties(actorId: string, tenancyId: string, r
       },
     })
     if (!tenancy) throw new Error('Tenancy not found')
+    const missing = roles.filter((role) => !tenancy.cddCases.some((existing) => existing.clientRole === role))
+    if (missing.length) {
+      await assertCanStartClientChecks(await tx.stakeholder.findUniqueOrThrow({ where: { id: actorId } }), tenancy.agencyId, missing.length, tx)
+    }
     const created: { role: CddClientRole; caseId: string }[] = []
     for (const role of roles) {
       if (tenancy.cddCases.some((existing) => existing.clientRole === role)) continue
