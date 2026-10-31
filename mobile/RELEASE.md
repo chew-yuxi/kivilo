@@ -5,6 +5,25 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Client check reminders and Home card: 31 October 2026 Singapore time
+
+Server source `f554fc0` on `origin/main`, deployed by Vercel (READY; the new hourly cron
+`/api/internal/cdd-reminders` at minute 17 answers 401 without `CRON_SECRET`), no migration.
+Clients who have not sent particulars are reminded 24 hours after the agent's request and 48
+hours after that, then never (a correction restarts the count). Home adds
+`dueDiligenceCounts` beside the Boolean `dueDiligence` released builds read; the app shows a
+card when checks need the agent or wait on clients. Screens read "Client checks (KYC/CDD)".
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **25** / `765705` | **stable** |
+| iOS TestFlight `1.0.0+25` | **53** / `765713` | **stable** |
+
+Patch source `172b50e` on `claude/cdd-patch`; changed files match main's byte for byte; build
+numbers read back (29; 25). Checks: 529 mobile tests on the patch source, 541 on main; lint,
+typecheck, build, 293 unit, 455 integration and both due-diligence e2e specs. Physical
+devices **NOT RUN**.
+
 ## Due diligence in the deal flow: 31 October 2026 Singapore time
 
 Server source `907189d` on `origin/main`, deployed by Vercel (READY;
