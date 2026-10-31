@@ -10,7 +10,7 @@ import {
   submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
 import { addendumHash } from '@/lib/addenda'
-import { assessRisk, completeCase, completedRecord, confirmIdSighted } from './review'
+import { assessRisk, completeCase, completedRecord, confirmIdSighted, requestCorrection } from './review'
 
 const tag = randomUUID().slice(0, 8)
 const people: string[] = []
@@ -100,7 +100,7 @@ describe('due diligence cases', () => {
     const seen = JSON.stringify(await caseForClient(started.id, client.id))
     // The agent's identity and when they sent it; nothing about what happened after.
     expect(Object.keys(JSON.parse(seen)).sort()).toEqual([
-      'agencyLicence', 'agencyName', 'agentName', 'ceaRegistration', 'clientRole', 'id', 'logoPath',
+      'agencyLicence', 'agencyName', 'agentName', 'ceaRegistration', 'clientRole', 'correction', 'id', 'logoPath',
       'property', 'reference', 'submitted', 'submittedAt',
     ])
     expect(JSON.parse(seen)).toMatchObject({ id: started.id, agentName: agent.name, clientRole: 'TENANT', submitted: true })
@@ -217,5 +217,38 @@ describe('reviewing a case', () => {
       () => assessRisk(started.id, stranger.id, clear),
       () => completeCase(started.id, stranger.id),
     ]) await expect(step()).rejects.toThrow('Case not found')
+  })
+
+  it('blocks review of particulars that fail a newer rule until the client corrects them', async () => {
+    const agent = await person('Agent Correct')
+    const client = await person('Client Correct')
+    const started = await startDeal(agent.id, { clientName: client.name, clientEmail: client.email, clientRole: 'TENANT' })
+    await submitOwnParticulars(started.id, client.id, ordinary)
+    // As a row accepted before nationality came from a list.
+    await db.cddParticulars.update({ where: { caseId: started.id }, data: { nationality: 'Singaporean' } })
+
+    const view = await caseForAgent(started.id, agent.id)
+    expect(view.particularsProblem).toEqual({ field: 'nationality', message: 'Choose the nationality from the list' })
+    await expect(confirmIdSighted(started.id, agent.id)).rejects.toThrow('The particulars need correcting first')
+    const before = await db.cddParticulars.findUniqueOrThrow({ where: { caseId: started.id } })
+
+    await requestCorrection(started.id, agent.id)
+    expect(await db.cddParticulars.findUnique({ where: { caseId: started.id } })).toBeNull()
+    expect((await caseForAgent(started.id, agent.id)).status).toBe('WAITING_FOR_CLIENT')
+    const rejected = await db.cddEvent.findFirstOrThrow({ where: { caseId: started.id, kind: 'PARTICULARS_REJECTED' } })
+    expect(rejected.detail).toMatchObject({ reason: 'Choose the nationality from the list', particulars: { idNumberEncrypted: before.idNumberEncrypted } })
+    expect(await caseForClient(started.id, client.id)).toMatchObject({ submitted: false, correction: 'Choose the nationality from the list' })
+
+    await submitOwnParticulars(started.id, client.id, ordinary)
+    expect((await caseForAgent(started.id, agent.id)).particularsProblem).toBeNull()
+    expect(await caseForClient(started.id, client.id)).toMatchObject({ submitted: true, correction: null })
+  })
+
+  it('asks for a reason to reject particulars that pass every rule', async () => {
+    const agent = await person('Agent Mismatch')
+    const started = await startDeal(agent.id, { clientName: 'Walk-in Seven', clientRole: 'LANDLORD' })
+    await submitParticularsInPerson(started.id, agent.id, ordinary)
+    await expect(requestCorrection(started.id, agent.id, ' ')).rejects.toThrow('Say what does not match the original ID')
+    expect(await requestCorrection(started.id, agent.id, 'Address differs from the NRIC')).toEqual({ reason: 'Address differs from the NRIC' })
   })
 })

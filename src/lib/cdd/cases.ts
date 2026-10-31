@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-import type { CddClientRole, CddIdType, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
+import type { CddClientRole, CddIdType, CddParticulars, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
 import { actsAsAgent } from '@/lib/auth'
 import { requireAgencyMembership } from '@/lib/agency'
 import { db } from '@/lib/db'
@@ -7,7 +7,7 @@ import { screen } from '@/lib/screening/match'
 import { currentSanctionsLists } from '@/lib/screening/lists'
 import { recordServerError } from '@/lib/errors'
 import { reportBranding } from '@/lib/report-agent'
-import { encryptIdNumber, maskIdNumber } from './crypto'
+import { decryptIdNumber, encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
 import { particularsProblem } from './particulars-rules'
 import { RISK_QUESTIONS } from './risk'
@@ -164,6 +164,23 @@ export async function particularsStillWanted(caseId: string) {
 
 /// The client's own submission, signed in as themselves: refused for anyone else, and once
 /// submitted. They learn only that it was received.
+/// Stored particulars measured against today's rules. Rules only tighten, so particulars
+/// accepted under an older rule can fail a newer one; the case then needs them corrected
+/// before any review step (`openCase` in review.ts) and says so to the agent.
+export function storedParticularsProblem(p: CddParticulars) {
+  if (p.kind !== 'INDIVIDUAL') return null
+  return particularsProblem({
+    legalName: p.legalName,
+    idType: p.idType,
+    idNumber: decryptIdNumber(p.idNumberEncrypted),
+    nationality: p.nationality,
+    dateOfBirth: p.dateOfBirth?.toISOString().slice(0, 10) ?? null,
+    address: p.address,
+    pepDeclared: p.pepDeclared,
+    pepDetails: p.pepDetails,
+  }, p.submittedAt)
+}
+
 export async function submitOwnParticulars(caseId: string, clientId: string, input: Particulars) {
   const data = checkedParticulars(input)
   await db.$transaction(async (tx) => {
@@ -280,7 +297,7 @@ export async function casesForAgent(agentId: string) {
     select: {
       id: true, status: true, clientRole: true, createdAt: true, updatedAt: true,
       client: { select: { name: true } },
-      particulars: { select: { legalName: true, idSightedAt: true } },
+      particulars: true,
       riskAssessment: { select: { level: true } },
       tenancy: { select: { id: true, property: { select: { line1: true, unit: true } } } },
       screeningRuns: {
@@ -301,6 +318,7 @@ export async function casesForAgent(agentId: string) {
       openMatches: found.screeningRuns[0]?.candidates.length ?? 0,
       screened: found.screeningRuns.length > 0,
       particularsIn: found.particulars !== null,
+      needsCorrection: Boolean(found.particulars && found.status !== 'COMPLETE' && storedParticularsProblem(found.particulars)),
       idSighted: Boolean(found.particulars?.idSightedAt),
       riskAssessed: found.riskAssessment !== null,
       createdAt: found.createdAt,
@@ -329,6 +347,8 @@ export async function caseForAgent(caseId: string, agentId: string) {
     reference: caseReference(found.id),
     /// When the form was last emailed to the client, so the agent knows it went.
     requestedAt: events[0]?.createdAt ?? null,
+    /// Set when the stored particulars fail today's rules and must be corrected.
+    particularsProblem: particulars && found.status !== 'COMPLETE' ? storedParticularsProblem(particulars) : null,
     riskAssessment: riskAssessment && {
       checklistVersion: riskAssessment.checklistVersion,
       answers: riskAssessment.answers,
@@ -364,6 +384,7 @@ export async function caseForClient(caseId: string, clientId: string) {
       id: true,
       clientRole: true,
       particulars: { select: { submittedAt: true } },
+      events: { where: { kind: 'PARTICULARS_REJECTED' }, orderBy: { createdAt: 'desc' }, take: 1, select: { detail: true } },
       agent: { select: { name: true, branding: true } },
       agency: { select: { name: true, updatedAt: true, branding: true } },
       property: { select: { line1: true, unit: true } },
@@ -390,6 +411,9 @@ export async function caseForClient(caseId: string, clientId: string) {
     clientRole: found.clientRole,
     submitted: found.particulars !== null,
     submittedAt: found.particulars?.submittedAt ?? null,
+    /// What the agent asked the client to correct, while the corrected details are awaited.
+    /// About their own entry only, never about screening.
+    correction: found.particulars ? null : ((found.events[0]?.detail as { reason?: string } | null)?.reason ?? null),
   }
 }
 

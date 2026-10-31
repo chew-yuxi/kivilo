@@ -450,6 +450,12 @@ class Api {
         );
       });
 
+  /// Sets the particulars aside and waits for corrected ones. A reason is needed unless
+  /// they fail a rule; the server returns the one it recorded.
+  Future<void> requestCorrection(String id, {String? reason}) => _call(() async {
+    await _dio.post<Object>('/api/v1/cdd/$id/correction', data: {'reason': ?reason});
+  });
+
   Future<void> completeCase(String id) => _call(() async {
     await _dio.post<Object>('/api/v1/cdd/$id/complete');
   });

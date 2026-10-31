@@ -1,7 +1,7 @@
 import type { Prisma } from '@/generated/prisma'
 import { addendumHash } from '@/lib/addenda'
 import { db } from '@/lib/db'
-import { caseInScope, caseReference } from './cases'
+import { caseInScope, caseReference, storedParticularsProblem } from './cases'
 import { CddInputError, CddStateError } from './errors'
 import { RISK_CHECKLIST_VERSION, riskLevel, type RiskKey } from './risk'
 
@@ -18,7 +18,43 @@ async function openCase(tx: Prisma.TransactionClient, caseId: string, agentId: s
   if (found.status === 'ESCALATED') throw new CddStateError('A confirmed match stops this due diligence')
   const particulars = await tx.cddParticulars.findUnique({ where: { caseId } })
   if (!particulars) throw new CddStateError('The client has not sent their particulars yet')
+  if (storedParticularsProblem(particulars)) throw new CddStateError('The particulars need correcting first')
   return { found, particulars }
+}
+
+/// Sets the client's particulars aside and asks for them again: because they fail a rule
+/// that has tightened since they were sent, or because the agent found they do not match
+/// the original ID (then the reason is required). The rejected particulars are kept in
+/// the audit trail, the ID number still encrypted; the screening runs stay as they were,
+/// and the next submission is screened afresh. Any risk assessment made on them goes.
+export async function requestCorrection(caseId: string, agentId: string, reason?: string | null) {
+  return db.$transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM "CddCase" WHERE id = ${caseId} FOR UPDATE`
+    const found = await caseInScope(caseId, agentId, tx)
+    if (found.status === 'COMPLETE') throw new CddStateError('This due diligence is complete and locked')
+    if (found.status === 'ESCALATED') throw new CddStateError('A confirmed match stops this due diligence')
+    const particulars = await tx.cddParticulars.findUnique({ where: { caseId } })
+    if (!particulars) throw new CddStateError('The client has not sent their particulars yet')
+    const problem = storedParticularsProblem(particulars)
+    const why = problem?.message ?? reason?.trim()
+    if (!why) throw new CddInputError('Say what does not match the original ID')
+    await tx.cddEvent.create({
+      data: {
+        caseId,
+        actorId: agentId,
+        kind: 'PARTICULARS_REJECTED',
+        detail: {
+          reason: why,
+          field: problem?.field ?? null,
+          particulars: { ...particulars, dateOfBirth: particulars.dateOfBirth?.toISOString() ?? null },
+        },
+      },
+    })
+    await tx.cddRiskAssessment.deleteMany({ where: { caseId } })
+    await tx.cddParticulars.delete({ where: { caseId } })
+    await tx.cddCase.update({ where: { id: caseId }, data: { status: 'WAITING_FOR_CLIENT', riskLevel: null } })
+    return { reason: why }
+  })
 }
 
 /// The screening is clear when the latest run's every possible match is decided as not

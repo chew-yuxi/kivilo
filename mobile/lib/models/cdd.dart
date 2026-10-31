@@ -13,6 +13,7 @@ class CddCaseSummary {
     this.particularsIn = false,
     this.idSighted = false,
     this.riskAssessed = false,
+    this.needsCorrection = false,
   });
 
   final String id;
@@ -26,14 +27,19 @@ class CddCaseSummary {
   final bool idSighted;
   final bool riskAssessed;
 
+  /// The stored particulars fail a rule and must be sent again.
+  final bool needsCorrection;
+
   /// The five review steps done, the same rule the case screen draws.
-  int get stepsDone => [
-    particularsIn,
-    idSighted,
-    screened && openMatches == 0 && status != 'ESCALATED',
-    riskAssessed,
-    status == 'COMPLETE',
-  ].where((done) => done).length;
+  int get stepsDone => needsCorrection
+      ? 0
+      : [
+          particularsIn,
+          idSighted,
+          screened && openMatches == 0 && status != 'ESCALATED',
+          riskAssessed,
+          status == 'COMPLETE',
+        ].where((done) => done).length;
 
   factory CddCaseSummary.fromJson(Map<String, dynamic> json) => CddCaseSummary(
     id: json['id'] as String,
@@ -46,6 +52,7 @@ class CddCaseSummary {
     particularsIn: json['particularsIn'] as bool? ?? false,
     idSighted: json['idSighted'] as bool? ?? false,
     riskAssessed: json['riskAssessed'] as bool? ?? false,
+    needsCorrection: json['needsCorrection'] as bool? ?? false,
   );
 }
 
@@ -181,7 +188,11 @@ class CddCase {
     this.completedAt,
     this.contentHash,
     this.requestedAt,
+    this.particularsProblem,
   });
+
+  /// What is wrong with the stored particulars under today's rules, if anything.
+  final ParticularsProblem? particularsProblem;
 
   /// When the form was last emailed to the client.
   final DateTime? requestedAt;
@@ -228,6 +239,10 @@ class CddCase {
       completedAt: DateTime.tryParse(json['completedAt'] as String? ?? ''),
       contentHash: json['contentHash'] as String?,
       requestedAt: DateTime.tryParse(json['requestedAt'] as String? ?? ''),
+      particularsProblem: switch (json['particularsProblem']) {
+        {'field': final String field, 'message': final String message} => (field: field, message: message),
+        _ => null,
+      },
       id: json['id'] as String,
       status: json['status'] as String,
       clientRole: json['clientRole'] as String,

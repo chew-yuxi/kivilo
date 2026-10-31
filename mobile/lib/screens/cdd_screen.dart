@@ -127,6 +127,7 @@ class _CaseRow extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final complete = item.status == 'COMPLETE';
     final (fill, ink) = switch (item.status) {
+      _ when item.needsCorrection => (KiviloColors.amberSoft, KiviloColors.amber),
       'ESCALATED' => (KiviloColors.redSoft, KiviloColors.red),
       'COMPLETE' => (KiviloColors.greenSoft, KiviloColors.green),
       'NEEDS_REVIEW' => (KiviloColors.pinkSoft, KiviloColors.pinkDark),
@@ -175,7 +176,9 @@ class _CaseRow extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(999)),
                     child: Text(
-                      item.openMatches > 0 && item.status != 'ESCALATED'
+                      item.needsCorrection
+                          ? 'Needs correcting'
+                          : item.openMatches > 0 && item.status != 'ESCALATED'
                           ? '${item.openMatches} to decide'
                           : _statusLabels[item.status] ?? item.status,
                       style: text.labelMedium?.copyWith(color: ink),
@@ -409,10 +412,37 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     ),
   );
 
+  /// Sets the particulars aside, then emails the client the form again when there is an
+  /// address; without one, the waiting step offers the link and filling in together.
+  Future<void> _askCorrection(CddCase item, String? problem, {String? reason}) async {
+    final sure = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Ask for corrected details?'),
+        content: Text(
+          [
+            '${item.clientName} will be asked to send their details again'
+                '${item.clientEmail == null ? '' : ', by email'}.',
+            'The details they sent are kept in the record, set aside.',
+          ].join(' '),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Ask again')),
+        ],
+      ),
+    );
+    if (sure != true) return;
+    await _run(() async {
+      await _api.requestCorrection(item.id, reason: problem == null ? reason : null);
+      if (item.clientEmail != null) await _api.requestParticulars(item.id);
+    });
+  }
+
   Future<void> _checkId(CddCase item) async {
     final p = item.particulars!;
     final document = p.idType == 'PASSPORT' ? 'passport' : p.idType;
-    final sure = await showKiviloDrawer<bool>(
+    final answer = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Seen ${item.clientName}’s $document?'),
@@ -431,6 +461,12 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               if (p.dateOfBirth case final born?) ('Date of birth', _date(DateTime.parse(born))),
               ('Nationality', p.nationality),
             ]),
+            const SizedBox(height: 8),
+            TextButton(
+              style: kiviloTertiary,
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('It doesn’t match the ID'),
+            ),
           ],
         ),
         actions: [
@@ -439,7 +475,10 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
         ],
       ),
     );
-    if (sure == true) await _run(() => _api.confirmIdSighted(item.id));
+    if (answer == true) await _run(() => _api.confirmIdSighted(item.id));
+    if (answer != false || !mounted) return;
+    final reason = await showKiviloDrawer<String>(context: context, builder: (_) => const _MismatchDrawer());
+    if (reason != null && mounted) await _askCorrection(item, null, reason: reason);
   }
 
   Future<void> _assess(CddCase item) async {
@@ -486,9 +525,12 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     final escalated = item.status == 'ESCALATED';
     final complete = item.status == 'COMPLETE';
 
-    final received = p != null;
-    final idSeen = p?.idSighted ?? false;
-    final screened = run != null && item.openMatches.isEmpty && !escalated;
+    // Particulars that fail a rule tightened since they were sent count as not received:
+    // nothing after them can be relied on until the client corrects them.
+    final problem = item.particularsProblem;
+    final received = p != null && problem == null;
+    final idSeen = received && p.idSighted;
+    final screened = received && run != null && item.openMatches.isEmpty && !escalated;
     final assessed = item.riskLevel != null;
     final done = [received, idSeen, screened, assessed, complete].where((step) => step).length;
 
@@ -516,8 +558,14 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               _Step(
                 icon: Icons.description_outlined,
                 title: 'Particulars received',
-                state: received ? _StepState.done : _StepState.current,
-                status: received
+                state: problem != null
+                    ? _StepState.failed
+                    : received
+                    ? _StepState.done
+                    : _StepState.current,
+                status: problem != null
+                    ? 'Needs correcting: ${problem.message}'
+                    : received
                     ? [
                         p.submittedInPerson ? 'Taken in person' : 'Sent by the client',
                         if (p.submittedAt case final at?) _dateTime(at),
@@ -526,7 +574,14 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                         'Waiting for ${item.clientName}',
                         if (item.requestedAt case final at?) 'form emailed ${_dateTime(at)}',
                       ].join(' · '),
-                children: received
+                children: problem != null
+                    ? [
+                        FilledButton(
+                          onPressed: _busy ? null : () => _askCorrection(item, problem.message),
+                          child: const Text('Ask for corrected details'),
+                        ),
+                      ]
+                    : received
                     ? const []
                     : [
                         if (item.clientEmail != null) ...[
@@ -559,11 +614,13 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ? _StepState.current
                     : _StepState.pending,
                 status: idSeen
-                    ? ['Original ID seen', if (p!.idSightedAt case final at?) _dateTime(at)].join(' · ')
+                    ? ['Original ID seen', if (p.idSightedAt case final at?) _dateTime(at)].join(' · ')
                     : escalated
                     ? 'Stopped by the confirmed match'
                     : received
                     ? 'Compare the particulars below with the original ID, in person or on a video call'
+                    : problem != null
+                    ? 'After the particulars are corrected'
                     : 'After the particulars arrive',
                 children: [
                   if (received && !idSeen && !escalated)
@@ -587,6 +644,8 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ? 'Confirmed match'
                     : screened
                     ? '${ruledOut == 0 ? 'No match' : '$ruledOut possible ${ruledOut == 1 ? 'match' : 'matches'} ruled out'} · ${run.lists.join(', ')}'
+                    : problem != null
+                    ? 'Runs again on the corrected particulars'
                     : !received
                     ? 'Runs when the particulars arrive'
                     : run == null
@@ -914,6 +973,47 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
       ],
     );
   }
+}
+
+class _MismatchDrawer extends StatefulWidget {
+  const _MismatchDrawer();
+
+  @override
+  State<_MismatchDrawer> createState() => _MismatchDrawerState();
+}
+
+class _MismatchDrawerState extends State<_MismatchDrawer> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => KiviloDrawer(
+    title: const Text('What doesn’t match?'),
+    content: TextField(
+      controller: _reason,
+      autofocus: true,
+      minLines: 2,
+      maxLines: 4,
+      onChanged: (_) => setState(() {}),
+      decoration: const InputDecoration(
+        labelText: 'Reason',
+        hintText: 'For example: the date of birth on the card is different',
+        alignLabelWithHint: true,
+      ),
+    ),
+    actions: [
+      TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+      FilledButton(
+        onPressed: _reason.text.trim().isEmpty ? null : () => Navigator.of(context).pop(_reason.text.trim()),
+        child: const Text('Continue'),
+      ),
+    ],
+  );
 }
 
 class _Compared extends StatelessWidget {

@@ -16,7 +16,9 @@ Map<String, dynamic> _case({
   String? decision,
   bool idSighted = false,
   String? risk,
+  Map<String, String>? problem,
 }) => {
+  'particularsProblem': problem,
   'id': 'case-1',
   'reference': 'DD-1A2B3C4D',
   'riskQuestions': _questions,
@@ -108,6 +110,21 @@ class _Api extends Api {
   }
 
   final risks = <Map<String, bool>>[];
+  final corrections = <String?>[];
+  int emailed = 0;
+
+  @override
+  Future<void> requestCorrection(String id, {String? reason}) async {
+    corrections.add(reason);
+    json = _case();
+  }
+
+  @override
+  Future<({String url, bool emailed})> requestParticulars(String id) async {
+    emailed++;
+    return (url: 'https://my.kivilo.app/cdd/case-1', emailed: true);
+  }
+
   int completions = 0;
 
   @override
@@ -284,5 +301,34 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('All 5 steps done'), findsOneWidget);
     expect(find.text('Complete due diligence'), findsNothing);
+  });
+
+  testWidgets('particulars that fail a newer rule are sent back to the client to correct', (tester) async {
+    final api = _Api(_case(status: 'NEEDS_REVIEW', submitted: true, decision: 'NOT_A_MATCH', problem: {
+      'field': 'nationality',
+      'message': 'Choose the nationality from the list',
+    }));
+    await _show(tester, CddCaseScreen(id: 'case-1', api: api));
+    expect(find.text('Needs correcting: Choose the nationality from the list'), findsOneWidget);
+    expect(find.text('I’ve seen the original ID'), findsNothing, reason: 'nothing after the particulars can be relied on');
+    expect(find.text('0 of 5 steps done'), findsOneWidget);
+
+    await _tap(tester, find.text('Ask for corrected details'));
+    await _tap(tester, find.text('Ask again'));
+    expect(api.corrections, [null], reason: 'the rule is the reason');
+    expect(api.emailed, 1);
+    expect(find.textContaining('Waiting for Wei Ling'), findsOneWidget);
+  });
+
+  testWidgets('an agent sends back particulars that do not match the original ID, with a reason', (tester) async {
+    final api = _Api(_case(status: 'NEEDS_REVIEW', submitted: true, decision: 'NOT_A_MATCH'));
+    await _show(tester, CddCaseScreen(id: 'case-1', api: api));
+    await _tap(tester, find.text('I’ve seen the original ID'));
+    await _tap(tester, find.text('It doesn’t match the ID'));
+    await tester.enterText(find.widgetWithText(TextField, 'Reason'), 'Date of birth on the card is 1991');
+    await _tap(tester, find.widgetWithText(FilledButton, 'Continue'));
+    await _tap(tester, find.text('Ask again'));
+    expect(api.corrections, ['Date of birth on the card is 1991']);
+    expect(api.emailed, 1);
   });
 }

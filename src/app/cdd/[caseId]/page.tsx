@@ -98,6 +98,12 @@ export default async function ParticularsPage({ params, searchParams }: PageProp
         ) : (
           <section>
             <h1 className="mt-8 text-2xl font-bold text-gray-900">Verify your identity</h1>
+            {found.correction && (
+              <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="status">
+                <span className="font-semibold">{found.agentName} needs you to send your details again.</span>{' '}
+                {found.correction.replace(/\.$/, '')}.
+              </p>
+            )}
             <p className="mt-2 text-gray-600">
               {found.agentName} is your agent{found.property ? ` for ${found.property}` : ''}, acting for you as
               the {found.clientRole === 'LANDLORD' ? 'landlord' : 'tenant'}. Singapore law requires property
