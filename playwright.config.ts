@@ -20,6 +20,9 @@ const testEmail = {
   RESEND_API_KEY: 're_kivilo_e2e',
   RESEND_BASE_URL: 'http://127.0.0.1:3112',
   RESEND_FROM_EMAIL: 'Kivilo <noreply@kivilo.test>',
+  // And never spend the real PEP screening quota.
+  DILISENSE_API_KEY: 'dilisense_kivilo_e2e',
+  DILISENSE_BASE_URL: 'http://127.0.0.1:3113',
 }
 Object.assign(process.env, testEmail)
 
@@ -39,6 +42,12 @@ export default defineConfig({
     {
       command: `"${process.execPath}" e2e/mailpit-resend.mjs`,
       url: 'http://127.0.0.1:3112/health',
+      reuseExistingServer: false,
+      timeout: 30_000,
+    },
+    {
+      command: `"${process.execPath}" e2e/dilisense-stub.mjs`,
+      url: 'http://127.0.0.1:3113/health',
       reuseExistingServer: false,
       timeout: 30_000,
     },

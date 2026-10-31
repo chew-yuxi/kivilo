@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/cdd.dart';
 import 'package:kivilo/screens/cdd_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/report_pdf_file.dart';
+import 'package:kivilo/ui/kivilo_components.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
 const _questions = [
@@ -110,6 +114,14 @@ class _Api extends Api {
   }
 
   final risks = <Map<String, bool>>[];
+  int records = 0;
+
+  @override
+  Future<String> cddRecord(String id) async {
+    records++;
+    return 'https://storage.example/record.pdf';
+  }
+
   final corrections = <String?>[];
   int emailed = 0;
 
@@ -331,4 +343,59 @@ void main() {
     expect(api.corrections, ['Date of birth on the card is 1991']);
     expect(api.emailed, 1);
   });
+
+  testWidgets('a politically exposed person is shown as one, and confirming them raises the risk', (tester) async {
+    final json = _case(status: 'NEEDS_REVIEW', submitted: true, idSighted: true);
+    final run = (json['screeningRuns'] as List).first as Map<String, dynamic>;
+    run['candidates'] = [
+      {
+        'id': 'pep-1',
+        'source': 'PEP',
+        'reference': 'Dilisense abc',
+        'matchedName': 'Tan Wei Ling',
+        'score': 0.98,
+        'details': {'names': ['Tan Wei Ling'], 'birthYears': [1990], 'nationalities': ['SG'], 'positions': ['Member of Parliament']},
+        'decision': null,
+        'reason': null,
+      },
+    ];
+    final api = _Api(json);
+    await _show(tester, CddCaseScreen(id: 'case-1', api: api));
+    expect(find.text('Sanctions and PEP screening'), findsOneWidget);
+    expect(find.text('POSSIBLE PEP · 98%'), findsOneWidget);
+    expect(find.text('Member of Parliament'), findsOneWidget);
+    await _tap(tester, find.widgetWithText(FilledButton, 'Decide'));
+    expect(find.text('PEP record'), findsOneWidget);
+    await tester.tap(find.text('Yes'));
+    await tester.pump();
+    expect(find.textContaining('The client is then higher risk'), findsOneWidget);
+    expect(find.textContaining('This stops the deal'), findsNothing);
+
+    (run['candidates'] as List).first['decision'] = 'CONFIRMED_MATCH';
+    await tester.pumpWidget(MaterialApp(theme: buildKiviloTheme(), home: CddRiskScreen(item: CddCase.fromJson(json), api: api)));
+    await tester.pumpAndSettle();
+    final pepAnswer = tester.widgetList<KiviloSegmentedControl<bool>>(find.byType(KiviloSegmentedControl<bool>)).first;
+    expect(pepAnswer.value, isTrue, reason: 'a confirmed PEP answers the PEP question');
+  });
+
+  testWidgets('a completed case downloads its record for CEA', (tester) async {
+    final api = _Api(_case(status: 'COMPLETE', submitted: true, decision: 'NOT_A_MATCH', idSighted: true, risk: 'STANDARD'));
+    final pdf = _PdfFile(File('${Directory.systemTemp.path}/record.pdf'));
+    await _show(tester, CddCompletedScreen(item: CddCase.fromJson(api.json), api: api, pdf: pdf));
+    await _tap(tester, find.text('Download record for CEA'));
+    expect(api.records, 1);
+    expect(pdf.requested, ('https://storage.example/record.pdf', 'Kivilo due diligence DD-1A2B3C4D'));
+  });
+}
+
+class _PdfFile extends ReportPdfFile {
+  _PdfFile(this.file);
+  final File file;
+  (String, String)? requested;
+
+  @override
+  Future<File> download(String url, String name) async {
+    requested = (url, name);
+    return file;
+  }
 }

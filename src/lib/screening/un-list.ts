@@ -8,7 +8,8 @@ export const UN_CONSOLIDATED_URL = 'https://scsanctions.un.org/resources/xml/en/
 export type ListedName = { name: string; weak: boolean }
 
 export type ListEntry = {
-  list: 'UN' | 'SG'
+  /// UN and SG are the official sanctions lists; PEP is a politically exposed person.
+  list: 'UN' | 'SG' | 'PEP'
   reference: string
   kind: 'INDIVIDUAL' | 'ENTITY'
   names: ListedName[]

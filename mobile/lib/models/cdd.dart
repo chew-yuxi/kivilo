@@ -116,7 +116,13 @@ class CddMatch {
     required this.nationalities,
     required this.decision,
     required this.reason,
+    this.positions = const [],
   });
+
+  /// For a politically exposed person: the positions they hold or held.
+  final List<String> positions;
+
+  bool get pep => source == 'PEP';
 
   final String id;
   final String source;
@@ -142,6 +148,7 @@ class CddMatch {
       nationalities: [for (final country in details['nationalities'] as List? ?? const []) country as String],
       decision: json['decision'] as String?,
       reason: json['reason'] as String?,
+      positions: [for (final position in details['positions'] as List? ?? const []) position as String],
     );
   }
 }
@@ -159,10 +166,13 @@ class CddScreeningRun {
     ranAt: DateTime.parse(json['ranAt'] as String),
     lists: [
       for (final version in json['listVersions'] as List? ?? const [])
-        [
-          (version as Map)['source'],
-          if (version['publishedAt'] != null) (version['publishedAt'] as String).substring(0, 10),
-        ].join(' '),
+        if ((version as Map)['source'] == 'PEP')
+          'PEP check'
+        else
+          [
+            version['source'],
+            if (version['publishedAt'] != null) (version['publishedAt'] as String).substring(0, 10),
+          ].join(' '),
     ],
     matches: [
       for (final match in json['candidates'] as List? ?? const [])

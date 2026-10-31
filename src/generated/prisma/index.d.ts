@@ -809,7 +809,8 @@ export type ScreeningDecision = (typeof ScreeningDecision)[keyof typeof Screenin
 
 export const SanctionsSource: {
   UN: 'UN',
-  SG: 'SG'
+  SG: 'SG',
+  PEP: 'PEP'
 };
 
 export type SanctionsSource = (typeof SanctionsSource)[keyof typeof SanctionsSource]

@@ -1260,7 +1260,8 @@ exports.CddIdType = exports.$Enums.CddIdType = {
 
 exports.SanctionsSource = exports.$Enums.SanctionsSource = {
   UN: 'UN',
-  SG: 'SG'
+  SG: 'SG',
+  PEP: 'PEP'
 };
 
 exports.ScreeningDecision = exports.$Enums.ScreeningDecision = {

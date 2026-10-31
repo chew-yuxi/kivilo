@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { db } from '@/lib/db'
 import { parseTsfaFirstSchedule } from '@/lib/screening/sg-tsfa'
 import { parseUnConsolidated } from '@/lib/screening/un-list'
@@ -10,6 +10,9 @@ import {
   submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
 import { addendumHash } from '@/lib/addenda'
+import { renderToBuffer } from '@react-pdf/renderer'
+import { pdfPageTexts } from '@/lib/report-pdf/pdf-text'
+import { CddRecordDocument, cddRecordModel } from './record-pdf'
 import { assessRisk, completeCase, completedRecord, confirmIdSighted, requestCorrection } from './review'
 
 const tag = randomUUID().slice(0, 8)
@@ -27,7 +30,21 @@ const ordinary: Particulars = {
   nationality: 'Singapore', dateOfBirth: '1985-04-12', address: '1 Orchard Road', pepDeclared: false,
 }
 
+/// Dilisense, as it answers: a politically exposed person for one name, nothing otherwise.
+const realFetch = globalThis.fetch
+const dilisense = vi.fn(async (url: string | URL | Request, init?: RequestInit) => {
+  // Only Dilisense is answered here; the PDF renderer loads its layout engine by fetch.
+  if (!String(url).startsWith('https://api.dilisense.com/')) return realFetch(url, init)
+  const name = new URL(String(url)).searchParams.get('names')
+  const found_records = name === 'Lawrence Wong'
+    ? [{ id: 'pep-1', source_type: 'PEP', pep_type: 'POLITICIAN', name: 'Lawrence Wong', date_of_birth: ['18/12/1972'], citizenship: ['SG'], positions: ['Prime Minister of Singapore'] }]
+    : []
+  return Response.json({ timestamp: '2026-10-31T01:00:00Z', total_hits: found_records.length, found_records })
+})
+
 beforeAll(async () => {
+  vi.stubEnv('DILISENSE_API_KEY', 'test-key')
+  vi.stubGlobal('fetch', dilisense)
   await db.sanctionsList.deleteMany()
   for (const [source, list] of [
     ['UN', parseUnConsolidated(fixture('un-consolidated-sample.xml'))],
@@ -85,7 +102,7 @@ describe('due diligence cases', () => {
     expect(view.particulars).toMatchObject({ idNumber: '*****567D', submittedInPerson: false, idSighted: false })
     expect(view.screeningRuns).toHaveLength(1)
     expect(view.screeningRuns[0].candidates).toEqual([])
-    expect((view.screeningRuns[0].listVersions as { source: string }[]).map((version) => version.source)).toEqual(['UN', 'SG'])
+    expect((view.screeningRuns[0].listVersions as { source: string }[]).map((version) => version.source)).toEqual(['UN', 'SG', 'PEP'])
   })
 
   it('never shows the client a match, a status or a decision', async () => {
@@ -250,5 +267,61 @@ describe('reviewing a case', () => {
     await submitParticularsInPerson(started.id, agent.id, ordinary)
     await expect(requestCorrection(started.id, agent.id, ' ')).rejects.toThrow('Say what does not match the original ID')
     expect(await requestCorrection(started.id, agent.id, 'Address differs from the NRIC')).toEqual({ reason: 'Address differs from the NRIC' })
+  })
+
+  it('checks politically exposed persons with the lists, and a confirmed one raises the risk, not the alarm', async () => {
+    const agent = await person('Agent Pep')
+    const started = await startDeal(agent.id, { clientName: 'Walk-in Eight', clientRole: 'LANDLORD' })
+    await submitParticularsInPerson(started.id, agent.id, { ...ordinary, legalName: 'Lawrence Wong', dateOfBirth: '1972-12-18' })
+    const [run] = (await caseForAgent(started.id, agent.id)).screeningRuns
+    expect(run.provider).toBe('kivilo-lists+dilisense')
+    expect(run.listVersions).toEqual(expect.arrayContaining([expect.objectContaining({ source: 'PEP', fetchedAt: '2026-10-31T01:00:00Z' })]))
+    const pep = run.candidates.find((candidate) => candidate.source === 'PEP')!
+    expect(pep).toMatchObject({ reference: 'Dilisense pep-1', matchedName: 'Lawrence Wong', details: { positions: ['Prime Minister of Singapore'] } })
+    const checked = new URL(String(dilisense.mock.calls.findLast(([url]) => String(url).includes('dilisense'))![0])).searchParams
+    expect([checked.get('names'), checked.get('dob')]).toEqual(['Lawrence Wong', '18/12/1972'])
+
+    await decideCandidate(pep.id, agent.id, 'CONFIRMED_MATCH', 'Same person: the Prime Minister')
+    expect((await caseForAgent(started.id, agent.id)).status).toBe('NEEDS_REVIEW')
+    const clear = { pep: false, highRiskCountry: false, cash: false, actingForAnother: false, unusual: false }
+    await expect(assessRisk(started.id, agent.id, clear)).rejects.toThrow('You confirmed the client is a politically exposed person')
+    await assessRisk(started.id, agent.id, { ...clear, pep: true }, 'Ministerial salary')
+    expect((await caseForAgent(started.id, agent.id)).riskLevel).toBe('HIGHER')
+  })
+
+  it('records a failed screening when the PEP check cannot be reached, and screens on retry', async () => {
+    const agent = await person('Agent Down')
+    const started = await startDeal(agent.id, { clientName: 'Walk-in Nine', clientRole: 'TENANT' })
+    dilisense.mockImplementationOnce(async () => new Response('busy', { status: 503 }))
+    await submitParticularsInPerson(started.id, agent.id, ordinary)
+    expect((await caseForAgent(started.id, agent.id)).screeningRuns).toEqual([])
+    expect(await db.cddEvent.count({ where: { caseId: started.id, kind: 'SCREENING_FAILED' } })).toBe(1)
+    await rescreen(started.id, agent.id)
+    expect((await caseForAgent(started.id, agent.id)).screeningRuns).toHaveLength(1)
+  })
+
+  it('prints a completed case as a receipt that verifies its own fingerprint, with the ID masked', async () => {
+    const agent = await person('Agent Receipt')
+    const started = await startDeal(agent.id, { clientName: 'Walk-in Ten', clientRole: 'TENANT' })
+    await expect(cddRecordModel(started.id, agent.id)).rejects.toThrow('Only a completed due diligence has a record to download')
+    await submitParticularsInPerson(started.id, agent.id, ordinary)
+    const clear = { pep: false, highRiskCountry: false, cash: false, actingForAnother: false, unusual: false }
+    await assessRisk(started.id, agent.id, clear)
+    const { contentHash } = await completeCase(started.id, agent.id)
+
+    const model = await cddRecordModel(started.id, agent.id)
+    expect(model).toMatchObject({ contentHash, verified: true, clientRole: 'Tenant' })
+    const text = (await pdfPageTexts(await renderToBuffer(<CddRecordDocument model={model} />))).join(' ')
+    for (const expected of [
+      'Customer due diligence record', model.reference, 'Tan Wei Ming', 'NRIC *****567D', 'Original document seen by',
+      'UN Security Council Consolidated List', 'Politically exposed persons, Dilisense', 'No possible match on any source',
+      'Standard risk', 'Completed and locked', contentHash, 'it matches, so nothing has changed since completion',
+    ]) expect(text, expected).toContain(expected)
+    expect(text).not.toContain('S1234567D')
+
+    // A row changed after completion is caught by the receipt itself.
+    await db.cddParticulars.update({ where: { caseId: started.id }, data: { address: '2 Orchard Road' } })
+    expect((await cddRecordModel(started.id, agent.id)).verified).toBe(false)
+    await expect(cddRecordModel(started.id, (await person('Agent Outsider')).id)).rejects.toThrow('Case not found')
   })
 })

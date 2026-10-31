@@ -1641,6 +1641,8 @@ enum ScreeningDecision {
 enum SanctionsSource {
   UN
   SG
+  /// Politically exposed persons, from the PEP screening provider (Dilisense).
+  PEP
 }
 
 /// One client's due diligence for one deal. Starts before any tenancy exists ("Start a

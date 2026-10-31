@@ -4,7 +4,10 @@ import { db } from '@/lib/db'
 import { parseTsfaFirstSchedule, SG_TSFA_URL } from './sg-tsfa'
 import { parseUnConsolidated, UN_CONSOLIDATED_URL, type ListEntry, type ParsedList } from './un-list'
 
-const SOURCES: Record<SanctionsSource, { url: string; parse: (body: string) => ParsedList; headers?: HeadersInit }> = {
+/// The official lists Kivilo loads itself. PEP comes from a provider per check instead.
+type ListSource = Exclude<SanctionsSource, 'PEP'>
+
+const SOURCES: Record<ListSource, { url: string; parse: (body: string) => ParsedList; headers?: HeadersInit }> = {
   UN: { url: UN_CONSOLIDATED_URL, parse: parseUnConsolidated },
   // Singapore Statutes Online refuses requests that do not look like a browser.
   SG: {
@@ -24,7 +27,7 @@ export type RefreshResult =
 /// refused as truncated, and screening keeps using the previous version.
 export async function refreshSanctionsLists(fetcher: typeof fetch = fetch): Promise<RefreshResult[]> {
   const results: RefreshResult[] = []
-  for (const source of Object.keys(SOURCES) as SanctionsSource[]) {
+  for (const source of Object.keys(SOURCES) as ListSource[]) {
     const { url, parse, headers } = SOURCES[source]
     try {
       const response = await fetcher(url, { headers, cache: 'no-store' })
@@ -55,7 +58,7 @@ export type ListVersion = { source: SanctionsSource; publishedAt: string | null;
 export async function currentSanctionsLists(): Promise<{ entries: ListEntry[]; versions: ListVersion[] }> {
   const entries: ListEntry[] = []
   const versions: ListVersion[] = []
-  for (const source of Object.keys(SOURCES) as SanctionsSource[]) {
+  for (const source of Object.keys(SOURCES) as ListSource[]) {
     const list = await db.sanctionsList.findFirst({ where: { source }, orderBy: { fetchedAt: 'desc' } })
     if (!list) throw new Error(`The ${source} sanctions list has not been loaded`)
     entries.push(...(list.entries as ListEntry[]))

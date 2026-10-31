@@ -456,6 +456,12 @@ class Api {
     await _dio.post<Object>('/api/v1/cdd/$id/correction', data: {'reason': ?reason});
   });
 
+  /// The receipt of a completed case, printed on the server; the link expires in ten minutes.
+  Future<String> cddRecord(String id) => _call(() async {
+    final response = await _dio.post<Map<String, dynamic>>('/api/v1/cdd/$id/record');
+    return response.data!['url'] as String;
+  });
+
   Future<void> completeCase(String id) => _call(() async {
     await _dio.post<Object>('/api/v1/cdd/$id/complete');
   });

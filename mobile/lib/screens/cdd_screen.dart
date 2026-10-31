@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/cdd.dart';
 import '../models/countries.dart';
 import '../services/api.dart';
+import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
@@ -509,7 +511,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
       await _api.completeCase(item.id);
       final done = await _api.cddCase(item.id);
       if (!mounted) return;
-      await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => CddCompletedScreen(item: done)));
+      await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => CddCompletedScreen(item: done, api: _api)));
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
@@ -632,7 +634,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               ),
               _Step(
                 icon: Icons.fact_check_outlined,
-                title: 'Sanctions screening',
+                title: 'Sanctions and PEP screening',
                 state: escalated
                     ? _StepState.failed
                     : screened
@@ -724,7 +726,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                   if (complete)
                     OutlinedButton(
                       onPressed: () => Navigator.of(context).push<void>(
-                        MaterialPageRoute(builder: (_) => CddCompletedScreen(item: item)),
+                        MaterialPageRoute(builder: (_) => CddCompletedScreen(item: item, api: _api)),
                       ),
                       child: const Text('View record'),
                     ),
@@ -813,7 +815,11 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final list = match.source == 'SG' ? 'Singapore designations' : 'UN sanctions list';
+    final list = switch (match.source) {
+      'SG' => 'Singapore designations',
+      'PEP' => 'Politically exposed person · Dilisense',
+      _ => 'UN sanctions list',
+    };
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -822,14 +828,18 @@ class _MatchCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             KiviloEyebrow(switch (match.decision) {
-              'CONFIRMED_MATCH' => 'Confirmed match',
+              'CONFIRMED_MATCH' => match.pep ? 'Confirmed PEP' : 'Confirmed match',
               'NOT_A_MATCH' => 'Not the same person',
-              _ => 'Possible match · ${(match.score * 100).round()}%',
+              _ => '${match.pep ? 'Possible PEP' : 'Possible match'} · ${(match.score * 100).round()}%',
             }),
             const SizedBox(height: 8),
             Text(match.matchedName, style: text.titleMedium),
             const SizedBox(height: 4),
-            Text('$list · ${match.reference}', style: text.bodySmall),
+            Text(match.pep ? list : '$list · ${match.reference}', style: text.bodySmall),
+            if (match.positions.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(match.positions.join('\n'), style: text.bodySmall),
+            ],
             if (_listedFacts(match) case final facts?) ...[
               const SizedBox(height: 4),
               Text(facts, style: text.bodySmall),
@@ -892,7 +902,11 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
         facts: [if (born != null) 'Born $born', client.nationality],
       ),
       _Compared(
-        label: match.source == 'SG' ? 'Singapore list' : 'UN list',
+        label: switch (match.source) {
+          'SG' => 'Singapore list',
+          'PEP' => 'PEP record',
+          _ => 'UN list',
+        },
         name: match.matchedName,
         facts: [
           if (match.birthYears.isNotEmpty) 'Born ${match.birthYears.join(' or ')}',
@@ -942,10 +956,15 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
           ),
           if (_confirmed == true) ...[
             const SizedBox(height: 12),
-            const KiviloNotice(
-              tone: KiviloTone.error,
-              child: Text('This stops the deal. You must not tell the client, and must report it.'),
-            ),
+            match.pep
+                ? const KiviloNotice(
+                    tone: KiviloTone.warning,
+                    child: Text('The client is then higher risk. The risk assessment will ask where their funds come from.'),
+                  )
+                : const KiviloNotice(
+                    tone: KiviloTone.error,
+                    child: Text('This stops the deal. You must not tell the client, and must report it.'),
+                  ),
           ],
           const SizedBox(height: 16),
           TextField(
@@ -1498,8 +1517,11 @@ class _CddRiskScreenState extends State<CddRiskScreen> {
   late final Map<String, bool?> _answers = {
     for (final question in widget.item.riskQuestions)
       question.key: widget.item.riskAnswers[question.key] as bool? ??
-          (question.key == 'pep' && widget.item.particulars?.pepDeclared == true ? true : null),
+          (question.key == 'pep' && (widget.item.particulars?.pepDeclared == true || _confirmedPep) ? true : null),
   };
+  /// A politically exposed person the agent confirmed in screening; the server refuses a no.
+  late final bool _confirmedPep =
+      widget.item.runs.firstOrNull?.matches.any((match) => match.pep && match.decision == 'CONFIRMED_MATCH') ?? false;
   late final _funds = TextEditingController(text: widget.item.riskAnswers['sourceOfFunds'] as String? ?? '');
   bool _saving = false;
   String? _error;
@@ -1616,10 +1638,36 @@ class _CddRiskScreenState extends State<CddRiskScreen> {
 
 /// The finished record: what was checked, against what, and the fingerprint that proves
 /// it has not changed since.
-class CddCompletedScreen extends StatelessWidget {
-  const CddCompletedScreen({super.key, required this.item});
+class CddCompletedScreen extends StatefulWidget {
+  const CddCompletedScreen({super.key, required this.item, this.api, this.pdf});
 
   final CddCase item;
+  final Api? api;
+  final ReportPdfFile? pdf;
+
+  @override
+  State<CddCompletedScreen> createState() => _CddCompletedScreenState();
+}
+
+class _CddCompletedScreenState extends State<CddCompletedScreen> {
+  late final _api = widget.api ?? Api();
+  bool _downloading = false;
+
+  CddCase get item => widget.item;
+
+  /// The receipt for CEA, drawn on the server from the locked record.
+  Future<void> _download() async {
+    setState(() => _downloading = true);
+    try {
+      final url = await _api.cddRecord(item.id);
+      final file = await (widget.pdf ?? ReportPdfFile()).download(url, 'Kivilo due diligence ${item.reference}');
+      await OpenFilex.open(file.path, type: 'application/pdf', uti: 'com.adobe.pdf');
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1688,7 +1736,13 @@ class CddCompletedScreen extends StatelessWidget {
               style: text.bodySmall,
             ),
             const SizedBox(height: 24),
-            FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
+            FilledButton.icon(
+              onPressed: _downloading ? null : _download,
+              icon: const Icon(Icons.description_outlined, size: 20),
+              label: Text(_downloading ? 'Preparing the record…' : 'Download record for CEA'),
+            ),
+            const SizedBox(height: kiviloButtonGap),
+            OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
           ],
         ),
       ),

@@ -90,7 +90,10 @@ export async function assessRisk(caseId: string, agentId: string, answers: Recor
   await db.$transaction(async (tx) => {
     const { particulars } = await openCase(tx, caseId, agentId)
     if (!particulars.idSightedAt) throw new CddStateError('Check the client’s ID first')
-    await screeningClear(tx, caseId)
+    const run = await screeningClear(tx, caseId)
+    if (!answers.pep && run.candidates.some((candidate) => candidate.source === 'PEP' && candidate.decision === 'CONFIRMED_MATCH')) {
+      throw new CddInputError('You confirmed the client is a politically exposed person. Answer yes to that question')
+    }
     const assessment = {
       checklistVersion: RISK_CHECKLIST_VERSION,
       answers: { ...answers, sourceOfFunds: level === 'HIGHER' ? funds : null },

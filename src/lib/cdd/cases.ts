@@ -5,6 +5,7 @@ import { requireAgencyMembership } from '@/lib/agency'
 import { db } from '@/lib/db'
 import { screen } from '@/lib/screening/match'
 import { currentSanctionsLists } from '@/lib/screening/lists'
+import { pepEntries, type PepEntry } from '@/lib/screening/dilisense'
 import { recordServerError } from '@/lib/errors'
 import { reportBranding } from '@/lib/report-agent'
 import { decryptIdNumber, encryptIdNumber, maskIdNumber } from './crypto'
@@ -226,11 +227,19 @@ async function screenAfterSubmission(caseId: string) {
 export async function screenCase(caseId: string) {
   const particulars = await db.cddParticulars.findUniqueOrThrow({ where: { caseId } })
   const { entries, versions } = await currentSanctionsLists()
+  // One run covers both checks, so a case is never screened against one and not the other.
+  const pep = await pepEntries(particulars.legalName, particulars.dateOfBirth)
   const birthYear = particulars.dateOfBirth?.getUTCFullYear() ?? null
-  const candidates = screen({ kind: particulars.kind, name: particulars.legalName, birthYear }, entries)
+  const candidates = screen({ kind: particulars.kind, name: particulars.legalName, birthYear }, [...entries, ...pep.entries])
   await db.$transaction(async (tx) => {
     const run = await tx.screeningRun.create({
-      data: { caseId, subjectName: particulars.legalName, subjectBirthYear: birthYear, provider: 'kivilo-lists', listVersions: versions },
+      data: {
+        caseId,
+        subjectName: particulars.legalName,
+        subjectBirthYear: birthYear,
+        provider: 'kivilo-lists+dilisense',
+        listVersions: [...versions, pep.version],
+      },
     })
     if (candidates.length) {
       await tx.screeningCandidate.createMany({
@@ -245,6 +254,10 @@ export async function screenCase(caseId: string) {
             birthYears: candidate.entry.birthYears,
             nationalities: candidate.entry.nationalities,
             birthYearAgrees: candidate.birthYearAgrees,
+            ...('positions' in candidate.entry && {
+              pepType: (candidate.entry as PepEntry).pepType,
+              positions: (candidate.entry as PepEntry).positions,
+            }),
           },
         })),
       })
@@ -269,7 +282,7 @@ export async function decideCandidate(candidateId: string, agentId: string, deci
   await db.$transaction(async (tx) => {
     const candidate = await tx.screeningCandidate.findFirst({
       where: { id: candidateId, decision: null, run: { case: cddCaseScope(agentId) } },
-      select: { id: true, run: { select: { caseId: true } } },
+      select: { id: true, source: true, run: { select: { caseId: true } } },
     })
     if (!candidate) throw new Error('Match not found')
     await tx.screeningCandidate.update({
@@ -278,7 +291,9 @@ export async function decideCandidate(candidateId: string, agentId: string, deci
     })
     const caseId = candidate.run.caseId
     await tx.cddEvent.create({ data: { caseId, actorId: agentId, kind: 'MATCH_DECIDED', detail: { candidateId, decision } } })
-    if (decision === 'CONFIRMED_MATCH') {
+    // A confirmed sanctions match stops the deal. A confirmed politically exposed person does
+    // not: they are a higher-risk client, which the risk assessment then has to record.
+    if (decision === 'CONFIRMED_MATCH' && candidate.source !== 'PEP') {
       await tx.cddCase.update({ where: { id: caseId }, data: { status: 'ESCALATED' } })
       await tx.cddEvent.create({ data: { caseId, actorId: agentId, kind: 'ESCALATED' } })
     }

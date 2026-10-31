@@ -24,6 +24,7 @@ const nextConfig: NextConfig = {
     '/api/internal/posters': ['./node_modules/.pnpm/ffmpeg-static@*/node_modules/ffmpeg-static/ffmpeg'],
     '/reports/\\[token\\]/pdf': [pdfkitFonts],
     '/api/v1/inspections/\\[id\\]/pdf': [pdfkitFonts],
+    '/api/v1/cdd/\\[id\\]/record': [pdfkitFonts],
     '/api/internal/report-emails': [pdfkitFonts],
     '/sign/\\[inspectionId\\]/pdf': [pdfkitFonts],
     // PDF.js loads its worker and fonts dynamically when reading an agreement.
