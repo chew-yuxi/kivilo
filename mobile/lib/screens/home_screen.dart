@@ -149,6 +149,13 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _clientChecks() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => CddListScreen(api: _api)),
+    );
+    if (mounted) await _refresh();
+  }
+
   /// Whether the operators' due-diligence preview is on, from the latest Home answer.
   bool _dueDiligence = false;
 
@@ -444,7 +451,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               if (work) ...[
                 const SizedBox(height: 16),
-                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: data.dueDiligence),
+                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: data.dueDiligence, checks: data.dueDiligenceCounts),
               ],
               for (final group in groups) ...[
                 const SizedBox(height: kiviloSectionGap),
@@ -482,7 +489,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The newest inspection still open, and a new one: the two things an agent does
   /// most, without repeating the rows below.
-  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence}) {
+  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence, ({int needsYou, int waiting})? checks}) {
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -531,13 +538,61 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         if (dueDiligence) ...[
           const SizedBox(height: kiviloButtonGap),
-          OutlinedButton.icon(
-            onPressed: () => Navigator.of(context).push<void>(
-              MaterialPageRoute(builder: (_) => CddListScreen(api: _api)),
+          // A card while clients need the agent or the agent is waiting on them; a quiet
+          // button when nothing is due.
+          if (checks != null && (checks.needsYou > 0 || checks.waiting > 0))
+            Card(
+              margin: EdgeInsets.zero,
+              child: InkWell(
+                onTap: _clientChecks,
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: checks.needsYou > 0 ? KiviloColors.pinkSoft : KiviloColors.canvas,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          Icons.fact_check_outlined,
+                          color: checks.needsYou > 0 ? KiviloColors.pinkDark : KiviloColors.muted,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Client checks (KYC/CDD)', style: text.titleMedium),
+                            const SizedBox(height: 2),
+                            Text(
+                              [
+                                if (checks.needsYou > 0) '${checks.needsYou} need${checks.needsYou == 1 ? 's' : ''} you',
+                                if (checks.waiting > 0) '${checks.waiting} waiting on clients',
+                              ].join(' · '),
+                              style: text.bodySmall?.copyWith(
+                                color: checks.needsYou > 0 ? KiviloColors.pinkDark : null,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          else
+            OutlinedButton.icon(
+              onPressed: _clientChecks,
+              icon: const Icon(Icons.fact_check_outlined, size: 18),
+              label: const Text('Verify clients (KYC/CDD)'),
             ),
-            icon: const Icon(Icons.fact_check_outlined, size: 18),
-            label: const Text('Due diligence'),
-          ),
         ],
       ],
     );

@@ -61,7 +61,7 @@ class _CddListScreenState extends State<CddListScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Due diligence')),
+    appBar: AppBar(title: const Text('Client checks')),
     body: KiviloContent(
       maxWidth: 840,
       child: RefreshIndicator(
@@ -377,7 +377,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Due diligence')),
+    appBar: AppBar(title: const Text('Client check')),
     body: KiviloContent(
       maxWidth: 840,
       child: RefreshIndicator(
@@ -1715,9 +1715,9 @@ class _CddCompletedScreenState extends State<CddCompletedScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            Text('Due diligence complete', textAlign: TextAlign.center, style: text.headlineMedium),
+            Text('Client verified', textAlign: TextAlign.center, style: text.headlineMedium),
             const SizedBox(height: 6),
-            Text(item.clientName, textAlign: TextAlign.center, style: text.bodyLarge),
+            Text('${item.clientName} · due diligence complete', textAlign: TextAlign.center, style: text.bodyLarge),
             const SizedBox(height: 24),
             _Facts(rows: [
               ('Client', '${item.clientName}, ${_role(item.clientRole).toLowerCase()}'),

@@ -303,7 +303,7 @@ void main() {
     await _tap(tester, find.text('Complete due diligence'));
     await _tap(tester, find.widgetWithText(FilledButton, 'Complete'));
     expect(api.completions, 1);
-    expect(find.text('Due diligence complete'), findsOneWidget);
+    expect(find.text('Client verified'), findsOneWidget);
     expect(find.text('ab12cd34…9f9f'), findsOneWidget);
     expect(find.text('DD-1A2B3C4D'), findsOneWidget);
 
