@@ -267,6 +267,25 @@ void main() {
     });
   }
 
+  testWidgets('client checks show as a card when something is due, and a button when not', (tester) async {
+    await _pump(tester, _HomeApi(byContext: {
+      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 2, waiting: 1)),
+    }));
+    expect(find.text('Client checks (KYC/CDD)'), findsOneWidget);
+    expect(find.text('2 need you · 1 waiting on clients'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, _HomeApi(byContext: {
+      'work': HomeTasks(tasks: [task('only')], dueDiligence: true, dueDiligenceCounts: (needsYou: 0, waiting: 0)),
+    }));
+    expect(find.text('Client checks (KYC/CDD)'), findsNothing);
+    expect(find.widgetWithText(OutlinedButton, 'Verify clients (KYC/CDD)'), findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, _HomeApi(byContext: {'work': HomeTasks(tasks: [task('only')])}));
+    expect(find.textContaining('KYC/CDD'), findsNothing, reason: 'outside the preview');
+  });
+
   testWidgets('View all retains the inspection shown in the Home shortcut', (
     tester,
   ) async {

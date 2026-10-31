@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { homeTasks } from '@/lib/home-tasks'
 import { isAdmin } from '@/lib/admin'
+import { caseCounts } from '@/lib/cdd/cases'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,5 +18,7 @@ export const GET = authed(async (stakeholder, _params, request) => {
     : { kind: query.context === 'landlord' ? 'LANDLORD' : 'TENANT' })
   // Due diligence is in preview for the operators only, until its risk checklist and
   // record are finished (plans/compliance-pack.md).
-  return { ...tasks, dueDiligence: isAdmin(stakeholder.email) }
+  if (!isAdmin(stakeholder.email)) return { ...tasks, dueDiligence: false }
+  // A separate field, since released builds read `dueDiligence` as a Boolean.
+  return { ...tasks, dueDiligence: true, dueDiligenceCounts: await caseCounts(stakeholder.id) }
 })

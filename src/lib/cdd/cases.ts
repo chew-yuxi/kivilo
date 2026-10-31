@@ -203,7 +203,7 @@ export function particularsPath(caseId: string, email?: string | null) {
 
 /// Asks the client for their particulars by email, in-app and push, and returns the link
 /// for the agent to send on WhatsApp as well. At most once every ten minutes per case.
-export async function requestParticulars(caseId: string, agentId: string) {
+export async function requestParticulars(caseId: string, agentId: string, options: { reminder?: boolean; now?: Date } = {}) {
   return db.$transaction(async (tx) => {
     const found = await caseInScope(caseId, agentId, tx)
     if (found.status !== 'WAITING_FOR_CLIENT') throw new CddStateError('The client has already sent their particulars')
@@ -213,20 +213,22 @@ export async function requestParticulars(caseId: string, agentId: string) {
     ])
     const path = particularsPath(caseId, client.email)
     const recent = await tx.cddEvent.findFirst({
-      where: { caseId, kind: 'REQUEST_SENT', createdAt: { gt: new Date(Date.now() - 10 * 60 * 1000) } },
+      where: { caseId, kind: 'REQUEST_SENT', createdAt: { gt: new Date((options.now ?? new Date()).getTime() - 10 * 60 * 1000) } },
     })
     if (client.email && !recent) {
       await tx.notification.create({
         data: {
           recipientId: found.clientId,
           kind: 'CDD_REQUEST',
-          title: `${agent.name} needs your details for your rental`,
+          title: `${options.reminder ? 'Reminder: ' : ''}${agent.name} needs your details for your rental`,
           body: `${agent.name} is your property agent and needs your details as on your ID. Agents in Singapore must confirm who their clients are before a deal, under CEA rules. It takes about three minutes.`,
           href: particularsPath(caseId),
           dedupeKey: `cdd-request:${caseId}:${Date.now()}`,
         },
       })
-      await tx.cddEvent.create({ data: { caseId, actorId: agentId, kind: 'REQUEST_SENT' } })
+      await tx.cddEvent.create({
+        data: { caseId, actorId: options.reminder ? null : agentId, kind: 'REQUEST_SENT', detail: options.reminder ? { reminder: true } : undefined },
+      })
     }
     return { path, emailed: Boolean(client.email && !recent) }
   })
@@ -509,4 +511,44 @@ export async function caseForClient(caseId: string, clientId: string) {
 /// What the client and the agent quote to each other about a case: short, and not the id.
 export function caseReference(caseId: string) {
   return `DD-${createHash('sha256').update(caseId).digest('hex').slice(0, 8).toUpperCase()}`
+}
+
+/// What needs the agent on Home: cases waiting on them (review, correction, a confirmed
+/// match) and cases waiting on clients.
+export async function caseCounts(agentId: string) {
+  const cases = await casesForAgent(agentId)
+  return {
+    needsYou: cases.filter((found) => found.status === 'NEEDS_REVIEW' || found.status === 'ESCALATED' || found.needsCorrection).length,
+    waiting: cases.filter((found) => found.status === 'WAITING_FOR_CLIENT').length,
+  }
+}
+
+/// Automatic reminders for clients who have not sent their particulars: one a day after
+/// the agent's last request, another two days after that, then none. Only clients the
+/// agent has already asked, by email, are reminded.
+export const REMINDER_AFTER_HOURS = [24, 48]
+
+export async function sendDueReminders(now = new Date()) {
+  const waiting = await db.cddCase.findMany({
+    where: { status: 'WAITING_FOR_CLIENT', particulars: null, client: { email: { not: null } }, events: { some: { kind: 'REQUEST_SENT' } } },
+    select: {
+      id: true,
+      agentId: true,
+      events: { where: { kind: { in: ['REQUEST_SENT', 'PARTICULARS_REJECTED'] } }, orderBy: { createdAt: 'desc' }, select: { kind: true, createdAt: true, detail: true } },
+    },
+  })
+  const sent: string[] = []
+  for (const found of waiting) {
+    // Reminders count from the latest request; a correction starts the count again.
+    const since = found.events.findIndex((event) => event.kind === 'PARTICULARS_REJECTED')
+    const requests = (since < 0 ? found.events : found.events.slice(0, since)).filter((event) => event.kind === 'REQUEST_SENT')
+    if (requests.length === 0) continue
+    const reminders = requests.filter((event) => (event.detail as { reminder?: boolean } | null)?.reminder).length
+    if (reminders >= REMINDER_AFTER_HOURS.length) continue
+    const due = requests[0].createdAt.getTime() + REMINDER_AFTER_HOURS[reminders] * 60 * 60 * 1000
+    if (now.getTime() < due) continue
+    const { emailed } = await requestParticulars(found.id, found.agentId, { reminder: true, now })
+    if (emailed) sent.push(found.id)
+  }
+  return sent
 }

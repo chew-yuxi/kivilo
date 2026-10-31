@@ -6,7 +6,7 @@ import { parseTsfaFirstSchedule } from '@/lib/screening/sg-tsfa'
 import { parseUnConsolidated } from '@/lib/screening/un-list'
 import { notificationScope } from '@/lib/auth'
 import {
-  caseForAgent, caseForClient, decideCandidate, partyChecks, verifyTenancyParties, particularsStillWanted, requestParticulars, rescreen, startDeal,
+  caseForAgent, caseCounts, caseForClient, decideCandidate, partyChecks, sendDueReminders, verifyTenancyParties, particularsStillWanted, requestParticulars, rescreen, startDeal,
   submitOwnParticulars, submitParticularsInPerson, type Particulars,
 } from './cases'
 import { addendumHash } from '@/lib/addenda'
@@ -359,5 +359,26 @@ describe('reviewing a case', () => {
     expect(checks.landlord).toMatchObject({ status: 'WAITING_FOR_CLIENT', requestedAt: expect.any(Date) })
     expect(checks.tenant).toMatchObject({ status: 'WAITING_FOR_CLIENT', requestedAt: null })
     expect((await partyChecks([tenancy.id], (await person('Agent Nosy')).id)).get(tenancy.id)).toEqual({ landlord: null, tenant: null })
+  })
+
+  it('reminds a client who has not answered a day later, again two days after, then stops', async () => {
+    const agent = await person('Agent Remind')
+    const client = await person('Client Remind')
+    const walkIn = await startDeal(agent.id, { clientName: 'Walk-in Eleven', clientRole: 'LANDLORD' })
+    const started = await startDeal(agent.id, { clientName: client.name, clientEmail: client.email, clientRole: 'TENANT' })
+    const hours = (n: number) => new Date(Date.now() + n * 60 * 60 * 1000)
+    const ours = async (at: Date) => (await sendDueReminders(at)).filter((id) => id === started.id || id === walkIn.id)
+
+    expect(await ours(hours(30)), 'never asked yet').toEqual([])
+    await requestParticulars(started.id, agent.id)
+    expect(await ours(hours(23))).toEqual([])
+    expect(await ours(hours(25))).toEqual([started.id])
+    expect(await ours(hours(26)), 'the next one counts from this reminder').toEqual([])
+    expect(await ours(hours(25 + 49))).toEqual([started.id])
+    expect(await ours(hours(500)), 'two reminders, then none').toEqual([])
+
+    const notices = await db.notification.findMany({ where: { recipientId: client.id, kind: 'CDD_REQUEST' }, orderBy: { createdAt: 'asc' } })
+    expect(notices.map((notice) => notice.title.startsWith('Reminder: '))).toEqual([false, true, true])
+    expect(await caseCounts(agent.id)).toEqual({ needsYou: 0, waiting: 2 })
   })
 })

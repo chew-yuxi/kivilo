@@ -56,11 +56,19 @@ class HomeTask {
 }
 
 class HomeTasks {
-  const HomeTasks({required this.tasks, this.truncated = false, this.dueDiligence = false});
+  const HomeTasks({
+    required this.tasks,
+    this.truncated = false,
+    this.dueDiligence = false,
+    this.dueDiligenceCounts,
+  });
   final List<HomeTask> tasks;
 
   /// Whether Home offers Due diligence. False from a server that predates it.
   final bool dueDiligence;
+
+  /// Client checks needing the agent, and waiting on clients, when the preview is on.
+  final ({int needsYou, int waiting})? dueDiligenceCounts;
 
   /// A source reached the server's bound: counts are "at least", never the whole.
   final bool truncated;
@@ -74,5 +82,9 @@ class HomeTasks {
         .toList(),
     truncated: json['truncated'] as bool? ?? false,
     dueDiligence: json['dueDiligence'] as bool? ?? false,
+    dueDiligenceCounts: switch (json['dueDiligenceCounts']) {
+      {'needsYou': final int needsYou, 'waiting': final int waiting} => (needsYou: needsYou, waiting: waiting),
+      _ => null,
+    },
   );
 }

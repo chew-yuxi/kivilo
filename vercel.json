@@ -6,6 +6,7 @@
     { "path": "/api/internal/posters", "schedule": "* * * * *" },
     { "path": "/api/internal/errors", "schedule": "*/15 * * * *" },
     { "path": "/api/internal/report-emails", "schedule": "* * * * *" },
-    { "path": "/api/internal/sanctions-lists", "schedule": "0 18 * * *" }
+    { "path": "/api/internal/sanctions-lists", "schedule": "0 18 * * *" },
+    { "path": "/api/internal/cdd-reminders", "schedule": "17 * * * *" }
   ]
 }
