@@ -68,7 +68,8 @@ class HomeTasks {
   final bool dueDiligence;
 
   /// Client checks needing the agent, and waiting on clients, when the preview is on.
-  final ({int needsYou, int waiting})? dueDiligenceCounts;
+  /// `freeLeft` is null on Pro, which has no limit.
+  final ({int needsYou, int waiting, int? freeLeft})? dueDiligenceCounts;
 
   /// A source reached the server's bound: counts are "at least", never the whole.
   final bool truncated;
@@ -83,7 +84,11 @@ class HomeTasks {
     truncated: json['truncated'] as bool? ?? false,
     dueDiligence: json['dueDiligence'] as bool? ?? false,
     dueDiligenceCounts: switch (json['dueDiligenceCounts']) {
-      {'needsYou': final int needsYou, 'waiting': final int waiting} => (needsYou: needsYou, waiting: waiting),
+      {'needsYou': final int needsYou, 'waiting': final int waiting} && final Map counts => (
+        needsYou: needsYou,
+        waiting: waiting,
+        freeLeft: counts['freeLeft'] as int?,
+      ),
       _ => null,
     },
   );

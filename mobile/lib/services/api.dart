@@ -395,12 +395,15 @@ class Api {
 
   // Due diligence (plans/compliance-pack.md). Read with `_get`, never `_read`: clients'
   // names, addresses and masked IDs are not kept in this phone's saved copies.
-  Future<List<CddCaseSummary>> cddCases() async {
+  Future<CddCaseList> cddCases() async {
     final data = (await _get<Map<String, dynamic>>('/api/v1/cdd')).data!;
-    return [
-      for (final json in data['cases'] as List<dynamic>)
-        CddCaseSummary.fromJson(json as Map<String, dynamic>),
-    ];
+    return CddCaseList(
+      cases: [
+        for (final json in data['cases'] as List<dynamic>)
+          CddCaseSummary.fromJson(json as Map<String, dynamic>),
+      ],
+      freeChecksLeft: data['freeChecksLeft'] as int?,
+    );
   }
 
   Future<CddCase> cddCase(String id) async =>

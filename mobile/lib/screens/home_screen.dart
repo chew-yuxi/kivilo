@@ -156,15 +156,20 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) await _refresh();
   }
 
-  /// Whether the operators' due-diligence preview is on, from the latest Home answer.
+  /// Whether Home offers client checks (the work context), from the latest Home answer.
   bool _dueDiligence = false;
+
+  /// Client checks left on the Free plan; null on Pro.
+  int? _freeChecksLeft;
 
   Future<void> _create() async {
     final id = await Navigator.of(context).push<String>(
       MaterialPageRoute(
         builder: (_) => NewInspectionScreen(
           api: _api,
-          offerVerification: _dueDiligence,
+          // Verifying both parties takes two checks.
+          offerVerification: _dueDiligence && (_freeChecksLeft == null || _freeChecksLeft! >= 2),
+          freeChecksLeft: _freeChecksLeft,
           initialAgency: _workspace.all
               ? _workspace.index.agencies.firstOrNull
               : _workspace.agency,
@@ -385,6 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           final data = snapshot.data!;
           _dueDiligence = data.dueDiligence;
+          _freeChecksLeft = data.dueDiligenceCounts?.freeLeft;
           final text = Theme.of(context).textTheme;
           final work = _workspace.party == null;
           final firstUse = work && !_workspace.contexts.work;
@@ -489,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The newest inspection still open, and a new one: the two things an agent does
   /// most, without repeating the rows below.
-  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence, ({int needsYou, int waiting})? checks}) {
+  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence, ({int needsYou, int waiting, int? freeLeft})? checks}) {
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

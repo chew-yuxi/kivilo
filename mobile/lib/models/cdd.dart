@@ -431,3 +431,11 @@ class TenancyVerification {
   factory TenancyVerification.fromJson(Map<String, dynamic> json) =>
       TenancyVerification(landlord: _party(json['landlord']), tenant: _party(json['tenant']));
 }
+
+/// The agent's cases, and the Free plan's client checks left (null on Pro).
+class CddCaseList {
+  const CddCaseList({required this.cases, this.freeChecksLeft});
+
+  final List<CddCaseSummary> cases;
+  final int? freeChecksLeft;
+}
