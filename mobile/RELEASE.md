@@ -5,6 +5,28 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Due diligence in the deal flow: 31 October 2026 Singapore time
+
+Server source `907189d` on `origin/main`, deployed by Vercel (READY;
+`/api/v1/tenancies/[id]/verification` answers 401 signed out, an unknown sibling 404), no
+migration. New check-ins offer "Verify both parties (CEA)" (`verifyParties`, starts each
+party's case as the person on the tenancy via `verifyTenancyParties`, idempotent under the
+tenancy lock); the property overview adds per-party `verification` to working terms; Send for
+signature on a check-in asks first when a party is unverified (soft: Send reminders, or send
+anyway); the report page and PDF mark a party with a completed check (`RENDER_VERSION` 9).
+All behind `ADMIN_EMAILS`, enforced on the server.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **24** / `765634` | **stable** |
+| iOS TestFlight `1.0.0+25` | **52** / `765641` | **stable** |
+
+Patch source `33cd6de` on `claude/cdd-patch`; changed screens match main's byte for byte;
+build numbers read back (29; 25); icons all in both bases. Checks: 528 mobile tests on the
+patch source, 540 on main; lint, typecheck, build, 293 unit, 454 integration, and e2e
+check-in, API and both due-diligence specs. The pre-signing check has no widget test (it
+needs a signed-in session and the capture queue). Physical devices **NOT RUN**.
+
 ## Due diligence corrections, PEP screening and the CEA record: 31 October 2026 Singapore time
 
 Server sources `ad523ac` (corrections) and `5b86ad9` on `origin/main`, deployed by Vercel
