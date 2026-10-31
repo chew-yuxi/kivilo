@@ -5,6 +5,25 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Client checks launched to every agent: 31 October 2026 Singapore time
+
+Server source `6a3cb59` on `origin/main`, deployed by Vercel (READY, created 9 seconds after the
+commit), no migration. The `ADMIN_EMAILS` preview gate is removed from Home, the property
+overview, check-in creation and `/api/v1/tenancies/[id]/verification`; `ADMIN_EMAILS` still
+guards `/admin`. Free agents may start `FREE_CLIENT_CHECKS` (3) client checks in total, Pro has
+no limit (`clientChecksLeft`, 403 `check_limit`); check-in creation starts both parties only with
+room for two. Documented in `AGENTS.md`, "Client checks (CEA due diligence)".
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **26** / `765727` | **stable** |
+| iOS TestFlight `1.0.0+25` | **54** / `765733` | **stable** |
+
+Patch source `93361d3` on `claude/cdd-patch`; changed files match main's byte for byte; build
+numbers read back (29; 25). Checks: 530 mobile tests on the patch source, 542 on main; lint,
+typecheck, build, 293 unit, 456 integration, e2e due-diligence, check-in, API and plan specs.
+Physical devices **NOT RUN**.
+
 ## Client check reminders and Home card: 31 October 2026 Singapore time
 
 Server source `f554fc0` on `origin/main`, deployed by Vercel (READY; the new hourly cron
