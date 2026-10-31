@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/models/cdd.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/property_work.dart';
 import 'package:kivilo/models/renewal.dart';
+import 'package:kivilo/screens/cdd_screen.dart';
 import 'package:kivilo/screens/properties_screen.dart';
 import 'package:kivilo/screens/property_screen.dart';
 import 'package:kivilo/services/api.dart';
@@ -76,10 +78,30 @@ class _LibraryApi extends Api {
     this.reportStatus = 'DRAFT',
     this.reportKind = 'CHECK_IN',
     this.assets = const [],
+    this.verification,
   }) : active = active ?? _active,
        super(attachAuth: false, cache: ReadCache());
 
   final List<PropertyWorkItem> active;
+  final TenancyVerification? verification;
+  final verifyRequests = <(String, List<String>?)>[];
+
+  @override
+  Future<CddCase> cddCase(String id) async => CddCase.fromJson({
+    'id': id,
+    'status': 'WAITING_FOR_CLIENT',
+    'clientRole': 'TENANT',
+    'client': {'id': 'tenant', 'name': 'Alice Tan', 'email': null},
+    'particulars': null,
+    'screeningRuns': [],
+  });
+
+  @override
+  Future<List<({String role, String caseId})>> verifyTenancy(String tenancyId, {List<String>? roles}) async {
+    verifyRequests.add((tenancyId, roles));
+    return [(role: roles!.single, caseId: 'case-new')];
+  }
+
   final bool canOpenDocuments;
   final bool includeCare;
   final bool canEditDetails;
@@ -154,6 +176,7 @@ class _LibraryApi extends Api {
     terms: [
       PropertyTerm(
         canOpenDocuments: canOpenDocuments,
+        verification: verification,
         tenancyId: 't',
         startDate: '2026-01-01T00:00:00.000Z',
         endDate: '2027-12-31T00:00:00.000Z',
@@ -646,5 +669,38 @@ void main() {
     expect(find.text('Start check-in'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('each party’s CEA check shows on the tenancy, and an unverified one starts in a tap', (tester) async {
+    final api = _LibraryApi(
+      verification: TenancyVerification(
+        landlord: PartyCheck(caseId: 'case-landlord', status: 'COMPLETE', completedAt: DateTime(2026, 10, 31)),
+      ),
+    );
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 1600);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(theme: buildKiviloTheme(), home: PropertyScreen(propertyId: 'property-1', api: api)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Landlord identity · Landlord'), findsOneWidget);
+    expect(find.textContaining('Verified'), findsOneWidget);
+    expect(find.text('Tenant identity · Alice Tan'), findsOneWidget);
+    expect(find.text('Not verified yet · CEA requires it before signing'), findsOneWidget);
+
+    await tester.tap(find.text('Tenant identity · Alice Tan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Verify'));
+    await tester.pumpAndSettle();
+    expect(api.verifyRequests.single.$1, 't');
+    expect(api.verifyRequests.single.$2, ['TENANT']);
+    expect(find.byType(CddCaseScreen), findsOneWidget);
+  });
+
+  testWidgets('outside the preview a tenancy shows no identity checks', (tester) async {
+    final api = _LibraryApi();
+    await tester.pumpWidget(MaterialApp(theme: buildKiviloTheme(), home: PropertyScreen(propertyId: 'property-1', api: api)));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('identity ·'), findsNothing);
   });
 }

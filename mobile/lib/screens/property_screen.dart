@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/cdd.dart';
 import '../models/property_work.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
@@ -7,6 +8,7 @@ import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/page_context_title.dart';
+import 'cdd_screen.dart';
 import 'inspection_screen.dart';
 import 'property_history_screen.dart';
 import 'property_settings_screen.dart';
@@ -278,6 +280,67 @@ class _PropertyScreenState extends State<PropertyScreen> {
     ),
   );
 
+  Widget _partyCheckRow(PropertyTerm term, String role, String name, PartyCheck? check) {
+    final who = role == 'LANDLORD' ? 'Landlord' : 'Tenant';
+    final (icon, color, status) = switch (check) {
+      null => (Icons.add, KiviloColors.pinkDark, 'Not verified yet · CEA requires it before signing'),
+      PartyCheck(verified: true) => (
+        Icons.check_circle,
+        KiviloColors.green,
+        'Verified ${check.completedAt == null ? '' : shortDate(check.completedAt!.toIso8601String())}'.trim(),
+      ),
+      PartyCheck(status: 'ESCALATED') => (Icons.error_outline, KiviloColors.red, 'Stopped: confirmed match'),
+      PartyCheck(needsCorrection: true) => (Icons.warning_amber_outlined, KiviloColors.amber, 'Details need correcting'),
+      PartyCheck(status: 'NEEDS_REVIEW') => (Icons.fact_check_outlined, KiviloColors.pinkDark, 'Needs your review'),
+      PartyCheck(:final requestedAt) => (
+        Icons.schedule_rounded,
+        KiviloColors.muted,
+        requestedAt == null ? 'Waiting for $name' : 'Waiting for $name · ${_waited(requestedAt)}',
+      ),
+    };
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: Icon(icon, color: color),
+      title: Text('$who identity · $name'),
+      subtitle: Text(status, style: TextStyle(color: color == KiviloColors.muted ? null : color)),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => check == null
+          ? _startCheck(term, role, name)
+          : _open(CddCaseScreen(id: check.caseId, api: _api)),
+    );
+  }
+
+  static String _waited(DateTime since) {
+    final days = DateTime.now().difference(since).inDays;
+    return days == 0 ? 'form sent today' : 'form sent ${days == 1 ? 'a day' : '$days days'} ago';
+  }
+
+  Future<void> _startCheck(PropertyTerm term, String role, String name) async {
+    final sure = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: Text('Verify $name?'),
+        content: const Text(
+          'Kivilo emails them a short identity form, screens them against the sanctions and '
+          'PEP lists, and keeps the record for you. CEA requires this before the tenancy is signed.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Verify')),
+        ],
+      ),
+    );
+    if (sure != true || !mounted) return;
+    try {
+      final started = await _api.verifyTenancy(term.tenancyId, roles: [role]);
+      if (!mounted) return;
+      if (started.isEmpty) return await _refresh();
+      await _open(CddCaseScreen(id: started.first.caseId, api: _api));
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+    }
+  }
+
   Widget? _termCard(PropertyTerm term, PropertyOverview property) {
     final reports = term.reports
         .where(
@@ -330,6 +393,15 @@ class _PropertyScreenState extends State<PropertyScreen> {
           onTap: () => _open(InspectionScreen(id: report.id, api: _api)),
         ),
       );
+    }
+    // CEA due diligence on each party, where the deal is (operators' preview).
+    if (term.verification case final verification?) {
+      for (final (role, name, check) in [
+        ('LANDLORD', term.landlord, verification.landlord),
+        ('TENANT', term.tenant, verification.tenant),
+      ]) {
+        addRow(_partyCheckRow(term, role, name, check));
+      }
     }
     if (term == property.terms.first) {
       addRow(

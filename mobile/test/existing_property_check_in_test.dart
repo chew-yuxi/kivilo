@@ -166,8 +166,30 @@ void main() {
       // The server links last term's landlord itself; no name or email is sent.
       expect(body['sameLandlord'], isTrue);
       expect(body.containsKey('landlordName'), isFalse);
+      expect(body.containsKey('verifyParties'), isFalse, reason: 'outside the preview nothing is offered');
     },
   );
+
+  testWidgets('verifying both parties is offered with the check-in, on unless turned off', (tester) async {
+    final api = _Api();
+    await _show(tester, NewInspectionScreen(api: api, cache: _NoDraft(), offerVerification: true));
+    await tester.tap(find.text('Existing property'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('8 Jalan Kayu #04-11, 799487'));
+    await tester.pumpAndSettle();
+    final tenant = find.widgetWithText(TextFormField, 'Tenant name (required)');
+    await _reveal(tester, tenant);
+    await tester.enterText(tenant, 'New Tenant');
+    final verify = find.widgetWithText(SwitchListTile, 'Verify both parties (CEA)');
+    await _reveal(tester, verify);
+    expect(tester.widget<SwitchListTile>(verify).value, isTrue);
+    await tester.tap(verify);
+    await tester.pumpAndSettle();
+    await _reveal(tester, find.text('Create check-in'));
+    await tester.tap(find.text('Create check-in'));
+    await tester.pumpAndSettle();
+    expect(api.checkIns.single['verifyParties'], isFalse);
+  });
 
   testWidgets('a contact fills the tenant, and the fields stay editable', (
     tester,

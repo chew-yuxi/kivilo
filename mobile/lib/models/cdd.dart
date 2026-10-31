@@ -389,3 +389,45 @@ ParticularsProblem? particularsProblem({
   }
   return null;
 }
+
+/// One party's CEA due diligence on a tenancy: the newest case for them.
+class PartyCheck {
+  const PartyCheck({
+    required this.caseId,
+    required this.status,
+    this.needsCorrection = false,
+    this.requestedAt,
+    this.completedAt,
+  });
+
+  final String caseId;
+  final String status;
+  final bool needsCorrection;
+  final DateTime? requestedAt;
+  final DateTime? completedAt;
+
+  bool get verified => status == 'COMPLETE';
+
+  factory PartyCheck.fromJson(Map<String, dynamic> json) => PartyCheck(
+    caseId: json['caseId'] as String,
+    status: json['status'] as String,
+    needsCorrection: json['needsCorrection'] as bool? ?? false,
+    requestedAt: DateTime.tryParse(json['requestedAt'] as String? ?? ''),
+    completedAt: DateTime.tryParse(json['completedAt'] as String? ?? ''),
+  );
+}
+
+class TenancyVerification {
+  const TenancyVerification({this.landlord, this.tenant});
+
+  final PartyCheck? landlord;
+  final PartyCheck? tenant;
+
+  bool get bothVerified => (landlord?.verified ?? false) && (tenant?.verified ?? false);
+
+  static PartyCheck? _party(Object? json) =>
+      json == null ? null : PartyCheck.fromJson((json as Map).cast<String, dynamic>());
+
+  factory TenancyVerification.fromJson(Map<String, dynamic> json) =>
+      TenancyVerification(landlord: _party(json['landlord']), tenant: _party(json['tenant']));
+}
