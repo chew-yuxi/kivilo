@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../models/cdd.dart';
 import '../models/countries.dart';
 import '../services/api.dart';
+import '../services/report_pdf_file.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
@@ -127,6 +129,7 @@ class _CaseRow extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final complete = item.status == 'COMPLETE';
     final (fill, ink) = switch (item.status) {
+      _ when item.needsCorrection => (KiviloColors.amberSoft, KiviloColors.amber),
       'ESCALATED' => (KiviloColors.redSoft, KiviloColors.red),
       'COMPLETE' => (KiviloColors.greenSoft, KiviloColors.green),
       'NEEDS_REVIEW' => (KiviloColors.pinkSoft, KiviloColors.pinkDark),
@@ -175,7 +178,9 @@ class _CaseRow extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(999)),
                     child: Text(
-                      item.openMatches > 0 && item.status != 'ESCALATED'
+                      item.needsCorrection
+                          ? 'Needs correcting'
+                          : item.openMatches > 0 && item.status != 'ESCALATED'
                           ? '${item.openMatches} to decide'
                           : _statusLabels[item.status] ?? item.status,
                       style: text.labelMedium?.copyWith(color: ink),
@@ -409,10 +414,37 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     ),
   );
 
+  /// Sets the particulars aside, then emails the client the form again when there is an
+  /// address; without one, the waiting step offers the link and filling in together.
+  Future<void> _askCorrection(CddCase item, String? problem, {String? reason}) async {
+    final sure = await showKiviloDrawer<bool>(
+      context: context,
+      builder: (context) => KiviloDrawer(
+        title: const Text('Ask for corrected details?'),
+        content: Text(
+          [
+            '${item.clientName} will be asked to send their details again'
+                '${item.clientEmail == null ? '' : ', by email'}.',
+            'The details they sent are kept in the record, set aside.',
+          ].join(' '),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Ask again')),
+        ],
+      ),
+    );
+    if (sure != true) return;
+    await _run(() async {
+      await _api.requestCorrection(item.id, reason: problem == null ? reason : null);
+      if (item.clientEmail != null) await _api.requestParticulars(item.id);
+    });
+  }
+
   Future<void> _checkId(CddCase item) async {
     final p = item.particulars!;
     final document = p.idType == 'PASSPORT' ? 'passport' : p.idType;
-    final sure = await showKiviloDrawer<bool>(
+    final answer = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Seen ${item.clientName}’s $document?'),
@@ -431,6 +463,12 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               if (p.dateOfBirth case final born?) ('Date of birth', _date(DateTime.parse(born))),
               ('Nationality', p.nationality),
             ]),
+            const SizedBox(height: 8),
+            TextButton(
+              style: kiviloTertiary,
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('It doesn’t match the ID'),
+            ),
           ],
         ),
         actions: [
@@ -439,7 +477,10 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
         ],
       ),
     );
-    if (sure == true) await _run(() => _api.confirmIdSighted(item.id));
+    if (answer == true) await _run(() => _api.confirmIdSighted(item.id));
+    if (answer != false || !mounted) return;
+    final reason = await showKiviloDrawer<String>(context: context, builder: (_) => const _MismatchDrawer());
+    if (reason != null && mounted) await _askCorrection(item, null, reason: reason);
   }
 
   Future<void> _assess(CddCase item) async {
@@ -470,7 +511,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
       await _api.completeCase(item.id);
       final done = await _api.cddCase(item.id);
       if (!mounted) return;
-      await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => CddCompletedScreen(item: done)));
+      await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => CddCompletedScreen(item: done, api: _api)));
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
@@ -486,9 +527,12 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
     final escalated = item.status == 'ESCALATED';
     final complete = item.status == 'COMPLETE';
 
-    final received = p != null;
-    final idSeen = p?.idSighted ?? false;
-    final screened = run != null && item.openMatches.isEmpty && !escalated;
+    // Particulars that fail a rule tightened since they were sent count as not received:
+    // nothing after them can be relied on until the client corrects them.
+    final problem = item.particularsProblem;
+    final received = p != null && problem == null;
+    final idSeen = received && p.idSighted;
+    final screened = received && run != null && item.openMatches.isEmpty && !escalated;
     final assessed = item.riskLevel != null;
     final done = [received, idSeen, screened, assessed, complete].where((step) => step).length;
 
@@ -516,8 +560,14 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               _Step(
                 icon: Icons.description_outlined,
                 title: 'Particulars received',
-                state: received ? _StepState.done : _StepState.current,
-                status: received
+                state: problem != null
+                    ? _StepState.failed
+                    : received
+                    ? _StepState.done
+                    : _StepState.current,
+                status: problem != null
+                    ? 'Needs correcting: ${problem.message}'
+                    : received
                     ? [
                         p.submittedInPerson ? 'Taken in person' : 'Sent by the client',
                         if (p.submittedAt case final at?) _dateTime(at),
@@ -526,7 +576,14 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                         'Waiting for ${item.clientName}',
                         if (item.requestedAt case final at?) 'form emailed ${_dateTime(at)}',
                       ].join(' · '),
-                children: received
+                children: problem != null
+                    ? [
+                        FilledButton(
+                          onPressed: _busy ? null : () => _askCorrection(item, problem.message),
+                          child: const Text('Ask for corrected details'),
+                        ),
+                      ]
+                    : received
                     ? const []
                     : [
                         if (item.clientEmail != null) ...[
@@ -559,11 +616,13 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ? _StepState.current
                     : _StepState.pending,
                 status: idSeen
-                    ? ['Original ID seen', if (p!.idSightedAt case final at?) _dateTime(at)].join(' · ')
+                    ? ['Original ID seen', if (p.idSightedAt case final at?) _dateTime(at)].join(' · ')
                     : escalated
                     ? 'Stopped by the confirmed match'
                     : received
                     ? 'Compare the particulars below with the original ID, in person or on a video call'
+                    : problem != null
+                    ? 'After the particulars are corrected'
                     : 'After the particulars arrive',
                 children: [
                   if (received && !idSeen && !escalated)
@@ -575,7 +634,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
               ),
               _Step(
                 icon: Icons.fact_check_outlined,
-                title: 'Sanctions screening',
+                title: 'Sanctions and PEP screening',
                 state: escalated
                     ? _StepState.failed
                     : screened
@@ -587,6 +646,8 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                     ? 'Confirmed match'
                     : screened
                     ? '${ruledOut == 0 ? 'No match' : '$ruledOut possible ${ruledOut == 1 ? 'match' : 'matches'} ruled out'} · ${run.lists.join(', ')}'
+                    : problem != null
+                    ? 'Runs again on the corrected particulars'
                     : !received
                     ? 'Runs when the particulars arrive'
                     : run == null
@@ -665,7 +726,7 @@ class _CddCaseScreenState extends State<CddCaseScreen> {
                   if (complete)
                     OutlinedButton(
                       onPressed: () => Navigator.of(context).push<void>(
-                        MaterialPageRoute(builder: (_) => CddCompletedScreen(item: item)),
+                        MaterialPageRoute(builder: (_) => CddCompletedScreen(item: item, api: _api)),
                       ),
                       child: const Text('View record'),
                     ),
@@ -754,7 +815,11 @@ class _MatchCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
-    final list = match.source == 'SG' ? 'Singapore designations' : 'UN sanctions list';
+    final list = switch (match.source) {
+      'SG' => 'Singapore designations',
+      'PEP' => 'Politically exposed person · Dilisense',
+      _ => 'UN sanctions list',
+    };
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -763,14 +828,18 @@ class _MatchCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             KiviloEyebrow(switch (match.decision) {
-              'CONFIRMED_MATCH' => 'Confirmed match',
+              'CONFIRMED_MATCH' => match.pep ? 'Confirmed PEP' : 'Confirmed match',
               'NOT_A_MATCH' => 'Not the same person',
-              _ => 'Possible match · ${(match.score * 100).round()}%',
+              _ => '${match.pep ? 'Possible PEP' : 'Possible match'} · ${(match.score * 100).round()}%',
             }),
             const SizedBox(height: 8),
             Text(match.matchedName, style: text.titleMedium),
             const SizedBox(height: 4),
-            Text('$list · ${match.reference}', style: text.bodySmall),
+            Text(match.pep ? list : '$list · ${match.reference}', style: text.bodySmall),
+            if (match.positions.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Text(match.positions.join('\n'), style: text.bodySmall),
+            ],
             if (_listedFacts(match) case final facts?) ...[
               const SizedBox(height: 4),
               Text(facts, style: text.bodySmall),
@@ -833,7 +902,11 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
         facts: [if (born != null) 'Born $born', client.nationality],
       ),
       _Compared(
-        label: match.source == 'SG' ? 'Singapore list' : 'UN list',
+        label: switch (match.source) {
+          'SG' => 'Singapore list',
+          'PEP' => 'PEP record',
+          _ => 'UN list',
+        },
         name: match.matchedName,
         facts: [
           if (match.birthYears.isNotEmpty) 'Born ${match.birthYears.join(' or ')}',
@@ -883,10 +956,15 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
           ),
           if (_confirmed == true) ...[
             const SizedBox(height: 12),
-            const KiviloNotice(
-              tone: KiviloTone.error,
-              child: Text('This stops the deal. You must not tell the client, and must report it.'),
-            ),
+            match.pep
+                ? const KiviloNotice(
+                    tone: KiviloTone.warning,
+                    child: Text('The client is then higher risk. The risk assessment will ask where their funds come from.'),
+                  )
+                : const KiviloNotice(
+                    tone: KiviloTone.error,
+                    child: Text('This stops the deal. You must not tell the client, and must report it.'),
+                  ),
           ],
           const SizedBox(height: 16),
           TextField(
@@ -914,6 +992,47 @@ class _DecisionDrawerState extends State<_DecisionDrawer> {
       ],
     );
   }
+}
+
+class _MismatchDrawer extends StatefulWidget {
+  const _MismatchDrawer();
+
+  @override
+  State<_MismatchDrawer> createState() => _MismatchDrawerState();
+}
+
+class _MismatchDrawerState extends State<_MismatchDrawer> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => KiviloDrawer(
+    title: const Text('What doesn’t match?'),
+    content: TextField(
+      controller: _reason,
+      autofocus: true,
+      minLines: 2,
+      maxLines: 4,
+      onChanged: (_) => setState(() {}),
+      decoration: const InputDecoration(
+        labelText: 'Reason',
+        hintText: 'For example: the date of birth on the card is different',
+        alignLabelWithHint: true,
+      ),
+    ),
+    actions: [
+      TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+      FilledButton(
+        onPressed: _reason.text.trim().isEmpty ? null : () => Navigator.of(context).pop(_reason.text.trim()),
+        child: const Text('Continue'),
+      ),
+    ],
+  );
 }
 
 class _Compared extends StatelessWidget {
@@ -1398,8 +1517,11 @@ class _CddRiskScreenState extends State<CddRiskScreen> {
   late final Map<String, bool?> _answers = {
     for (final question in widget.item.riskQuestions)
       question.key: widget.item.riskAnswers[question.key] as bool? ??
-          (question.key == 'pep' && widget.item.particulars?.pepDeclared == true ? true : null),
+          (question.key == 'pep' && (widget.item.particulars?.pepDeclared == true || _confirmedPep) ? true : null),
   };
+  /// A politically exposed person the agent confirmed in screening; the server refuses a no.
+  late final bool _confirmedPep =
+      widget.item.runs.firstOrNull?.matches.any((match) => match.pep && match.decision == 'CONFIRMED_MATCH') ?? false;
   late final _funds = TextEditingController(text: widget.item.riskAnswers['sourceOfFunds'] as String? ?? '');
   bool _saving = false;
   String? _error;
@@ -1516,10 +1638,36 @@ class _CddRiskScreenState extends State<CddRiskScreen> {
 
 /// The finished record: what was checked, against what, and the fingerprint that proves
 /// it has not changed since.
-class CddCompletedScreen extends StatelessWidget {
-  const CddCompletedScreen({super.key, required this.item});
+class CddCompletedScreen extends StatefulWidget {
+  const CddCompletedScreen({super.key, required this.item, this.api, this.pdf});
 
   final CddCase item;
+  final Api? api;
+  final ReportPdfFile? pdf;
+
+  @override
+  State<CddCompletedScreen> createState() => _CddCompletedScreenState();
+}
+
+class _CddCompletedScreenState extends State<CddCompletedScreen> {
+  late final _api = widget.api ?? Api();
+  bool _downloading = false;
+
+  CddCase get item => widget.item;
+
+  /// The receipt for CEA, drawn on the server from the locked record.
+  Future<void> _download() async {
+    setState(() => _downloading = true);
+    try {
+      final url = await _api.cddRecord(item.id);
+      final file = await (widget.pdf ?? ReportPdfFile()).download(url, 'Kivilo due diligence ${item.reference}');
+      await OpenFilex.open(file.path, type: 'application/pdf', uti: 'com.adobe.pdf');
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+    } finally {
+      if (mounted) setState(() => _downloading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1588,7 +1736,13 @@ class CddCompletedScreen extends StatelessWidget {
               style: text.bodySmall,
             ),
             const SizedBox(height: 24),
-            FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
+            FilledButton.icon(
+              onPressed: _downloading ? null : _download,
+              icon: const Icon(Icons.description_outlined, size: 20),
+              label: Text(_downloading ? 'Preparing the record…' : 'Download record for CEA'),
+            ),
+            const SizedBox(height: kiviloButtonGap),
+            OutlinedButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Done')),
           ],
         ),
       ),
