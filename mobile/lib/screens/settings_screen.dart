@@ -567,6 +567,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
             const SizedBox(height: 10),
             _linkCard(
+              icon: Icons.description_outlined,
+              title: 'Terms of service',
+              subtitle: 'The terms for using Kivilo',
+              onTap: () => _openPage('/terms'),
+            ),
+            const SizedBox(height: 10),
+            _linkCard(
               icon: Icons.help_outline,
               title: 'Help & support',
               subtitle: 'Get help with an inspection or your account',
