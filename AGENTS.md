@@ -212,7 +212,9 @@ Server actions live in `src/lib/actions.ts` rather than a route folder, since co
 across several routes import them.
 
 The public landing page is a separate static Next.js export in `marketing/`, deployed
-to Cloudflare at `kivilo.app` (`pnpm marketing:build`). The app stays on Vercel at
+to Cloudflare at `kivilo.app` (`pnpm marketing:build`, then from `marketing/`:
+`CLOUDFLARE_API_TOKEN=<from the main checkout's .env.deploy> npx wrangler deploy`; the
+token does not expire like the browser login, and is never committed). The app stays on Vercel at
 `my.kivilo.app`; its `/` redirects to `/properties`, and the inspector's work list is at
 `/inspections`. The former app domain remains available for installed clients and old
 links. `/login` and `/offline` sit outside `(app)` and are static. `/offline` in particular must
