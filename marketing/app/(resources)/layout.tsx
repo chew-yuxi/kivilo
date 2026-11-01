@@ -12,7 +12,7 @@ export default function ResourcesLayout({ children }: { children: ReactNode }) {
     <main id="main">{children}</main>
     <footer className={styles.footer}>
       <p>Kivilo · NotTooSweetLabs Pte. Ltd.<br />Made in Singapore. For a better handover.</p>
-      <nav aria-label="Footer navigation"><Link href="/product">Product facts</Link><Link href="/compare">Comparisons</Link><Link href="/guides">Guides</Link><a href="https://my.kivilo.app/support">Support</a><a href="https://my.kivilo.app/privacy">Privacy</a></nav>
+      <nav aria-label="Footer navigation"><Link href="/product">Product facts</Link><Link href="/compare">Comparisons</Link><Link href="/guides">Guides</Link><a href="https://my.kivilo.app/support">Support</a><a href="https://my.kivilo.app/privacy">Privacy</a><a href="https://my.kivilo.app/terms">Terms</a></nav>
     </footer>
   </div>
 }

@@ -163,7 +163,7 @@ export default function LandingPage() {
         </section>
       </main>
       <footer className={styles.footer}>
-        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><Link href="/compare">Compare</Link><Link href="/guides">Guides</Link><Link href="/product">Product facts</Link><a href="#get-started">Get the app</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
+        <div className={styles.footerTop}><div><Link className={styles.wordmark} href="/" aria-label="Kivilo home"><span className={styles.brandMark} aria-hidden="true" />kivilo</Link><p>A little more clarity.<br />A lot more peace of mind.</p></div><nav aria-label="Footer navigation"><Link href="/compare">Compare</Link><Link href="/guides">Guides</Link><Link href="/product">Product facts</Link><a href="#get-started">Get the app</a><Link href="https://my.kivilo.app/support">Support</Link><Link href="https://my.kivilo.app/verify">Verify a report</Link><Link href="https://my.kivilo.app/privacy">Privacy</Link><Link href="https://my.kivilo.app/terms">Terms</Link><Link href="https://my.kivilo.app/delete-account">Delete account</Link></nav></div>
         <div className={styles.footerBottom}><span>© {new Date().getFullYear()} Kivilo · NotTooSweetLabs Pte. Ltd.</span><span>Made in Singapore. For a better handover.</span></div>
       </footer>
     </div>

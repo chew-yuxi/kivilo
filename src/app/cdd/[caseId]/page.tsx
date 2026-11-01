@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { currentStakeholder } from '@/lib/auth'
@@ -119,7 +120,8 @@ export default async function ParticularsPage({ params, searchParams }: PageProp
             </div>
             <p className="mt-6 text-center text-xs text-gray-400">
               Signed in as {client.email ?? client.name}. Renting as a company? Ask {found.agentName} to
-              complete this with you.
+              complete this with you.{' '}
+              <Link href="/privacy#client-checks" className="underline">How your details are handled</Link>.
             </p>
           </section>
         )}

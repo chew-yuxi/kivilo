@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="mx-auto max-w-3xl px-6 py-12 text-gray-800">
       <Link href="/" className="text-sm text-brand-600 hover:underline">← Kivilo</Link>
       <h1 className="mt-8 text-3xl font-semibold">Privacy policy</h1>
-      <p className="mt-2 text-sm text-gray-500">Last updated 30 October 2026</p>
+      <p className="mt-2 text-sm text-gray-500">Last updated 1 November 2026</p>
 
       <p className="mt-6 leading-relaxed">
         Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore. For privacy
@@ -73,6 +73,34 @@ export default function PrivacyPage() {
       </section>
 
       <section className="mt-8 space-y-3 leading-relaxed">
+        <h2 id="client-checks" className="text-xl font-semibold">Client checks (CEA due diligence)</h2>
+        <p>
+          Estate agents in Singapore must verify who their clients are before a deal. When an agent
+          uses Kivilo for this, we handle the client&apos;s full name, identity document type and
+          number, nationality, date of birth, residential address and declaration about public
+          positions; the screening results, the agent&apos;s decision and reason for each possible
+          match, and the agent&apos;s confirmation that they saw the original document; the risk
+          assessment, including any source of funds recorded; and a dated record of each step.
+        </p>
+        <p>
+          The identity number is encrypted separately from the rest of the database and is only
+          ever shown with its last four characters. Kivilo never asks for a photo of the document.
+          For client checks, the agent and their agency decide why and how the information is used,
+          and we process it on their behalf. A client who wants to see or correct their record can
+          ask their agent, or contact us and we will help.
+        </p>
+        <p>
+          The particulars are screened against the United Nations Security Council Consolidated
+          List and the First Schedule of the Terrorism (Suppression of Financing) Act, which we
+          download and check within Kivilo, and against a politically exposed persons database
+          provided by Dilisense. The record is visible to the agent who made the check, agents
+          working the client&apos;s tenancy, and the owners and managers of the agent&apos;s
+          agency. Kivilo does not tell the client the outcome of screening. The law can require an
+          agent to report a suspicious transaction to the authorities.
+        </p>
+      </section>
+
+      <section className="mt-8 space-y-3 leading-relaxed">
         <h2 className="text-xl font-semibold">How we use it</h2>
         <p>
           We use this information to sign users in, preserve and organize evidence,
@@ -102,7 +130,9 @@ export default function PrivacyPage() {
           their content and delivery logs in the United States. Firebase Cloud
           Messaging and Apple Push Notification service route optional mobile
           notifications; Firebase may process data globally. Stripe processes
-          payment for Pro plans bought on our website. Apple and Google process
+          payment for Pro plans bought on our website. Dilisense, in Switzerland, receives a
+          client&apos;s name and date of birth for each client check to search its politically
+          exposed persons records, and says it does not log these requests. Apple and Google process
           subscriptions bought through their app stores. These providers handle the
           payment details; we never see or store a card number.
         </p>
@@ -139,6 +169,12 @@ export default function PrivacyPage() {
           record of a deletion request while needed to demonstrate fulfillment or
           resolve a complaint, then remove or de-identify it. We delete error reports
           and screen usage events 90 days after they are recorded.
+        </p>
+        <p>
+          Client check records are kept for five years after the agent&apos;s business
+          relationship with the client ends, because estate agents must keep customer due
+          diligence records for that long, and are then deleted. Deleting either the agent&apos;s
+          or the client&apos;s Kivilo account does not remove them sooner.
         </p>
         <p>
           The acquisition cookie expires 30 days after the first recorded visit. You can
@@ -181,7 +217,8 @@ export default function PrivacyPage() {
         </p>
         <p>
           Signed reports and unsigned work involving another party may retain your
-          name and contributions while the purposes above still apply. Our completion
+          name and contributions while the purposes above still apply. Client check records stay
+          for the period the law requires, described under Retention. Our completion
           email notes that shared records may remain; contact us to ask which of your
           records remain.
         </p>
@@ -197,7 +234,8 @@ export default function PrivacyPage() {
 
       <p className="mt-10 border-t border-gray-200 pt-6 text-sm">
         Questions about this policy?{' '}
-        <Link href="/support" className="text-brand-600 underline">Contact support</Link>.
+        <Link href="/support" className="text-brand-600 underline">Contact support</Link>. See also our{' '}
+        <Link href="/terms" className="text-brand-600 underline">terms of service</Link>.
       </p>
     </main>
   )

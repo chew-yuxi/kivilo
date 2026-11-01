@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase/client'
@@ -111,6 +112,13 @@ export function LoginForm() {
       {error && <p className="text-lg leading-relaxed text-red-700" role="alert">{error}</p>}
 
       {stage === 'email' && <p className="text-lg leading-relaxed text-gray-600">We’ll email you a six-digit code. No password needed.</p>}
+      {stage === 'email' && (
+        <p className="text-sm leading-relaxed text-gray-500">
+          By continuing you agree to Kivilo’s{' '}
+          <Link href="/terms" className="underline">terms of service</Link> and{' '}
+          <Link href="/privacy" className="underline">privacy policy</Link>.
+        </p>
+      )}
 
       <button
         type="submit"

@@ -23,6 +23,7 @@ export function GET() {
     '## Support and policies', '',
     '- [Support](https://my.kivilo.app/support): Product help and account requests. Contact: hello@nottoosweetlabs.com.',
     '- [Privacy policy](https://my.kivilo.app/privacy): Data handling, access, sharing and retention.',
+    '- [Terms of service](https://my.kivilo.app/terms): Accounts, reports and signatures, client checks, plans and responsibilities.',
     '- [Account deletion](https://my.kivilo.app/delete-account): Deletion requests and retention information.',
     '- [Verify an issued report](https://my.kivilo.app/verify): Checks a PDF fingerprint without uploading the PDF. A match verifies the file, not inspection accuracy or legal liability.', '',
     '## Optional', '',
