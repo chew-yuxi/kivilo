@@ -5,6 +5,23 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Terms of service and the client checks privacy policy: 1 November 2026 Singapore time
+
+Server source `6a69969` on `origin/main`, deployed by Vercel: `/terms` (new, static) and
+`/privacy` (client checks section, Dilisense, five-year retention) answer 200 with the new
+text; production sign-in shows the consent line, read in a headless browser. The marketing
+footers link Terms in the commit, but `wrangler deploy` failed with an expired Cloudflare
+login, so kivilo.app still serves the previous build until someone runs `wrangler login`.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| Android internal `1.0.0+29` | **27** / `767165` | **stable** |
+| iOS TestFlight `1.0.0+25` | **55** / `767168` | **stable** |
+
+Patch source `2f289d6` on `claude/cdd-patch` (Settings gains a Terms of service link, seven
+lines). Checks: 530 mobile tests on the patch source; lint, typecheck, build, marketing build,
+293 unit, and e2e particulars and check-in. Physical devices **NOT RUN**.
+
 ## Client checks launched to every agent: 31 October 2026 Singapore time
 
 Server source `6a3cb59` on `origin/main`, deployed by Vercel (READY, created 9 seconds after the
