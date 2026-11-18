@@ -627,10 +627,15 @@ refund, cancel or change access automatically and are excluded from error alert 
 Review them in `/admin` and act in Stripe. Their retention is 90 days.
 
 **Store rule:** the web sells Personal and operational-team plans through Stripe.
-Android uses Google Play Billing for Personal and team plans, with server verification,
-acknowledgement and authenticated renewal notifications. iOS uses StoreKit 2 for
-Personal and team subscriptions (`plans/apple-billing.md`); it requires a new native
-build and server configuration before release. Apple-signed transactions and v2
+The app stores sell Personal only (Yuxi, 18 November): agencies and teams buy from
+Kivilo directly, through Stripe or an invoice, under App Review guideline 3.1.3(c).
+`appleBillingStatus` and `playBillingStatus` offer no product to a team workspace, so
+the app shows no purchase there, and the app must never point to that outside
+purchase with a link, button or message. The team store products are off sale but stay
+in the catalogs, so a team purchase made before then keeps verifying and renewing.
+Android uses Google Play Billing, with server verification, acknowledgement and
+authenticated renewal notifications. iOS uses StoreKit 2 (`plans/apple-billing.md`).
+Apple-signed transactions and v2
 notifications are verified with Apple's library, and current subscription status is
 re-read under the same workspace lock. The opaque app-account UUID binds purchases
 to their payer and workspace. Never transfer a receipt between accounts, finish a

@@ -54,8 +54,10 @@ export async function playBillingStatus(agent: Agent, agencyId?: string | null) 
   const provider = current ? 'google_play' : subscription?.applePurchaseId ? 'apple' : subscription?.stripeSubscriptionId ? 'stripe' : subscription?.status === 'comped' ? 'comped' : null
   const isManager = context.canManage && workspace.isManager
   const blockedProvider = !!subscription && !current && subscriptionCanResume(subscription)
-  const kind = context.kind === 'stakeholder' ? 'personal' : 'team'
-  const products = GOOGLE_PLAY_PRODUCTS.filter((product) => product.kind === kind && product.seats >= context.seatsNeeded)
+  // The app sells Personal only; agencies and teams buy from Kivilo directly, as in
+  // appleBillingStatus. Team products stay so earlier team purchases keep verifying.
+  const products = context.kind === 'stakeholder'
+    ? GOOGLE_PLAY_PRODUCTS.filter((product) => product.kind === 'personal') : []
   return {
     plan: workspace.plan, seats: workspace.seats, activeProperties: workspace.active, limit: workspace.limit,
     workspace: { kind: context.kind, id: context.id, name: context.teamName },

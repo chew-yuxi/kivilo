@@ -274,6 +274,12 @@ describe('Play entitlement verification', () => {
 })
 
 describe('Play team bindings and replacements', () => {
+  it('offers Personal in the app and nothing for an agency, which buys from Kivilo directly', async () => {
+    const owner = await person('owner')
+    const group = await agency(owner)
+    expect(await playBillingStatus(owner, null)).toMatchObject({ canPurchase: true, products: [{ productId: 'kivilo_pro' }] })
+    expect(await playBillingStatus(owner, group.id)).toMatchObject({ canManageBilling: true, canPurchase: false, products: [] })
+  })
   it('charges the selected agency pool only, with verified seats and manager controls', async () => {
     const owner = await person('owner'); const member = await person('member')
     const group = await agency(owner, [member])

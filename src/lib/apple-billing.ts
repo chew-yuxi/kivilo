@@ -18,8 +18,11 @@ export async function appleBillingStatus(agent: Agent, agencyId?: string | null)
     ? await db.applePurchase.findUniqueOrThrow({ where: { id: subscription.applePurchaseId } }) : null
   const provider = current ? 'apple' : subscription?.googlePlayPurchaseId ? 'google_play'
     : subscription?.stripeSubscriptionId ? 'stripe' : subscription?.status === 'comped' ? 'comped' : null
-  const kind = workspace.workspace.kind === 'stakeholder' ? 'personal' : 'team'
-  const products = APPLE_PRODUCTS.filter((product) => product.kind === kind && product.seats >= workspace.seatsNeeded)
+  // The app sells Personal only. Agencies and teams buy from Kivilo directly, through
+  // Stripe or an invoice (App Review guideline 3.1.3(c)). Team products stay in the
+  // catalog so a team purchase made before this keeps verifying and renewing.
+  const products = workspace.workspace.kind === 'stakeholder'
+    ? APPLE_PRODUCTS.filter((product) => product.kind === 'personal') : []
   const blockedProvider = !!subscription && (provider === 'stripe' || provider === 'google_play') && subscriptionCanResume(subscription)
   return {
     plan: workspace.plan, seats: workspace.seats, activeProperties: workspace.active, limit: workspace.limit,

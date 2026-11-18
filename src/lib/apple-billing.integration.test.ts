@@ -80,6 +80,12 @@ describe('Apple entitlement boundary', () => {
     expect(await db.subscription.count({ where: { stakeholderId: payer.id } })).toBe(1)
     expect(read).toHaveBeenCalledTimes(4)
   })
+  it('offers Personal in the app and nothing for an agency, which buys from Kivilo directly', async () => {
+    const payer = await person()
+    const agency = await team(payer)
+    expect(await appleBillingStatus(payer, null)).toMatchObject({ canPurchase: true, products: [{ productId: 'kivilo_pro_monthly' }] })
+    expect(await appleBillingStatus(payer, agency.id)).toMatchObject({ canManageBilling: true, canPurchase: false, products: [] })
+  })
   it('refuses another Kivilo account without exposing its purchase', async () => {
     const payer = await person()
     const { id } = await purchase(payer)
