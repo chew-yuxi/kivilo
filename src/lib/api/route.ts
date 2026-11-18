@@ -63,7 +63,7 @@ export function authed<P>(
         return Response.json({ error: 'agency_conflict', message: error.message }, { status: 409 })
       }
       if (error instanceof ZodError || error instanceof SyntaxError ||
-          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Photo path|Unsupported logo|The landlord and tenant need different email addresses|That property type is not offered)/.test(message)) {
+          /^(Invalid signature image|Invalid capture client id|Unsupported capture file type|Capture path|Photo path|Unsupported logo|The landlord and tenant need different email addresses|That property type is not offered|A Malaysian postcode has 5 digits)/.test(message)) {
         return Response.json({ error: 'invalid_request' }, { status: 400 })
       }
       if (/^Too many address lookups/.test(message)) {

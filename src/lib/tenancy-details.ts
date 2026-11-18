@@ -3,7 +3,7 @@ import { db } from '@/lib/db'
 import { actsAsAgent } from '@/lib/auth'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { fieldChanges, recordEvent, tenancyPlace } from '@/lib/property-history'
-import { allowsPropertyType, countryName } from '@/lib/country'
+import { allowsPropertyType, countryName, validPostcode } from '@/lib/country'
 import type { Prisma } from '@/generated/prisma'
 
 const email = z.preprocess(
@@ -101,6 +101,9 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
     if (!current) throw new Error('Tenancy not found')
     if (input.propertyType && !allowsPropertyType(current.property.country, input.propertyType)) {
       throw new Error(`That property type is not offered in ${countryName(current.property.country)}`)
+    }
+    if (input.postalCode && !validPostcode(current.property.country, input.postalCode)) {
+      throw new Error('A Malaysian postcode has 5 digits')
     }
     if (current.inspections.some((inspection) =>
       inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED')) {

@@ -15,6 +15,8 @@ const COUNTRY = {
     /// What the report header calls the agent's registration number.
     registration: 'CEA registration',
     propertyTypes: ['HDB', 'PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL'],
+    /// Singapore postal codes have never been checked here, and still are not.
+    postcode: null,
     /// Client checks are CEA customer due diligence, which is Singapore law.
     dueDiligence: true,
   },
@@ -26,6 +28,7 @@ const COUNTRY = {
     money: new Intl.NumberFormat('en-MY', { style: 'currency', currency: 'MYR' }),
     registration: 'REN registration',
     propertyTypes: ['PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL'],
+    postcode: /^\d{5}$/,
     dueDiligence: false,
   },
 } as const satisfies Record<Country, {
@@ -36,6 +39,7 @@ const COUNTRY = {
   money: Intl.NumberFormat
   registration: string
   propertyTypes: readonly PropertyType[]
+  postcode: RegExp | null
   dueDiligence: boolean
 }>
 
@@ -70,6 +74,10 @@ export function registrationLabel(country: Country) {
 
 export function allowsPropertyType(country: Country, type: PropertyType) {
   return (COUNTRY[country].propertyTypes as readonly PropertyType[]).includes(type)
+}
+
+export function validPostcode(country: Country, postcode: string) {
+  return COUNTRY[country].postcode?.test(postcode) ?? true
 }
 
 export function dueDiligenceApplies(country: Country) {

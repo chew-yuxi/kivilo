@@ -88,12 +88,18 @@ describe('a Malaysian property', () => {
     as(by)
     const refused = await post({ country: 'MY', propertyType: 'HDB', landlordEmail: null, tenantEmail: null })
     expect(refused.status).toBe(400)
+    const postcode = await post({ country: 'MY', propertyType: 'LANDED', postalCode: '504700', landlordEmail: null, tenantEmail: null })
+    expect(postcode.status).toBe(400)
     const { id } = await (await post({ country: 'MY', propertyType: 'PRIVATE_NON_LANDED', landlordEmail: null, tenantEmail: null })).json() as { id: string }
     const { tenancyId } = await db.inspection.findUniqueOrThrow({ where: { id } })
     await expect(updateTenancyDetails(tenancyId, by.id, {
       propertyType: 'HDB', landlordEmail: null, tenantEmail: null,
       startDate: '2026-12-01', endDate: '2028-11-30', monthlyRent: '2500', deposit: '5000',
     })).rejects.toThrow('That property type is not offered in Malaysia')
+    await expect(updateTenancyDetails(tenancyId, by.id, {
+      postalCode: '5047', landlordEmail: null, tenantEmail: null,
+      startDate: '2026-12-01', endDate: '2028-11-30', monthlyRent: '2500', deposit: '5000',
+    })).rejects.toThrow('A Malaysian postcode has 5 digits')
   })
 
   it('carries ringgit on its APIs, reports, PDF and deposit statement, and is never checked under CEA rules', async () => {

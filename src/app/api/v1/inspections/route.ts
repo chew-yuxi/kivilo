@@ -8,7 +8,7 @@ import { createInspection } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
 import { clientChecksLeft } from '@/lib/plan'
 import { verifyTenancyParties } from '@/lib/cdd/cases'
-import { dueDiligenceApplies } from '@/lib/country'
+import { dueDiligenceApplies, validPostcode } from '@/lib/country'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +89,8 @@ const newInspection = z.object({
   message: 'Address and postal code are required',
 }).refine((input) => input.sameLandlord || input.landlordName, {
   message: 'Landlord name is required',
+}).refine((input) => input.propertyId || validPostcode(input.country, input.postalCode), {
+  message: 'A Malaysian postcode has 5 digits',
 })
 
 /// Creates the property, both stakeholders, the tenancy and the check-in in one call,
