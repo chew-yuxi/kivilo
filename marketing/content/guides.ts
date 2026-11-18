@@ -160,7 +160,7 @@ export const guides: ResourceArticle[] = [
         title: 'Test poor reception on the intended device',
         paragraphs: [
           'Prepare a room online, temporarily disable the connection and capture test media. Reconnect and inspect the upload status, the room and the exported result. Try leaving and reopening the app with test data. Ask which actions need a connection instead of treating “offline” as a promise about the whole workflow.',
-          'Kivilo saves captured photos to the device first and retries uploads when connected. Keep the app and its saved data until uploads finish. Sending and signing require a connection. Browser and Android access are available; the native iPhone app is currently Coming soon.',
+          'Kivilo saves captured photos to the device first and retries uploads when connected. Keep the app and its saved data until uploads finish. Sending and signing require a connection. Kivilo runs in a browser, on Android through Google Play and on iPhone through the App Store.',
         ],
         sources: [
           { label: 'Kivilo: poor-signal capture', url: 'https://kivilo.app/#questions' },

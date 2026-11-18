@@ -1,0 +1,6 @@
+.header { max-width:1216px; margin:auto; padding:28px 24px; }
+.main { min-height:calc(100vh - 90px); }
+.title { font-size:clamp(44px,5vw,62px); line-height:1.15; letter-spacing:-2.4px; font-weight:700; }
+.main > p { color:var(--muted); margin-top:16px; font-size:20px; line-height:1.5; }
+.main > p.browser { margin-top:28px; font-size:18px; }
+.browser a { color:var(--pink); font-weight:600; }

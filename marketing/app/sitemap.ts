@@ -8,6 +8,7 @@ export const dynamic = 'force-static'
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: 'https://kivilo.app/' },
+    { url: 'https://kivilo.app/app' },
     { url: 'https://kivilo.app/product', lastModified: product.updated },
     { url: 'https://kivilo.app/compare' },
     { url: 'https://kivilo.app/guides' },

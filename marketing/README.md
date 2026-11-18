@@ -94,10 +94,10 @@ Regenerate the PDF and its page previews with
 The generator validates the page count, footers, evidence and signatures.
 
 The closing CTA distinguishes browser signup from app downloads. Google Play links
-to package `one.kivilo.kivilo`; the iPhone icon says Coming soon. On 25 October the
-App Store version was WAITING_FOR_REVIEW, with no public TestFlight group or link.
-Replace the availability text with a verified App Store or public TestFlight link
-only once it is usable. No store release or beta configuration changed here.
+to package `one.kivilo.kivilo` and the App Store button to `id6821514302`, live in
+Singapore since 18 November 2026. `/app` is the page to share: a store URL previews as
+the store's own card, which is only the app icon, while `/app` previews as Kivilo's card
+and offers both stores plus the browser. No store release or beta configuration changed here.
 
 The Wrangler configuration pins the Cloudflare account and apex custom domain.
 Cloudflare manages the landing page DNS and TLS. `my.kivilo.app` uses a DNS-only

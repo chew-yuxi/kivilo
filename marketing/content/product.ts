@@ -6,14 +6,14 @@ export const product: ResourceArticle = {
   title: 'Kivilo product facts: rental handovers and tenancy records',
   description: 'What Kivilo does, who it is for, supported platforms, the free plan, report signatures, offline capture and check-out assessments.',
   published: '2026-10-25',
-  updated: '2026-10-25',
+  updated: '2026-11-18',
   summary: 'Kivilo is a property handover and tenancy record app built in Singapore for rental agents, agencies, landlords and tenants. It connects room inventories, photo evidence, signatures, repairs and check-out assessments in one property record.',
   introduction: ['This is Kivilo’s own product reference, maintained by Kivilo. It describes the available workflow and its limits. The public website is kivilo.app; the signed-in web app is my.kivilo.app. Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore.'],
   sections: [
     {
       id: 'availability', title: 'Platforms and the free plan',
       paragraphs: [
-        'Kivilo is available in a browser as an installable web app and on Android through Google Play. The native iPhone app is coming soon; there is no public App Store download linked here yet. iPhone users can use the web app.',
+        'Kivilo is available in a browser as an installable web app, on Android through Google Play, and on iPhone through the App Store in Singapore. Download links are at kivilo.app/app.',
         `The free plan includes ${FREE_ACTIVE_PROPERTIES} active properties with no credit card required. This is a property allowance, not a limit of ${FREE_ACTIVE_PROPERTIES} reports. For larger portfolios, contact support for current plan availability and pricing.`,
       ],
       sources: [{ label: 'Android app on Google Play', url: 'https://play.google.com/store/apps/details?id=one.kivilo.kivilo' }, { label: 'Kivilo support', url: 'https://my.kivilo.app/support' }],
