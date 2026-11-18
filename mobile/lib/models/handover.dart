@@ -1,3 +1,5 @@
+import '../ui/kivilo_format.dart';
+
 /// A sign-in link, never the bearer URL of the shared report.
 class TenantHandover {
   const TenantHandover({
@@ -6,19 +8,24 @@ class TenantHandover {
     required this.windowDays,
     required this.modules,
     this.deadline,
+    this.country = 'SG',
   });
 
   final String tenancyId;
+
+  /// Names where the deadline's day ends. Both countries are UTC+8.
+  final String country;
   final String url;
   final int windowDays;
 
-  /// An inclusive Singapore calendar date, rather than the phone's time zone.
+  /// An inclusive calendar date where the property is, not in the phone's zone.
   final String? deadline;
   final List<List<bool>> modules;
 
   factory TenantHandover.fromJson(Map<String, dynamic> json) => TenantHandover(
     tenancyId: json['tenancyId'] as String,
     url: json['url'] as String,
+    country: countryOf(json),
     deadline: json['deadline'] as String?,
     windowDays: json['windowDays'] as int,
     modules: (json['modules'] as List<dynamic>)

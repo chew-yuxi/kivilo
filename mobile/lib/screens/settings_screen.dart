@@ -280,7 +280,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         if (branding?.agencyLicence != null)
           'Licence ${branding!.agencyLicence}',
         if (branding?.ceaRegistration != null)
-          'CEA ${branding!.ceaRegistration}',
+          'Registration ${branding!.ceaRegistration}',
       ].join(' · ');
       return Card(
         child: ListTile(

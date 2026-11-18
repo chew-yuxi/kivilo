@@ -102,6 +102,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
               ? AgreementTermsScreen(
                   tenancyId: widget.tenancy.id,
                   agreement: agreement,
+                  currency: documents.currency,
                   api: _api,
                   ownerId: ownerId,
                 )
@@ -244,7 +245,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
     identifier.dispose();
   }
 
-  Future<void> _editCap(String? current) async {
+  Future<void> _editCap(String? current, String currency) async {
     final cap = TextEditingController(text: current ?? '');
     final saved = await showKiviloDrawer<bool>(
       context: context,
@@ -273,7 +274,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: 'Tenant pays up to',
-                    prefixText: 'S\$ ',
+                    prefixText: '${currencySymbol(currency)} ',
                     helperText: 'Leave empty if the agreement has no cap',
                     errorText: valid ? null : 'Enter an amount like 150',
                   ),
@@ -311,7 +312,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
     if (mounted) await _refresh();
   }
 
-  Future<void> _editDefectWindow(int current) async {
+  Future<void> _editDefectWindow(int current, String country) async {
     var days = '$current';
     final result = await showKiviloDrawer<int>(
       context: context,
@@ -324,8 +325,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Use the period in the tenancy agreement. The tenancy start date is day 1, in Singapore time. This is fixed when the tenant first signs the check-in.',
+                Text(
+                  'Use the period in the tenancy agreement. The tenancy start date is day 1, in ${countryName(country)} time. This is fixed when the tenant first signs the check-in.',
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -595,11 +596,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
                       subtitle: Text(
                         window.deadline == null
                             ? 'Disabled. Repairs can still be reported.'
-                            : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (Singapore time)',
+                            : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (${countryName(terms.country)} time)',
                       ),
                       trailing: window.canEditWindow
                           ? TextButton(
-                        onPressed: () => _editDefectWindow(window.windowDays),
+                        onPressed: () => _editDefectWindow(window.windowDays, terms.country),
                               child: const Text('Edit'),
                             )
                           : null,
@@ -738,7 +739,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
             padding: EdgeInsets.fromLTRB(
               16, 16, 16, terms.canEditMinorRepairCap ? 0 : 16,
             ),
-            child: AgreementTermsView(terms: agreementTerms),
+            child: AgreementTermsView(terms: agreementTerms, currency: terms.currency),
           ),
           if (terms.canEditMinorRepairCap) ...[
             const SizedBox(height: kiviloButtonGap),
@@ -759,11 +760,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
           subtitle: Text(
             terms.minorRepairCap == null
                 ? 'Not set'
-                : 'Tenant pays up to S\$${terms.minorRepairCap} per repair',
+                : 'Tenant pays up to ${currencySymbol(terms.currency)}${terms.minorRepairCap} per repair',
           ),
           trailing: terms.canEditMinorRepairCap
               ? TextButton(
-                  onPressed: () => _editCap(terms.minorRepairCap),
+                  onPressed: () => _editCap(terms.minorRepairCap, terms.currency),
                   child: Text(terms.minorRepairCap == null ? 'Set' : 'Edit'),
                 )
               : null,

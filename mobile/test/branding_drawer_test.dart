@@ -68,7 +68,7 @@ void main() {
       'Harbourline Realty Pte Ltd',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Your CEA registration (optional)'),
+      find.widgetWithText(TextField, 'Your CEA or REN registration (optional)'),
       'R061234B',
     );
     await tester.pump();

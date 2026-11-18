@@ -1,3 +1,4 @@
+import '../ui/kivilo_format.dart';
 import 'handover.dart';
 import 'tenancy_access.dart';
 import 'supporting_documents.dart';
@@ -8,10 +9,15 @@ class UserProfile {
     required this.name,
     required this.roles,
     this.contexts,
+    this.lastPropertyCountry = 'SG',
   });
   final String id;
   final String name;
   final List<String> roles;
+
+  /// The country of the newest property this account manages, which New check-in
+  /// starts on.
+  final String lastPropertyCountry;
 
   /// Every relationship the account holds. Null from a server that predates it.
   final UserContexts? contexts;
@@ -20,6 +26,7 @@ class UserProfile {
     id: json['id'] as String,
     name: json['name'] as String,
     roles: (json['roles'] as List<dynamic>).cast<String>(),
+    lastPropertyCountry: json['lastPropertyCountry'] as String? ?? 'SG',
     contexts: json['contexts'] == null
         ? null
         : UserContexts.fromJson(json['contexts'] as Map<String, dynamic>),
@@ -183,9 +190,15 @@ class TenancyDetail {
     this.maintenanceTerms,
     this.moveInDefects,
     this.access,
+    this.country = 'SG',
+    this.currency = 'SGD',
   });
   final String id;
   final String role;
+
+  /// Names where the move-in deadline's day ends; [currency] is the cap's.
+  final String country;
+  final String currency;
   final String? minorRepairCap;
   final AgreementTerms? maintenanceTerms;
   final bool agentMayAgreeCosts;
@@ -199,6 +212,8 @@ class TenancyDetail {
     return TenancyDetail(
       id: json['id'] as String,
       role: json['role'] as String,
+      country: countryOf(json),
+      currency: currencyOf(json),
       access: json['access'] == null
           ? null
           : TenancyAccess.fromJson(json['access'] as Map<String, dynamic>),
@@ -372,9 +387,10 @@ String describeProposal({
   required String arrangedBy,
   required String payer,
   String? tenantCap,
+  required String currency,
 }) {
   final pays = payer == 'SHARED'
-      ? 'Tenant pays the first S\$$tenantCap, landlord pays the rest.'
+      ? 'Tenant pays the first ${currencySymbol(currency)}$tenantCap, landlord pays the rest.'
       : '${partyLabels[payer]} pays.';
   return '$pays ${partyLabels[arrangedBy]} arranges the repair.';
 }
@@ -464,8 +480,12 @@ class Responsibility {
     this.agreement,
     this.pending,
     this.shares,
+    this.currency = 'SGD',
   });
   final String arrangedBy;
+
+  /// The case's currency: of the cap, the proposals and the shares.
+  final String currency;
   final String? minorRepairCap;
   final AgreementTerms? maintenanceTerms;
   final ResponsibilityProposal? agreement;
@@ -483,11 +503,15 @@ class Responsibility {
     return last.status == 'REJECTED' ? last : null;
   }
 
-  factory Responsibility.fromJson(Map<String, dynamic> json) {
+  factory Responsibility.fromJson(
+    Map<String, dynamic> json, {
+    String currency = 'SGD',
+  }) {
     ResponsibilityProposal? proposal(Object? value) => value == null
         ? null
         : ResponsibilityProposal.fromJson(value as Map<String, dynamic>);
     return Responsibility(
+      currency: currency,
       arrangedBy: json['arrangedBy'] as String,
       minorRepairCap: json['minorRepairCap'] as String?,
       maintenanceTerms: json['maintenanceTerms'] == null ? null
@@ -528,8 +552,12 @@ class MaintenanceCaseDetail {
     required this.events,
     this.resolutionReason,
     this.moveInDefect,
+    this.currency = 'SGD',
   });
   final String id;
+
+  /// Of every amount on the case: caps, shares and repair costs.
+  final String currency;
   final String title;
   final String description;
   final String status;
@@ -553,6 +581,7 @@ class MaintenanceCaseDetail {
     Map<String, dynamic> json,
   ) => MaintenanceCaseDetail(
     id: json['id'] as String,
+    currency: currencyOf(json),
     title: json['title'] as String,
     description: json['description'] as String,
     status: json['status'] as String,
@@ -566,8 +595,10 @@ class MaintenanceCaseDetail {
     canManage: json['canManage'] as bool,
     canLogVisit: json['canLogVisit'] as bool,
     canVerify: json['canVerify'] as bool,
+    // The server sends the case's currency beside the case, not inside this.
     responsibility: Responsibility.fromJson(
       json['responsibility'] as Map<String, dynamic>,
+      currency: currencyOf(json),
     ),
     visits: (json['visits'] as List<dynamic>)
         .map(

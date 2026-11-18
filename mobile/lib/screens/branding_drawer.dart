@@ -143,7 +143,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           Text(
             widget.teamId == null
                 ? 'Used with your name on reports for personal properties. Team properties use that team’s branding.'
-                : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own CEA registration appears beside it.',
+                : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own CEA or REN registration appears beside it.',
             style: text.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -222,7 +222,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
               controller: _cea,
               textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
-                labelText: 'Your CEA registration (optional)',
+                labelText: 'Your CEA or REN registration (optional)',
                 hintText: 'e.g. R061234B',
               ),
             ),

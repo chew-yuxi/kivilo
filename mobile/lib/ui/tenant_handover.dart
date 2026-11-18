@@ -106,7 +106,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                 Text(
                   handover.deadline == null
                       ? 'A move-in defect period has not been enabled for this tenancy. You can still report repairs.'
-                      : 'Flag anything that was already present when you moved in by ${calendarDate(handover.deadline!)} (Singapore time).',
+                      : 'Flag anything that was already present when you moved in by ${calendarDate(handover.deadline!)} (${countryName(handover.country)} time).',
                 ),
                 const SizedBox(height: 12),
                 TextButton(

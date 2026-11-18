@@ -55,13 +55,24 @@ void main() {
         arrangedBy: 'LANDLORD',
         payer: 'SHARED',
         tenantCap: '150',
+        currency: 'SGD',
       ),
       'Tenant pays the first S\$150, landlord pays the rest. '
       'Landlord arranges the repair.',
     );
     expect(
-      describeProposal(arrangedBy: 'TENANT', payer: 'TENANT'),
+      describeProposal(arrangedBy: 'TENANT', payer: 'TENANT', currency: 'SGD'),
       'Tenant pays. Tenant arranges the repair.',
+    );
+    expect(
+      describeProposal(
+        arrangedBy: 'TENANT',
+        payer: 'SHARED',
+        tenantCap: '150.00',
+        currency: 'MYR',
+      ),
+      'Tenant pays the first RM150.00, landlord pays the rest. '
+      'Tenant arranges the repair.',
     );
   });
 

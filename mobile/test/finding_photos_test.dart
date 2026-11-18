@@ -390,6 +390,7 @@ void main() {
         ),
         home: FindingEditorScreen(
           photoSession: session,
+          currency: 'SGD',
           maintenanceHistory: const [],
           checkOutItems: ComparableItem.listFromJson([
             {'id': 'worktop-1', 'label': 'Kitchen · Worktop'},
@@ -488,6 +489,7 @@ void main() {
                   MaterialPageRoute(
                     builder: (_) => FindingEditorScreen(
                       photoSession: session,
+                      currency: 'SGD',
                       maintenanceHistory: const [],
                       checkOutItems: ComparableItem.listFromJson([
                         {'id': 'worktop-1', 'label': 'Kitchen · Worktop'},

@@ -109,6 +109,7 @@ void main() {
           home: AgreementTermsScreen(
             tenancyId: 'tenancy-1',
             agreement: _agreement,
+            currency: 'SGD',
             api: api,
             ownerId: 'owner-1',
           ),
@@ -156,6 +157,7 @@ void main() {
         home: AgreementTermsScreen(
           tenancyId: 'tenancy-1',
           agreement: _agreement,
+          currency: 'SGD',
           api: _Api(),
           ownerId: 'owner-1',
         ),
@@ -184,6 +186,7 @@ void main() {
         home: AgreementTermsScreen(
           tenancyId: 'tenancy-1',
           agreement: _agreement,
+          currency: 'SGD',
           api: api,
           ownerId: 'owner-1',
         ),
@@ -228,7 +231,7 @@ void main() {
       });
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: AgreementTermsView(terms: terms)),
+          home: Scaffold(body: AgreementTermsView(terms: terms, currency: 'SGD')),
         ),
       );
       expect(find.text('Agree each repair separately.'), findsOneWidget);

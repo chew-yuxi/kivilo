@@ -170,6 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Verifying both parties takes two checks.
           offerVerification: _dueDiligence && (_freeChecksLeft == null || _freeChecksLeft! >= 2),
           freeChecksLeft: _freeChecksLeft,
+          initialCountry: _workspace.profile?.lastPropertyCountry ?? 'SG',
           initialAgency: _workspace.all
               ? _workspace.index.agencies.firstOrNull
               : _workspace.agency,

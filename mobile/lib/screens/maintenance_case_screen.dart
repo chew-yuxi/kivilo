@@ -292,7 +292,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
     return result;
   }
 
-  Future<void> _recordRepair(String caseId) async {
+  Future<void> _recordRepair(String caseId, String currency) async {
     final notes = TextEditingController();
     final cost = TextEditingController();
     final saved = await showKiviloDrawer<bool>(
@@ -324,7 +324,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
                   ),
                   decoration: InputDecoration(
                     labelText: 'Cost (optional)',
-                    prefixText: 'S\$ ',
+                    prefixText: '${currencySymbol(currency)} ',
                     helperText: 'Used to split the cost as agreed',
                     errorText: valid
                         ? null
@@ -745,7 +745,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
             ],
             for (final visit in completed) ...[
               const SizedBox(height: 12),
-              _VisitRow(visit: visit),
+              _VisitRow(visit: visit, currency: item.currency),
             ],
             if (!_busy && item.canManage && item.status == 'REPORTED') ...[
               const SizedBox(height: 14),
@@ -762,7 +762,7 @@ class _MaintenanceCaseScreenState extends State<MaintenanceCaseScreen> {
               const SizedBox(height: kiviloButtonGap),
               FilledButton.icon(
                 icon: const Icon(Icons.build_outlined),
-                onPressed: () => _recordRepair(item.id),
+                onPressed: () => _recordRepair(item.id, item.currency),
                 label: const Text('Record completed repair'),
               ),
             ],
@@ -945,8 +945,9 @@ class _Notice extends StatelessWidget {
 }
 
 class _VisitRow extends StatelessWidget {
-  const _VisitRow({required this.visit});
+  const _VisitRow({required this.visit, required this.currency});
   final MaintenanceVisitModel visit;
+  final String currency;
 
   @override
   Widget build(BuildContext context) {
@@ -973,7 +974,7 @@ class _VisitRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Repaired ${shortDate(visit.completedAt!)}'
-                  '${visit.cost == null ? '' : ' · S\$${visit.cost}'}',
+                  '${visit.cost == null ? '' : ' · ${currencySymbol(currency)}${visit.cost}'}',
                   style: text.titleMedium,
                 ),
               ),
