@@ -73,8 +73,8 @@ class _CountryScreenState extends State<CountryScreen> {
               Text('Where do you work?', style: text.headlineMedium),
               const SizedBox(height: 6),
               Text(
-                'Your new properties are made there, with its addresses and '
-                'currency. You can change this later in Account.',
+                'New properties use that country\'s addresses and currency. '
+                'You can change this later in Account.',
                 style: text.bodyMedium,
               ),
               const SizedBox(height: kiviloSectionGap),
