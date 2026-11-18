@@ -723,6 +723,22 @@ signed-in landlord or tenant (`signingRole`), refusing everyone else, and anythi
 reads as Kivilo's. Logos are stored as PNG whatever arrives, since the PDF draws only PNG
 and JPEG, and the agent can set the name printed beside them.
 
+## Countries
+
+A property is in Singapore or Malaysia (`Property.country`, `plans/malaysia.md`), chosen
+when it is made and never changed; its currency, address format, registration label,
+property types and postcode rule all follow from it in `src/lib/country.ts`. Anything that
+prints money takes the property's country (`money`, `shortMoney`), and every API response
+with money sends `currency` beside it. CEA due diligence never runs on a Malaysian
+property, and HDB is Singapore's only.
+
+**Singapore output never changes.** The fingerprint, the assessment snapshot and the PDF
+model add `country` only when it is not `SG`, so every signature, answer and stored copy
+made before countries existed still matches. `singapore-hashes.integration.test.ts` pins
+all four hashes; a change that moves one is a change to what Singapore parties agreed to.
+Installed app builds send no country and make Singapore properties. The web New check-in
+form makes Singapore properties only; every page a landlord or tenant reads renders both.
+
 ## Plans and billing
 
 A plan belongs to a selected operational `Agency`, the agent's personal workspace,
