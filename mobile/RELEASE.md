@@ -5,6 +5,37 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Photos only, video capture removed: 18 November 2026 Singapore time
+
+Server source `81b92b3` on `origin/main`, deployed by Vercel (READY, `sin1`); the web
+manifest and `/support` serve the new copy. kivilo.app redeployed with `wrangler deploy`
+(version `ccd41a9d`) and no longer claims video. The web and app capture screens no longer
+offer video, the room button reads Room photos, and the report footer on the web, the PDF
+(`RENDER_VERSION` 10) and the app says the inventory was written from the photographs. The
+server still accepts `VIDEO` captures from builds that still offer them.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| iOS App Store `1.0.0+26` | **5** / `819149` | **stable** |
+| Android internal `1.0.0+29` | **28** / `819147` | **stable** |
+| iOS TestFlight `1.0.0+25` | **56** / `819174` | **stable** |
+
+iOS 26 was patched from `81b92b3` itself: its release source `9a06bbd` is an ancestor
+with no `pubspec`, `ios` or `android` difference. This is the first iOS patch on 26, so
+it also carries main's app changes since `9a06bbd` (client checks through Terms of
+service). Android 29 and iOS 25 were patched from `51b34cf` on `claude/cdd-patch`, which
+is `2f289d6` plus this change's seven app files, byte for byte equal to main's. No icon
+added against any base (`9a06bbd`, `89a8534`, `b7f897f`); `--allow-asset-diffs` covered the
+removal-only icon font and, on Android and iOS 25, `NOTICES.Z`. No native difference.
+Build numbers read back from the artifacts (`versionCode="29"`; `CFBundleVersion` 26 and
+25). iOS shared 81.4% (26) and 59.8% (25) of Dart code, with the usual warning. Published
+to staging, then set to stable on Yuxi's "ship all three". Checks: 541 mobile tests on main
+and 529 on the patch source (the one failure on each is the expired `home_command_centre`
+date fixture); lint, typecheck, build, marketing build, 293 unit, 436 integration (20 known
+environment failures) and the check-in e2e. Android production stays on store build `25`,
+which predates the multi-shot camera plugin, so it keeps the video button until the next
+Play store build. Physical devices **NOT RUN**.
+
 ## Terms of service and the client checks privacy policy: 1 November 2026 Singapore time
 
 Server source `6a69969` on `origin/main`, deployed by Vercel: `/terms` (new, static) and
