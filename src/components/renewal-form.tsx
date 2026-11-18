@@ -4,8 +4,10 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createRenewal } from '@/lib/renewal-actions'
 
-export function RenewalForm({ tenancyId, startDate, endDate, monthlyRent, deposit, collaboratorNames }: {
+export function RenewalForm({ tenancyId, startDate, endDate, monthlyRent, deposit, currency, collaboratorNames }: {
   tenancyId: string; startDate: string; endDate: string; monthlyRent: string; deposit: string
+  /// The property's, which a renewal keeps.
+  currency: string
   collaboratorNames: string[]
 }) {
   const router = useRouter()
@@ -36,8 +38,8 @@ export function RenewalForm({ tenancyId, startDate, endDate, monthlyRent, deposi
     <form onSubmit={submit} className="mt-6 space-y-5">
       <label className="block text-sm">Starts<input type="date" name="startDate" required min={startDate} defaultValue={startDate} className={field} /></label>
       <label className="block text-sm">Ends<input type="date" name="endDate" required min={startDate} defaultValue={endDate} className={field} /></label>
-      <label className="block text-sm">Monthly rent (SGD)<input name="monthlyRent" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={monthlyRent} className={field} /></label>
-      <label className="block text-sm">Deposit (SGD)<input name="deposit" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={deposit} className={field} /></label>
+      <label className="block text-sm">Monthly rent ({currency})<input name="monthlyRent" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={monthlyRent} className={field} /></label>
+      <label className="block text-sm">Deposit ({currency})<input name="deposit" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={deposit} className={field} /></label>
       <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
         <p className="text-sm font-medium">Access to the new tenancy</p>
         <p className="text-sm text-gray-600">

@@ -53,10 +53,15 @@ describe('maintenance rules', () => {
   })
 
   it('states a proposal in one sentence both sides read the same way', () => {
-    expect(describeProposal({ arrangedBy: 'LANDLORD', payer: 'SHARED', tenantCap: '150.00' }))
+    expect(describeProposal({ arrangedBy: 'LANDLORD', payer: 'SHARED', tenantCap: '150.00' }, 'SG'))
       .toBe('Tenant pays the first S$150.00, landlord pays the rest. Landlord arranges the repair.')
-    expect(describeProposal({ arrangedBy: 'TENANT', payer: 'TENANT', tenantCap: null }))
+    expect(describeProposal({ arrangedBy: 'TENANT', payer: 'TENANT', tenantCap: null }, 'SG'))
       .toBe('Tenant pays. Tenant arranges the repair.')
+  })
+
+  it('states a Malaysian split in ringgit', () => {
+    expect(describeProposal({ arrangedBy: 'TENANT', payer: 'SHARED', tenantCap: '150.00' }, 'MY'))
+      .toBe('Tenant pays the first RM150.00, landlord pays the rest. Tenant arranges the repair.')
   })
 
   it('splits the recorded cost without ever charging the tenant past the cap', () => {

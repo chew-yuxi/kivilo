@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
 import { documentRequest } from '@/lib/supporting-documents-client'
 import { AgreementTermsPanel } from '@/components/supporting-documents-terms'
+import { zoneLabel } from '@/lib/country'
+import type { Country } from '@/generated/prisma'
 import {
   SUPPORTING_DOCUMENT_MAX_BYTES,
   SUPPORTING_DOCUMENT_MIME_TYPES,
@@ -32,10 +34,10 @@ type UploadPermission = {
 }
 
 
-function dateLabel(value: string) {
-  return new Date(value).toLocaleString('en-SG', {
+function dateLabel(value: string, country: Country) {
+  return `${new Date(value).toLocaleString('en-SG', {
     dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Singapore',
-  })
+  })} ${zoneLabel(country)}`
 }
 
 function sizeLabel(bytes: number) {
@@ -231,7 +233,7 @@ export function SupportingDocumentsPanel({ workspace, viewerId, requestedRequest
             : 'Keep the agreement here and view the maintenance terms confirmed by your landlord or agent.'}
         </p>
         {currentAgreement && agreement.requestId && (
-          <DocumentFiles files={[currentAgreement]} opening={opening} onDownload={(file) => downloadFile(agreement.requestId!, file)} />
+          <DocumentFiles country={workspace.country} files={[currentAgreement]} opening={opening} onDownload={(file) => downloadFile(agreement.requestId!, file)} />
         )}
         <PendingFiles files={agreementPending} uploading={uploading} />
         {agreement.canUpload && (
@@ -251,12 +253,13 @@ export function SupportingDocumentsPanel({ workspace, viewerId, requestedRequest
             file={currentAgreement}
             agreement={agreement}
             currentMinorRepairCap={workspace.currentMinorRepairCap}
+            country={workspace.country}
           />
         )}
         {previousAgreements.length > 0 && agreement.requestId && (
           <details className="mt-5 border-t border-gray-100 pt-4">
             <summary className="cursor-pointer text-sm font-medium text-gray-600">Previous agreements ({previousAgreements.length})</summary>
-            <DocumentFiles files={previousAgreements} opening={opening} onDownload={(file) => downloadFile(agreement.requestId!, file)} />
+            <DocumentFiles country={workspace.country} files={previousAgreements} opening={opening} onDownload={(file) => downloadFile(agreement.requestId!, file)} />
           </details>
         )}
       </section>
@@ -319,13 +322,13 @@ export function SupportingDocumentsPanel({ workspace, viewerId, requestedRequest
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="break-words text-sm font-medium">{request.title}</h3>
-                  <p className="mt-1 text-xs text-gray-500">Requested by {request.requestedBy.name} · {dateLabel(request.requestedAt)} SGT</p>
+                  <p className="mt-1 text-xs text-gray-500">Requested by {request.requestedBy.name} · {dateLabel(request.requestedAt, workspace.country)}</p>
                 </div>
                 <span className="shrink-0 rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-600">
                   {request.files.length ? `${request.files.length} submitted` : 'Requested'}
                 </span>
               </div>
-              <DocumentFiles files={request.files} opening={opening} onDownload={(file) => downloadFile(request.id, file)} />
+              <DocumentFiles country={workspace.country} files={request.files} opening={opening} onDownload={(file) => downloadFile(request.id, file)} />
               <PendingFiles files={pending.filter((file) => file.kind !== 'AGREEMENT' && file.requestId === request.id)} uploading={uploading} />
               {request.canUpload && (
                 <UploadField
@@ -353,8 +356,9 @@ export function SupportingDocumentsPanel({ workspace, viewerId, requestedRequest
   )
 }
 
-function DocumentFiles({ files, opening, onDownload }: {
+function DocumentFiles({ files, country, opening, onDownload }: {
   files: SupportingDocumentFileView[]
+  country: Country
   opening: string | null
   onDownload: (file: SupportingDocumentFileView) => Promise<void>
 }) {
@@ -365,7 +369,7 @@ function DocumentFiles({ files, opening, onDownload }: {
         <li key={file.id} className="flex items-start justify-between gap-3 py-3 first:pt-0">
           <div className="min-w-0">
             <p className="break-words text-sm font-medium">{file.fileName}</p>
-            <p className="mt-1 text-xs text-gray-500">Submitted by {file.submittedBy.name} · {dateLabel(file.submittedAt)} SGT</p>
+            <p className="mt-1 text-xs text-gray-500">Submitted by {file.submittedBy.name} · {dateLabel(file.submittedAt, country)}</p>
             <p className="mt-1 text-xs text-gray-500">{sizeLabel(file.byteSize)}</p>
           </div>
           <button type="button" aria-label={`Download ${file.fileName}`} disabled={opening !== null} className="action-secondary shrink-0" onClick={() => void onDownload(file)}>

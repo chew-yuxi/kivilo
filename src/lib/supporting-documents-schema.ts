@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { Country } from '@/generated/prisma'
 
 export const SUPPORTING_DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
 export const SUPPORTING_DOCUMENT_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'] as const
@@ -68,6 +69,8 @@ export type SupportingDocumentsWorkspace = {
   canRequest: boolean
   canUpload: boolean
   currentMinorRepairCap: string | null
+  country: Country
+  currency: string
   agreement: {
     requestId: string | null
     files: SupportingDocumentFileView[]

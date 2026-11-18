@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
+import { currency } from '@/lib/country'
 import { RenewalForm } from '@/components/renewal-form'
 import { tenancyAccess } from '@/lib/tenancy-access'
 
@@ -38,6 +39,7 @@ export default async function RenewalPage({ params }: PageProps<'/renewals/[tena
         endDate={end.toISOString().slice(0, 10)}
         monthlyRent={tenancy.monthlyRent.toString()}
         deposit={tenancy.deposit.toString()}
+        currency={currency(tenancy.property.country)}
         collaboratorNames={access.collaborators.map((collaborator) => collaborator.name)}
       />
     </div>

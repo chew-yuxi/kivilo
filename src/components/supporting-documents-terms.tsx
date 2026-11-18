@@ -3,14 +3,17 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { documentRequest } from '@/lib/supporting-documents-client'
+import { currency, shortMoney, zoneLabel } from '@/lib/country'
+import type { Country } from '@/generated/prisma'
 import type { AgreementAnalysis, SupportingDocumentFileView, SupportingDocumentsWorkspace } from '@/lib/supporting-documents-schema'
 
-export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, currentMinorRepairCap }: {
+export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, currentMinorRepairCap, country }: {
   tenancyId: string
   viewerId: string
   file: SupportingDocumentFileView
   agreement: SupportingDocumentsWorkspace['agreement']
   currentMinorRepairCap: string | null
+  country: Country
 }) {
   const router = useRouter()
   const existing = agreement.termsMatchCurrentFile ? agreement.terms : null
@@ -39,7 +42,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
         <div className="space-y-2 rounded-lg bg-gray-50 p-4 text-sm">
           <p className="font-medium">
             {agreement.terms.rule === 'FIRST_AMOUNT'
-              ? `Tenant pays the first S$${agreement.terms.tenantCap} per minor repair`
+              ? `Tenant pays the first ${shortMoney(agreement.terms.tenantCap!, country)} per minor repair`
               : 'Another maintenance arrangement'}
           </p>
           <blockquote className="whitespace-pre-wrap border-l-2 border-gray-300 pl-3 text-gray-600">{agreement.terms.quote}</blockquote>
@@ -48,7 +51,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
           <p className="text-xs text-gray-500">
             Confirmed by {agreement.terms.confirmedBy.name} · {new Date(agreement.terms.confirmedAt).toLocaleString('en-SG', {
               dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Singapore',
-            })} SGT
+            })} {zoneLabel(country)}
           </p>
         </div>
       )}
@@ -60,7 +63,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
       {!agreement.terms && (
         <p className="text-sm text-gray-600">
           {currentMinorRepairCap !== null
-            ? `The current minor repair setting is S$${currentMinorRepairCap}. It has not been checked against this agreement.`
+            ? `The current minor repair setting is ${shortMoney(currentMinorRepairCap, country)}. It has not been checked against this agreement.`
             : 'The maintenance terms have not been confirmed from this agreement.'}
         </p>
       )}
@@ -157,7 +160,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
           </fieldset>
           {rule === 'FIRST_AMOUNT' && (
             <label className="block text-sm font-medium">
-              Tenant&apos;s amount per minor repair (SGD)
+              Tenant&apos;s amount per minor repair ({currency(country)})
               <input type="number" min={0} max={99999999.99} step="0.01" required value={tenantCap} disabled={saving} onChange={(event) => setTenantCap(event.target.value)} className="mt-1 block min-h-11 w-40 rounded-md border border-gray-300 px-3 py-2 text-base font-normal" />
             </label>
           )}

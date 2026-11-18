@@ -3,6 +3,7 @@ import { authorizeReport } from '@/lib/auth'
 import { createDownloadUrl } from '@/lib/storage'
 import { posterUrls } from '@/lib/poster-urls'
 import { propertyLabel } from '@/lib/format'
+import { currency } from '@/lib/country'
 import { toAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { addendumView, publishedAddenda } from '@/lib/addenda'
@@ -73,6 +74,8 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
     deposit: tenancy.deposit.toString(),
+    /// The currency of every amount in this report, its deposit statement included.
+    currency: currency(tenancy.property.country),
     conductedAt: inspection.conductedAt?.toISOString() ?? null,
     conductedBy: inspection.conductedBy?.name ?? null,
     rooms: await Promise.all(inspection.rooms.map(async (room) => ({

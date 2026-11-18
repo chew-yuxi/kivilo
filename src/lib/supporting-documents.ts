@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { actsAsAgent, supportingDocumentTenancies } from '@/lib/auth'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { propertyLabel } from '@/lib/format'
+import { currency } from '@/lib/country'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { CAPTURE_BUCKET, captureExists, createDownloadUrl, createUploadUrl, serviceClient } from '@/lib/storage'
 import { SupportingDocumentError } from '@/lib/supporting-documents-errors'
@@ -80,6 +81,9 @@ export async function supportingDocumentsWorkspace(tenancyId: string, actorId: s
     canRequest,
     canUpload: tenancy.tenantId === actorId,
     currentMinorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+    /// The property's country, and the currency of the cap and confirmed terms.
+    country: tenancy.property.country,
+    currency: currency(tenancy.property.country),
     agreement: {
       requestId: agreement?.id ?? null,
       files: agreementFiles.map(fileView),
@@ -238,12 +242,13 @@ export async function prepareTenancyAgreement(tenancyId: string, actorId: string
 }
 
 export async function analyzeTenancyAgreement(tenancyId: string, fileId: string, actorId: string): Promise<AgreementAnalysis> {
-  const bytes = await withTenancy(tenancyId, actorId, async (tx) => {
+  const { bytes, country } = await withTenancy(tenancyId, actorId, async (tx, tenancy) => {
+    const { country } = tenancy.property
     const file = await tx.supportingDocumentFile.findFirst({ where: {
       id: fileId, submittedAt: { not: null }, request: { tenancyId, kind: 'TENANCY_AGREEMENT' },
     } })
     if (!file) throw new Error('Agreement file not found')
-    if (file.mimeType !== 'application/pdf') return null
+    if (file.mimeType !== 'application/pdf') return { bytes: null, country }
     const storage = serviceClient().storage.from(CAPTURE_BUCKET)
     const info = await storage.info(file.storagePath)
     if (info.error) throw info.error
@@ -256,10 +261,10 @@ export async function analyzeTenancyAgreement(tenancyId: string, fileId: string,
     if (downloaded.byteLength !== file.byteSize || downloaded.byteLength > SUPPORTING_DOCUMENT_MAX_BYTES) {
       throw new SupportingDocumentError('invalid_document', 'The agreement file does not match its saved size.')
     }
-    return downloaded
+    return { bytes: downloaded, country }
   })
   const analysis = bytes
-    ? await (await import('@/lib/agreement-clause-parser')).analyzeAgreementPdf(bytes)
+    ? await (await import('@/lib/agreement-clause-parser')).analyzeAgreementPdf(bytes, country)
     : { status: 'NO_TEXT' as const, candidates: [] }
   // A long PDF must not deliver private text after this reader's access was revoked.
   return withTenancy(tenancyId, actorId, async () => ({ fileId, ...analysis }))

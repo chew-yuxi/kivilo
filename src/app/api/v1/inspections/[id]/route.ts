@@ -2,6 +2,7 @@ import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { db } from '@/lib/db'
 import { authorizeInspection, inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
+import { currency } from '@/lib/country'
 import { authed } from '@/lib/api/route'
 import { assessmentSnapshotSchema } from '@/lib/assessment-schema'
 import { costStanding, describeProposal } from '@/lib/maintenance'
@@ -118,6 +119,9 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     tenant: inspection.tenancy.tenant.name,
     tenantId: inspection.tenancy.tenantId,
     deposit: inspection.tenancy.deposit.toString(),
+    /// The property's country, and the currency of the deposit and every finding's cost.
+    country: inspection.tenancy.property.country,
+    currency: currency(inspection.tenancy.property.country),
     summary: inspection.summary,
     baselineId: inspection.baseline?.id ?? null,
     checkOutId: inspection.checkOut?.id ?? null,
@@ -160,7 +164,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         evidence: item._count.evidence,
         createdAt: item.createdAt.toISOString(),
         costStanding: costStanding(item.status, item.responsibilityProposals),
-        costAgreement: agreed ? describeProposal(agreed) : null,
+        costAgreement: agreed ? describeProposal(agreed, inspection.tenancy.property.country) : null,
       }
     }),
     findings: await Promise.all(inspection.findings.map(async (finding) => ({

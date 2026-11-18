@@ -2,7 +2,8 @@ import { db } from '@/lib/db'
 import { inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
 import { describeProposal } from '@/lib/maintenance'
-import type { Prisma } from '@/generated/prisma'
+import { shortMoney } from '@/lib/country'
+import type { Country, Prisma } from '@/generated/prisma'
 
 const timelineInclude = {
   tenant: { select: { name: true } },
@@ -71,6 +72,7 @@ export type TimelineEvent = {
 export function timelineEvents(
   tenancies: TimelineTenancy[],
   workingCopies: Set<string>,
+  country: Country,
   now = new Date(),
 ): TimelineEvent[] {
   type Draft = Omit<TimelineEvent, 'at'> & { at: Date }
@@ -135,7 +137,7 @@ export function timelineEvents(
         add({
           id: `${visit.id}:repaired`, at: visit.completedAt!, kind: 'REPAIRED',
           title: `Repaired: ${item.title}`,
-          detail: visit.cost ? `S$${visit.cost.toFixed(2)}` : null, tenancyId, link, reportId: null,
+          detail: visit.cost ? shortMoney(visit.cost.toFixed(2), country) : null, tenancyId, link, reportId: null,
         })
         if (visit.verification) {
           const fixed = visit.verification.outcome === 'FIXED'
@@ -150,7 +152,7 @@ export function timelineEvents(
       for (const agreement of item.responsibilityProposals) {
         add({
           id: `${agreement.id}:agreed`, at: agreement.respondedAt!, kind: 'COST_AGREED',
-          title: `Cost agreed: ${item.title}`, detail: describeProposal(agreement), tenancyId, link, reportId: null,
+          title: `Cost agreed: ${item.title}`, detail: describeProposal(agreement, country), tenancyId, link, reportId: null,
         })
       }
       if (item.status === 'CLOSED_NO_ACTION' && item.resolvedAt) {
@@ -190,6 +192,6 @@ export async function propertyTimeline(propertyId: string, stakeholderId: string
       startDate: tenancy.startDate.toISOString(),
       endDate: tenancy.endDate.toISOString(),
     })),
-    events: timelineEvents(tenancies, new Set(workingCopies.map((inspection) => inspection.id))),
+    events: timelineEvents(tenancies, new Set(workingCopies.map((inspection) => inspection.id)), tenancies[0].property.country),
   }
 }

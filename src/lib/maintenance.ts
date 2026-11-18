@@ -6,7 +6,8 @@ import { agentTenancies, authorizeTenancy, tenancyScope, notificationScope, type
 import { captureExists, createDownloadUrl, createUploadUrl } from '@/lib/storage'
 import { posterUrls } from '@/lib/poster-urls'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
-import { Prisma } from '@/generated/prisma'
+import { Prisma, type Country } from '@/generated/prisma'
+import { currency, shortMoney } from '@/lib/country'
 import { moveInDefectIntent, moveInDefectOptions } from '@/lib/move-in-defects'
 import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-window'
 import { tenancyAccess } from '@/lib/tenancy-access'
@@ -206,9 +207,9 @@ export function describeProposal(proposal: {
   arrangedBy: Side
   payer: z.infer<typeof payer>
   tenantCap: { toString(): string } | null
-}) {
+}, country: Country) {
   const pays = proposal.payer === 'SHARED'
-    ? `Tenant pays the first S$${proposal.tenantCap}, landlord pays the rest.`
+    ? `Tenant pays the first ${shortMoney(proposal.tenantCap!, country)}, landlord pays the rest.`
     : `${partyName[proposal.payer]} pays.`
   return `${pays} ${partyName[proposal.arrangedBy]} arranges the repair.`
 }
@@ -404,6 +405,10 @@ export async function tenancyDetail(tenancyId: string, stakeholderId: string) {
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
     minorRepairCap: tenancy.minorRepairCap?.toString() ?? null,
+    /// The property's country, which names where the move-in deadline's day ends, and
+    /// the currency of the cap and of the maintenance terms' amounts.
+    country: tenancy.property.country,
+    currency: currency(tenancy.property.country),
     maintenanceTerms: await tenancyMaintenanceTerms(tenancy),
     agentMayAgreeCosts: tenancy.agentMayAgreeCosts,
     moveInDefects,
@@ -468,7 +473,7 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     basis: proposal.basis,
     reason: proposal.reason,
     clauseRef: proposal.clauseRef,
-    summary: describeProposal(proposal),
+    summary: describeProposal(proposal, tenancy.property.country),
     status: proposal.status,
     respondedBy: proposal.respondedBy,
     respondedAt: proposal.respondedAt?.toISOString() ?? null,
@@ -489,6 +494,8 @@ export async function maintenanceCaseDetail(caseId: string, stakeholderId: strin
     id: maintenanceCase.id,
     tenancyId: maintenanceCase.tenancyId,
     role,
+    /// The currency of every amount on the case: caps, shares and repair costs.
+    currency: currency(tenancy.property.country),
     canManage: canManage(role),
     canLogVisit: repair.canLogVisit,
     canVerify: repair.canVerify,
@@ -790,7 +797,7 @@ export async function proposeResponsibility(caseId: string, stakeholderId: strin
       }
       throw error
     })
-    const summary = describeProposal(input)
+    const summary = describeProposal(input, tenancy.property.country)
     await tx.maintenanceEvent.create({
       data: {
         caseId, actorId: stakeholderId, kind: 'RESPONSIBILITY_PROPOSED', body: input.reason,
@@ -852,7 +859,7 @@ export async function answerResponsibility(
           ? 'RESPONSIBILITY_ACCEPTED'
           : input.decision === 'REJECT' ? 'RESPONSIBILITY_REJECTED' : 'RESPONSIBILITY_WITHDRAWN',
         body: note,
-        metadata: { proposalId, summary: describeProposal(proposal) },
+        metadata: { proposalId, summary: describeProposal(proposal, tenancy.property.country) },
       },
     })
     if (acknowledges) {
@@ -873,7 +880,7 @@ export async function answerResponsibility(
       kind: 'MAINTENANCE_RESPONSIBILITY', title: maintenanceCase.title,
       body: input.decision === 'WITHDRAW'
         ? `${partyName[sideOf(role)]} withdrew the cost proposal.`
-        : `${partyName[sideOf(role)]} ${verb}: ${describeProposal(proposal)}`,
+        : `${partyName[sideOf(role)]} ${verb}: ${describeProposal(proposal, tenancy.property.country)}`,
       href: `/maintenance/${caseId}`,
     }))
   })

@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs'
 import type { TextContent } from 'pdfjs-dist/types/src/display/api'
+import type { Country } from '@/generated/prisma'
 
 export type AgreementClauseCandidate = { page: number; text: string; suggestedTenantCap: string | null }
 export type AgreementAnalysis = {
@@ -13,27 +14,42 @@ const MAX_TEXT = 500_000
 const MAX_CANDIDATES = 16
 const MAX_EXCERPT = 4000
 
+// How an agreement in each country writes its own money, and the currencies that make a
+// clause about some other money. A bare "$" is the local currency only in Singapore.
+const CURRENCY = {
+  SG: {
+    symbol: String.raw`(?:S\s*\$|SGD\s*\$?|\$)`,
+    foreign: /\b(?:USD|AUD|CAD|NZD|HKD|MYR|EUR|GBP|CHF|JPY|THB|INR|CNY|RMB|IDR|KRW|US\s*dollars?|ringgit|pounds?|euros?)\b|(?:US|HK|A|RM)\$/i,
+  },
+  MY: {
+    symbol: String.raw`(?:\bRM|\bMYR)`,
+    foreign: /\b(?:SGD|USD|AUD|CAD|NZD|HKD|EUR|GBP|CHF|JPY|THB|INR|CNY|RMB|IDR|KRW|dollars?|pounds?|euros?)\b|\$/i,
+  },
+} satisfies Record<Country, { symbol: string; foreign: RegExp }>
+
 // This finds passages to read, not contractual obligations. In particular, a
 // threshold below which a tenant pays the bill is not a contribution to every bill.
-function suggestedCap(text: string): string | null {
+function suggestedCap(text: string, country: Country): string | null {
+  const { symbol, foreign } = CURRENCY[country]
   if (!/\b(?:each|every|per)\s+(?:(?:minor|individual|single)\s+)?(?:repair|item|occasion)\b/i.test(text)) return null
-  if (/\b(?:USD|AUD|CAD|NZD|HKD|MYR|EUR|GBP|CHF|JPY|THB|INR|CNY|RMB|IDR|KRW|US\s*dollars?|ringgit|pounds?|euros?)\b|(?:US|HK|A|RM)\$/i.test(text)) return null
-  const amounts = [...text.matchAll(/(?:S\s*\$|SGD\s*\$?|\$)\s*(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)(?![\d.,])/gi)]
+  if (foreign.test(text)) return null
+  const amounts = [...text.matchAll(new RegExp(String.raw`${symbol}\s*(\d{1,3}(?:,\d{3})+(?:\.\d{1,2})?|\d+(?:\.\d{1,2})?)(?![\d.,])`, 'gi'))]
   if (amounts.length !== 1) return null
   const afterAmount = text.slice(amounts[0].index + amounts[0][0].length)
-  if (/^\s*(?:[-–—]|to)\s*(?:(?:S\s*\$|SGD\s*\$?|\$)\s*)?\d/i.test(afterAmount)) return null
-  const payment = /\btenant(?:s)?\s+(?:(?:shall|will|must|is\s+to)\s+)?(?:pay|bear|contribute|be\s+responsible\s+for)\s+(?:the\s+)?(?:first|up\s+to)\s*(?:S\s*\$|SGD\s*\$?|\$)/i
+  if (new RegExp(String.raw`^\s*(?:[-\u2013\u2014]|to)\s*(?:${symbol}\s*)?\d`, 'i').test(afterAmount)) return null
+  const payment = new RegExp(String.raw`\btenant(?:s)?\s+(?:(?:shall|will|must|is\s+to)\s+)?(?:pay|bear|contribute|be\s+responsible\s+for)\s+(?:the\s+)?(?:first|up\s+to)\s*${symbol}`, 'i')
   if (!payment.test(text)) return null
   // An explicit 'first' contribution is clear enough to suggest for confirmation.
   // 'Up to' alone often describes a threshold, so also require the excess allocation.
-  const first = /\b(?:pay|bear|contribute|be\s+responsible\s+for)\s+(?:the\s+)?first\s*(?:S\s*\$|SGD\s*\$?|\$)/i.test(text)
+  const first = new RegExp(String.raw`\b(?:pay|bear|contribute|be\s+responsible\s+for)\s+(?:the\s+)?first\s*${symbol}`, 'i').test(text)
   if (!first && !/\b(?:landlord\b[^.!?]{0,90}\b(?:excess|balance|remainder)|(?:excess|balance|remainder)\b[^.!?]{0,90}\blandlord)\b/i.test(text)) return null
   if (/\b(?:if|provided|unless|except|notwithstanding|not|never)\b/i.test(text)) return null
   const amount = Number(amounts[0][1].replaceAll(',', ''))
   return amount > 0 && amount <= 99999999.99 ? amount.toFixed(2) : null
 }
 
-export function agreementClauseCandidates(pages: string[]): AgreementClauseCandidate[] {
+/// `country` is the property's: only amounts in its own currency are suggested.
+export function agreementClauseCandidates(pages: string[], country: Country): AgreementClauseCandidate[] {
   const candidates: AgreementClauseCandidate[] = []
   for (const [index, page] of pages.entries()) {
     const text = page.replace(/\s+/g, ' ').trim()
@@ -58,7 +74,7 @@ export function agreementClauseCandidates(pages: string[]): AgreementClauseCandi
         const start = Math.max(0, keyword - 500)
         candidates.push({ page: index + 1, text: `${start ? '… ' : ''}${excerpt.slice(start, start + MAX_EXCERPT - 4)} …`, suggestedTenantCap: null })
       } else if (excerpt) {
-        candidates.push({ page: index + 1, text: excerpt, suggestedTenantCap: suggestedCap(excerpt) })
+        candidates.push({ page: index + 1, text: excerpt, suggestedTenantCap: suggestedCap(excerpt, country) })
       }
       if (candidates.length === MAX_CANDIDATES) return candidates
     }
@@ -68,7 +84,7 @@ export function agreementClauseCandidates(pages: string[]): AgreementClauseCandi
 
 /// Runs only on the authenticated server, from bytes already in private storage.
 /// No document content goes to an external extraction or AI service.
-export async function analyzeAgreementPdf(bytes: Uint8Array): Promise<AgreementAnalysis> {
+export async function analyzeAgreementPdf(bytes: Uint8Array, country: Country): Promise<AgreementAnalysis> {
   const task = getDocument({
     data: new Uint8Array(bytes),
     standardFontDataUrl: join(process.cwd(), 'node_modules/pdfjs-dist/standard_fonts/'),
@@ -112,7 +128,7 @@ export async function analyzeAgreementPdf(bytes: Uint8Array): Promise<AgreementA
       page.cleanup()
     }
     if (pages.every((page) => !page.trim())) return { status: 'NO_TEXT', candidates: [] }
-    return { status: 'TEXT', candidates: agreementClauseCandidates(pages) }
+    return { status: 'TEXT', candidates: agreementClauseCandidates(pages, country) }
   } catch (error) {
     if (expired) return { status: 'TOO_LONG', candidates: [] }
     if (error instanceof Error && ['InvalidPDFException', 'PasswordException', 'UnknownErrorException', 'FormatError'].includes(error.name)) {

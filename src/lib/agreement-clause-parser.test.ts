@@ -23,7 +23,7 @@ describe('agreement clause reader', () => {
     const clauses = agreementClauseCandidates([
       'Tenancy starts on 1 January. Rent is due monthly.',
       'Minor repairs. The tenant shall pay the first S$150 for each repair. Fair wear and tear is excluded.',
-    ])
+    ], 'SG')
     expect(clauses).toEqual([{
       page: 2,
       text: 'Minor repairs. The tenant shall pay the first S$150 for each repair. Fair wear and tear is excluded.',
@@ -32,8 +32,8 @@ describe('agreement clause reader', () => {
   })
 
   it('suggests an explicit per-repair contribution only', () => {
-    expect(agreementClauseCandidates(['The tenant shall pay up to SGD 250 per repair. The landlord bears the excess.'])[0].suggestedTenantCap).toBe('250.00')
-    expect(agreementClauseCandidates(['The tenant will bear the first S$1,250.50 for each repair.'])[0].suggestedTenantCap).toBe('1250.50')
+    expect(agreementClauseCandidates(['The tenant shall pay up to SGD 250 per repair. The landlord bears the excess.'], 'SG')[0].suggestedTenantCap).toBe('250.00')
+    expect(agreementClauseCandidates(['The tenant will bear the first S$1,250.50 for each repair.'], 'SG')[0].suggestedTenantCap).toBe('1250.50')
   })
 
   it.each([
@@ -52,12 +52,33 @@ describe('agreement clause reader', () => {
     'The tenant shall pay the first S$150 to 200 for each repair.',
     'The tenant shall pay the first S$150 per repair. The landlord will not pay the balance.',
   ])('leaves ambiguous/conditional/foreign currency terms for a person: %s', (clause) => {
-    expect(agreementClauseCandidates([clause])[0].suggestedTenantCap).toBeNull()
+    expect(agreementClauseCandidates([clause], 'SG')[0].suggestedTenantCap).toBeNull()
+  })
+
+  it('reads a Malaysian agreement in ringgit', () => {
+    expect(agreementClauseCandidates(['The tenant shall pay the first RM200 for each repair.'], 'MY')[0].suggestedTenantCap).toBe('200.00')
+    expect(agreementClauseCandidates(['The tenant shall pay up to MYR 1,500 per repair. The landlord bears the excess.'], 'MY')[0].suggestedTenantCap).toBe('1500.00')
+    expect(agreementClauseCandidates(['The tenant will bear the first RM 250.50 for each minor repair.'], 'MY')[0].suggestedTenantCap).toBe('250.50')
+  })
+
+  it.each([
+    'The tenant shall pay the first S$150 for each repair.',
+    'The tenant shall pay the first SGD 150 for each repair.',
+    'The tenant shall pay the first $150 for each repair.',
+    'The tenant shall pay the first RM150 per repair if the repair costs less than RM500.',
+    'The tenant shall pay the first RM150-200 for each repair.',
+    'The tenant shall pay up to RM150 for each repair.',
+  ])('leaves a Malaysian clause in another currency, or ambiguous, for a person: %s', (clause) => {
+    expect(agreementClauseCandidates([clause], 'MY')[0].suggestedTenantCap).toBeNull()
+  })
+
+  it('never suggests ringgit for a Singapore property', () => {
+    expect(agreementClauseCandidates(['The tenant shall pay the first RM200 for each repair.'], 'SG')[0].suggestedTenantCap).toBeNull()
   })
 
   it('limits oversized excerpts without suggesting an amount from truncated text', () => {
     const text = `The tenant shall pay the first S$150 per repair ${'subject to the agreement '.repeat(250)}`
-    const candidate = agreementClauseCandidates([text])[0]
+    const candidate = agreementClauseCandidates([text], 'SG')[0]
     expect(candidate.text.length).toBeLessThanOrEqual(4000)
     expect(candidate.text).toContain('…')
     expect(candidate.suggestedTenantCap).toBeNull()
@@ -68,18 +89,18 @@ describe('agreement clause reader', () => {
       'Tenancy agreement - minor repairs',
       'The tenant shall pay the first S$150 for each repair.',
       'The landlord shall pay the balance.',
-    ]))
+    ]), 'SG')
     expect(result.status).toBe('TEXT')
     expect(result.candidates[0]).toMatchObject({ page: 1, suggestedTenantCap: '150.00' })
     expect(result.candidates[0].text).toContain('landlord shall pay the balance')
   })
 
   it('distinguishes image-only/blank PDFs from text with no maintenance clause', async () => {
-    expect(await analyzeAgreementPdf(textPdf([]))).toEqual({ status: 'NO_TEXT', candidates: [] })
-    expect(await analyzeAgreementPdf(textPdf(['Rent is due monthly.']))).toEqual({ status: 'TEXT', candidates: [] })
+    expect(await analyzeAgreementPdf(textPdf([]), 'SG')).toEqual({ status: 'NO_TEXT', candidates: [] })
+    expect(await analyzeAgreementPdf(textPdf(['Rent is due monthly.']), 'SG')).toEqual({ status: 'TEXT', candidates: [] })
   })
 
   it('keeps a malformed original available for manual reading', async () => {
-    expect(await analyzeAgreementPdf(new TextEncoder().encode('%PDF-1.4\nnot a document'))).toEqual({ status: 'UNREADABLE', candidates: [] })
+    expect(await analyzeAgreementPdf(new TextEncoder().encode('%PDF-1.4\nnot a document'), 'SG')).toEqual({ status: 'UNREADABLE', candidates: [] })
   })
 })
