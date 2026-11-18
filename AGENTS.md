@@ -727,7 +727,10 @@ and JPEG, and the agent can set the name printed beside them.
 
 A property is in Singapore or Malaysia (`Property.country`, `plans/malaysia.md`), chosen
 when it is made and never changed; its currency, address format, registration label,
-property types and postcode rule all follow from it in `src/lib/country.ts`. Anything that
+property types and postcode rule all follow from it in `src/lib/country.ts`. The agent's
+own `Stakeholder.country`, asked once by the app before Home, is only which country the app
+makes their new properties in and which agent tools it shows; the server never derives a
+property's country from it, and changing it moves nothing. Anything that
 prints money takes the property's country (`money`, `shortMoney`), and every API response
 with money sends `currency` beside it. CEA due diligence never runs on a Malaysian
 property, and HDB is Singapore's only.

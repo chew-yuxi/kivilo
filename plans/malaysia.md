@@ -18,6 +18,36 @@ same PDF drawing and, above all, the same hashes. The report fingerprint
 include the country only when it is not `SG`, so no signed or published Singapore record
 changes its hash.
 
+## Where the agent works
+
+Revised 2026-11-18 (Yuxi: country is chosen during onboarding). An agent says once where
+they work, and their new properties are made there; there is no per-property choice.
+
+- `Stakeholder.country Country?`, null until answered. Migration
+  `20261118100000_stakeholder_country` sets every existing row to `SG`, so every agent from
+  before this is Singapore and is never asked. It is the agent's working country only:
+  `Property.country` stays the truth for a property's money, address and checks, frozen
+  at creation, and changing the agent's country never moves a property.
+- `GET /api/v1/me` returns `country` (null when unanswered). `PUT /api/v1/me/country`
+  (`setAgentCountry` in `account-actions.ts`, through `requireAgent()`) sets it, records
+  nothing else, and answers with the same profile `GET /api/v1/me` does
+  (`account-profile.ts`), which the app saves as its copy of `me`.
+- The app sends the agent's country with a new property. The server never derives it from
+  the agent: an omitted `country` is still `SG`, so installed builds and the web form make
+  Singapore properties.
+- App: after sign-in, an account with work whose profile says `country: null` sees one
+  full-screen step before Home, "Where do you work?", Singapore or Malaysia, preselected
+  from the phone's region (`MY` is Malaysia, anything else Singapore), and one Continue
+  that saves it. A failed save shows the reason and Try again, and nothing lets them past
+  without a saved answer. A profile that could not be read at all (offline, nothing
+  saved) does not ask, and a saved answer is kept on the phone, so the step never loops.
+  A copy of `me` saved before countries existed has no `country` key and reads as
+  Singapore. Account has a "Where you work" row to change it later.
+- Agent-level Singapore tools follow the agent's country: Home's client-checks tiles are
+  hidden for an agent who works in Malaysia, and the branding field and Account's summary
+  name the agent's register ("Your CEA registration (optional)" and "CEA ..." exactly as
+  before for Singapore, REN for Malaysia). A report header still follows its property.
+
 ## Data
 
 - Migration: `enum Country { SG MY }`, `Property.country Country @default(SG)`. Additive,
@@ -70,18 +100,15 @@ CEA due diligence is Singapore law. For a Malaysian property:
   either (they read `enabled` from the operators' preview), so Send-for-signature's
   warning and the property page's party rows disappear on every build.
 - The report header uses the registration label for the property's country; the stored
-  `AgentBranding.ceaRegistration` is unchanged, and the branding field is labelled for
-  both ("CEA or REN registration"). Singapore report text is unchanged. Account settings
-  summarises it as "Registration ...".
+  `AgentBranding.ceaRegistration` is unchanged, and the branding field names the agent's
+  own register (see "Where the agent works"). Singapore report text is unchanged.
 
-Home's client-checks tile stays: it is agent-level, and an agent with only Malaysian
-properties can ignore it. An agent-level country is later work.
+Home's client-checks tiles are agent-level, so they follow the agent's country.
 
 ## Address
 
-New check-in (app) leads with a Singapore | Malaysia choice, defaulting to the country of
-the agent's most recent property (`lastPropertyCountry` on `GET /api/v1/me`, the newest
-property the account manages; an existing property keeps its own). Malaysia skips the OneMap lookup, takes the street,
+New check-in (app) makes a new property in the agent's country, with no choice on the
+form; an existing property keeps its own. Malaysia skips the OneMap lookup, takes the street,
 area and city in the address line and a 5-digit postcode, and offers condo, landed and
 commercial (no HDB). The label reads "{unit}, {line1}, {postcode} Malaysia". The web
 form keeps making Singapore properties only (app first); the web still renders
@@ -95,7 +122,7 @@ deadline arithmetic is unchanged.
 ## Out of scope
 
 Marketing site and guides, store listing copy, Kivilo's own Stripe pricing (SGD only),
-Malaysian AML checks, an agent-level country, and the unmerged `claude/translations`
+Malaysian AML checks, and the unmerged `claude/translations`
 branch, which moves the same app labels into ARB files and will need rebasing over this.
 
 ## Tests
@@ -104,9 +131,11 @@ Integration: a Malaysian check-in end to end (create with `MY`, money in MYR on 
 report and PDF model, deposit statement, CDD refused, HDB refused) and the Singapore
 fingerprint and snapshot hash unchanged for an existing-shaped report. Unit: `country.ts`
 formatting, the clause parser for both countries, PDF document with MYR. App: model
-parsing with and without `currency`, new check-in country choice, money labels. Render
-the changed app screens (simulator via `xcrun simctl` or widget screenshots) and check
-them, per the layout lesson.
+parsing with and without `currency` and `country`, money labels, the onboarding step
+(shown only when unanswered, saving required), New check-in in the agent's country,
+Home's tiles for a Malaysian agent, Singapore labels unchanged. Integration also covers
+the backfill and setting and reading the agent's country. Render the changed app screens
+(widget screenshots) and check them, per the layout lesson.
 
 ## Launch (each step needs Yuxi's go)
 
