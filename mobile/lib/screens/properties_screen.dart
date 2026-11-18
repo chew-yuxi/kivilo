@@ -191,7 +191,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           builder: (_) => NewInspectionScreen(
             api: _api,
             initialAgency: agency,
-            initialCountry: _workspace.profile?.lastPropertyCountry ?? 'SG',
+            country: _workspace.profile?.country ?? 'SG',
           ),
         ),
       );

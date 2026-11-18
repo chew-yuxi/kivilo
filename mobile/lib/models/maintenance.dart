@@ -9,15 +9,15 @@ class UserProfile {
     required this.name,
     required this.roles,
     this.contexts,
-    this.lastPropertyCountry = 'SG',
+    this.country = 'SG',
   });
   final String id;
   final String name;
   final List<String> roles;
 
-  /// The country of the newest property this account manages, which New check-in
-  /// starts on.
-  final String lastPropertyCountry;
+  /// Where the account works, `SG` or `MY`: its new properties are made there. Null
+  /// until it has answered, which the app asks once before Home.
+  final String? country;
 
   /// Every relationship the account holds. Null from a server that predates it.
   final UserContexts? contexts;
@@ -26,7 +26,9 @@ class UserProfile {
     id: json['id'] as String,
     name: json['name'] as String,
     roles: (json['roles'] as List<dynamic>).cast<String>(),
-    lastPropertyCountry: json['lastPropertyCountry'] as String? ?? 'SG',
+    // A copy saved before countries existed has no key at all, and every account
+    // from then works in Singapore. A present null is a question still to ask.
+    country: json.containsKey('country') ? json['country'] as String? : 'SG',
     contexts: json['contexts'] == null
         ? null
         : UserContexts.fromJson(json['contexts'] as Map<String, dynamic>),

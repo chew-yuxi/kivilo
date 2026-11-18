@@ -54,7 +54,7 @@ class _ReportApi extends Api {
 
 Future<_CheckInApi> _newCheckIn(
   WidgetTester tester, {
-  String initialCountry = 'SG',
+  String country = 'SG',
   bool offerVerification = true,
 }) async {
   tester.view.devicePixelRatio = 1;
@@ -67,7 +67,7 @@ Future<_CheckInApi> _newCheckIn(
       home: NewInspectionScreen(
         api: api,
         cache: _NoDraft(),
-        initialCountry: initialCountry,
+        country: country,
         offerVerification: offerVerification,
       ),
     ),
@@ -77,7 +77,11 @@ Future<_CheckInApi> _newCheckIn(
 }
 
 /// Scrolls down to [finder], or up with a negative [by].
-Future<void> _reveal(WidgetTester tester, Finder finder, {double by = 200}) async {
+Future<void> _reveal(
+  WidgetTester tester,
+  Finder finder, {
+  double by = 200,
+}) async {
   await tester.scrollUntilVisible(
     finder,
     by,
@@ -96,89 +100,94 @@ void main() {
     expect(countryName('MY'), 'Malaysia');
   });
 
-  test('models read the currency, and a copy saved before it existed is Singapore', () {
-    final malaysian = SignedReport.fromJson({...reportJson(), 'currency': 'MYR'});
-    expect(malaysian.currency, 'MYR');
-    expect(SignedReport.fromJson(reportJson()).currency, 'SGD');
+  test(
+    'models read the currency, and a copy saved before it existed is Singapore',
+    () {
+      final malaysian = SignedReport.fromJson({
+        ...reportJson(),
+        'currency': 'MYR',
+      });
+      expect(malaysian.currency, 'MYR');
+      expect(SignedReport.fromJson(reportJson()).currency, 'SGD');
 
-    final profile = UserProfile.fromJson({
-      'id': 'agent',
-      'name': 'Agent',
-      'roles': ['AGENT'],
-      'lastPropertyCountry': 'MY',
-    });
-    expect(profile.lastPropertyCountry, 'MY');
-    expect(
-      UserProfile.fromJson({'id': 'a', 'name': 'A', 'roles': <String>[]})
-          .lastPropertyCountry,
-      'SG',
-    );
+      Map<String, dynamic> me([Map<String, dynamic> extra = const {}]) => {
+        'id': 'agent',
+        'name': 'Agent',
+        'roles': ['AGENT'],
+        ...extra,
+      };
+      expect(UserProfile.fromJson(me({'country': 'MY'})).country, 'MY');
+      // Asked once: a server that sends null has not had an answer yet.
+      expect(UserProfile.fromJson(me({'country': null})).country, isNull);
+      // A copy saved before countries existed is a Singapore account's.
+      expect(UserProfile.fromJson(me()).country, 'SG');
 
-    final property = StartableProperty.fromJson({
-      'id': 'property-1',
-      'address': 'A-12-3, Jalan Ampang, 50450 Malaysia',
-      'propertyType': 'PRIVATE_NON_LANDED',
-      'country': 'MY',
-      'lastTenant': 'Tenant',
-      'lastEndDate': '2027-01-01',
-    });
-    expect(property.country, 'MY');
-    // The new check-in draft keeps it across a restart.
-    expect(StartableProperty.fromJson(property.toJson()).country, 'MY');
+      final property = StartableProperty.fromJson({
+        'id': 'property-1',
+        'address': 'A-12-3, Jalan Ampang, 50450 Malaysia',
+        'propertyType': 'PRIVATE_NON_LANDED',
+        'country': 'MY',
+        'lastTenant': 'Tenant',
+        'lastEndDate': '2027-01-01',
+      });
+      expect(property.country, 'MY');
+      // The new check-in draft keeps it across a restart.
+      expect(StartableProperty.fromJson(property.toJson()).country, 'MY');
 
-    final handover = TenantHandover.fromJson({
-      'tenancyId': 't',
-      'url': 'https://my.kivilo.app/handover/x',
-      'windowDays': 30,
-      'deadline': '2026-12-30',
-      'modules': <dynamic>[],
-    });
-    expect(handover.country, 'SG');
+      final handover = TenantHandover.fromJson({
+        'tenancyId': 't',
+        'url': 'https://my.kivilo.app/handover/x',
+        'windowDays': 30,
+        'deadline': '2026-12-30',
+        'modules': <dynamic>[],
+      });
+      expect(handover.country, 'SG');
 
-    final documents = SupportingDocuments.fromJson({
-      'tenancyId': 't',
-      'propertyLabel': 'A-12-3, Jalan Ampang, 50450 Malaysia',
-      'tenantName': 'Tenant',
-      'startDate': '2026-12-01T00:00:00.000Z',
-      'endDate': '2027-11-30T00:00:00.000Z',
-      'role': 'agent',
-      'canRequest': true,
-      'canUpload': false,
-      'currency': 'MYR',
-      'agreement': {
-        'requestId': null,
-        'files': <dynamic>[],
-        'currentFileId': null,
-        'canUpload': true,
-        'canReview': true,
-        'terms': {
-          'fileId': 'f',
-          'page': 2,
-          'quote': 'The tenant shall pay the first RM200 for each repair.',
-          'rule': 'FIRST_AMOUNT',
-          'tenantCap': '200.00',
-          'confirmedAt': '2026-12-02T00:00:00.000Z',
-          'confirmedBy': {'id': 'agent', 'name': 'Agent'},
+      final documents = SupportingDocuments.fromJson({
+        'tenancyId': 't',
+        'propertyLabel': 'A-12-3, Jalan Ampang, 50450 Malaysia',
+        'tenantName': 'Tenant',
+        'startDate': '2026-12-01T00:00:00.000Z',
+        'endDate': '2027-11-30T00:00:00.000Z',
+        'role': 'agent',
+        'canRequest': true,
+        'canUpload': false,
+        'currency': 'MYR',
+        'agreement': {
+          'requestId': null,
+          'files': <dynamic>[],
+          'currentFileId': null,
+          'canUpload': true,
+          'canReview': true,
+          'terms': {
+            'fileId': 'f',
+            'page': 2,
+            'quote': 'The tenant shall pay the first RM200 for each repair.',
+            'rule': 'FIRST_AMOUNT',
+            'tenantCap': '200.00',
+            'confirmedAt': '2026-12-02T00:00:00.000Z',
+            'confirmedBy': {'id': 'agent', 'name': 'Agent'},
+          },
+          'termsMatchCurrentFile': true,
         },
-        'termsMatchCurrentFile': true,
-      },
-      'requests': <dynamic>[],
-    });
-    expect(
-      documents.agreement.terms!.summary(documents.currency),
-      'Tenant pays the first RM200.00 per repair',
-    );
-    expect(
-      describeProposal(
-        arrangedBy: 'LANDLORD',
-        payer: 'SHARED',
-        tenantCap: '200.00',
-        currency: documents.currency,
-      ),
-      'Tenant pays the first RM200.00, landlord pays the rest. '
-      'Landlord arranges the repair.',
-    );
-  });
+        'requests': <dynamic>[],
+      });
+      expect(
+        documents.agreement.terms!.summary(documents.currency),
+        'Tenant pays the first RM200.00 per repair',
+      );
+      expect(
+        describeProposal(
+          arrangedBy: 'LANDLORD',
+          payer: 'SHARED',
+          tenantCap: '200.00',
+          currency: documents.currency,
+        ),
+        'Tenant pays the first RM200.00, landlord pays the rest. '
+        'Landlord arranges the repair.',
+      );
+    },
+  );
 
   test('an inspection carries its country and currency', () {
     final inspection = InspectionDetail.fromJson({
@@ -209,18 +218,26 @@ void main() {
     expect(inspection.currency, 'MYR');
   });
 
-  testWidgets('New check-in starts on the agent’s country and asks for a Malaysian address', (
+  testWidgets('a Malaysian agent’s new property asks for a Malaysian address', (
     tester,
   ) async {
-    final api = await _newCheckIn(tester, initialCountry: 'MY');
+    final api = await _newCheckIn(tester, country: 'MY');
+    // The country is the agent's, never chosen per property.
+    expect(find.text('Malaysia'), findsNothing);
     // No OneMap, which knows Singapore only.
-    expect(find.widgetWithText(TextField, 'Find the address (optional)'), findsNothing);
+    expect(
+      find.widgetWithText(TextField, 'Find the address (optional)'),
+      findsNothing,
+    );
     expect(find.text('Postcode (required)'), findsOneWidget);
     await tester.enterText(
       find.widgetWithText(TextFormField, 'Address (required)'),
       'Residensi Sentral, Jalan Tun Sambanthan, Kuala Lumpur',
     );
-    await tester.enterText(find.widgetWithText(TextFormField, 'Postcode (required)'), '504700');
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Postcode (required)'),
+      '504700',
+    );
 
     // Condominium, landed and commercial: no HDB in Malaysia.
     await _reveal(tester, find.text('Condominium'));
@@ -262,39 +279,34 @@ void main() {
     expect(api.created, hasLength(1));
     expect(api.created.single, containsPair('country', 'MY'));
     expect(api.created.single, containsPair('postalCode', '50470'));
-    expect(api.created.single, containsPair('propertyType', 'PRIVATE_NON_LANDED'));
+    expect(
+      api.created.single,
+      containsPair('propertyType', 'PRIVATE_NON_LANDED'),
+    );
     expect(api.created.single.containsKey('verifyParties'), isFalse);
     expect(api.lookups, 0);
   });
 
-  testWidgets('switching to Malaysia drops HDB, and Singapore stays as it was', (
-    tester,
-  ) async {
-    await _newCheckIn(tester);
-    expect(find.widgetWithText(TextField, 'Find the address (optional)'), findsOneWidget);
+  testWidgets('a Singapore agent’s New check-in is as it was', (tester) async {
+    final api = await _newCheckIn(tester);
+    expect(find.text('Malaysia'), findsNothing);
+    expect(find.text('Singapore'), findsNothing);
+    expect(
+      find.widgetWithText(TextField, 'Find the address (optional)'),
+      findsOneWidget,
+    );
     expect(find.text('Postal code (required)'), findsOneWidget);
     await _reveal(tester, find.text('Private, non-landed'));
     await tester.ensureVisible(find.text('Private, non-landed'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Private, non-landed'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('HDB').last);
-    await tester.pumpAndSettle();
     expect(find.text('HDB'), findsOneWidget);
-
-    await _reveal(tester, find.text('Malaysia'), by: -200);
-    await tester.tap(find.text('Malaysia'));
-    await tester.pumpAndSettle();
-    await _reveal(tester, find.text('Condominium'));
-    expect(find.text('HDB'), findsNothing);
-    expect(find.text('Condominium'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Find the address (optional)'), findsNothing);
-
-    await _reveal(tester, find.text('Singapore'), by: -200);
-    await tester.tap(find.text('Singapore'));
+    await tester.tap(find.text('HDB').last);
     await tester.pumpAndSettle();
     await _reveal(tester, find.text('Verify both parties (CEA)'));
     await _reveal(tester, find.text('Monthly rent (SGD) (optional)'));
+    expect(api.created, isEmpty);
   });
 
   testWidgets('a Malaysian report states its deposit in ringgit', (

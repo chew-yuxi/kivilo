@@ -18,8 +18,10 @@ import '../services/push_notifications.dart';
 import '../services/saved_signature.dart';
 import '../ui/handover_guide.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 import 'branding_drawer.dart';
+import 'country_screen.dart';
 import 'billing_screen.dart';
 import 'team_screen.dart';
 import '../ui/kivilo_layout.dart';
@@ -30,9 +32,13 @@ class SettingsScreen extends StatefulWidget {
     this.onStartCheckIn,
     this.trackView = true,
     this.api,
+    this.onCountryChanged,
   });
   final Api? api;
   final bool trackView;
+
+  /// Told when the agent changes where they work, so Home uses it at once.
+  final ValueChanged<UserProfile>? onCountryChanged;
 
   /// Set for someone whose home shows only their own tenancies, so an agent who is also
   /// somebody's tenant can still start an inspection.
@@ -62,6 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _api.agencies,
     retainKey: 'agencies',
   );
+  late Loading<UserProfile> _profile = _api.load(_api.me, retainKey: 'me');
   late final Future<String> _version = _readVersion();
   bool _busy = false;
   String? _error;
@@ -250,8 +257,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     if (!mounted) return;
     final saved = await showKiviloDrawer<AgentBranding>(
       context: context,
-      builder: (_) =>
-          BrandingDrawer(api: _api, current: current, agentName: profile.name),
+      builder: (_) => BrandingDrawer(
+        api: _api,
+        current: current,
+        agentName: profile.name,
+        country: profile.country,
+      ),
     );
     if (saved != null && mounted) {
       setState(
@@ -263,6 +274,50 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       );
     }
   }
+
+  Future<void> _editCountry(String? current) async {
+    final saved = await showKiviloDrawer<UserProfile>(
+      context: context,
+      builder: (_) => CountryDrawer(api: _api, current: current),
+    );
+    if (saved == null || !mounted) return;
+    setState(
+      () => _profile = _api.load(
+        () async => saved,
+        savedFirst: false,
+        retainKey: 'me',
+      ),
+    );
+    widget.onCountryChanged?.call(saved);
+  }
+
+  Widget _countryCard() => StreamBuilder<UserProfile>(
+    stream: _profile.stream,
+    builder: (context, snapshot) {
+      final country = snapshot.data?.country;
+      return Card(
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 6,
+          ),
+          leading: const Icon(Icons.public),
+          title: const Text('Where you work'),
+          subtitle: Text(
+            snapshot.hasError
+                ? 'Could not load: ${plainError(snapshot.error!)}'
+                : !snapshot.hasData
+                ? 'Loading…'
+                : country == null
+                ? 'Not chosen yet'
+                : '${countryName(country)}. New properties are made here.',
+          ),
+          trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+          onTap: snapshot.hasData ? () => _editCountry(country) : null,
+        ),
+      );
+    },
+  );
 
   Widget _brandingCard() => StreamBuilder<AgentBranding?>(
     stream: _branding.stream,
@@ -276,11 +331,12 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         );
       }
       final branding = snapshot.data;
-      final details = [
+      // The register is named for where the agent works.
+      String details(String? country) => [
         if (branding?.agencyLicence != null)
           'Licence ${branding!.agencyLicence}',
         if (branding?.ceaRegistration != null)
-          'Registration ${branding!.ceaRegistration}',
+          '${registrationName(country)} ${branding!.ceaRegistration}',
       ].join(' · ');
       return Card(
         child: ListTile(
@@ -301,14 +357,17 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 : const Icon(Icons.store_rounded, color: KiviloColors.pinkDark),
           ),
           title: Text(branding?.agencyName ?? 'Set up report branding'),
-          subtitle: Text(
-            snapshot.hasError
-                ? 'Could not load: ${snapshot.error}'
-                : branding == null
-                ? 'Your name and logo at the top of PDF reports'
-                : details.isEmpty
-                ? 'Shown on your PDF and shared reports'
-                : details,
+          subtitle: StreamBuilder<UserProfile>(
+            stream: _profile.stream,
+            builder: (context, profile) => Text(
+              snapshot.hasError
+                  ? 'Could not load: ${snapshot.error}'
+                  : branding == null
+                  ? 'Your name and logo at the top of PDF reports'
+                  : details(profile.data?.country).isEmpty
+                  ? 'Shown on your PDF and shared reports'
+                  : details(profile.data?.country),
+            ),
           ),
           trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
           onTap: snapshot.hasError ? null : () => _editBranding(branding),
@@ -527,6 +586,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(title: 'Workspace'),
             const SizedBox(height: kiviloHeadingGap),
+            _countryCard(),
+            const SizedBox(height: kiviloButtonGap),
             _teamsCard(),
             const SizedBox(height: kiviloSectionGap),
             const KiviloSectionHeading(

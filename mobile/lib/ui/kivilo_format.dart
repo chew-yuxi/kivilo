@@ -54,3 +54,7 @@ String countryName(String country) =>
 
 /// The currency a property's money is in, from its country.
 String currencyFor(String country) => country == 'MY' ? 'MYR' : 'SGD';
+
+/// The register an agent's number is on: CEA in Singapore, REN in Malaysia. Agent
+/// wording follows the agent's own country; a report header follows its property's.
+String registrationName(String? country) => country == 'MY' ? 'REN' : 'CEA';

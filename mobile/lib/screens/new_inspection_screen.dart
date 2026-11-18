@@ -23,11 +23,11 @@ class NewInspectionScreen extends StatefulWidget {
     this.cache,
     this.offerVerification = false,
     this.freeChecksLeft,
-    this.initialCountry = 'SG',
+    this.country = 'SG',
   });
 
-  /// A new property's country to start on: that of the agent's newest property.
-  final String initialCountry;
+  /// Where the agent works, which a new property is made in. Fixed once it is made.
+  final String country;
 
   /// Free client checks left, to say what verifying both parties uses; null on Pro.
   final int? freeChecksLeft;
@@ -49,9 +49,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   late final ReadCache _cache = widget.cache ?? ReadCache();
   late AgencySummary? _agency = widget.initialAgency;
 
-  /// A new property's country, fixed once it is made. An existing property keeps its own.
-  late String _country = widget.initialCountry;
-  String get _propertyCountry => _existing?.country ?? _country;
+  /// An existing property keeps its own country; a new one is in the agent's.
+  String get _propertyCountry => _existing?.country ?? widget.country;
   String get _currency => currencyFor(_propertyCountry);
   bool get _malaysia => _propertyCountry == 'MY';
 
@@ -196,8 +195,11 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     }
     setState(() {
       _clientId = draft['clientId'] as String? ?? _clientId;
-      _country = draft['country'] as String? ?? _country;
-      _propertyType = draft['propertyType'] as String? ?? _propertyType;
+      final type = draft['propertyType'] as String? ?? _propertyType;
+      // A draft begun before the agent said they work in Malaysia, where there is no HDB.
+      _propertyType = widget.country == 'MY' && type == 'HDB'
+          ? 'PRIVATE_NON_LANDED'
+          : type;
       _furnishingLevel = draft['furnishingLevel'] as String?;
       _startDate =
           DateTime.tryParse(draft['startDate'] as String? ?? '') ?? _startDate;
@@ -232,7 +234,6 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       'fields': {
         for (final entry in _fields.entries) entry.key: entry.value.text,
       },
-      'country': _country,
       'propertyType': _propertyType,
       'furnishingLevel': _furnishingLevel,
       'startDate': _iso(_startDate),
@@ -260,22 +261,6 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   void _change(VoidCallback change) {
     setState(change);
     _saveDraft();
-  }
-
-  /// Malaysia has no HDB and no OneMap, so switching there drops both.
-  void _chooseCountry(String country) {
-    _lookupRun++;
-    _lookupDelay?.cancel();
-    _lookup.clear();
-    _change(() {
-      _country = country;
-      if (country == 'MY' && _propertyType == 'HDB') {
-        _propertyType = 'PRIVATE_NON_LANDED';
-      }
-      _matches = const [];
-      _lookingUp = false;
-      _lookupNote = null;
-    });
   }
 
   void _lookupChanged(String text) {
@@ -472,7 +457,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           'unit': value('unit').isEmpty ? null : value('unit'),
           'postalCode': value('postalCode'),
           'propertyType': _propertyType,
-          'country': _country,
+          'country': widget.country,
         },
         'furnishingLevel': _furnishingLevel,
         if (_keepsLandlord)
@@ -629,17 +614,6 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 child: const Text('Choose a property'),
               ),
           ] else ...[
-            Text('Country', style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 6),
-            KiviloSegmentedControl<String>(
-              value: _country,
-              options: const [
-                KiviloSegmentOption(value: 'SG', label: 'Singapore'),
-                KiviloSegmentOption(value: 'MY', label: 'Malaysia'),
-              ],
-              onChanged: _busy ? null : (value) => _chooseCountry(value!),
-            ),
-            const SizedBox(height: 12),
             // OneMap knows Singapore addresses only.
             if (!_malaysia)
               TextField(

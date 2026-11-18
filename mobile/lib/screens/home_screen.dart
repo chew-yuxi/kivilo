@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/home_tasks.dart';
+import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/workspace.dart';
 import '../ui/workspace_picker.dart';
@@ -11,6 +12,7 @@ import '../ui/kivilo_theme.dart';
 import '../ui/handover_guide.dart';
 import '../ui/kivilo_illustration.dart';
 import 'cdd_screen.dart';
+import 'country_screen.dart';
 import 'inspection_screen.dart';
 import 'home_tasks.dart';
 import 'party_homes_screen.dart';
@@ -50,8 +52,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<HomeTasks> _load() async {
     await _workspace.refresh();
+    // Only a profile that was read, fresh or saved, can say the question is unanswered;
+    // one that could not be read at all leaves Home as it always was.
+    final profile = _workspace.profile;
+    final ask =
+        profile != null && profile.country == null && _workspace.hasWork;
+    if (mounted && ask != _askCountry) setState(() => _askCountry = ask);
     return _fetch();
   }
+
+  /// Where the agent works, asked once before Home and kept from then on.
+  bool _askCountry = false;
+
+  void _countrySaved(UserProfile profile) => setState(() {
+    _workspace.profile = profile;
+    _askCountry = false;
+  });
 
   /// The tasks for the context selected now. "View all" reads the same route.
   Future<HomeTasks> _fetch() async {
@@ -170,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Verifying both parties takes two checks.
           offerVerification: _dueDiligence && (_freeChecksLeft == null || _freeChecksLeft! >= 2),
           freeChecksLeft: _freeChecksLeft,
-          initialCountry: _workspace.profile?.lastPropertyCountry ?? 'SG',
+          country: _workspace.profile?.country ?? 'SG',
           initialAgency: _workspace.all
               ? _workspace.index.agencies.firstOrNull
               : _workspace.agency,
@@ -211,7 +227,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => ProductScreen(
+  Widget build(BuildContext context) => _askCountry
+      ? CountryScreen(api: _api, onSaved: _countrySaved)
+      : _home(context);
+
+  Widget _home(BuildContext context) => ProductScreen(
     screen: switch (_tabs[_tab]) {
       'properties' => ProductScreenName.inspections,
       'account' => ProductScreenName.account,
@@ -314,6 +334,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               'account' => SettingsScreen(
                                 api: _api,
                                 trackView: false,
+                                onCountryChanged: (profile) => setState(
+                                  () => _workspace.profile = profile,
+                                ),
                                 onStartCheckIn: _workspace.hasWork
                                     ? null
                                     : _create,
@@ -390,7 +413,10 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final data = snapshot.data!;
-          _dueDiligence = data.dueDiligence;
+          // Client checks are CEA due diligence, Singapore's: an agent who works in
+          // Malaysia is not offered them.
+          _dueDiligence =
+              data.dueDiligence && _workspace.profile?.country != 'MY';
           _freeChecksLeft = data.dueDiligenceCounts?.freeLeft;
           final text = Theme.of(context).textTheme;
           final work = _workspace.party == null;
@@ -458,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               if (work) ...[
                 const SizedBox(height: 16),
-                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: data.dueDiligence, checks: data.dueDiligenceCounts),
+                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: _dueDiligence, checks: data.dueDiligenceCounts),
               ],
               for (final group in groups) ...[
                 const SizedBox(height: kiviloSectionGap),
