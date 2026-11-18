@@ -44,7 +44,7 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Record a walkthrough and write the inventory room by room. Both parties
+            Photograph each room and write the inventory room by room. Both parties
             countersign on your phone.
           </p>
         </div>
@@ -62,8 +62,8 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
           <p className="text-sm font-medium">Nothing here yet</p>
           <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">
-            Start a check-in when you next hand over a unit. You walk the rooms narrating
-            what you see, and write the inventory against it.
+            Start a check-in when you next hand over a unit. You photograph each room and
+            write the inventory against the photos.
           </p>
           <Link
             href={newHref}

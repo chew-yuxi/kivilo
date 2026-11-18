@@ -95,7 +95,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Photo evidence",
-          kivilo: "Photos linked to inventory lines, captions and visual marks; room video can also be retained.",
+          kivilo: "Photos linked to inventory lines, captions and visual marks.",
           competitor: "Camera and gallery images with descriptions and visual annotations.",
           source: reportAndRunProduct,
         },
@@ -202,7 +202,7 @@ export const comparisons: ResourceArticle[] = [
       rows: [
         {
           topic: "Inspection evidence",
-          kivilo: "Room inventories with item-linked photos and retained walkthrough video.",
+          kivilo: "Room inventories with item-linked photos.",
           competitor: "Item or room photos, embedded video and offline inspection apps.",
           source: inventoryBaseFeatures,
         },
@@ -334,7 +334,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Photography",
-          kivilo: "Deliberate item photos, annotations and room walkthrough video.",
+          kivilo: "Deliberate item photos and annotations.",
           competitor: "Photo galleries and integrated 360-degree cameras.",
           source: inventoryHiveProduct,
         },
@@ -558,7 +558,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Evidence at the property",
-          kivilo: "Item-linked photos, marks and retained room video, with media queued on the device.",
+          kivilo: "Item-linked photos and marks, with photos queued on the device.",
           competitor: "Photo annotations, video capture and offline inspections with later synchronization.",
           source: snapInspectApp,
         },
@@ -639,7 +639,7 @@ export const comparisons: ResourceArticle[] = [
       {
         question: "Can both products retain video from a property visit?",
         answer:
-          "Yes. Kivilo retains room walkthrough video alongside deliberate still photos. SnapInspect documents in-app video capture and video links in its reports. Trial the evidence your recipients need and how they access it.",
+          "No. Kivilo records deliberate still photos only, linked to inventory lines. SnapInspect documents in-app video capture and video links in its reports. If your recipients need video, trial how each product delivers it.",
       },
       {
         question: "Which should a Singapore agency shortlist?",
@@ -680,7 +680,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Photo collection",
-          kivilo: "The inspector links photographs to inventory lines and can retain room video.",
+          kivilo: "The inspector links photographs to inventory lines.",
           competitor: "Room prompts specify photographs, condition questions and space for the tenant's notes.",
           source: rentCheckTenant,
         },

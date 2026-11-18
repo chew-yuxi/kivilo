@@ -23,7 +23,7 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   await expect(page.getByRole('heading', { name: 'Check-in', exact: true })).toBeVisible()
   const inspectionUrl = page.url()
 
-  // Capture the kitchen: one label photo and one walkthrough, through the offline
+  // Capture the kitchen: a label photo and a wall, through the offline
   // queue and a signed upload URL, exactly as the phone does it. The photo is on
   // screen from the phone's own copy before the upload has finished, and its note is
   // typed against it afterwards.
@@ -62,9 +62,6 @@ test('check-in from capture to countersigned report', async ({ page, browser }) 
   // which is what makes a stretched overlay observable there.
   await page.locator('input[type=file][accept="image/*"]').setInputFiles(FIXTURES.portrait)
   await expect(page.getByRole('button', { name: /^Photo 2/ })).toBeVisible()
-
-  await page.locator('input[type=file][accept="video/*"]').setInputFiles(FIXTURES.video)
-  await expect(page.getByRole('button', { name: /^Video 3/ })).toBeVisible()
 
   // Done waits for the room's uploads, then opens the room's inventory, which the
   // inspector writes against the evidence, starting from the standard kitchen rows.

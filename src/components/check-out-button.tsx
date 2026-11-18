@@ -30,8 +30,8 @@ export function CheckOutButton({
     <div className="rounded-lg border border-gray-200 bg-white p-5">
       <h2 className="text-sm font-medium">End of tenancy</h2>
       <p className="mt-1 text-sm text-gray-500">
-        This report becomes the baseline. The check-out walkthrough is compared against it
-        item by item.
+        This report becomes the baseline. The check-out is compared against it item by
+        item.
       </p>
       <button
         type="button"

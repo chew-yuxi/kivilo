@@ -63,8 +63,8 @@ class _HandoverGuideState extends State<HandoverGuide> {
               'Open an item. Photograph its condition.',
               'Open an inventory item to take photos of wear, damage, meter readings '
                   'and serial labels. Each photo opens for marking and attaches to '
-                  'that item when you save it. Use Room media & walkthrough for room-wide '
-                  'photos or video. Captures stay on your phone until uploaded. Check '
+                  'that item when you save it. Use Room photos for room-wide photos. '
+                  'Photos stay on your phone until uploaded. Check '
                   'every item, then review the room; if it has no items, confirm there '
                   'is nothing to record.',
               KiviloScene.capture,

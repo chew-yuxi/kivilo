@@ -76,16 +76,10 @@ export async function accessTokenFor(email: string): Promise<string> {
   return data.session!.access_token
 }
 
-/// The smallest files the upload path accepts. The video is not decodable, which the
-/// capture screen tolerates (duration falls back to null). The photo is a real 640x480
+/// The smallest files the upload path accepts. The photo is a real 640x480
 /// PNG rather than a 1x1: marks are stored as a fraction of the image's intrinsic box,
 /// so a degenerate image would make every coordinate assertion vacuous.
 export const FIXTURES = {
-  video: {
-    name: 'walkthrough.mp4',
-    mimeType: 'video/mp4',
-    buffer: Buffer.from('0000001c667479706d70343200000000', 'hex'),
-  },
   portrait: {
     name: 'wall.png',
     mimeType: 'image/png',

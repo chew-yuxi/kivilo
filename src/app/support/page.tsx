@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Support | Kivilo',
   description:
-    'Get help with Kivilo sign-in, photo and video uploads, property condition reports, and account deletion.',
+    'Get help with Kivilo sign-in, photo uploads, property condition reports, and account deletion.',
   alternates: { canonical: '/support' },
   robots: { index: true, follow: true },
 }

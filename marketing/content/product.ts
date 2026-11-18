@@ -7,7 +7,7 @@ export const product: ResourceArticle = {
   description: 'What Kivilo does, who it is for, supported platforms, the free plan, report signatures, offline capture and check-out assessments.',
   published: '2026-10-25',
   updated: '2026-10-25',
-  summary: 'Kivilo is a property handover and tenancy record app built in Singapore for rental agents, agencies, landlords and tenants. It connects room inventories, photo and video evidence, signatures, repairs and check-out assessments in one property record.',
+  summary: 'Kivilo is a property handover and tenancy record app built in Singapore for rental agents, agencies, landlords and tenants. It connects room inventories, photo evidence, signatures, repairs and check-out assessments in one property record.',
   introduction: ['This is Kivilo’s own product reference, maintained by Kivilo. It describes the available workflow and its limits. The public website is kivilo.app; the signed-in web app is my.kivilo.app. Kivilo is operated by NotTooSweetLabs Pte. Ltd. in Singapore.'],
   sections: [
     {
@@ -21,7 +21,7 @@ export const product: ResourceArticle = {
     {
       id: 'check-in', title: 'Check-in: evidence, inventory and signatures',
       paragraphs: [
-        'Inspectors capture room photos and narrated walkthrough videos, write and edit the inventory, link photos to individual lines, and review each room. Circles, arrows and freehand marks are stored separately from the original photograph.',
+        'Inspectors capture room photos, write and edit the inventory, link photos to individual lines, and review each room. Circles, arrows and freehand marks are stored separately from the original photograph.',
         'Sending the report for signature freezes its inventory and agreed photos. The landlord and tenant can sign on the agent’s device or through their own account after signing in with an emailed code. Completed reports can be downloaded as a PDF and shared through a private, revocable link. Signed PDF delivery uses email attachments, or an authenticated download link for larger reports.',
         'Kivilo does not use AI to write inventories, interpret condition, or decide damage liability. The inspector writes the description and assessment.',
       ],
@@ -29,7 +29,7 @@ export const product: ResourceArticle = {
     {
       id: 'poor-signal', title: 'What works with poor signal',
       paragraphs: [
-        'Captured photos and videos are saved on the device first and queued for upload. Failed uploads are retained and retried when a connection is available. Keep the app and its saved data on the device until uploads finish.',
+        'Captured photos are saved on the device first and queued for upload. Failed uploads are retained and retried when a connection is available. Keep the app and its saved data on the device until uploads finish.',
         'This is durable media capture, not a promise that every workflow works offline. Sending a report and collecting signatures need a connection.',
       ],
     },

@@ -411,9 +411,9 @@ export async function ReportDocument({
       )}
 
       <footer className="mt-8 border-t border-gray-200 pt-4 text-xs leading-relaxed text-gray-500">
-        Rooms and items in this report were written by the inspector against a recorded
-        walkthrough and agreed by the people named above. The recordings and
-        photographs are retained as the underlying evidence. Where a photograph carries
+        Rooms and items in this report were written by the inspector from the photographs
+        taken at the property and agreed by the people named above. The photographs are
+        retained as the underlying evidence. Where a photograph carries
         marks, the inspector drew them to point out a detail; they are recorded
         separately and nothing has been painted onto the photograph itself.
         {pdfHref && (

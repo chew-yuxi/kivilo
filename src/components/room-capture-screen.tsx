@@ -44,19 +44,6 @@ type Tile = {
   | { source: 'queue'; capture: PendingCapture }
 )
 
-function readDuration(file: File): Promise<number | null> {
-  return new Promise((resolve) => {
-    const video = document.createElement('video')
-    video.preload = 'metadata'
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src)
-      resolve(Number.isFinite(video.duration) ? Math.round(video.duration) : null)
-    }
-    video.onerror = () => resolve(null)
-    video.src = URL.createObjectURL(file)
-  })
-}
-
 /// Full size is h-full w-full, not max-h-full max-w-full. With max-*, an image smaller
 /// than its container is not scaled up, so the element shrinks to the picture while the
 /// overlay still spans the container, and the two disagree by as much as 148px. Filling
@@ -547,7 +534,6 @@ export function RoomCaptureScreen({
   const router = useRouter()
   const { pending, online, add, uploadedIdFor } = useUploadQueue()
   const photoInput = useRef<HTMLInputElement>(null)
-  const videoInput = useRef<HTMLInputElement>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [viewing, setViewing] = useState<{ tile: Tile; annotate: boolean } | null>(null)
@@ -593,29 +579,28 @@ export function RoomCaptureScreen({
   const inspectionHref = `/inspections/${inspectionId}`
   const reviewHref = `${inspectionHref}/rooms/${room.id}`
 
-  async function capture(file: File, kind: CaptureKind) {
+  async function capture(file: File) {
     setSaving(true)
     setError(null)
     try {
-      const shrunk = kind === 'PHOTO' ? await downscale(file) : null
+      const shrunk = await downscale(file)
       const id = await add({
         roomId: room.id,
         inspectionId,
-        kind,
+        kind: 'PHOTO',
         blob: shrunk ?? file,
-        filename: shrunk ? 'photo.jpg' : file.name || (kind === 'VIDEO' ? 'walkthrough.mp4' : 'photo.jpg'),
-        mimeType: shrunk ? 'image/jpeg' : file.type || (kind === 'VIDEO' ? 'video/mp4' : 'image/jpeg'),
-        durationSec: kind === 'VIDEO' ? await readDuration(file) : null,
+        filename: shrunk ? 'photo.jpg' : file.name || 'photo.jpg',
+        mimeType: shrunk ? 'image/jpeg' : file.type || 'image/jpeg',
+        durationSec: null,
         note: null,
         annotations: null,
         createdAt: Date.now(),
       })
-      // Video is not markable, so it never offers the row.
-      setJustShot(kind === 'PHOTO' ? id : null)
+      setJustShot(id)
     } catch (e) {
       // The one place a capture can actually be lost: the phone refused to store it.
       setError(
-        `Could not save this ${kind === 'VIDEO' ? 'video' : 'photo'} on the phone: ${
+        `Could not save this photo on the phone: ${
           e instanceof Error ? e.message : String(e)
         }. Free up some storage and take it again.`,
       )
@@ -686,19 +671,7 @@ export function RoomCaptureScreen({
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0]
-            if (file) void capture(file, 'PHOTO')
-            e.target.value = ''
-          }}
-        />
-        <input
-          ref={videoInput}
-          type="file"
-          accept="video/*"
-          capture="environment"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) void capture(file, 'VIDEO')
+            if (file) void capture(file)
             e.target.value = ''
           }}
         />
@@ -736,15 +709,6 @@ export function RoomCaptureScreen({
             damage.
           </p>
         )}
-        <button
-          type="button"
-          disabled={saving}
-          onClick={() => videoInput.current?.click()}
-          className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100 disabled:opacity-50"
-        >
-          Record a walkthrough
-        </button>
-        <p className="text-sm text-gray-600">Walk the room once, saying what you see.</p>
         {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
       </div>
 

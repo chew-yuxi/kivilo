@@ -1,8 +1,8 @@
 # kivilo: M4 check-in / check-out
 
 Installable PWA for property condition reports. The inspector walks a unit room by room,
-narrating a video and photographing labels, and writes each room's inventory against that
-evidence. At end of tenancy the agent records each change between the signed check-in and
+photographing each room, its fittings and their labels, and writes each room's inventory
+against those photos. At end of tenancy the agent records each change between the signed check-in and
 check-out, with a damage-versus-fair-wear verdict, and publishes it as a dated assessment.
 
 There is no AI in the product. Gemini drafting of room inventories and of the check-out
@@ -29,8 +29,8 @@ when someone is ready to re-migrate and re-seed.
 
 ## Four invariants
 
-**A person writes every line.** The timestamped video is the evidence, and the inventory
-is the inspector's reading of it. A new room starts with the editable standard rows for
+**A person writes every line.** The photographs are the evidence, and the inventory
+is the inspector's reading of them. A new room starts with the editable standard rows for
 the check-in's fully furnished, partially furnished or unfurnished level in
 `src/lib/room-templates.ts`, made as `addItem` makes a line, which the inspector edits or
 removes like any other; a check-out starts from the signed check-in's room and item state,
@@ -54,7 +54,7 @@ while any capture is unstamped.
 **A capture is never lost.** Media is written to IndexedDB (`src/lib/offline-queue.ts`)
 the instant it is taken and only leaves the queue once storage confirms it; a failed
 upload increments `attempts` and is retried, never discarded. Inspectors work where the
-signal is worst, and losing a walkthrough is the failure that loses you the agent.
+signal is worst, and losing a room's photos is the failure that loses you the agent.
 
 **Authorization lives in the data layer, not the proxy.** `src/proxy.ts` refreshes the
 session and redirects signed-out visitors, and Next's own docs say proxy must not be
@@ -229,11 +229,18 @@ The report page is `noindex`, and an unknown or revoked token 404s exactly like 
 that never existed. Signed storage URLs are minted per render, so links keep working
 without any object becoming public.
 
-## Why photos as well as video
+## Photos only
 
-A phone video is compressed hard enough that a serial plate or meter dial is unreadable
-in a frame of it. Identifiers come from deliberate stills instead, which is why
-`Capture.kind` exists and why the capture screens lead with photos.
+Capture is photos only since 18 November 2026: no real agent had recorded a video, video
+was most of the storage bill, and a phone video is compressed too hard to read a serial
+plate or meter dial anyway. The web and app capture screens no longer offer it. The
+server still accepts `VIDEO` captures, because installed builds from before the change
+still offer it and a queued capture must never be stranded; the app still saves a video
+recovered from an interrupted picker for the same reason. Existing videos still display
+and play, and the report and PDF never showed them, but `report-fingerprint.ts` hashes
+every stamped capture whatever its kind, so leave its query alone. `CaptureKind.VIDEO`,
+`durationSec`, video posters (`ffmpeg-static`), the bucket's video MIME types and the
+room API's `videos` count (released builds read it as `int`) stay until those builds retire.
 
 ## Two clients, one boundary
 

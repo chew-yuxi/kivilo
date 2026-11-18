@@ -180,7 +180,7 @@ void main() {
     expect(find.text('Open camera & media'), findsNothing);
     expect(
       tester.getTopLeft(find.text('Inventory')).dy,
-      lessThan(tester.getTopLeft(find.text('Room media & walkthrough')).dy),
+      lessThan(tester.getTopLeft(find.text('Room photos')).dy),
     );
     await tester.tap(find.text('Sofa'));
     await tester.pumpAndSettle();

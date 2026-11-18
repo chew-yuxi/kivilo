@@ -484,8 +484,8 @@ function Agreement({ model, assets }: { model: ReportModel; assets: ReportAssets
         ))}
       </View>
       <Text style={[s.small, { marginTop: 28, maxWidth: 440 }]}>
-        Rooms and items in this report were written by the inspector against a recorded
-        walkthrough and agreed by the people named above. The recordings and photographs are
+        Rooms and items in this report were written by the inspector from the photographs
+        taken at the property and agreed by the people named above. The photographs are
         retained as the underlying evidence. Where a photograph carries marks, the inspector
         drew them to point out a detail; they are recorded separately and nothing has been
         painted onto the photograph itself.
