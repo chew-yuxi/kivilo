@@ -405,7 +405,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Office phone (optional)'), findsOneWidget);
-    expect(find.text('Your CEA or REN registration (optional)'), findsNothing);
+    expect(find.text('Your CEA registration (optional)'), findsNothing);
     expect(
       find.textContaining('Used on reports prepared in Green Agency'),
       findsOneWidget,
