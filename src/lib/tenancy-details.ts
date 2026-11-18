@@ -3,13 +3,14 @@ import { db } from '@/lib/db'
 import { actsAsAgent } from '@/lib/auth'
 import { lockAgencyTenancy } from '@/lib/agency'
 import { fieldChanges, recordEvent, tenancyPlace } from '@/lib/property-history'
+import { allowsPropertyType, countryName } from '@/lib/country'
 import type { Prisma } from '@/generated/prisma'
 
 const email = z.preprocess(
   (value) => typeof value === 'string' ? value.trim().toLowerCase() || null : value,
   z.email().nullable(),
 )
-const money = z.string().trim().regex(/^\d{1,8}(?:\.\d{1,2})?$/, 'Enter a valid SGD amount with up to 2 decimals')
+const money = z.string().trim().regex(/^\d{1,8}(?:\.\d{1,2})?$/, 'Enter a valid amount with up to 2 decimals')
 const optionalText = (max: number) => z.preprocess(
   (value) => typeof value === 'string' ? value.trim() || null : value,
   z.string().max(max).nullable(),
@@ -90,7 +91,7 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
       select: {
         id: true, propertyId: true, agentId: true, startDate: true, endDate: true,
         monthlyRent: true, deposit: true,
-        property: { select: { id: true, line1: true, unit: true, postalCode: true, type: true } },
+        property: { select: { id: true, line1: true, unit: true, postalCode: true, type: true, country: true } },
         landlord: { select: { id: true, name: true, email: true, authUserId: true } },
         tenant: { select: { id: true, name: true, email: true, authUserId: true } },
         collaborators: { select: { stakeholderId: true } },
@@ -98,6 +99,9 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
       },
     })
     if (!current) throw new Error('Tenancy not found')
+    if (input.propertyType && !allowsPropertyType(current.property.country, input.propertyType)) {
+      throw new Error(`That property type is not offered in ${countryName(current.property.country)}`)
+    }
     if (current.inspections.some((inspection) =>
       inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED')) {
       throw new Error('Tenancy details are fixed after a report is sent for signature')

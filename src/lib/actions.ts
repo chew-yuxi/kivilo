@@ -22,9 +22,11 @@ import { claimFindingPhotoDraft, retireFindingPhotos } from '@/lib/finding-photo
 import { lockAgency, lockAgencyTenancy, requireAgencyMembership } from '@/lib/agency'
 import { binCapture, binFinding, binItem, binRoom, reinsert } from '@/lib/bin'
 import { restoreAllowed } from '@/lib/bin-rules'
+import { allowsPropertyType, countryName } from '@/lib/country'
 import { fieldChanges, inspectionPlace, recordBurst, recordEvent } from '@/lib/property-history'
 import type {
   ChangeType,
+  Country,
   InspectionStatus,
   CaptureKind,
   ItemCategory,
@@ -148,6 +150,9 @@ export async function createInspection(input: {
   unit: string | null
   postalCode: string
   propertyType: PropertyType
+  /// A new property's country, fixed for good. Absent from installed app builds and the
+  /// web form, which make Singapore properties. Ignored with `propertyId`.
+  country?: Country
   furnishingLevel?: FurnishingLevel
   fullyFurnished?: boolean
   landlordName: string
@@ -181,6 +186,10 @@ export async function createInspection(input: {
   ]
   if (required.some((value) => !value.trim())) {
     throw new Error('Address, postal code, landlord, and tenant are all required')
+  }
+  const country = input.country ?? 'SG'
+  if (!input.propertyId && !allowsPropertyType(country, input.propertyType)) {
+    throw new Error(`That property type is not offered in ${countryName(country)}`)
   }
 
   const start = new Date(input.startDate)
@@ -258,6 +267,7 @@ export async function createInspection(input: {
                 unit: input.unit?.trim() || null,
                 postalCode: input.postalCode.trim(),
                 type: input.propertyType,
+                country,
               },
             },
           landlord: landlordId ? { connect: { id: landlordId } } : party(input.landlordName, landlordEmail),

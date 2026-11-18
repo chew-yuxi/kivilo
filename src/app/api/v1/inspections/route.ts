@@ -8,6 +8,7 @@ import { createInspection } from '@/lib/actions'
 import { authed } from '@/lib/api/route'
 import { clientChecksLeft } from '@/lib/plan'
 import { verifyTenancyParties } from '@/lib/cdd/cases'
+import { dueDiligenceApplies } from '@/lib/country'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,6 +52,7 @@ export const GET = authed(async (agent, _params, request) => {
     kind: inspection.kind,
     status: inspection.status,
     property: propertyLabel(inspection.tenancy.property),
+    country: inspection.tenancy.property.country,
     tenant: inspection.tenancy.tenant.name,
     rooms: inspection._count.rooms,
     conductedAt: inspection.conductedAt?.toISOString() ?? null,
@@ -67,6 +69,8 @@ const newInspection = z.object({
   unit: z.string().trim().nullable().default(null),
   postalCode: z.string().trim().default(''),
   propertyType: z.enum(['HDB', 'PRIVATE_NON_LANDED', 'LANDED', 'COMMERCIAL']).default('PRIVATE_NON_LANDED'),
+  /// A new property's country. Installed builds omit it and make Singapore properties.
+  country: z.enum(['SG', 'MY']).default('SG'),
   // Older app builds send only this Boolean. The action maps it onto the new enum.
   fullyFurnished: z.boolean().default(true),
   furnishingLevel: z.enum(['FULLY_FURNISHED', 'PARTIALLY_FURNISHED', 'UNFURNISHED']).optional(),
@@ -79,7 +83,7 @@ const newInspection = z.object({
   monthlyRent: z.string().min(1),
   deposit: z.string().min(1),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
-  /// Start CEA due diligence on both parties as the check-in is made.
+  /// Start CEA due diligence on both parties as the check-in is made. Singapore only.
   verifyParties: z.boolean().optional(),
 }).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
   message: 'Address and postal code are required',
@@ -96,7 +100,10 @@ export const POST = authed(async (agent, _params, request) => {
   // The app offers this only while two free checks remain (or on Pro). A check-in made
   // when the allowance ran out meanwhile is still made; its parties can be verified later.
   if (!verifyParties || !clientChecksEnabled()) return { id }
-  const { tenancyId, tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true, tenancy: { select: { agencyId: true } } } })
+  // CEA due diligence is Singapore law, so a Malaysian property's parties are never
+  // checked; the new app does not offer it there.
+  const { tenancyId, tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true, tenancy: { select: { agencyId: true, property: { select: { country: true } } } } } })
+  if (!dueDiligenceApplies(tenancy.property.country)) return { id }
   const left = await clientChecksLeft(agent, tenancy.agencyId)
   if (left === null || left >= 2) await verifyTenancyParties(agent.id, tenancyId)
   return { id }

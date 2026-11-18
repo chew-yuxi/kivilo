@@ -9,6 +9,7 @@ import { currentSanctionsLists } from '@/lib/screening/lists'
 import { pepEntries, type PepEntry } from '@/lib/screening/dilisense'
 import { recordServerError } from '@/lib/errors'
 import { reportBranding } from '@/lib/report-agent'
+import { dueDiligenceApplies } from '@/lib/country'
 import { assertCanStartClientChecks } from '@/lib/plan'
 import { decryptIdNumber, encryptIdNumber, maskIdNumber } from './crypto'
 import { CddInputError, CddStateError } from './errors'
@@ -23,6 +24,7 @@ export { CddInputError, CddStateError }
 /// about screening: telling someone they are the subject of a report is an offence.
 
 const NOT_FOUND = 'Case not found'
+const NOT_SINGAPORE = 'Client checks are CEA due diligence, for Singapore properties only'
 
 
 /// Who works a case: the agent who started it, anyone working its linked tenancy, and the
@@ -61,11 +63,13 @@ export async function startDeal(actorId: string, input: StartDeal) {
   return db.$transaction(async (tx) => {
     let tenancy: { id: string; propertyId: string; agencyId: string | null } | null = null
     if (input.tenancyId) {
-      tenancy = await tx.tenancy.findFirst({
+      const found = await tx.tenancy.findFirst({
         where: { id: input.tenancyId, ...actsAsAgent(actorId) },
-        select: { id: true, propertyId: true, agencyId: true },
+        select: { id: true, propertyId: true, agencyId: true, property: { select: { country: true } } },
       })
-      if (!tenancy) throw new Error('Tenancy not found')
+      if (!found) throw new Error('Tenancy not found')
+      if (!dueDiligenceApplies(found.property.country)) throw new CddInputError(NOT_SINGAPORE)
+      tenancy = found
     }
     const agencyId = tenancy?.agencyId ?? input.agencyId ?? null
     if (agencyId && !tenancy) await requireAgencyMembership(agencyId, actorId, tx)
@@ -101,9 +105,11 @@ export async function verifyTenancyParties(actorId: string, tenancyId: string, r
       select: {
         id: true, propertyId: true, agencyId: true, landlordId: true, tenantId: true,
         cddCases: { select: { clientRole: true } },
+        property: { select: { country: true } },
       },
     })
     if (!tenancy) throw new Error('Tenancy not found')
+    if (!dueDiligenceApplies(tenancy.property.country)) throw new CddInputError(NOT_SINGAPORE)
     const missing = roles.filter((role) => !tenancy.cddCases.some((existing) => existing.clientRole === role))
     if (missing.length) {
       await assertCanStartClientChecks(await tx.stakeholder.findUniqueOrThrow({ where: { id: actorId } }), tenancy.agencyId, missing.length, tx)
