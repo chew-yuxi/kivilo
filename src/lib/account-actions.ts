@@ -1,9 +1,18 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { z } from 'zod'
 import { db } from '@/lib/db'
 import { requireAgent } from '@/lib/auth'
 import { AgencyActionError } from '@/lib/agency-errors'
+import type { Country } from '@/generated/prisma'
+
+/// Where this account works: the country its new properties are made in, and whether
+/// Singapore's agent tools show. Changing it never moves a property already made.
+export async function setAgentCountry(country: Country) {
+  const agent = await requireAgent()
+  return db.stakeholder.update({ where: { id: agent.id }, data: { country: z.enum(['SG', 'MY']).parse(country) } })
+}
 
 /// A deletion request is recorded before any operator touches data. Signed tenancy
 /// records may also belong to other people, so fulfillment follows the published

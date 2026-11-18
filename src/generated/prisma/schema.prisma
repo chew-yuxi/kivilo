@@ -30,6 +30,9 @@ model Stakeholder {
   /// Most stakeholders (landlords, tenants) never sign in and leave this null; it is
   /// what separates "a person on a deal" from "a person with a login".
   authUserId String?         @unique
+  /// Where this account works, asked once by the app after sign-in; null until then.
+  /// New properties it makes are in this country. Changing it never moves a property.
+  country    Country?
 
   /// Billing workspace membership. Property access is granted separately per tenancy.
   teamId    String?

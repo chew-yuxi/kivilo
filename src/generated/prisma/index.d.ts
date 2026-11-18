@@ -8763,6 +8763,7 @@ export namespace Prisma {
     email: string | null
     phone: string | null
     authUserId: string | null
+    country: $Enums.Country | null
     teamId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8776,6 +8777,7 @@ export namespace Prisma {
     email: string | null
     phone: string | null
     authUserId: string | null
+    country: $Enums.Country | null
     teamId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -8789,6 +8791,7 @@ export namespace Prisma {
     email: number
     phone: number
     authUserId: number
+    country: number
     teamId: number
     createdAt: number
     updatedAt: number
@@ -8804,6 +8807,7 @@ export namespace Prisma {
     email?: true
     phone?: true
     authUserId?: true
+    country?: true
     teamId?: true
     createdAt?: true
     updatedAt?: true
@@ -8817,6 +8821,7 @@ export namespace Prisma {
     email?: true
     phone?: true
     authUserId?: true
+    country?: true
     teamId?: true
     createdAt?: true
     updatedAt?: true
@@ -8830,6 +8835,7 @@ export namespace Prisma {
     email?: true
     phone?: true
     authUserId?: true
+    country?: true
     teamId?: true
     createdAt?: true
     updatedAt?: true
@@ -8916,6 +8922,7 @@ export namespace Prisma {
     email: string | null
     phone: string | null
     authUserId: string | null
+    country: $Enums.Country | null
     teamId: string | null
     createdAt: Date
     updatedAt: Date
@@ -8946,6 +8953,7 @@ export namespace Prisma {
     email?: boolean
     phone?: boolean
     authUserId?: boolean
+    country?: boolean
     teamId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -8999,6 +9007,7 @@ export namespace Prisma {
     email?: boolean
     phone?: boolean
     authUserId?: boolean
+    country?: boolean
     teamId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -9013,6 +9022,7 @@ export namespace Prisma {
     email?: boolean
     phone?: boolean
     authUserId?: boolean
+    country?: boolean
     teamId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -9027,12 +9037,13 @@ export namespace Prisma {
     email?: boolean
     phone?: boolean
     authUserId?: boolean
+    country?: boolean
     teamId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "teamId" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
+  export type StakeholderOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "kind" | "name" | "idNumber" | "email" | "phone" | "authUserId" | "country" | "teamId" | "createdAt" | "updatedAt", ExtArgs["result"]["stakeholder"]>
   export type StakeholderInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     team?: boolean | Stakeholder$teamArgs<ExtArgs>
     agencyMemberships?: boolean | Stakeholder$agencyMembershipsArgs<ExtArgs>
@@ -9145,6 +9156,11 @@ export namespace Prisma {
        * what separates "a person on a deal" from "a person with a login".
        */
       authUserId: string | null
+      /**
+       * Where this account works, asked once by the app after sign-in; null until then.
+       * New properties it makes are in this country. Changing it never moves a property.
+       */
+      country: $Enums.Country | null
       /**
        * Billing workspace membership. Property access is granted separately per tenancy.
        */
@@ -9620,6 +9636,7 @@ export namespace Prisma {
     readonly email: FieldRef<"Stakeholder", 'String'>
     readonly phone: FieldRef<"Stakeholder", 'String'>
     readonly authUserId: FieldRef<"Stakeholder", 'String'>
+    readonly country: FieldRef<"Stakeholder", 'Country'>
     readonly teamId: FieldRef<"Stakeholder", 'String'>
     readonly createdAt: FieldRef<"Stakeholder", 'DateTime'>
     readonly updatedAt: FieldRef<"Stakeholder", 'DateTime'>
@@ -85242,6 +85259,7 @@ export namespace Prisma {
     email: 'email',
     phone: 'phone',
     authUserId: 'authUserId',
+    country: 'country',
     teamId: 'teamId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -86334,6 +86352,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Country'
+   */
+  export type EnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country'>
+    
+
+
+  /**
+   * Reference to a field of type 'Country[]'
+   */
+  export type ListEnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country[]'>
+    
+
+
+  /**
    * Reference to a field of type 'DateTime'
    */
   export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -86421,20 +86453,6 @@ export namespace Prisma {
    * Reference to a field of type 'PropertyType[]'
    */
   export type ListEnumPropertyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PropertyType[]'>
-    
-
-
-  /**
-   * Reference to a field of type 'Country'
-   */
-  export type EnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country'>
-    
-
-
-  /**
-   * Reference to a field of type 'Country[]'
-   */
-  export type ListEnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country[]'>
     
 
 
@@ -87026,6 +87044,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableFilter<"Stakeholder"> | string | null
+    country?: EnumCountryNullableFilter<"Stakeholder"> | $Enums.Country | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
@@ -87078,6 +87097,7 @@ export namespace Prisma {
     email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     authUserId?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -87133,6 +87153,7 @@ export namespace Prisma {
     name?: StringFilter<"Stakeholder"> | string
     idNumber?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
+    country?: EnumCountryNullableFilter<"Stakeholder"> | $Enums.Country | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
@@ -87185,6 +87206,7 @@ export namespace Prisma {
     email?: SortOrderInput | SortOrder
     phone?: SortOrderInput | SortOrder
     authUserId?: SortOrderInput | SortOrder
+    country?: SortOrderInput | SortOrder
     teamId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -87204,6 +87226,7 @@ export namespace Prisma {
     email?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     phone?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
+    country?: EnumCountryNullableWithAggregatesFilter<"Stakeholder"> | $Enums.Country | null
     teamId?: StringNullableWithAggregatesFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Stakeholder"> | Date | string
@@ -92672,6 +92695,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -92723,6 +92747,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92774,6 +92799,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -92825,6 +92851,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -92876,6 +92903,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -92889,6 +92917,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -92901,6 +92930,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -98846,6 +98876,13 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type EnumCountryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCountryNullableFilter<$PrismaModel> | $Enums.Country | null
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -99160,6 +99197,7 @@ export namespace Prisma {
     email?: SortOrder
     phone?: SortOrder
     authUserId?: SortOrder
+    country?: SortOrder
     teamId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -99173,6 +99211,7 @@ export namespace Prisma {
     email?: SortOrder
     phone?: SortOrder
     authUserId?: SortOrder
+    country?: SortOrder
     teamId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -99186,6 +99225,7 @@ export namespace Prisma {
     email?: SortOrder
     phone?: SortOrder
     authUserId?: SortOrder
+    country?: SortOrder
     teamId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -99235,6 +99275,16 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type EnumCountryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCountryNullableWithAggregatesFilter<$PrismaModel> | $Enums.Country | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumCountryNullableFilter<$PrismaModel>
+    _max?: NestedEnumCountryNullableFilter<$PrismaModel>
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -104054,6 +104104,10 @@ export namespace Prisma {
 
   export type NullableStringFieldUpdateOperationsInput = {
     set?: string | null
+  }
+
+  export type NullableEnumCountryFieldUpdateOperationsInput = {
+    set?: $Enums.Country | null
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -110155,6 +110209,13 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedEnumCountryNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCountryNullableFilter<$PrismaModel> | $Enums.Country | null
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -110230,6 +110291,16 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
+  export type NestedEnumCountryNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel> | null
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumCountryNullableWithAggregatesFilter<$PrismaModel> | $Enums.Country | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumCountryNullableFilter<$PrismaModel>
+    _max?: NestedEnumCountryNullableFilter<$PrismaModel>
   }
 
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -114039,6 +114110,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -114089,6 +114161,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -114155,6 +114228,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -114205,6 +114279,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -114255,6 +114330,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipCreateNestedManyWithoutStakeholderInput
@@ -114305,6 +114381,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     agencyMemberships?: AgencyMembershipUncheckedCreateNestedManyWithoutStakeholderInput
@@ -114425,6 +114502,7 @@ export namespace Prisma {
     email?: StringNullableFilter<"Stakeholder"> | string | null
     phone?: StringNullableFilter<"Stakeholder"> | string | null
     authUserId?: StringNullableFilter<"Stakeholder"> | string | null
+    country?: EnumCountryNullableFilter<"Stakeholder"> | $Enums.Country | null
     teamId?: StringNullableFilter<"Stakeholder"> | string | null
     createdAt?: DateTimeFilter<"Stakeholder"> | Date | string
     updatedAt?: DateTimeFilter<"Stakeholder"> | Date | string
@@ -115076,6 +115154,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -115126,6 +115205,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -115277,6 +115357,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -115327,6 +115408,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -115513,6 +115595,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -115563,6 +115646,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -115618,6 +115702,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -115668,6 +115753,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -115880,6 +115966,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -115930,6 +116017,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -115991,6 +116079,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -116041,6 +116130,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -116185,6 +116275,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -116235,6 +116326,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -116343,6 +116435,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -116393,6 +116486,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -116614,6 +116708,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -116664,6 +116759,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -116780,6 +116876,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -116830,6 +116927,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -117055,6 +117153,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -117105,6 +117204,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -117171,6 +117271,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -117221,6 +117322,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -118000,6 +118102,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -118050,6 +118153,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -118105,6 +118209,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -118155,6 +118260,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -118210,6 +118316,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -118260,6 +118367,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -118826,6 +118934,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -118876,6 +118985,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -118937,6 +119047,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -118987,6 +119098,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -119048,6 +119160,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -119098,6 +119211,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -119476,6 +119590,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -119526,6 +119641,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -119581,6 +119697,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -119631,6 +119748,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -119764,6 +119882,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -119814,6 +119933,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -119875,6 +119995,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -119925,6 +120046,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -120036,6 +120158,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -120086,6 +120209,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -120141,6 +120265,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -120191,6 +120316,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -120875,6 +121001,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -120925,6 +121052,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -120986,6 +121114,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -121036,6 +121165,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -121574,6 +121704,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -121624,6 +121755,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -121769,6 +121901,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -121819,6 +121952,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -123405,6 +123539,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -123455,6 +123590,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -123985,6 +124121,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -124035,6 +124172,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -124389,6 +124527,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -124439,6 +124578,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -124570,6 +124710,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -124620,6 +124761,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -125058,6 +125200,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -125108,6 +125251,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -125276,6 +125420,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -125326,6 +125471,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -125407,6 +125553,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -125457,6 +125604,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -125560,6 +125708,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -125610,6 +125759,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -125719,6 +125869,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -125769,6 +125920,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -125824,6 +125976,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -125874,6 +126027,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -126005,6 +126159,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -126055,6 +126210,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -126116,6 +126272,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -126166,6 +126323,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -126329,6 +126487,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -126379,6 +126538,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -126546,6 +126706,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -126596,6 +126757,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -126687,6 +126849,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -126737,6 +126900,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -126834,6 +126998,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -126884,6 +127049,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -126934,6 +127100,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -126984,6 +127151,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -127082,6 +127250,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -127132,6 +127301,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -127213,6 +127383,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -127263,6 +127434,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -127455,6 +127627,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -127505,6 +127678,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -128509,6 +128683,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -128559,6 +128734,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -128785,6 +128961,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -128835,6 +129012,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129169,6 +129347,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -129219,6 +129398,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -129364,6 +129544,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -129414,6 +129595,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -129537,6 +129719,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -129587,6 +129770,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -129732,6 +129916,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -129782,6 +129967,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -130105,6 +130291,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -130155,6 +130342,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -130210,6 +130398,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -130260,6 +130449,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -130448,6 +130638,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -130498,6 +130689,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -130643,6 +130835,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -130693,6 +130886,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -130754,6 +130948,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -130804,6 +130999,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -130962,6 +131158,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -131012,6 +131209,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -131565,6 +131763,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -131615,6 +131814,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -131736,6 +131936,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -131786,6 +131987,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -131836,6 +132038,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -131886,6 +132089,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -131976,6 +132180,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -132026,6 +132231,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -132171,6 +132377,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -132221,6 +132428,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -132287,6 +132495,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -132337,6 +132546,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -132387,6 +132597,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -132437,6 +132648,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -132503,6 +132715,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -132553,6 +132766,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -132780,6 +132994,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -132830,6 +133045,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -132927,6 +133143,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -132977,6 +133194,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -133027,6 +133245,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -133077,6 +133296,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -133132,6 +133352,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
     team?: TeamCreateNestedOneWithoutMembersInput
@@ -133182,6 +133403,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     teamId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -133545,6 +133767,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -133595,6 +133818,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -133656,6 +133880,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     team?: TeamUpdateOneWithoutMembersNestedInput
@@ -133706,6 +133931,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     teamId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -136959,6 +137185,7 @@ export namespace Prisma {
     email?: string | null
     phone?: string | null
     authUserId?: string | null
+    country?: $Enums.Country | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -136971,6 +137198,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUpdateManyWithoutStakeholderNestedInput
@@ -137021,6 +137249,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     agencyMemberships?: AgencyMembershipUncheckedUpdateManyWithoutStakeholderNestedInput
@@ -137071,6 +137300,7 @@ export namespace Prisma {
     email?: NullableStringFieldUpdateOperationsInput | string | null
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     authUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableEnumCountryFieldUpdateOperationsInput | $Enums.Country | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -128,6 +128,7 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   email: 'email',
   phone: 'phone',
   authUserId: 'authUserId',
+  country: 'country',
   teamId: 'teamId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -983,6 +984,11 @@ exports.StakeholderKind = exports.$Enums.StakeholderKind = {
   ENTITY: 'ENTITY'
 };
 
+exports.Country = exports.$Enums.Country = {
+  SG: 'SG',
+  MY: 'MY'
+};
+
 exports.AgencyRole = exports.$Enums.AgencyRole = {
   OWNER: 'OWNER',
   MANAGER: 'MANAGER',
@@ -1004,11 +1010,6 @@ exports.PropertyType = exports.$Enums.PropertyType = {
   PRIVATE_NON_LANDED: 'PRIVATE_NON_LANDED',
   LANDED: 'LANDED',
   COMMERCIAL: 'COMMERCIAL'
-};
-
-exports.Country = exports.$Enums.Country = {
-  SG: 'SG',
-  MY: 'MY'
 };
 
 exports.RenewalDecision = exports.$Enums.RenewalDecision = {

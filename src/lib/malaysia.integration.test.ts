@@ -27,6 +27,8 @@ import * as inspectionsRoute from '@/app/api/v1/inspections/route'
 import * as inspectionRoute from '@/app/api/v1/inspections/[id]/route'
 import * as verificationRoute from '@/app/api/v1/tenancies/[id]/verification/route'
 import * as overviewRoute from '@/app/api/v1/properties/[id]/overview/route'
+import * as meRoute from '@/app/api/v1/me/route'
+import * as countryRoute from '@/app/api/v1/me/country/route'
 
 const POSTAL = '50470'
 const tag = randomUUID().slice(0, 8)
@@ -65,6 +67,34 @@ function post(body: Record<string, unknown>) {
 }
 
 const params = <T,>(value: T) => ({ params: Promise.resolve(value) })
+
+describe('where an agent works', () => {
+  it('was filled in as Singapore for every account made before the question existed', async () => {
+    const [migration] = await db.$queryRaw<{ started_at: Date }[]>`
+      SELECT started_at FROM _prisma_migrations WHERE migration_name = '20261118100000_stakeholder_country'`
+    expect(await db.stakeholder.count({ where: { country: null, createdAt: { lt: migration.started_at } } })).toBe(0)
+  })
+
+  it('is unanswered on a new account, set once by the app, and never moves a property', async () => {
+    const by = await agent()
+    as(by)
+    expect((await (await meRoute.GET(new Request('http://test/api/v1/me'), params({}))).json()).country).toBeNull()
+    const { id } = await (await post({ propertyType: 'LANDED', postalCode: '993355', unit: null, line1: `Before ${tag}`, landlordEmail: null, tenantEmail: null })).json() as { id: string }
+
+    const put = (body: unknown) => countryRoute.PUT(new Request('http://test/api/v1/me/country', {
+      method: 'PUT', body: JSON.stringify(body),
+    }), params({}))
+    expect((await put({ country: 'XX' })).status).toBe(400)
+    const saved = await (await put({ country: 'MY' })).json()
+    // The same profile GET /api/v1/me answers, so the app saves one copy either way.
+    expect(saved).toMatchObject({ id: by.id, country: 'MY', roles: ['AGENT'] })
+    as(await db.stakeholder.findUniqueOrThrow({ where: { id: by.id } }))
+    expect((await (await meRoute.GET(new Request('http://test/api/v1/me'), params({}))).json()).country).toBe('MY')
+
+    const { tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, include: { tenancy: { include: { property: true } } } })
+    expect(tenancy.property.country).toBe('SG')
+  })
+})
 
 describe('a Malaysian property', () => {
   it('is made in Malaysia when the app says so, and in Singapore when an installed build says nothing', async () => {
