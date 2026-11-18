@@ -65,7 +65,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
   Directory? _root;
   RoomDetail? _room;
   Future<void>? _uploading;
-  bool _videoMode = false;
   bool _busy = true;
   bool _leaving = false;
   bool _finishing = false;
@@ -287,16 +286,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
     }
   }
 
-  Future<void> _switchMode(bool video) async {
-    if (_busy || _leaving || _finishing || video == _videoMode) {
-      return;
-    }
-    setState(() {
-      _videoMode = video;
-      _error = null;
-    });
-  }
-
   Future<void> _openSystemCamera() async {
     if (_busy || _leaving || _finishing || _root == null || _room == null) {
       return;
@@ -307,21 +296,18 @@ class _CaptureScreenState extends State<CaptureScreen> {
     });
     try {
       await _beginPicker();
-      final picked = _videoMode
-          ? await _picker.pickVideo(source: ImageSource.camera)
-          : await _picker.pickImage(
-              source: ImageSource.camera,
-              maxWidth: evidencePhotoEdge,
-              maxHeight: evidencePhotoEdge,
-              imageQuality: evidencePhotoQuality,
-              requestFullMetadata: false,
-            );
-      await _saveSelection(picked == null ? [] : [picked], video: _videoMode);
+      final picked = await _picker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: evidencePhotoEdge,
+        maxHeight: evidencePhotoEdge,
+        imageQuality: evidencePhotoQuality,
+        requestFullMetadata: false,
+      );
+      await _saveSelection(picked == null ? [] : [picked], video: false);
     } catch (error) {
       if (mounted) {
         setState(
-          () => _error =
-              'Could not save that photo or video. ${plainError(error)}',
+          () => _error = 'Could not save that photo. ${plainError(error)}',
         );
       }
     } finally {
@@ -362,23 +348,17 @@ class _CaptureScreenState extends State<CaptureScreen> {
     });
     try {
       await _beginPicker();
-      if (_videoMode) {
-        final picked = await _picker.pickVideo(source: ImageSource.gallery);
-        await _saveSelection(picked == null ? [] : [picked], video: true);
-      } else {
-        final picked = await _picker.pickMultiImage(
-          maxWidth: evidencePhotoEdge,
-          maxHeight: evidencePhotoEdge,
-          imageQuality: evidencePhotoQuality,
-          requestFullMetadata: false,
-        );
-        await _saveSelection(picked, video: false);
-      }
+      final picked = await _picker.pickMultiImage(
+        maxWidth: evidencePhotoEdge,
+        maxHeight: evidencePhotoEdge,
+        imageQuality: evidencePhotoQuality,
+        requestFullMetadata: false,
+      );
+      await _saveSelection(picked, video: false);
     } catch (error) {
       if (mounted) {
         setState(
-          () => _error =
-              'Could not add that photo or video. ${plainError(error)}',
+          () => _error = 'Could not add those photos. ${plainError(error)}',
         );
       }
     } finally {
@@ -857,7 +837,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         if (mounted) {
           setState(
             () => _error =
-                'Could not find this photo or video. Please try deleting it again.',
+                'Could not find this photo. Please try deleting it again.',
           );
         }
         return;
@@ -915,7 +895,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
   Future<void> _finishRoom() async {
     if (_finishing) return;
     if (_busy || _leaving) {
-      setState(() => _error = 'Wait for the photo or video to finish saving.');
+      setState(() => _error = 'Wait for the photo to finish saving.');
       return;
     }
     setState(() => _finishing = true);
@@ -930,7 +910,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (pending.captures > 0 || pending.edits > 0 || _unresolved.isNotEmpty) {
         setState(
           () => _error =
-              'Some photos, videos or changes have not uploaded yet. Try again when you have signal.',
+              'Some photos or changes have not uploaded yet. Try again when you have signal.',
         );
         return;
       }
@@ -996,7 +976,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
     final scaffold = Scaffold(
       appBar: AppBar(
         title: Text(
-          item?.name ?? widget.itemName ?? _room?.name ?? 'Room media',
+          item?.name ?? widget.itemName ?? _room?.name ?? 'Room photos',
         ),
         leading: BackButton(onPressed: () => unawaited(_leaveAfterSaving())),
         actions: [
@@ -1120,12 +1100,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ],
               if (widget.itemId == null) ...[
                 Text(
-                  'Room media',
+                  'Room photos',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Record a room walkthrough or manage existing room media.',
+                  'Take room-wide photos or manage existing ones.',
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -1133,7 +1113,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               if (_offline)
                 _notice(
                   Icons.cloud_off_outlined,
-                  'Offline. Photos and videos stay on this phone and upload when you have signal.',
+                  'Offline. Photos stay on this phone and upload when you have signal.',
                   KiviloColors.amberSoft,
                   KiviloColors.amber,
                 ),
@@ -1148,7 +1128,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               if (_unresolved.isNotEmpty)
                 _notice(
                   Icons.warning_amber_outlined,
-                  '${_unresolved.length == 1 ? 'A photo or video was' : '${_unresolved.length} photos or videos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
+                  '${_unresolved.length == 1 ? 'A photo was' : '${_unresolved.length} photos were'} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.',
                   KiviloColors.amberSoft,
                   KiviloColors.amber,
                 ),
@@ -1173,23 +1153,6 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 ),
               // An item's photo actions are the footer, so this screen is about the photos.
               if (widget.itemId == null) ...[
-                KiviloSegmentedControl<bool>(
-                  options: const [
-                    KiviloSegmentOption(
-                      value: false,
-                      label: 'Photos',
-                      icon: Icons.photo_camera,
-                    ),
-                    KiviloSegmentOption(
-                      value: true,
-                      label: 'Video',
-                      icon: Icons.videocam,
-                    ),
-                  ],
-                  value: _videoMode,
-                  onChanged: (selected) => unawaited(_switchMode(selected!)),
-                ),
-                const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed:
                       _busy ||
@@ -1198,16 +1161,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
                           _room == null ||
                           (widget.itemId != null && item == null)
                       ? null
-                      : _videoMode || widget.picker != null
+                      : widget.picker != null
                       ? _openSystemCamera
                       : _openMultiShotCamera,
-                  icon: Icon(
-                    _videoMode ? Icons.videocam : Icons.camera_alt_outlined,
-                  ),
+                  icon: const Icon(Icons.camera_alt_outlined),
                   label: Text(
-                    _videoMode
-                        ? 'Record video'
-                        : widget.picker != null
+                    widget.picker != null
                         ? (hasMedia ? 'Take another photo' : 'Take a photo')
                         : (hasMedia ? 'Take more photos' : 'Take photos'),
                   ),
@@ -1223,7 +1182,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       ? null
                       : _chooseFromLibrary,
                   icon: const Icon(Icons.image),
-                  label: Text(_videoMode ? 'Choose video' : 'Choose photos'),
+                  label: const Text('Choose photos'),
                 ),
               ],
             ];
@@ -1357,7 +1316,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               children: [
                 if (widget.itemId == null && waiting) ...[
                   const Text(
-                    'Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
+                    'Review opens once this room’s photos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),

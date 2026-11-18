@@ -695,8 +695,8 @@ class _RoomScreenState extends State<RoomScreen> {
       builder: (context) => KiviloDrawer(
         title: const Text('Still uploading'),
         content: const Text(
-          'Some photos, videos or changes in this room have not uploaded yet. '
-          'Open the item or Room media & walkthrough to finish any photo marks '
+          'Some photos or changes in this room have not uploaded yet. '
+          'Open the item or Room photos to finish any photo marks '
           'and retry uploads before continuing.',
         ),
         actions: [
@@ -1021,8 +1021,8 @@ class _RoomScreenState extends State<RoomScreen> {
                     if (widget.editable) ...[
                       OutlinedButton.icon(
                         onPressed: _busy ? null : _capture,
-                        icon: const Icon(Icons.videocam_outlined),
-                        label: const Text('Room media & walkthrough'),
+                        icon: const Icon(Icons.photo_camera_outlined),
+                        label: const Text('Room photos'),
                       ),
                       const SizedBox(height: kiviloHeadingGap),
                     ],
@@ -1121,7 +1121,7 @@ class _RoomScreenState extends State<RoomScreen> {
                               Text(
                                 room.items.isEmpty
                                     ? 'Add an item, or confirm there is nothing to record in this room.'
-                                    : 'Check every item against the photos and video. Your review makes this room ready for the report.',
+                                    : 'Check every item against the photos. Your review makes this room ready for the report.',
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               if (_missingDetails(room) case final missing

@@ -147,7 +147,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           builder: (context) => KiviloDrawer(
             title: const Text('Still uploading'),
             content: Text(
-              'Some photos, videos or changes have not uploaded yet. '
+              'Some photos or changes have not uploaded yet. '
               'Open the rooms and tap Retry uploads before sending for signature.',
             ),
             actions: [
@@ -682,7 +682,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 ? 'Sending fixes the inventory, captions and photo marks for both parties to sign.'
                                 : recording
                                 ? 'Start with the room inventory. Open each item to record its condition, take photos and mark details.'
-                                : 'Check the inventory against your photos and videos, then mark each room reviewed.',
+                                : 'Check the inventory against your photos, then mark each room reviewed.',
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           if (inspection.isOpen) ...[

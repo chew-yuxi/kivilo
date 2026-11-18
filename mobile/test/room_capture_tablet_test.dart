@@ -158,7 +158,7 @@ void main() {
     }
   });
 
-  testWidgets('capture resize preserves mode, saved media and review guard', (
+  testWidgets('capture resize preserves saved media and review guard', (
     tester,
   ) async {
     final queue = CaptureQueue(NativeDatabase.memory());
@@ -205,7 +205,7 @@ void main() {
     // Paused uploads have an indeterminate progress bar, which keeps animating.
     await tester.pump(const Duration(milliseconds: 600));
     // Initial recovery now holds the camera while it checks for interrupted
-    // photo markup. Wait for that work before changing capture mode.
+    // photo markup. Wait for that work before resizing.
     final camera = find.widgetWithText(FilledButton, 'Take more photos');
     for (
       var attempt = 0;
@@ -218,19 +218,17 @@ void main() {
       await tester.pump();
     }
     expect(tester.widget<FilledButton>(camera).onPressed, isNotNull);
-    await tester.tap(find.text('Video').first);
-    await tester.pump(const Duration(milliseconds: 600));
 
     for (final width in [393.0, 520.0, 768.0, 1024.0, 520.0]) {
       tester.view.physicalSize = Size(width, width == 1024 ? 768 : 1200);
       await tester.pump(const Duration(milliseconds: 600));
       expect(tester.takeException(), isNull, reason: 'width $width');
-      expect(find.text('Record video'), findsOneWidget);
+      expect(find.text('Take more photos'), findsOneWidget);
       expect(await queue.byId(queuedId), isNotNull);
       final review = find.widgetWithText(OutlinedButton, 'Review room');
       expect(tester.widget<OutlinedButton>(review).onPressed, isNull);
       expect(tester.getSize(review).width, lessThanOrEqualTo(688));
-      final controls = tester.getRect(find.text('Room media'));
+      final controls = tester.getRect(find.text('Room photos'));
       final media = tester.getRect(find.text('Media'));
       if (width >= 840) {
         expect(media.left, greaterThan(controls.left + 320));
