@@ -1,5 +1,6 @@
 import { Resend } from 'resend'
-import type { ErrorEvent } from '@/generated/prisma'
+import type { Country, ErrorEvent } from '@/generated/prisma'
+import { countryName } from '@/lib/country'
 
 /// Sign-in email, sent by us rather than by Supabase's dashboard templates.
 ///
@@ -343,6 +344,8 @@ export type TenantHandover = {
   link: string
   deadline: Date | null
   windowDays: number
+  /// The property's, which names where the deadline's day ends.
+  country: Country
   countersigned: boolean
 }
 
@@ -351,7 +354,7 @@ export function tenantHandoverEmail(handover: TenantHandover) {
     dateStyle: 'long', timeZone: 'Asia/Singapore',
   }).format(handover.deadline)
   const period = deadline
-    ? `Your tenancy's ${handover.windowDays}-day move-in defect period ends on ${deadline}, at the end of the day in Singapore. If something was already wrong when you moved in, report it by that deadline.`
+    ? `Your tenancy's ${handover.windowDays}-day move-in defect period ends on ${deadline}, at the end of the day in ${countryName(handover.country)}. If something was already wrong when you moved in, report it by that deadline.`
     : 'An early move-in defect period is not enabled for this tenancy. You can still report repairs in the Kivilo app.'
   const signed = handover.countersigned
     ? 'Both parties have signed. Your signed report is sent separately as a PDF.'

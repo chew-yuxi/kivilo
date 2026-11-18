@@ -438,6 +438,14 @@ export const PropertyType: {
 export type PropertyType = (typeof PropertyType)[keyof typeof PropertyType]
 
 
+export const Country: {
+  SG: 'SG',
+  MY: 'MY'
+};
+
+export type Country = (typeof Country)[keyof typeof Country]
+
+
 export const RenewalDecision: {
   NOT_RENEWING: 'NOT_RENEWING',
   DISMISSED: 'DISMISSED'
@@ -836,6 +844,10 @@ export const Plan: typeof $Enums.Plan
 export type PropertyType = $Enums.PropertyType
 
 export const PropertyType: typeof $Enums.PropertyType
+
+export type Country = $Enums.Country
+
+export const Country: typeof $Enums.Country
 
 export type RenewalDecision = $Enums.RenewalDecision
 
@@ -24990,6 +25002,7 @@ export namespace Prisma {
     unit: string | null
     postalCode: string | null
     type: $Enums.PropertyType | null
+    country: $Enums.Country | null
     createdAt: Date | null
     updatedAt: Date | null
     archivedAt: Date | null
@@ -25004,6 +25017,7 @@ export namespace Prisma {
     unit: string | null
     postalCode: string | null
     type: $Enums.PropertyType | null
+    country: $Enums.Country | null
     createdAt: Date | null
     updatedAt: Date | null
     archivedAt: Date | null
@@ -25018,6 +25032,7 @@ export namespace Prisma {
     unit: number
     postalCode: number
     type: number
+    country: number
     createdAt: number
     updatedAt: number
     archivedAt: number
@@ -25034,6 +25049,7 @@ export namespace Prisma {
     unit?: true
     postalCode?: true
     type?: true
+    country?: true
     createdAt?: true
     updatedAt?: true
     archivedAt?: true
@@ -25048,6 +25064,7 @@ export namespace Prisma {
     unit?: true
     postalCode?: true
     type?: true
+    country?: true
     createdAt?: true
     updatedAt?: true
     archivedAt?: true
@@ -25062,6 +25079,7 @@ export namespace Prisma {
     unit?: true
     postalCode?: true
     type?: true
+    country?: true
     createdAt?: true
     updatedAt?: true
     archivedAt?: true
@@ -25149,6 +25167,7 @@ export namespace Prisma {
     unit: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country: $Enums.Country
     createdAt: Date
     updatedAt: Date
     archivedAt: Date | null
@@ -25180,6 +25199,7 @@ export namespace Prisma {
     unit?: boolean
     postalCode?: boolean
     type?: boolean
+    country?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     archivedAt?: boolean
@@ -25200,6 +25220,7 @@ export namespace Prisma {
     unit?: boolean
     postalCode?: boolean
     type?: boolean
+    country?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     archivedAt?: boolean
@@ -25214,6 +25235,7 @@ export namespace Prisma {
     unit?: boolean
     postalCode?: boolean
     type?: boolean
+    country?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     archivedAt?: boolean
@@ -25228,6 +25250,7 @@ export namespace Prisma {
     unit?: boolean
     postalCode?: boolean
     type?: boolean
+    country?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     archivedAt?: boolean
@@ -25236,7 +25259,7 @@ export namespace Prisma {
     trashedById?: boolean
   }
 
-  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line1" | "unit" | "postalCode" | "type" | "createdAt" | "updatedAt" | "archivedAt" | "trashedAt" | "trashExpiresAt" | "trashedById", ExtArgs["result"]["property"]>
+  export type PropertyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line1" | "unit" | "postalCode" | "type" | "country" | "createdAt" | "updatedAt" | "archivedAt" | "trashedAt" | "trashExpiresAt" | "trashedById", ExtArgs["result"]["property"]>
   export type PropertyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancies?: boolean | Property$tenanciesArgs<ExtArgs>
     assets?: boolean | Property$assetsArgs<ExtArgs>
@@ -25263,6 +25286,10 @@ export namespace Prisma {
       unit: string | null
       postalCode: string
       type: $Enums.PropertyType
+      /**
+       * Chosen when the property is made and never changed.
+       */
+      country: $Enums.Country
       createdAt: Date
       updatedAt: Date
       archivedAt: Date | null
@@ -25702,6 +25729,7 @@ export namespace Prisma {
     readonly unit: FieldRef<"Property", 'String'>
     readonly postalCode: FieldRef<"Property", 'String'>
     readonly type: FieldRef<"Property", 'PropertyType'>
+    readonly country: FieldRef<"Property", 'Country'>
     readonly createdAt: FieldRef<"Property", 'DateTime'>
     readonly updatedAt: FieldRef<"Property", 'DateTime'>
     readonly archivedAt: FieldRef<"Property", 'DateTime'>
@@ -85409,6 +85437,7 @@ export namespace Prisma {
     unit: 'unit',
     postalCode: 'postalCode',
     type: 'type',
+    country: 'country',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     archivedAt: 'archivedAt',
@@ -86392,6 +86421,20 @@ export namespace Prisma {
    * Reference to a field of type 'PropertyType[]'
    */
   export type ListEnumPropertyTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PropertyType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Country'
+   */
+  export type EnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country'>
+    
+
+
+  /**
+   * Reference to a field of type 'Country[]'
+   */
+  export type ListEnumCountryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Country[]'>
     
 
 
@@ -88140,6 +88183,7 @@ export namespace Prisma {
     unit?: StringNullableFilter<"Property"> | string | null
     postalCode?: StringFilter<"Property"> | string
     type?: EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
+    country?: EnumCountryFilter<"Property"> | $Enums.Country
     createdAt?: DateTimeFilter<"Property"> | Date | string
     updatedAt?: DateTimeFilter<"Property"> | Date | string
     archivedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
@@ -88159,6 +88203,7 @@ export namespace Prisma {
     unit?: SortOrderInput | SortOrder
     postalCode?: SortOrder
     type?: SortOrder
+    country?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     archivedAt?: SortOrderInput | SortOrder
@@ -88181,6 +88226,7 @@ export namespace Prisma {
     unit?: StringNullableFilter<"Property"> | string | null
     postalCode?: StringFilter<"Property"> | string
     type?: EnumPropertyTypeFilter<"Property"> | $Enums.PropertyType
+    country?: EnumCountryFilter<"Property"> | $Enums.Country
     createdAt?: DateTimeFilter<"Property"> | Date | string
     updatedAt?: DateTimeFilter<"Property"> | Date | string
     archivedAt?: DateTimeNullableFilter<"Property"> | Date | string | null
@@ -88200,6 +88246,7 @@ export namespace Prisma {
     unit?: SortOrderInput | SortOrder
     postalCode?: SortOrder
     type?: SortOrder
+    country?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     archivedAt?: SortOrderInput | SortOrder
@@ -88220,6 +88267,7 @@ export namespace Prisma {
     unit?: StringNullableWithAggregatesFilter<"Property"> | string | null
     postalCode?: StringWithAggregatesFilter<"Property"> | string
     type?: EnumPropertyTypeWithAggregatesFilter<"Property"> | $Enums.PropertyType
+    country?: EnumCountryWithAggregatesFilter<"Property"> | $Enums.Country
     createdAt?: DateTimeWithAggregatesFilter<"Property"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Property"> | Date | string
     archivedAt?: DateTimeNullableWithAggregatesFilter<"Property"> | Date | string | null
@@ -93919,6 +93967,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -93938,6 +93987,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -93957,6 +94007,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -93976,6 +94027,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -93995,6 +94047,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -94009,6 +94062,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -94023,6 +94077,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -99892,6 +99947,13 @@ export namespace Prisma {
     not?: NestedEnumPropertyTypeFilter<$PrismaModel> | $Enums.PropertyType
   }
 
+  export type EnumCountryFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel>
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    not?: NestedEnumCountryFilter<$PrismaModel> | $Enums.Country
+  }
+
   export type PropertyAssetListRelationFilter = {
     every?: PropertyAssetWhereInput
     some?: PropertyAssetWhereInput
@@ -99928,6 +99990,7 @@ export namespace Prisma {
     unit?: SortOrder
     postalCode?: SortOrder
     type?: SortOrder
+    country?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     archivedAt?: SortOrder
@@ -99942,6 +100005,7 @@ export namespace Prisma {
     unit?: SortOrder
     postalCode?: SortOrder
     type?: SortOrder
+    country?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     archivedAt?: SortOrder
@@ -99956,6 +100020,7 @@ export namespace Prisma {
     unit?: SortOrder
     postalCode?: SortOrder
     type?: SortOrder
+    country?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     archivedAt?: SortOrder
@@ -99972,6 +100037,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPropertyTypeFilter<$PrismaModel>
     _max?: NestedEnumPropertyTypeFilter<$PrismaModel>
+  }
+
+  export type EnumCountryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel>
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    not?: NestedEnumCountryWithAggregatesFilter<$PrismaModel> | $Enums.Country
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCountryFilter<$PrismaModel>
+    _max?: NestedEnumCountryFilter<$PrismaModel>
   }
   export type JsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -105923,6 +105998,10 @@ export namespace Prisma {
     set?: $Enums.PropertyType
   }
 
+  export type EnumCountryFieldUpdateOperationsInput = {
+    set?: $Enums.Country
+  }
+
   export type TenancyUpdateManyWithoutPropertyNestedInput = {
     create?: XOR<TenancyCreateWithoutPropertyInput, TenancyUncheckedCreateWithoutPropertyInput> | TenancyCreateWithoutPropertyInput[] | TenancyUncheckedCreateWithoutPropertyInput[]
     connectOrCreate?: TenancyCreateOrConnectWithoutPropertyInput | TenancyCreateOrConnectWithoutPropertyInput[]
@@ -110317,6 +110396,13 @@ export namespace Prisma {
     not?: NestedEnumPropertyTypeFilter<$PrismaModel> | $Enums.PropertyType
   }
 
+  export type NestedEnumCountryFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel>
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    not?: NestedEnumCountryFilter<$PrismaModel> | $Enums.Country
+  }
+
   export type NestedEnumPropertyTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.PropertyType | EnumPropertyTypeFieldRefInput<$PrismaModel>
     in?: $Enums.PropertyType[] | ListEnumPropertyTypeFieldRefInput<$PrismaModel>
@@ -110325,6 +110411,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumPropertyTypeFilter<$PrismaModel>
     _max?: NestedEnumPropertyTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumCountryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Country | EnumCountryFieldRefInput<$PrismaModel>
+    in?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Country[] | ListEnumCountryFieldRefInput<$PrismaModel>
+    not?: NestedEnumCountryWithAggregatesFilter<$PrismaModel> | $Enums.Country
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumCountryFilter<$PrismaModel>
+    _max?: NestedEnumCountryFilter<$PrismaModel>
   }
   export type NestedJsonNullableFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -117543,6 +117639,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -117561,6 +117658,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -117630,6 +117728,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -117648,6 +117747,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -117707,6 +117807,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -117725,6 +117826,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -117799,6 +117901,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -117817,6 +117920,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -117851,6 +117955,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -117869,6 +117974,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -118669,6 +118775,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -118687,6 +118794,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -122876,6 +122984,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -122894,6 +123003,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -123092,6 +123202,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -123110,6 +123221,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -133123,6 +133235,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -133141,6 +133254,7 @@ export namespace Prisma {
     unit?: string | null
     postalCode: string
     type: $Enums.PropertyType
+    country?: $Enums.Country
     createdAt?: Date | string
     updatedAt?: Date | string
     archivedAt?: Date | string | null
@@ -133651,6 +133765,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -133669,6 +133784,7 @@ export namespace Prisma {
     unit?: NullableStringFieldUpdateOperationsInput | string | null
     postalCode?: StringFieldUpdateOperationsInput | string
     type?: EnumPropertyTypeFieldUpdateOperationsInput | $Enums.PropertyType
+    country?: EnumCountryFieldUpdateOperationsInput | $Enums.Country
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     archivedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -125,6 +125,7 @@ export async function deliverReportEmails(limit = 20) {
           link: link.toString(),
           deadline: window.deadline,
           windowDays: window.windowDays,
+          country: tenancy.property.country,
           countersigned: inspection.status === 'COMPLETED',
         })
       } else {

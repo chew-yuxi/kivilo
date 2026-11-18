@@ -2,7 +2,7 @@
 import { Document, Font, Image, Link, Page, Path, StyleSheet, Svg, Text, View } from '@react-pdf/renderer'
 import type { ItemCondition } from '@/generated/prisma'
 import { markPath } from '@/lib/annotations'
-import { sgd } from '@/lib/format'
+import { money, registrationLabel } from '@/lib/country'
 import { depositStatement } from '@/lib/assessment-schema'
 import { entryHeading, type AddendumView } from '@/lib/addenda'
 import { shortFingerprint } from '@/lib/report-fingerprint'
@@ -164,6 +164,7 @@ function RunningFooter({ model }: { model: Pick<ReportModel, 'reference' | 'bran
 
 function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAssets; kind: string }) {
   const { branding, preparer } = model
+  const country = model.country ?? 'SG'
   const itemCount = model.rooms.reduce((n, room) => n + room.items.length, 0)
   const photoCount = model.rooms.reduce((n, room) => n + room.photos.length, 0)
   const notedCount = model.noted.reduce((n, group) => n + group.entries.length, 0)
@@ -187,7 +188,7 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
           <View style={{ alignItems: 'flex-end', maxWidth: 220 }}>
             <Text style={s.small}>Prepared by</Text>
             <Text style={s.bold}>{preparer.name}</Text>
-            {branding?.ceaRegistration && <Text style={s.small}>CEA registration {branding.ceaRegistration}</Text>}
+            {branding?.ceaRegistration && <Text style={s.small}>{registrationLabel(country)} {branding.ceaRegistration}</Text>}
             {branding?.phone && <Text style={s.small}>{branding.phone}</Text>}
             {preparer.email && <Text style={s.small}>{preparer.email}</Text>}
           </View>
@@ -499,6 +500,7 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
   const liable = assessment.findings.filter((finding) => finding.verdict === 'TENANT_LIABLE')
   const total = liable.reduce((sum, finding) => sum + Number(finding.estimatedCost ?? 0), 0)
   const statement = depositStatement(assessment)
+  const country = model.country ?? 'SG'
 
   return (
     <View break>
@@ -513,15 +515,15 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
           <Text style={s.bold}>Deposit statement</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
             <Text>Deposit</Text>
-            <Text>{sgd(statement.deposit)}</Text>
+            <Text>{money(statement.deposit, country)}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text>Deductions ({statement.deducted.length} of {assessment.findings.length} findings, tenant liable)</Text>
-            <Text>{sgd(-statement.deductions)}</Text>
+            <Text>{money(-statement.deductions, country)}</Text>
           </View>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 }}>
             <Text style={s.bold}>{statement.toReturn >= 0 ? 'To return to the tenant' : 'Deductions exceed the deposit by'}</Text>
-            <Text style={s.bold}>{sgd(Math.abs(statement.toReturn))}</Text>
+            <Text style={s.bold}>{money(Math.abs(statement.toReturn), country)}</Text>
           </View>
           {assessment.responses.map((response) => (
             <Text key={response.role} style={{ marginTop: 4 }}>
@@ -536,7 +538,7 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
       ) : (
         <Text style={{ marginTop: 10, marginBottom: 10 }}>
           {liable.length} of {assessment.findings.length} findings assess tenant liability, totalling{' '}
-          <Text style={s.bold}>{sgd(total)}</Text> against a deposit of {sgd(model.deposit)}.
+          <Text style={s.bold}>{money(total, country)}</Text> against a deposit of {money(model.deposit, country)}.
         </Text>
       )}
       {assessment.findings.map((finding, findingIndex) => (
@@ -544,7 +546,7 @@ function Assessment({ model, assets }: { model: ReportModel; assets: ReportAsset
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={s.bold}>{finding.itemLabel}</Text>
             <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 8, color: finding.verdict === 'TENANT_LIABLE' ? DEFECT : MUTED }}>
-              {VERDICT[finding.verdict]}{finding.estimatedCost && `, ${sgd(finding.estimatedCost)}`}
+              {VERDICT[finding.verdict]}{finding.estimatedCost && `, ${money(finding.estimatedCost, country)}`}
             </Text>
           </View>
           <Text style={{ color: '#374151' }}>{finding.rationale}</Text>

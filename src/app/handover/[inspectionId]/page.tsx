@@ -5,6 +5,7 @@ import { currentStakeholder, signingRole } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { inspectionHandover } from '@/lib/handover'
 import { propertyLabel } from '@/lib/format'
+import { countryName } from '@/lib/country'
 import { reportInclude } from '@/lib/report'
 import { ReportDocument } from '@/components/report-document'
 import { SignOut } from '@/components/sign-out'
@@ -62,7 +63,7 @@ export default async function HandoverPage({ params, searchParams }: PageProps<'
           {handover.deadline ? (
             <>
               <p className="font-medium">Move-in defect deadline: {handover.deadline}</p>
-              <p className="mt-1">Your tenancy has a {handover.windowDays}-day period, counted from its first day. Report anything that was already wrong when you moved in by the end of this date in Singapore.</p>
+              <p className="mt-1">Your tenancy has a {handover.windowDays}-day period, counted from its first day. Report anything that was already wrong when you moved in by the end of this date in {countryName(inspection.tenancy.property.country)}.</p>
             </>
           ) : <p>The early move-in defect period is disabled for this tenancy. You can still report repairs in Kivilo.</p>}
           <p className="mt-2 text-xs text-gray-600">The signed check-in stays unchanged. Your dated move-in report is separate and needs the landlord&apos;s acknowledgement before it counts as agreed.</p>

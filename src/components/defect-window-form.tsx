@@ -2,9 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { setDefectWindow } from '@/lib/handover-actions'
+import { countryName } from '@/lib/country'
+import type { Country } from '@/generated/prisma'
 
-export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline }: {
-  tenancyId: string; inspectionId: string; windowDays: number; deadline: string | null
+export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline, country }: {
+  tenancyId: string; inspectionId: string; windowDays: number; deadline: string | null; country: Country
 }) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -40,7 +42,7 @@ export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline
         </button>
       </div>
       <p className="text-xs text-gray-500">
-        {deadline ? `Current deadline: ${deadline}, end of day in Singapore.` : 'The early move-in defect period is disabled.'}
+        {deadline ? `Current deadline: ${deadline}, end of day in ${countryName(country)}.` : 'The early move-in defect period is disabled.'}
       </p>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
     </form>

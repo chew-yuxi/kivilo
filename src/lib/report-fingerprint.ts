@@ -61,6 +61,9 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
         unit: tenancy.property.unit,
         postalCode: tenancy.property.postalCode,
         type: tenancy.property.type,
+        // Only outside Singapore, so every Singapore report keeps the fingerprint its
+        // parties signed, and `/sign` still recomputes the same one.
+        ...(tenancy.property.country !== 'SG' && { country: tenancy.property.country }),
       },
       landlord: party(tenancy.landlord),
       tenant: party(tenancy.tenant),

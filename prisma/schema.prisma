@@ -333,6 +333,12 @@ enum PropertyType {
   COMMERCIAL
 }
 
+/// Where a property is. Its currency follows from it (`src/lib/country.ts`).
+enum Country {
+  SG
+  MY
+}
+
 /// The durable hub. Outlives every relationship on it.
 model Property {
   id         String       @id @default(cuid())
@@ -340,6 +346,8 @@ model Property {
   unit       String?
   postalCode String
   type       PropertyType
+  /// Chosen when the property is made and never changed.
+  country    Country      @default(SG)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
   archivedAt DateTime?

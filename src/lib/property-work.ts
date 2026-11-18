@@ -4,6 +4,7 @@ import { inspectionWorkScope, type InspectionWorkFilters } from '@/lib/inspectio
 import { listTenancies } from '@/lib/maintenance'
 import { propertyState } from '@/lib/property-management'
 import { propertyLabel } from '@/lib/format'
+import { currency } from '@/lib/country'
 import { createDownloadUrl } from '@/lib/storage'
 import { previousRoomNames } from '@/lib/starter-rooms'
 import { Prisma, type InspectionStatus } from '@/generated/prisma'
@@ -148,6 +149,7 @@ export async function propertyWork(actorId: string, filters: PropertyWorkFilters
     return {
       id: current.property.id,
       address: propertyLabel(current.property),
+      country: current.property.country,
       state: propertyState(current.property),
       trashExpiresAt: current.property.trashExpiresAt?.toISOString() ?? null,
       tenancyId: current.id,
@@ -260,7 +262,7 @@ export async function startableProperties(actorId: string) {
   const properties = await db.property.findMany({
     where: { trashedAt: null, archivedAt: null, tenancies: { some: managedTenancies(actorId) } },
     select: {
-      id: true, line1: true, unit: true, postalCode: true, type: true,
+      id: true, line1: true, unit: true, postalCode: true, type: true, country: true,
       tenancies: {
         orderBy: [{ startDate: 'desc' }, { createdAt: 'desc' }],
         take: 1,
@@ -286,6 +288,9 @@ export async function startableProperties(actorId: string) {
       id: property.id,
       address: propertyLabel(property),
       propertyType: property.type,
+      /// A new tenancy at this property is in its country and currency.
+      country: property.country,
+      currency: currency(property.country),
       agencyId: latest.agency?.id ?? null,
       agencyName: latest.agency?.name ?? null,
       lastTenant: latest.tenant.name,
@@ -391,6 +396,9 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
     unit: property.unit,
     postalCode: property.postalCode,
     propertyType: property.type,
+    /// Never changes. Each term's rent and deposit are in its `currency`.
+    country: property.country,
+    currency: currency(property.country),
     state: propertyState(property),
     stage,
     stageLabel: stageLabels[stage],

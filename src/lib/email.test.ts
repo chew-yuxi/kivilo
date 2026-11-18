@@ -126,7 +126,7 @@ describe('tenantHandoverEmail', () => {
   const handover = {
     id: 'handover-email', recipientName: 'Marcus Lee', address: '8 Shenton Way, Singapore 068811',
     link: 'https://kivilo.test/handover/checkin?email=marcus%40example.com',
-    windowDays: 30, deadline: new Date('2026-06-30T15:59:59.999Z'), countersigned: false,
+    windowDays: 30, deadline: new Date('2026-06-30T15:59:59.999Z'), country: 'SG' as const, countersigned: false,
   }
 
   it('gives the Singapore deadline and authenticated handover link without calling an unsigned copy completed', () => {
@@ -140,6 +140,12 @@ describe('tenantHandoverEmail', () => {
     expect(text).toContain('signed check-in report stays unchanged')
     expect(text).not.toContain('/reports/')
     expect(text).not.toContain('Both parties have signed')
+  })
+
+  it('names Malaysia as where a Malaysian deadline ends', () => {
+    const { text } = tenantHandoverEmail({ ...handover, address: '12 Jalan Ampang, 50450 Malaysia', country: 'MY' })
+    expect(text).toContain('ends on 30 June 2026, at the end of the day in Malaysia')
+    expect(text).not.toContain('Singapore')
   })
 
   it('keeps repairs available when the tenancy has no early defect period', () => {

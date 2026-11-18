@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { sgd } from '@/lib/format'
+import { money } from '@/lib/country'
 import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
 import { createFinding, deleteFinding, updateFinding } from '@/lib/actions'
 import { publishAssessment } from '@/lib/assessment-actions'
-import type { ChangeType, Verdict } from '@/generated/prisma'
+import type { ChangeType, Country, Verdict } from '@/generated/prisma'
 
 export type FindingRow = {
   id: string
@@ -167,6 +167,7 @@ export function FindingsPanel({
   inspectionId,
   findings,
   depositAmount,
+  country,
   publishedVersion,
   maintenanceCases,
   checkOutItems,
@@ -175,6 +176,7 @@ export function FindingsPanel({
   inspectionId: string
   findings: FindingRow[]
   depositAmount: string
+  country: Country
   publishedVersion: number | null
   maintenanceCases: { id: string; title: string; status: string }[]
   checkOutItems: ComparableItem[]
@@ -201,8 +203,8 @@ export function FindingsPanel({
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xl font-semibold tabular-nums">{sgd(claimTotal)}</p>
-          <p className="text-xs text-gray-500">of {sgd(depositAmount)} held</p>
+          <p className="text-xl font-semibold tabular-nums">{money(claimTotal, country)}</p>
+          <p className="text-xs text-gray-500">of {money(depositAmount, country)} held</p>
         </div>
       </div>
 

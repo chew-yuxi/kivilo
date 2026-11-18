@@ -12,6 +12,10 @@ export const assessmentSnapshotSchema = z.object({
   /// move under them. Absent on versions published before deposit statements, which are
   /// shown as before and cannot be answered until the agent publishes again.
   deposit: z.string().optional(),
+  /// The property's country, whose currency the deposit and costs are in. Written only
+  /// outside Singapore, so absent means Singapore and every Singapore snapshot keeps the
+  /// hash its answers were given to.
+  country: z.enum(['SG', 'MY']).optional(),
   findings: z.array(z.object({
     id: z.string(),
     itemLabel: z.string(),

@@ -170,6 +170,9 @@ export function buildReportModel(row: ReportRow) {
     reference: row.id.slice(-8).toUpperCase(),
     kind: row.kind,
     address: propertyLabel(tenancy.property),
+    /// Absent for Singapore, so a Singapore model, and with it the key of every copy
+    /// stored before countries existed, is exactly what it was.
+    ...(tenancy.property.country !== 'SG' && { country: tenancy.property.country }),
     unit: tenancy.property.unit,
     line1: tenancy.property.line1,
     conductedAt: row.conductedAt?.toISOString() ?? null,

@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { authorizeInspection, inspectionScope, requireAgent } from '@/lib/auth'
 import { db } from '@/lib/db'
-import { propertyLabel, sgd } from '@/lib/format'
+import { propertyLabel } from '@/lib/format'
+import { money } from '@/lib/country'
 import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { toAnnotations } from '@/lib/annotations'
@@ -67,6 +68,8 @@ export async function publishAssessment(
       schemaVersion: 1 as const,
       summary: inspection.summary,
       deposit: inspection.tenancy.deposit.toString(),
+      // Only outside Singapore, so a Singapore snapshot hashes as it always has.
+      ...(inspection.tenancy.property.country !== 'SG' && { country: inspection.tenancy.property.country }),
       findings: inspection.findings.map((finding) => ({
         id: finding.id,
         itemLabel: finding.item
@@ -142,7 +145,7 @@ export async function publishAssessment(
         tenancyId: inspection.tenancyId,
         kind: 'REPORT_UPDATED' as const,
         title: `Deposit statement for ${propertyLabel(property)}`,
-        body: `The check-out assessment proposes deductions of ${sgd(statement.deductions)} from the deposit of ${sgd(statement.deposit)}. Agree or dispute it.`,
+        body: `The check-out assessment proposes deductions of ${money(statement.deductions, property.country)} from the deposit of ${money(statement.deposit, property.country)}. Agree or dispute it.`,
         href: `/sign/${inspectionId}`,
         dedupeKey: `deposit-statement:${version.id}:${recipientId}`,
       })),

@@ -115,6 +115,32 @@ describe('report PDF', () => {
     pages.forEach((page, index) => expect(page).toContain(`Page ${index + 1} of ${pages.length}`))
   })
 
+  it('prints a Malaysian report in ringgit, with its address and registration', async () => {
+    const report = model([room(1, 'Kitchen', 0)])
+    Object.assign(report, {
+      kind: 'CHECK_OUT', country: 'MY', deposit: '4000',
+      address: 'A-12-3, Residensi Sentral, Jalan Tun Sambanthan, Kuala Lumpur, 50470 Malaysia',
+      unit: 'A-12-3', line1: 'Residensi Sentral, Jalan Tun Sambanthan, Kuala Lumpur',
+    })
+    report.branding = { ...report.branding!, ceaRegistration: 'REN 12345' }
+    report.assessment = {
+      schemaVersion: 1, version: 1, publishedAt: '2026-10-21T02:00:00.000Z',
+      summary: null, deposit: '4000', country: 'MY', responses: [],
+      findings: [{
+        id: 'burn', itemLabel: 'Kitchen, Worktop', changeType: 'DAMAGE', verdict: 'TENANT_LIABLE',
+        rationale: 'Burn beside the hob.', estimatedCost: '180', confidence: null, editedByHuman: true,
+      }],
+    }
+    const text = (await render(report)).join(' ')
+    expect(text).toContain('50470 Malaysia')
+    expect(text).toContain('REN registration REN 12345')
+    expect(text).toMatch(/Deposit RM\s?4,000\.00/)
+    expect(text).toMatch(/RM\s?180\.00/)
+    expect(text).toMatch(/To return to the tenant RM\s?3,820\.00/)
+    expect(text).not.toContain('$')
+    expect(text).not.toContain('CEA')
+  })
+
   it('heads and numbers every page, and dates it in Singapore time', async () => {
     const pages = await render(model([room(1, 'Entrance', 4), room(2, 'Kitchen', 30)]))
 

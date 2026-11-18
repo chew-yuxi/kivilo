@@ -1,6 +1,7 @@
 import { createDownloadUrl, createDownloadUrls } from '@/lib/storage'
 import { posterUrls } from '@/lib/poster-urls'
-import { propertyLabel, sgd } from '@/lib/format'
+import { propertyLabel } from '@/lib/format'
+import { money, registrationLabel } from '@/lib/country'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { toAnnotations, type StoredAnnotations } from '@/lib/annotations'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
@@ -8,7 +9,7 @@ import { shortFingerprint } from '@/lib/report-fingerprint'
 import { verifiedParties, type reportInclude } from '@/lib/report'
 import { addendumView } from '@/lib/addenda'
 import { AddendumSection } from '@/components/addendum-section'
-import type { Prisma } from '@/generated/prisma'
+import type { Country, Prisma } from '@/generated/prisma'
 import { reportAgent, reportBranding } from '@/lib/report-agent'
 
 const VERDICT_LABEL = {
@@ -30,6 +31,7 @@ export async function ReportDocument({
   pdfHref: string | null
 }) {
   const { tenancy, kind } = inspection
+  const { country } = tenancy.property
   const isCheckOut = kind === 'CHECK_OUT'
   const verified = verifiedParties(tenancy.cddCases)
 
@@ -121,7 +123,7 @@ export async function ReportDocument({
             </div>
             <div className="min-w-0 break-words text-xs leading-relaxed text-gray-600 sm:shrink-0 sm:text-right">
               <p className="font-medium text-gray-900">{agent.name}</p>
-              {branding.ceaRegistration && <p>CEA registration {branding.ceaRegistration}</p>}
+              {branding.ceaRegistration && <p>{registrationLabel(country)} {branding.ceaRegistration}</p>}
               {branding.phone && <p>{branding.phone}</p>}
               {agent.email && <p>{agent.email}</p>}
             </div>
@@ -340,8 +342,8 @@ export async function ReportDocument({
           ) : (
             <p className="mt-4 text-sm text-gray-700">
               {liable.length} of {assessment.findings.length} findings assess tenant liability,
-              totalling <strong>{sgd(claimTotal)}</strong> against a deposit of{' '}
-              {sgd(tenancy.deposit.toString())}.
+              totalling <strong>{money(claimTotal, country)}</strong> against a deposit of{' '}
+              {money(tenancy.deposit.toString(), country)}.
             </p>
           )}
           <ul className="mt-4 space-y-3">
@@ -351,7 +353,7 @@ export async function ReportDocument({
                   <span className="font-medium">{finding.itemLabel}</span>
                   <span className="shrink-0 text-xs uppercase tracking-wide text-gray-500">
                     {VERDICT_LABEL[finding.verdict]}
-                    {finding.estimatedCost && `, ${sgd(finding.estimatedCost)}`}
+                    {finding.estimatedCost && `, ${money(finding.estimatedCost, country)}`}
                   </span>
                 </div>
                 <p className="mt-1 text-gray-600">{finding.rationale}</p>
@@ -439,8 +441,9 @@ export function DepositStatementView({
   statement: NonNullable<ReturnType<typeof depositStatement>>
   findingCount: number
   responses: { stakeholderId: string; answer: 'AGREED' | 'DISPUTED'; reason: string | null; method: string; respondedAt: Date; stakeholder: { name: string } }[]
-  tenancy: { landlordId: string; tenantId: string; landlord: { name: string }; tenant: { name: string } }
+  tenancy: { landlordId: string; tenantId: string; landlord: { name: string }; tenant: { name: string }; property: { country: Country } }
 }) {
+  const { country } = tenancy.property
   const when = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Asia/Singapore' })
   const parties = [
     { id: tenancy.landlordId, name: tenancy.landlord.name, role: 'landlord' },
@@ -450,16 +453,16 @@ export function DepositStatementView({
     <div className="mt-4 rounded border border-gray-200 p-4 text-sm">
       <h3 className="font-semibold">Deposit statement</h3>
       <dl className="mt-3 space-y-1">
-        <div className="flex justify-between gap-4"><dt className="text-gray-600">Deposit</dt><dd>{sgd(statement.deposit)}</dd></div>
+        <div className="flex justify-between gap-4"><dt className="text-gray-600">Deposit</dt><dd>{money(statement.deposit, country)}</dd></div>
         <div className="flex justify-between gap-4">
           <dt className="text-gray-600">
             Deductions ({statement.deducted.length} of {findingCount} findings, tenant liable)
           </dt>
-          <dd>{sgd(-statement.deductions)}</dd>
+          <dd>{money(-statement.deductions, country)}</dd>
         </div>
         <div className="flex justify-between gap-4 border-t border-gray-200 pt-1 font-semibold">
           <dt>{statement.toReturn >= 0 ? 'To return to the tenant' : 'Deductions exceed the deposit by'}</dt>
-          <dd>{sgd(Math.abs(statement.toReturn))}</dd>
+          <dd>{money(Math.abs(statement.toReturn), country)}</dd>
         </div>
       </dl>
       <ul className="mt-4 space-y-1">

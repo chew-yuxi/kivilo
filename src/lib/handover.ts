@@ -28,7 +28,7 @@ export async function inspectionHandover(inspectionId: string, stakeholderId: st
     },
     select: {
       tenancyId: true,
-      tenancy: { select: { tenantId: true, startDate: true, defectWindowDays: true } },
+      tenancy: { select: { tenantId: true, startDate: true, defectWindowDays: true, property: { select: { country: true } } } },
       signatures: { select: { stakeholderId: true } },
     },
   })
@@ -43,6 +43,8 @@ export async function inspectionHandover(inspectionId: string, stakeholderId: st
     url,
     deadline: window.deadline?.toISOString().slice(0, 10) ?? null,
     windowDays: window.windowDays,
+    /// Names where the deadline's day ends. Both countries are UTC+8.
+    country: inspection.tenancy.property.country,
     modules: Array.from({ length: modules.size }, (_, y) =>
       Array.from({ length: modules.size }, (_, x) => Boolean(modules.get(y, x)))),
   }

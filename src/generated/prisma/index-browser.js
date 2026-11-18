@@ -284,6 +284,7 @@ exports.Prisma.PropertyScalarFieldEnum = {
   unit: 'unit',
   postalCode: 'postalCode',
   type: 'type',
+  country: 'country',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   archivedAt: 'archivedAt',
@@ -1003,6 +1004,11 @@ exports.PropertyType = exports.$Enums.PropertyType = {
   PRIVATE_NON_LANDED: 'PRIVATE_NON_LANDED',
   LANDED: 'LANDED',
   COMMERCIAL: 'COMMERCIAL'
+};
+
+exports.Country = exports.$Enums.Country = {
+  SG: 'SG',
+  MY: 'MY'
 };
 
 exports.RenewalDecision = exports.$Enums.RenewalDecision = {

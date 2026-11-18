@@ -276,7 +276,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       )}
 
       {defectWindow && (
-        <DefectWindowForm tenancyId={tenancy.id} inspectionId={id} windowDays={defectWindow.windowDays} deadline={defectWindow.deadline} />
+        <DefectWindowForm tenancyId={tenancy.id} inspectionId={id} windowDays={defectWindow.windowDays} deadline={defectWindow.deadline} country={tenancy.property.country} />
       )}
 
       {handover && <TenantHandoverCard handover={handover} tenantName={tenancy.tenant.name} tenantEmail={tenancy.tenant.email} />}
@@ -382,6 +382,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
             inspectionId={id}
             findings={findings}
             depositAmount={tenancy.deposit.toString()}
+            country={tenancy.property.country}
             publishedVersion={inspection.assessments[0]?.version ?? null}
             maintenanceCases={maintenanceCases}
             checkOutItems={checkOutItems}
