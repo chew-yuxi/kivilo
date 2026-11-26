@@ -6,8 +6,9 @@ export const guides: ResourceArticle[] = [
     title: 'Rental handover checklist for Singapore property agents',
     description: 'A practical Singapore rental handover checklist covering rooms, keys, meter readings, appliances, condition photos, signatures and the next check-out.',
     published: '2026-10-25',
-    updated: '2026-10-25',
-    summary: 'A useful rental handover record connects each room and inventory item to a specific observation, clear evidence and the parties’ review. Record keys, meters and appliance identifiers separately, resolve unclear wording before signing, and leave a baseline you can use at check-out.',
+    updated: '2026-11-26',
+    summary: 'At handover, photograph each room, note the condition of its contents, count each set of keys and record the meter readings. Review the inventory with the landlord and tenant and keep a signed copy for check-out. The example below shows how a room photo and its inventory entry fit together in the finished report.',
+    summarySources: [{ label: 'View a completed property condition report (PDF)', url: 'https://kivilo.app/reports/property-condition-report.pdf' }],
     introduction: [
       'Use this checklist for the physical handover of a Singapore rental home. Adapt it to the actual unit, furnishing level and agreed arrangements. A studio, an HDB flat and a furnished condominium will need different room and item lists.',
       'Walk through in the same order every time: prepare the record, inspect each room, reconcile keys and readings, then review together. A generic “good condition” tick is less useful than a description another person can locate months later.',

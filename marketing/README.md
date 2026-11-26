@@ -51,8 +51,8 @@ The landlord and tenant signatures are two fictional SVG ink drawings, each with
 an accessible role label and a visible role caption. Public copy presents the workflow
 directly, without demo disclaimers or example/sample qualifiers.
 
-The hero leads with "Give every tenancy an upgrade." and the short promise "Better
-service. Less admin. From move-in to move-out." The free-plan note stays on one line
+The hero leads with "Give every tenancy an upgrade." The supporting line introduces
+the rental inspection app to Singapore agents. The free-plan note stays on one line
 on phones, with the artwork close beneath it. The same headline appears in social
 titles and the social image.
 
@@ -209,6 +209,15 @@ Markdown files, sitemap and robots with an ordinary HTTP client as well as a bro
 Requests should return 200 with the reviewed export's content and expected headers.
 
 ### Bing and other search engines
+
+On 26 November 2026, the homepage and handover checklist both served HTTP 200
+over plain HTTP as well as HTTPS. The 18 November Bing URL Inspection showed the
+HTTP homepage indexed and the HTTPS homepage discovered but still awaiting a crawl.
+The proposed Cloudflare Single Redirect matches `http.host eq "kivilo.app" and not ssl`.
+Use status 301, dynamic target `concat("https://kivilo.app", http.request.uri.path)`
+and Preserve query string. After enabling it, check the homepage and a guide with
+a query string for one permanent redirect to the matching HTTPS page. Inspect
+both homepage URLs in Bing to see which version it stores after its next crawl.
 
 Bing Webmaster Tools ownership of `https://kivilo.app/` was verified through
 `public/BingSiteAuth.xml` on 26 October 2026 Singapore time (25 October UTC).

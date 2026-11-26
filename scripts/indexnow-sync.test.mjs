@@ -47,13 +47,13 @@ async function fixture(t, entries = [{ url: `${ORIGIN}/` }]) {
 }
 
 test('sitemap admission rejects private URLs, duplicate entries and incomplete input', () => {
-  const entries = [{ url: `${ORIGIN}/` }, { url: `${ORIGIN}/compare/kivilo-vs-report-and-run`, lastmod: '2026-10-25' }]
+  const entries = [{ url: `${ORIGIN}/` }, { url: `${ORIGIN}/app` }, { url: `${ORIGIN}/compare/kivilo-vs-report-and-run`, lastmod: '2026-10-25' }]
   assert.deepEqual(parseSitemap(sitemap(entries)), entries.map(entry => ({ lastmod: '', ...entry })))
   for (const url of [
     'http://kivilo.app/', 'https://my.kivilo.app/', 'https://example.com/',
     'https://user:password@kivilo.app/', `${ORIGIN}/?token=private`, `${ORIGIN}/#fragment`,
     `${ORIGIN}/reports/private-token`, `${ORIGIN}/sign/123`, `${ORIGIN}/properties`, `${ORIGIN}/api/v1/me`,
-    `${ORIGIN}/login`, `${ORIGIN}/product/index.md`, `${ORIGIN}/llms.txt`, `${ORIGIN}/compare/`,
+    `${ORIGIN}/app/private`, `${ORIGIN}/app?token=private`, `${ORIGIN}/login`, `${ORIGIN}/product/index.md`, `${ORIGIN}/llms.txt`, `${ORIGIN}/compare/`,
     `${ORIGIN}/guides/%2e%2e/login`, `${ORIGIN}/product/../guides`, `${ORIGIN}:443/`,
   ]) assert.throws(() => parseSitemap(sitemap([{ url }])), undefined, url)
   for (const xml of [

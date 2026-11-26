@@ -16,7 +16,7 @@ export const ACQUISITION_MEDIUMS = [
 // Exact public pages, deliberately not a route-prefix matcher. A private report,
 // signing URL or an arbitrary path can never become an acquisition property.
 export const ACQUISITION_LANDINGS = [
-  '/', '/product', '/compare', '/guides',
+  '/', '/app', '/product', '/compare', '/guides',
   '/compare/kivilo-vs-report-and-run',
   '/compare/kivilo-vs-inventorybase',
   '/compare/kivilo-vs-inventory-hive',

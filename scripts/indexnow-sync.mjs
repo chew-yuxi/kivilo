@@ -21,7 +21,7 @@ export function publicPageUrl(value) {
   if (typeof value !== 'string' || value.length > 2048) throw Error('Invalid public page URL.')
   const url = new URL(value)
   if (url.origin !== ORIGIN || url.username || url.password || url.search || url.hash ||
-      value !== url.href || !/^\/(?:product|compare(?:\/[a-z0-9-]+)?|guides(?:\/[a-z0-9-]+)?)?$/.test(url.pathname)) {
+      value !== url.href || !/^\/(?:app|product|compare(?:\/[a-z0-9-]+)?|guides(?:\/[a-z0-9-]+)?)?$/.test(url.pathname)) {
     throw Error('Only canonical Kivilo marketing HTML URLs may be submitted.')
   }
   return value

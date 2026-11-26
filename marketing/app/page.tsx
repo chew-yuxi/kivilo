@@ -6,8 +6,8 @@ import { LandingWalkthrough } from '../components/landing-walkthrough'
 import { AppDownloads } from '../components/app-downloads'
 import { FREE_ACTIVE_PROPERTIES } from '../../src/lib/plan-limits'
 import styles from './landing.module.css'
-const title = 'Kivilo | Property handovers, check-in & check-out reports'
-const description = `Digital tools for property agents, from check-in to check-out. Keep photos, inventories, signatures and repairs together. ${FREE_ACTIVE_PROPERTIES} active properties free.`
+const title = 'Rental Inspection App for Singapore Property Agents | Kivilo'
+const description = `Create room-by-room inventories with photos, collect signatures and compare check-in with check-out. Free for up to ${FREE_ACTIVE_PROPERTIES} active properties.`
 const socialTitle = 'Give every tenancy an upgrade. | Kivilo'
 const socialImage = '/opengraph-image.png?v=20261024-upgrade'
 export const metadata: Metadata = {
@@ -69,7 +69,7 @@ export default function LandingPage() {
         <section className={styles.hero} aria-labelledby="hero-title">
           <div className={styles.heroCopy}>
             <h1 id="hero-title">Give every tenancy<br />an upgrade.</h1>
-            <p className={styles.heroDescription}>Better service. Less admin. From move-in to move-out.</p>
+            <p className={styles.heroDescription}>A rental inspection app for Singapore agents. Photograph each room and collect both signatures at handover.</p>
             <div className={styles.heroActions}>
               <Link href="https://my.kivilo.app/inspections" prefetch={false} className={styles.primaryButton}>Start your first handover</Link>
             </div>
