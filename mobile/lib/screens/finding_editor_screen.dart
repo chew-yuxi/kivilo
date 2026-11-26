@@ -27,6 +27,7 @@ class FindingEditorScreen extends StatefulWidget {
     this.photoSession,
     this.openMultiShotCamera,
     this.onRecover,
+    required this.currency,
     required this.maintenanceHistory,
     this.checkOutItems = const [],
     this.checkInItems = const [],
@@ -42,6 +43,9 @@ class FindingEditorScreen extends StatefulWidget {
   openMultiShotCamera;
   final Future<void> Function(String findingId, Map<String, dynamic>)?
   onRecover;
+
+  /// The inspection's, which the estimated cost is in.
+  final String currency;
   final List<Map<String, dynamic>> maintenanceHistory;
   final List<ComparableItem> checkOutItems;
   final List<ComparableItem> checkInItems;
@@ -1090,8 +1094,8 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: 'Estimated cost (SGD)',
+              decoration: InputDecoration(
+                labelText: 'Estimated cost (${widget.currency})',
               ),
             ),
             if (_photos != null) ...[

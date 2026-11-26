@@ -376,6 +376,11 @@ void main() {
         final furnishing = personal
             ? 'Partially furnished'
             : 'Fully furnished';
+        await tester.scrollUntilVisible(
+          find.text(furnishing),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
         // Mid-screen, clear of the Create check-in bar at the bottom.
         unawaited(
           Scrollable.ensureVisible(

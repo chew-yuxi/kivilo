@@ -16,6 +16,7 @@ class SignedReport {
     required this.startDate,
     required this.endDate,
     required this.deposit,
+    this.currency = 'SGD',
     this.conductedAt,
     this.conductedBy,
     required this.rooms,
@@ -39,6 +40,9 @@ class SignedReport {
   final String startDate;
   final String endDate;
   final String deposit;
+
+  /// The currency of the deposit and of every amount in the assessment.
+  final String currency;
   final String? conductedAt;
   final String? conductedBy;
   final List<ReportRoom> rooms;
@@ -67,6 +71,7 @@ class SignedReport {
     startDate: json['startDate'] as String,
     endDate: json['endDate'] as String,
     deposit: json['deposit'] as String,
+    currency: currencyOf(json),
     conductedAt: json['conductedAt'] as String?,
     conductedBy: json['conductedBy'] as String?,
     rooms: (json['rooms'] as List<dynamic>)

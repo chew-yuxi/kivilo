@@ -188,7 +188,11 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           : _agency;
       final id = await Navigator.of(context).push<String>(
         MaterialPageRoute(
-          builder: (_) => NewInspectionScreen(api: _api, initialAgency: agency),
+          builder: (_) => NewInspectionScreen(
+            api: _api,
+            initialAgency: agency,
+            country: _workspace.profile?.country ?? 'SG',
+          ),
         ),
       );
       if (!mounted || id == null) return;

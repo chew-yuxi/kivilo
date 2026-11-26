@@ -293,6 +293,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
         builder: (_) => AgreementTermsScreen(
           tenancyId: widget.tenancyId,
           agreement: data.agreement,
+          currency: data.currency,
           api: _api,
           ownerId: _ownerId,
           openUrl: widget.openUrl,
@@ -489,11 +490,12 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               const Divider(height: 32),
               AgreementTermsView(
                 terms: terms,
+                currency: data.currency,
                 matchesCurrentAgreement: agreement.termsMatchCurrentFile,
               ),
             ] else if (data.currentMinorRepairCap case final cap?) ...[
               const SizedBox(height: 16),
-              Text('Current minor repair cap: S\$$cap per repair'),
+              Text('Current minor repair cap: ${currencySymbol(data.currency)}$cap per repair'),
             ],
             if (agreement.canReview && agreement.currentFileId != null) ...[
               const SizedBox(height: 12),

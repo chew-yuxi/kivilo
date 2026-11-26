@@ -9,6 +9,7 @@ import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/capture_backend.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_theme.dart';
 
 /// Edits how this agent's reports are headed. Saves the text first, because the server
@@ -22,9 +23,13 @@ class BrandingDrawer extends StatefulWidget {
     this.agentName,
     this.teamId,
     this.teamName,
+    this.country,
   });
   final Api api;
   final AgentBranding? current;
+
+  /// Where the agent works, which names the register their number is on.
+  final String? country;
 
   /// The agent's own name, printed beside the agency. Until they change it, it is the
   /// start of their email address.
@@ -143,7 +148,7 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           Text(
             widget.teamId == null
                 ? 'Used with your name on reports for personal properties. Team properties use that team’s branding.'
-                : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own CEA registration appears beside it.',
+                : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own ${registrationName(widget.country)} registration appears beside it.',
             style: text.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -221,9 +226,12 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
             TextField(
               controller: _cea,
               textCapitalization: TextCapitalization.characters,
-              decoration: const InputDecoration(
-                labelText: 'Your CEA registration (optional)',
-                hintText: 'e.g. R061234B',
+              decoration: InputDecoration(
+                labelText:
+                    'Your ${registrationName(widget.country)} registration (optional)',
+                hintText: widget.country == 'MY'
+                    ? 'e.g. 12345'
+                    : 'e.g. R061234B',
               ),
             ),
             const SizedBox(height: 12),

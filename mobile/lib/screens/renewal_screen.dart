@@ -4,6 +4,7 @@ import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 
 class RenewalScreen extends StatefulWidget {
   const RenewalScreen({super.key, required this.tenancyId, this.api});
@@ -100,17 +101,20 @@ class _RenewalScreenState extends State<RenewalScreen> {
     }
   }
 
-  Widget _amount(TextEditingController controller, String label) =>
-      TextFormField(
-        controller: controller,
-        enabled: !_busy,
-        decoration: InputDecoration(labelText: label),
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        validator: (value) =>
-            RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value?.trim() ?? '')
-            ? null
-            : 'Enter a valid SGD amount',
-      );
+  Widget _amount(
+    TextEditingController controller,
+    String label,
+    String currency,
+  ) => TextFormField(
+    controller: controller,
+    enabled: !_busy,
+    decoration: InputDecoration(labelText: label),
+    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+    validator: (value) =>
+        RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value?.trim() ?? '')
+        ? null
+        : 'Enter a valid $currency amount',
+  );
 
   @override
   Widget build(BuildContext context) => ProductScreen(
@@ -139,6 +143,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
             final collaborators =
                 (snapshot.data!['collaborators'] as List<dynamic>? ?? const [])
                     .cast<Map<String, dynamic>>();
+            final currency = currencyOf(snapshot.data!);
             return Form(
               key: _form,
               child: ListView(
@@ -163,9 +168,9 @@ class _RenewalScreenState extends State<RenewalScreen> {
                     child: Text('Ends ${_iso(_end!)}'),
                   ),
                   const SizedBox(height: 16),
-                  _amount(_rent, 'Monthly rent (SGD)'),
+                  _amount(_rent, 'Monthly rent ($currency)', currency),
                   const SizedBox(height: 16),
-                  _amount(_deposit, 'Deposit (SGD)'),
+                  _amount(_deposit, 'Deposit ($currency)', currency),
                   const SizedBox(height: 20),
                   const Text(
                     'Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.',

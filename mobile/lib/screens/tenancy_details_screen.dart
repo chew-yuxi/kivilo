@@ -92,9 +92,22 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
     return null;
   }
 
+  bool get _malaysia => widget.property.country == 'MY';
+
   String? _moneyError(String? value) {
     if (!RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value?.trim() ?? '')) {
-      return 'Enter a valid SGD amount with up to 2 decimals';
+      return 'Enter a valid ${widget.property.currency} amount with up to 2 decimals';
+    }
+    return null;
+  }
+
+  String? _postalCodeError(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) {
+      return _malaysia ? 'Enter the postcode' : 'Enter the postal code';
+    }
+    if (_malaysia && !RegExp(r'^\d{5}$').hasMatch(text)) {
+      return 'A Malaysian postcode has 5 digits';
     }
     return null;
   }
@@ -212,11 +225,11 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _postalCode,
                 readOnly: !widget.property.canEditPropertyDetails,
-                decoration: const InputDecoration(labelText: 'Postal code'),
+                decoration: InputDecoration(
+                  labelText: _malaysia ? 'Postcode' : 'Postal code',
+                ),
                 keyboardType: TextInputType.number,
-                validator: (value) => (value?.trim().isEmpty ?? true)
-                    ? 'Enter the postal code'
-                    : null,
+                validator: _postalCodeError,
               ),
               const SizedBox(height: 16),
               IgnorePointer(
@@ -224,14 +237,21 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 child: KiviloSelectField<String>(
                   label: 'Property type',
                   value: _propertyType,
-                  options: const [
+                  options: [
                     KiviloSelectOption(
                       value: 'PRIVATE_NON_LANDED',
-                      label: 'Private, non-landed',
+                      label: _malaysia
+                          ? 'Condominium or apartment'
+                          : 'Private, non-landed',
                     ),
-                    KiviloSelectOption(value: 'HDB', label: 'HDB'),
-                    KiviloSelectOption(value: 'LANDED', label: 'Landed'),
-                    KiviloSelectOption(value: 'COMMERCIAL', label: 'Commercial'),
+                    // Public housing is Singapore's; the server refuses it in Malaysia.
+                    if (!_malaysia)
+                      const KiviloSelectOption(value: 'HDB', label: 'HDB'),
+                    const KiviloSelectOption(value: 'LANDED', label: 'Landed'),
+                    const KiviloSelectOption(
+                      value: 'COMMERCIAL',
+                      label: 'Commercial',
+                    ),
                   ],
                   onChanged: (value) => setState(() => _propertyType = value),
                 ),
@@ -318,8 +338,8 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _monthlyRent,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(
-                  labelText: 'Monthly rent (SGD)',
+                decoration: InputDecoration(
+                  labelText: 'Monthly rent (${widget.property.currency})',
                 ),
                 keyboardType: TextInputType.number,
                 validator: _moneyError,
@@ -328,7 +348,9 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _deposit,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(labelText: 'Deposit (SGD)'),
+                decoration: InputDecoration(
+                  labelText: 'Deposit (${widget.property.currency})',
+                ),
                 keyboardType: TextInputType.number,
                 validator: _moneyError,
               ),

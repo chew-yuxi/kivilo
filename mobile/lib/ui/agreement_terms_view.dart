@@ -10,9 +10,11 @@ class AgreementTermsView extends StatefulWidget {
   const AgreementTermsView({
     super.key,
     required this.terms,
+    required this.currency,
     this.matchesCurrentAgreement,
   });
   final AgreementTerms terms;
+  final String currency;
   final bool? matchesCurrentAgreement;
 
   @override
@@ -28,7 +30,7 @@ class _AgreementTermsViewState extends State<AgreementTermsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(terms.summary, style: Theme.of(context).textTheme.titleSmall),
+        Text(terms.summary(widget.currency), style: Theme.of(context).textTheme.titleSmall),
         if (terms.notes case final notes? when notes.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(notes),

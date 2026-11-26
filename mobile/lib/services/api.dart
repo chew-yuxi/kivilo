@@ -501,6 +501,19 @@ class Api {
     return UserProfile.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Where this account works. The server answers with the profile [me] reads, and it
+  /// is saved as that copy, so an agent who goes offline next is never asked again.
+  Future<UserProfile> saveCountry(String country) => _call(() async {
+    final owner = _cache.ownerId;
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/api/v1/me/country',
+      data: {'country': country},
+    );
+    _checkOwner(owner);
+    if (owner != null) await _cache.writeForOwner(owner, 'me', response.data);
+    return UserProfile.fromJson(response.data!);
+  });
+
   /// Public, so it is read the same with or without a session.
   Future<Map<String, dynamic>> appConfig() async =>
       (await _get<Map<String, dynamic>>('/api/v1/app-config')).data!;

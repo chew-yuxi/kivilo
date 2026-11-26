@@ -266,6 +266,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
       _locked(agency, 'Edit report branding');
       return;
     }
+    // Names the register the responsible agent's number is on.
+    final profile = await _api.me();
+    if (!mounted) return;
     final saved = await showKiviloDrawer<AgentBranding>(
       context: context,
       builder: (_) => BrandingDrawer(
@@ -273,6 +276,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
         current: agency.branding,
         teamId: agency.id,
         teamName: agency.name,
+        country: profile.country,
       ),
     );
     if (saved != null && mounted) await _refresh();

@@ -189,6 +189,7 @@ Future<void> _open(
                   MaterialPageRoute<void>(
                     builder: (_) => FindingEditorScreen(
                       finding: finding,
+                      currency: 'SGD',
                       maintenanceHistory: maintenanceHistory,
                       checkOutItems: checkOutItems ?? _outItems(),
                       checkInItems: checkInItems ?? _inItems(),

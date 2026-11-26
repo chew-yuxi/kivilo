@@ -15,6 +15,7 @@ import 'package:kivilo/screens/party_homes_screen.dart';
 import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/ui/handover_guide.dart';
+import 'package:kivilo/ui/kivilo_format.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
 HomeTask task(
@@ -163,6 +164,12 @@ Future<void> _reveal(WidgetTester tester, Finder target) async {
   expect(target.hitTestable(), findsOneWidget);
 }
 
+/// A renewal a month from whenever the test runs, so it is always still coming up.
+final _renewalEnds = DateTime.now()
+    .add(const Duration(days: 30))
+    .toIso8601String()
+    .substring(0, 10);
+
 final _work = HomeTasks(
   tasks: [
     task('older', date: '2026-10-01T00:00:00Z', dateKind: 'STARTED'),
@@ -193,7 +200,7 @@ final _work = HomeTasks(
       group: 'COMING_UP',
       kind: 'RENEWAL_DUE',
       title: 'Decide on the renewal',
-      date: '2026-11-10',
+      date: _renewalEnds,
       dateKind: 'ENDS',
       href: '/renewals/t',
     ),
@@ -230,7 +237,7 @@ void main() {
       await _reveal(tester, find.text('Waiting on others · 1'));
       expect(find.text('Waiting on Sam Lee (tenant)'), findsOneWidget);
       await _reveal(tester, find.text('Coming up · 1'));
-      expect(find.text('Ends 10 Nov 2026'), findsOneWidget);
+      expect(find.text('Ends ${calendarDate(_renewalEnds)}'), findsOneWidget);
       // No tutorial in front of an agent who already works.
       expect(find.byType(HandoverGuide), findsNothing);
       expect(api.requests, ['work']);

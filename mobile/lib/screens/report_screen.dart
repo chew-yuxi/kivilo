@@ -260,7 +260,7 @@ class _ReportScreenState extends State<ReportScreen> {
     int findingCount,
   ) {
     final text = Theme.of(context).textTheme;
-    String money(double amount) => 'S\$${amount.toStringAsFixed(2)}';
+    String amount(double value) => money(value, report.currency);
     Widget line(String label, String value, {bool bold = false}) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -282,18 +282,18 @@ class _ReportScreenState extends State<ReportScreen> {
           children: [
             Text('Deposit statement', style: text.titleSmall),
             const SizedBox(height: 8),
-            line('Deposit', money(statement.deposit)),
+            line('Deposit', amount(statement.deposit)),
             line(
               'Deductions (${statement.deductedCount} of $findingCount '
                   'findings, tenant liable)',
-              '-${money(statement.deductions)}',
+              '-${amount(statement.deductions)}',
             ),
             const Divider(),
             line(
               statement.toReturn >= 0
                   ? 'To return to the tenant'
                   : 'Deductions exceed the deposit by',
-              money(statement.toReturn.abs()),
+              amount(statement.toReturn.abs()),
               bold: true,
             ),
             const SizedBox(height: 8),
@@ -1017,8 +1017,8 @@ class _ReportScreenState extends State<ReportScreen> {
         else
           Text(
             '${liable.length} of ${assessment.findings.length} findings assess '
-            'tenant liability, totalling S\$${claim.toStringAsFixed(2)} against a '
-            'deposit of S\$${report.deposit}.',
+            'tenant liability, totalling ${money(claim, report.currency)} against a '
+            'deposit of ${currencySymbol(report.currency)}${report.deposit}.',
             style: text.bodyMedium,
           ),
         const SizedBox(height: 10),
@@ -1040,7 +1040,7 @@ class _ReportScreenState extends State<ReportScreen> {
                         [
                           _verdict(finding.verdict),
                           if (finding.estimatedCost != null)
-                            'S\$${finding.estimatedCost}',
+                            '${currencySymbol(report.currency)}${finding.estimatedCost}',
                         ].join(', '),
                         style: text.labelMedium?.copyWith(
                           color: KiviloColors.muted,

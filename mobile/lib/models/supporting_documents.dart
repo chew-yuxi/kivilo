@@ -1,3 +1,5 @@
+import '../ui/kivilo_format.dart';
+
 class SupportingDocuments {
   const SupportingDocuments({
     required this.tenancyId,
@@ -11,9 +13,13 @@ class SupportingDocuments {
     required this.requests,
     required this.agreement,
     this.currentMinorRepairCap,
+    this.currency = 'SGD',
   });
 
   final String tenancyId;
+
+  /// The currency of the cap and the confirmed terms.
+  final String currency;
   final String propertyLabel;
   final String tenantName;
   final String startDate;
@@ -39,6 +45,7 @@ class SupportingDocuments {
           json['agreement'] as Map<String, dynamic>,
         ),
         currentMinorRepairCap: json['currentMinorRepairCap'] as String?,
+        currency: currencyOf(json),
         requests: (json['requests'] as List<dynamic>)
             .map(
               (row) => SupportingDocumentRequest.fromJson(
@@ -144,8 +151,9 @@ class AgreementTerms {
   final String confirmedBy;
   final bool matchesCurrentAgreement;
 
-  String get summary => rule == 'FIRST_AMOUNT'
-      ? 'Tenant pays the first S\$$tenantCap per repair'
+  /// [currency] is the tenancy's: the terms are read from its agreement.
+  String summary(String currency) => rule == 'FIRST_AMOUNT'
+      ? 'Tenant pays the first ${currencySymbol(currency)}$tenantCap per repair'
       : 'Repair responsibility follows the agreement';
 
   factory AgreementTerms.fromJson(Map<String, dynamic> json) => AgreementTerms(

@@ -5,6 +5,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/agreement_terms_view.dart';
+import '../ui/kivilo_format.dart';
 
 final _money = RegExp(r'^\d+(?:\.\d{1,2})?$');
 
@@ -36,6 +37,7 @@ class ResponsibilityCard extends StatelessWidget {
     final body = await showKiviloDrawer<Map<String, dynamic>>(
       context: context,
       builder: (_) => ProposalDrawer(
+        currency: responsibility.currency,
         minorRepairCap: responsibility.minorRepairCap,
         from: from,
         counter: from != null && from.status == 'PENDING',
@@ -111,7 +113,7 @@ class ResponsibilityCard extends StatelessWidget {
             KiviloSectionHeading(title: 'Who pays', subtitle: subtitle),
             const SizedBox(height: kiviloHeadingGap),
             if (responsibility.maintenanceTerms case final terms?) ...[
-              AgreementTermsView(terms: terms),
+              AgreementTermsView(terms: terms, currency: responsibility.currency),
               const SizedBox(height: kiviloHeadingGap),
             ],
             if (agreement != null) ...[
@@ -127,7 +129,7 @@ class ResponsibilityCard extends StatelessWidget {
               if (responsibility.shares case final shares?
                   when shares.total != '0.00') ...[
                 const SizedBox(height: 10),
-                _Shares(shares: shares),
+                _Shares(shares: shares, currency: responsibility.currency),
               ],
             ],
             if (pending != null) ...[
@@ -339,8 +341,9 @@ class _ProposalPanel extends StatelessWidget {
 }
 
 class _Shares extends StatelessWidget {
-  const _Shares({required this.shares});
+  const _Shares({required this.shares, required this.currency});
   final CostShares shares;
+  final String currency;
 
   @override
   Widget build(BuildContext context) => Row(
@@ -365,7 +368,7 @@ class _Shares extends StatelessWidget {
                 Text(label, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 2),
                 Text(
-                  'S\$$amount',
+                  '${currencySymbol(currency)}$amount',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -417,11 +420,13 @@ class _FieldLabel extends StatelessWidget {
 class ProposalDrawer extends StatefulWidget {
   const ProposalDrawer({
     super.key,
+    required this.currency,
     this.minorRepairCap,
     this.from,
     this.counter = false,
   });
 
+  final String currency;
   final String? minorRepairCap;
   final ResponsibilityProposal? from;
   final bool counter;
@@ -489,7 +494,7 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
               ),
               decoration: InputDecoration(
                 labelText: 'Tenant pays up to',
-                prefixText: 'S\$ ',
+                prefixText: '${currencySymbol(widget.currency)} ',
                 helperText:
                     widget.minorRepairCap != null &&
                         cap == widget.minorRepairCap
@@ -549,6 +554,7 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
               arrangedBy: _arrangedBy,
               payer: _payer,
               tenantCap: cap.isEmpty ? '…' : cap,
+              currency: widget.currency,
             ),
           ),
         ],

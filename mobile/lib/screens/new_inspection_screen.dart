@@ -11,6 +11,7 @@ import 'contact_picker_screen.dart';
 import 'property_picker_screen.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 
@@ -22,7 +23,11 @@ class NewInspectionScreen extends StatefulWidget {
     this.cache,
     this.offerVerification = false,
     this.freeChecksLeft,
+    this.country = 'SG',
   });
+
+  /// Where the agent works, which a new property is made in. Fixed once it is made.
+  final String country;
 
   /// Free client checks left, to say what verifying both parties uses; null on Pro.
   final int? freeChecksLeft;
@@ -43,6 +48,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   late final _api = widget.api ?? Api();
   late final ReadCache _cache = widget.cache ?? ReadCache();
   late AgencySummary? _agency = widget.initialAgency;
+
+  /// An existing property keeps its own country; a new one is in the agent's.
+  String get _propertyCountry => _existing?.country ?? widget.country;
+  String get _currency => currencyFor(_propertyCountry);
+  bool get _malaysia => _propertyCountry == 'MY';
+
+  /// CEA due diligence is Singapore law, so it is never offered in Malaysia.
+  bool get _offersVerification => widget.offerVerification && !_malaysia;
 
   /// Sent with the create, so a retry after a lost response returns the same check-in.
   String _clientId = newCaptureId();
@@ -182,7 +195,11 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     }
     setState(() {
       _clientId = draft['clientId'] as String? ?? _clientId;
-      _propertyType = draft['propertyType'] as String? ?? _propertyType;
+      final type = draft['propertyType'] as String? ?? _propertyType;
+      // A draft begun before the agent said they work in Malaysia, where there is no HDB.
+      _propertyType = widget.country == 'MY' && type == 'HDB'
+          ? 'PRIVATE_NON_LANDED'
+          : type;
       _furnishingLevel = draft['furnishingLevel'] as String?;
       _startDate =
           DateTime.tryParse(draft['startDate'] as String? ?? '') ?? _startDate;
@@ -440,6 +457,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           'unit': value('unit').isEmpty ? null : value('unit'),
           'postalCode': value('postalCode'),
           'propertyType': _propertyType,
+          'country': widget.country,
         },
         'furnishingLevel': _furnishingLevel,
         if (_keepsLandlord)
@@ -462,7 +480,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'deposit': value('deposit').isEmpty ? '0' : value('deposit'),
         'clientId': _clientId,
         'rooms': _rooms,
-        if (widget.offerVerification) 'verifyParties': _verifyParties,
+        if (_offersVerification) 'verifyParties': _verifyParties,
       });
       await _pendingDraftWrite;
       try {
@@ -484,10 +502,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     String label, {
     bool required = false,
     TextInputType? keyboardType,
+    String? hint,
   }) => TextFormField(
     controller: _fields[key],
     decoration: InputDecoration(
       labelText: '$label (${required ? 'required' : 'optional'})',
+      hintText: hint,
     ),
     keyboardType: keyboardType,
     onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
@@ -502,7 +522,12 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       if (text.isNotEmpty &&
           (key == 'monthlyRent' || key == 'deposit') &&
           !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(text)) {
-        return 'Enter a valid SGD amount with up to 2 decimals';
+        return 'Enter a valid $_currency amount with up to 2 decimals';
+      }
+      if (key == 'postalCode' &&
+          _malaysia &&
+          !RegExp(r'^\d{5}$').hasMatch(text)) {
+        return 'A Malaysian postcode has 5 digits';
       }
       return null;
     },
@@ -589,26 +614,28 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 child: const Text('Choose a property'),
               ),
           ] else ...[
-            TextField(
-              controller: _lookup,
-              readOnly: _busy,
-              textInputAction: TextInputAction.search,
-              decoration: InputDecoration(
-                labelText: 'Find the address (optional)',
-                hintText: 'Postal code, building or street',
-                suffixIcon: _lookingUp
-                    ? const Padding(
-                        padding: EdgeInsets.all(14),
-                        child: SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      )
-                    : null,
+            // OneMap knows Singapore addresses only.
+            if (!_malaysia)
+              TextField(
+                controller: _lookup,
+                readOnly: _busy,
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  labelText: 'Find the address (optional)',
+                  hintText: 'Postal code, building or street',
+                  suffixIcon: _lookingUp
+                      ? const Padding(
+                          padding: EdgeInsets.all(14),
+                          child: SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        )
+                      : null,
+                ),
+                onChanged: _lookupChanged,
               ),
-              onChanged: _lookupChanged,
-            ),
-            if (_matches.isNotEmpty) ...[
+            if (!_malaysia && _matches.isNotEmpty) ...[
               const SizedBox(height: 8),
               Card(
                 clipBehavior: Clip.antiAlias,
@@ -631,18 +658,23 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 ),
               ),
             ],
-            if (_lookupNote != null) ...[
+            if (!_malaysia && _lookupNote != null) ...[
               const SizedBox(height: 6),
               Text(_lookupNote!, style: Theme.of(context).textTheme.bodySmall),
             ],
-            const SizedBox(height: 12),
-            _textField('line1', 'Address', required: true),
+            if (!_malaysia) const SizedBox(height: 12),
+            _textField(
+              'line1',
+              'Address',
+              required: true,
+              hint: _malaysia ? 'Building or street, area and city' : null,
+            ),
             const SizedBox(height: 12),
             _textField('unit', 'Unit'),
             const SizedBox(height: 12),
             _textField(
               'postalCode',
-              'Postal code',
+              _malaysia ? 'Postcode' : 'Postal code',
               required: true,
               keyboardType: TextInputType.number,
             ),
@@ -651,26 +683,35 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               label: 'Property type (required)',
               sheetTitle: 'Choose a property type',
               value: _propertyType,
-              options: const [
-                KiviloSelectOption(
-                  value: 'PRIVATE_NON_LANDED',
-                  label: 'Private, non-landed',
-                  description: 'Condominium or private apartment',
-                  icon: Icons.apartment_rounded,
-                ),
-                KiviloSelectOption(
-                  value: 'HDB',
-                  label: 'HDB',
-                  description: 'Public housing flat',
-                  icon: Icons.location_city_rounded,
-                ),
-                KiviloSelectOption(
+              options: [
+                _malaysia
+                    ? const KiviloSelectOption(
+                        value: 'PRIVATE_NON_LANDED',
+                        label: 'Condominium',
+                        description: 'Condominium, serviced residence or apartment',
+                        icon: Icons.apartment_rounded,
+                      )
+                    : const KiviloSelectOption(
+                        value: 'PRIVATE_NON_LANDED',
+                        label: 'Private, non-landed',
+                        description: 'Condominium or private apartment',
+                        icon: Icons.apartment_rounded,
+                      ),
+                // Public housing is Singapore's; the server refuses it in Malaysia.
+                if (!_malaysia)
+                  const KiviloSelectOption(
+                    value: 'HDB',
+                    label: 'HDB',
+                    description: 'Public housing flat',
+                    icon: Icons.location_city_rounded,
+                  ),
+                const KiviloSelectOption(
                   value: 'LANDED',
                   label: 'Landed',
                   description: 'Terrace, semi-detached or detached home',
                   icon: Icons.home_rounded,
                 ),
-                KiviloSelectOption(
+                const KiviloSelectOption(
                   value: 'COMMERCIAL',
                   label: 'Commercial',
                   description: 'Office, retail or other business premises',
@@ -767,7 +808,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             onPressed: _busy ? null : () => _chooseContact('TENANT'),
             child: const Text('Choose from your contacts'),
           ),
-          if (widget.offerVerification) ...[
+          if (_offersVerification) ...[
             const SizedBox(height: 16),
             Card(
               margin: EdgeInsets.zero,
@@ -814,13 +855,13 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           const SizedBox(height: 16),
           _textField(
             'monthlyRent',
-            'Monthly rent (SGD)',
+            'Monthly rent ($_currency)',
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 12),
           _textField(
             'deposit',
-            'Deposit (SGD)',
+            'Deposit ($_currency)',
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: 20),

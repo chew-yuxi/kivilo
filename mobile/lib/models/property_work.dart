@@ -1,3 +1,4 @@
+import '../ui/kivilo_format.dart';
 import 'cdd.dart';
 import 'maintenance.dart';
 
@@ -156,9 +157,10 @@ class PropertyTerm {
   factory PropertyTerm.fromJson(Map<String, dynamic> json) => PropertyTerm(
     tenancyId: json['tenancyId'] as String,
     canOpenDocuments: json['canOpenDocuments'] as bool? ?? false,
-    verification: json['verification'] == null
-        ? null
-        : TenancyVerification.fromJson((json['verification'] as Map).cast<String, dynamic>()),
+    verification: switch (json['verification']) {
+      {'enabled': true} && final Map checks => TenancyVerification.fromJson(checks.cast<String, dynamic>()),
+      _ => null,
+    },
     startDate: json['startDate'] as String,
     endDate: json['endDate'] as String,
     tenant: json['tenant'] as String,
@@ -199,9 +201,15 @@ class PropertyOverview {
     this.nextInspectionKind,
     this.nextStep,
     this.attention = const PropertyAttention(),
+    this.country = 'SG',
+    this.currency = 'SGD',
   });
   final String id;
   final String address;
+
+  /// Never changes. Every term's rent and deposit are in [currency].
+  final String country;
+  final String currency;
   final String line1;
   final String? unit;
   final String postalCode;
@@ -225,6 +233,8 @@ class PropertyOverview {
   ) => PropertyOverview(
     id: json['id'] as String,
     address: json['address'] as String,
+    country: countryOf(json),
+    currency: currencyOf(json),
     line1: json['line1'] as String? ?? json['address'] as String,
     unit: json['unit'] as String?,
     postalCode: json['postalCode'] as String? ?? '',
@@ -262,10 +272,14 @@ class StartableProperty {
     this.rooms = const [],
     this.lastLandlordName,
     this.lastLandlordEmail,
+    this.country = 'SG',
   });
   final String id;
   final String address;
   final String propertyType;
+
+  /// A new tenancy here is in this country and its currency.
+  final String country;
   final String lastTenant;
   final String lastEndDate;
   final String? agencyId;
@@ -282,6 +296,7 @@ class StartableProperty {
         id: json['id'] as String,
         address: json['address'] as String,
         propertyType: json['propertyType'] as String,
+        country: countryOf(json),
         lastTenant: json['lastTenant'] as String,
         lastEndDate: json['lastEndDate'] as String,
         agencyId: json['agencyId'] as String?,
@@ -298,6 +313,7 @@ class StartableProperty {
     'id': id,
     'address': address,
     'propertyType': propertyType,
+    'country': country,
     'lastTenant': lastTenant,
     'lastEndDate': lastEndDate,
     'agencyId': agencyId,

@@ -1,3 +1,4 @@
+import '../ui/kivilo_format.dart';
 import 'report.dart' show ReportPhoto;
 import 'tenancy_access.dart';
 
@@ -44,6 +45,7 @@ class InspectionDetail {
   const InspectionDetail({
     required this.id,
     this.tenancyRecordId,
+    this.clientChecksEnabled = false,
     this.propertyId,
     this.propertyState = 'ACTIVE',
     this.access,
@@ -68,10 +70,17 @@ class InspectionDetail {
     required this.maintenanceHistory,
     required this.checkOutItems,
     required this.checkInItems,
+    this.country = 'SG',
+    this.currency = 'SGD',
   });
 
   final String id;
+
+  /// The property's country, and the currency of the deposit and findings' costs.
+  final String country;
+  final String currency;
   final String? tenancyRecordId;
+  final bool clientChecksEnabled;
   final String? propertyId;
   final String propertyState;
   final TenancyAccess? access;
@@ -106,7 +115,10 @@ class InspectionDetail {
   factory InspectionDetail.fromJson(Map<String, dynamic> json) =>
       InspectionDetail(
         id: json['id'] as String,
+        country: countryOf(json),
+        currency: currencyOf(json),
         tenancyRecordId: json['tenancyRecordId'] as String?,
+        clientChecksEnabled: json['clientChecksEnabled'] == true,
         propertyId: json['propertyId'] as String?,
         propertyState: json['propertyState'] as String? ?? 'ACTIVE',
         access: json['access'] == null

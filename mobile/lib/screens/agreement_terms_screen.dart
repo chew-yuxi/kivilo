@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../models/supporting_documents.dart';
 import '../services/api.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 
 class AgreementTermsScreen extends StatefulWidget {
@@ -13,12 +14,16 @@ class AgreementTermsScreen extends StatefulWidget {
     super.key,
     required this.tenancyId,
     required this.agreement,
+    required this.currency,
     required this.api,
     required this.ownerId,
     this.openUrl,
   });
   final String tenancyId;
   final TenancyAgreement agreement;
+
+  /// The tenancy's, which the agreement's amounts are in.
+  final String currency;
   final Api api;
   final String? ownerId;
   final Future<void> Function(Uri)? openUrl;
@@ -291,9 +296,9 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: 'Tenant pays the first',
-                          prefixText: 'S\$ ',
+                          prefixText: '${currencySymbol(widget.currency)} ',
                           helperText: 'Per repair; landlord pays the rest',
                         ),
                       ),

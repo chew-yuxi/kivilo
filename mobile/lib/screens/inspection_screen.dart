@@ -162,8 +162,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
       }
       // CEA requires due diligence on both parties before the tenancy is signed. A soft
       // check: the agent can still send, but has to choose to (operators' preview).
+      // CEA is Singapore's; a Malaysian property has no such check.
       final tenancyId = inspection.tenancyRecordId;
-      if (inspection.kind == 'CHECK_IN' && tenancyId != null) {
+      if (inspection.clientChecksEnabled &&
+          inspection.kind == 'CHECK_IN' &&
+          tenancyId != null &&
+          inspection.country == 'SG') {
         final checks = await _api.tenancyVerification(tenancyId);
         if (!mounted) return;
         if (checks != null && !checks.bothVerified) {
@@ -338,6 +342,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
         builder: (_) => FindingEditorScreen(
           inspectionId: widget.id,
           api: _api,
+          currency: inspection.currency,
           maintenanceHistory: inspection.maintenanceHistory,
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
@@ -367,6 +372,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
           finding: finding,
           inspectionId: widget.id,
           api: _api,
+          currency: inspection.currency,
           maintenanceHistory: inspection.maintenanceHistory,
           checkOutItems: inspection.checkOutItems,
           checkInItems: inspection.checkInItems,
@@ -1468,7 +1474,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   if (finding.estimatedCost != null) ...[
                     const SizedBox(height: 8),
                     Text(
-                      'Estimated cost · SGD ${finding.estimatedCost}',
+                      'Estimated cost · ${inspection.currency} ${finding.estimatedCost}',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
