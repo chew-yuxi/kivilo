@@ -1,3 +1,4 @@
+import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { inspectionWorkScope } from '@/lib/inspection-work'
@@ -94,8 +95,9 @@ export const POST = authed(async (agent, _params, request) => {
   const id = await createInspection(input)
   // The app offers this only while two free checks remain (or on Pro). A check-in made
   // when the allowance ran out meanwhile is still made; its parties can be verified later.
+  if (!verifyParties || !clientChecksEnabled()) return { id }
   const { tenancyId, tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true, tenancy: { select: { agencyId: true } } } })
-  const left = verifyParties ? await clientChecksLeft(agent, tenancy.agencyId) : 0
-  if (verifyParties && (left === null || left >= 2)) await verifyTenancyParties(agent.id, tenancyId)
+  const left = await clientChecksLeft(agent, tenancy.agencyId)
+  if (left === null || left >= 2) await verifyTenancyParties(agent.id, tenancyId)
   return { id }
 })

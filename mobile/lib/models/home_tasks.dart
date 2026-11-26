@@ -82,7 +82,8 @@ class HomeTasks {
         .map((row) => HomeTask.fromJson(row as Map<String, dynamic>))
         .toList(),
     truncated: json['truncated'] as bool? ?? false,
-    dueDiligence: json['dueDiligence'] as bool? ?? false,
+    // Older phone caches advertised KYC even while it was being paused.
+    dueDiligence: json['clientChecksEnabled'] == true,
     dueDiligenceCounts: switch (json['dueDiligenceCounts']) {
       {'needsYou': final int needsYou, 'waiting': final int waiting} && final Map counts => (
         needsYou: needsYou,

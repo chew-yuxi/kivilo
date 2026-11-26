@@ -163,7 +163,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       // CEA requires due diligence on both parties before the tenancy is signed. A soft
       // check: the agent can still send, but has to choose to (operators' preview).
       final tenancyId = inspection.tenancyRecordId;
-      if (inspection.kind == 'CHECK_IN' && tenancyId != null) {
+      if (inspection.clientChecksEnabled && inspection.kind == 'CHECK_IN' && tenancyId != null) {
         final checks = await _api.tenancyVerification(tenancyId);
         if (!mounted) return;
         if (checks != null && !checks.bothVerified) {

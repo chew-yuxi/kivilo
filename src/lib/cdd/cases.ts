@@ -1,3 +1,4 @@
+import { clientChecksEnabled, requireClientChecksEnabled } from './availability'
 import { createHash } from 'node:crypto'
 import type { CddClientRole, CddIdType, CddParticulars, CddStatus, Prisma, ScreeningDecision, StakeholderKind } from '@/generated/prisma'
 import { actsAsAgent } from '@/lib/auth'
@@ -53,6 +54,7 @@ export type StartDeal = {
 /// "Start a deal": due diligence begins before any lease or check-in exists. Naming an
 /// existing tenancy links the case now; otherwise it is linked when the check-in creates one.
 export async function startDeal(actorId: string, input: StartDeal) {
+  requireClientChecksEnabled()
   const name = input.clientName.trim()
   if (!name) throw new CddInputError('Enter the client’s name')
   const email = input.clientEmail?.trim().toLowerCase() || null
@@ -91,6 +93,7 @@ export async function startDeal(actorId: string, input: StartDeal) {
 /// skipped, so a retried create or a second tap never starts anything twice; the tenancy
 /// row lock serializes two taps at once.
 export async function verifyTenancyParties(actorId: string, tenancyId: string, roles: CddClientRole[] = ['LANDLORD', 'TENANT']) {
+  requireClientChecksEnabled()
   const started = await db.$transaction(async (tx) => {
     await tx.$queryRaw`SELECT id FROM "Tenancy" WHERE id = ${tenancyId} FOR UPDATE`
     const tenancy = await tx.tenancy.findFirst({
@@ -210,6 +213,7 @@ export function particularsPath(caseId: string, email?: string | null) {
 /// Asks the client for their particulars by email, in-app and push, and returns the link
 /// for the agent to send on WhatsApp as well. At most once every ten minutes per case.
 export async function requestParticulars(caseId: string, agentId: string, options: { reminder?: boolean; now?: Date } = {}) {
+  requireClientChecksEnabled()
   return db.$transaction(async (tx) => {
     const found = await caseInScope(caseId, agentId, tx)
     if (found.status !== 'WAITING_FOR_CLIENT') throw new CddStateError('The client has already sent their particulars')
@@ -535,6 +539,7 @@ export async function caseCounts(agentId: string) {
 export const REMINDER_AFTER_HOURS = [24, 48]
 
 export async function sendDueReminders(now = new Date()) {
+  if (!clientChecksEnabled()) return []
   const waiting = await db.cddCase.findMany({
     where: { status: 'WAITING_FOR_CLIENT', particulars: null, client: { email: { not: null } }, events: { some: { kind: 'REQUEST_SENT' } } },
     select: {

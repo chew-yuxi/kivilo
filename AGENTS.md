@@ -391,6 +391,9 @@ check-out room must not be mistaken for retiring its original inventory.
 ## Client checks (CEA due diligence)
 
 CEA requires customer due diligence on both parties before a rental (`plans/compliance-pack.md`).
+New client checks are paused unless the server sets `KIVILO_CLIENT_CHECKS_ENABLED=true`.
+This switch controls discovery, new requests, reminders and queued delivery. Existing
+case links, records and signed reports remain accessible.
 A `CddCase` is one client's check: the client sends particulars from `/cdd/[caseId]` (signed in as
 themselves, like `/sign`), or the agent takes them in person; Kivilo screens them; the agent sees
 the original ID, decides each possible match with a reason, answers the risk checklist

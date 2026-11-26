@@ -1,3 +1,4 @@
+import { deliverableNotificationKinds } from '@/lib/cdd/availability'
 import { cert, getApps, initializeApp } from 'firebase-admin/app'
 import { getMessaging } from 'firebase-admin/messaging'
 import { z } from 'zod'
@@ -86,6 +87,7 @@ export async function deliverPushOutbox(limit = 50) {
 
   const unexpanded = await db.notification.findMany({
     where: {
+      ...deliverableNotificationKinds(),
       pushExpandedAt: null,
       recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
     },
@@ -127,6 +129,7 @@ export async function deliverPushOutbox(limit = 50) {
       attempts: { lt: 8 },
       installation: { disabledAt: null },
       notification: {
+        ...deliverableNotificationKinds(),
         recipient: { deletionRequests: { none: { status: { in: ['PROCESSING', 'COMPLETED'] } } } },
       },
       OR: [{ claimedAt: null }, { claimedAt: { lt: leaseCutoff } }],

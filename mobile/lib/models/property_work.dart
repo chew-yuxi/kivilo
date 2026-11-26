@@ -156,9 +156,10 @@ class PropertyTerm {
   factory PropertyTerm.fromJson(Map<String, dynamic> json) => PropertyTerm(
     tenancyId: json['tenancyId'] as String,
     canOpenDocuments: json['canOpenDocuments'] as bool? ?? false,
-    verification: json['verification'] == null
-        ? null
-        : TenancyVerification.fromJson((json['verification'] as Map).cast<String, dynamic>()),
+    verification: switch (json['verification']) {
+      {'enabled': true} && final Map checks => TenancyVerification.fromJson(checks.cast<String, dynamic>()),
+      _ => null,
+    },
     startDate: json['startDate'] as String,
     endDate: json['endDate'] as String,
     tenant: json['tenant'] as String,

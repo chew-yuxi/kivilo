@@ -44,6 +44,7 @@ class InspectionDetail {
   const InspectionDetail({
     required this.id,
     this.tenancyRecordId,
+    this.clientChecksEnabled = false,
     this.propertyId,
     this.propertyState = 'ACTIVE',
     this.access,
@@ -72,6 +73,7 @@ class InspectionDetail {
 
   final String id;
   final String? tenancyRecordId;
+  final bool clientChecksEnabled;
   final String? propertyId;
   final String propertyState;
   final TenancyAccess? access;
@@ -107,6 +109,7 @@ class InspectionDetail {
       InspectionDetail(
         id: json['id'] as String,
         tenancyRecordId: json['tenancyRecordId'] as String?,
+        clientChecksEnabled: json['clientChecksEnabled'] == true,
         propertyId: json['propertyId'] as String?,
         propertyState: json['propertyState'] as String? ?? 'ACTIVE',
         access: json['access'] == null

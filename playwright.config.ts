@@ -17,6 +17,7 @@ for (const key of ['DATABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'] as const) {
 // Override any developer delivery keys: browser tests never send external email.
 const testEmail = {
   KIVILO_APP_URL: origin,
+  KIVILO_CLIENT_CHECKS_ENABLED: 'true', // Exercise the optional CDD workflow with local fixtures.
   RESEND_API_KEY: 're_kivilo_e2e',
   RESEND_BASE_URL: 'http://127.0.0.1:3112',
   RESEND_FROM_EMAIL: 'Kivilo <noreply@kivilo.test>',

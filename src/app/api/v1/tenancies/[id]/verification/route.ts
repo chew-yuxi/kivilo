@@ -1,3 +1,4 @@
+import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { partyChecks, verifyTenancyParties } from '@/lib/cdd/cases'
@@ -7,6 +8,7 @@ export const dynamic = 'force-dynamic'
 /// The landlord's and tenant's due-diligence checks on this tenancy. `enabled` stays for
 /// the app, which showed nothing when it was false during the operators' preview.
 export const GET = authed(async (agent, { id }: { id: string }) => {
+  if (!clientChecksEnabled()) return { enabled: false }
   const checks = (await partyChecks([id], agent.id)).get(id)!
   return { enabled: true, ...checks }
 })

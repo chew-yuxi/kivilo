@@ -1,3 +1,4 @@
+import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { homeTasks } from '@/lib/home-tasks'
@@ -17,8 +18,8 @@ export const GET = authed(async (stakeholder, _params, request) => {
     ? { kind: 'WORK', agencyId: query.agencyId, personal: query.personal }
     : { kind: query.context === 'landlord' ? 'LANDLORD' : 'TENANT' })
   // Client checks (CEA due diligence) are agents' work, offered from the work context only.
-  if (query.context !== 'work') return { ...tasks, dueDiligence: false }
+  if (query.context !== 'work' || !clientChecksEnabled()) return { ...tasks, dueDiligence: false }
   // A separate field, since released builds read `dueDiligence` as a Boolean.
   const [counts, freeLeft] = await Promise.all([caseCounts(stakeholder.id), clientChecksLeft(stakeholder, query.agencyId)])
-  return { ...tasks, dueDiligence: true, dueDiligenceCounts: { ...counts, freeLeft } }
+  return { ...tasks, dueDiligence: true, clientChecksEnabled: true, dueDiligenceCounts: { ...counts, freeLeft } }
 })

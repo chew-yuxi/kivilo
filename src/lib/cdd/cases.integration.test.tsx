@@ -46,6 +46,7 @@ const dilisense = vi.fn(async (url: string | URL | Request, init?: RequestInit) 
 })
 
 beforeAll(async () => {
+  vi.stubEnv('KIVILO_CLIENT_CHECKS_ENABLED', 'true')
   vi.stubEnv('DILISENSE_API_KEY', 'test-key')
   vi.stubGlobal('fetch', dilisense)
   await db.sanctionsList.deleteMany()

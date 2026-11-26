@@ -53,6 +53,7 @@ void main() {
       ],
     });
 
+    expect(detail.clientChecksEnabled, isFalse);
     expect(detail.isOpen, isFalse);
     expect(detail.allRoomsReviewed, isTrue);
     expect(detail.signedBy('landlord-1'), isTrue);

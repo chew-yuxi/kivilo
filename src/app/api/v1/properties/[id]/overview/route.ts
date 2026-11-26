@@ -1,3 +1,4 @@
+import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { authed } from '@/lib/api/route'
 import { partyChecks } from '@/lib/cdd/cases'
 import { propertyOverview } from '@/lib/property-work'
@@ -9,9 +10,12 @@ export const GET = authed(async (agent, { id }: { id: string }) => {
   // CEA due diligence per party, on tenancies this agent works.
   if (!('terms' in overview)) return overview
   const working = overview.terms.filter((term) => term.monthlyRent !== null).map((term) => term.tenancyId)
-  const checks = await partyChecks(working, agent.id)
+  const checks = clientChecksEnabled() ? await partyChecks(working, agent.id) : null
   return {
     ...overview,
-    terms: overview.terms.map((term) => ({ ...term, verification: checks.get(term.tenancyId) ?? null })),
+    terms: overview.terms.map((term) => {
+      const parties = checks?.get(term.tenancyId)
+      return { ...term, verification: parties ? { enabled: true, ...parties } : null }
+    }),
   }
 })

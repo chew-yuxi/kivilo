@@ -1,3 +1,4 @@
+import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { db } from '@/lib/db'
 import { authorizeInspection, inspectionScope, tenancyScope } from '@/lib/auth'
 import { propertyLabel } from '@/lib/format'
@@ -105,6 +106,7 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
   return {
     id: inspection.id,
     tenancyRecordId: inspection.tenancyId,
+    clientChecksEnabled: clientChecksEnabled(),
     propertyId: inspection.tenancy.propertyId,
     propertyState: propertyState(inspection.tenancy.property),
     access: await tenancyAccess(inspection.tenancyId, agent.id),

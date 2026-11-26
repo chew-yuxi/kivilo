@@ -1,3 +1,4 @@
+import { deliverableNotificationKinds } from '@/lib/cdd/availability'
 import { db } from '@/lib/db'
 import { sendCddRequest, sendMaintenanceNotification, sendReportUpdateNotification, sendRenewalReminder, sendPropertySharedNotification, sendAgencyInvitationNotification, sendSupportingDocumentNotification } from '@/lib/email'
 import { queueRenewalReminders } from '@/lib/renewals'
@@ -46,6 +47,7 @@ export async function deliverNotificationOutbox(limit = 25) {
 
   const pending = await db.notification.findMany({
     where: {
+      ...deliverableNotificationKinds(),
       emailSentAt: null,
       emailAttempts: { lt: 8 },
       recipient: {
