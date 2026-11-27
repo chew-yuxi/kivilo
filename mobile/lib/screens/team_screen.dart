@@ -112,7 +112,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Create or join a team to manage properties with your colleagues. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.',
+                  'Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.',
                 ),
                 if (_error != null || snapshot.hasError) ...[
                   const SizedBox(height: 16),
