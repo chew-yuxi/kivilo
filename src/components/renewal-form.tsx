@@ -14,7 +14,7 @@ export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, curren
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
-  const field = 'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm'
+  const field = 'field mt-1'
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -56,7 +56,7 @@ export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, curren
       </div>
       <p className="text-xs text-gray-500">Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property, landlord and tenant.</p>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-      <button disabled={pending} type="submit" className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">{pending ? 'Creating…' : 'Create renewal check-in'}</button>
+      <button disabled={pending} type="submit" className="action-primary">{pending ? 'Creating…' : 'Create renewal check-in'}</button>
     </form>
   )
 }

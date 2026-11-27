@@ -377,7 +377,7 @@ function Viewer({
                     <button
                       type="button"
                       onClick={leaveAnnotating}
-                      className="rounded-md bg-red-600 px-3 py-2 font-medium"
+                      className="action-danger-confirm"
                     >
                       Discard
                     </button>
@@ -439,7 +439,7 @@ function Viewer({
                       disabled={busy || !dirty}
                       onClick={saveMarks}
                       data-marks={marks.length}
-                      className="rounded-md bg-brand-500 px-4 py-3 text-sm font-medium disabled:opacity-50"
+                      className="action-primary w-auto"
                     >
                       Save marks
                     </button>
@@ -465,7 +465,7 @@ function Viewer({
                       type="button"
                       disabled={busy}
                       onClick={destroy}
-                      className="rounded-md bg-red-600 px-3 py-2 font-medium disabled:opacity-50"
+                      className="action-danger-confirm"
                     >
                       Delete
                     </button>
@@ -501,7 +501,7 @@ function Viewer({
                     type="button"
                     disabled={busy}
                     onClick={saveNote}
-                    className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium disabled:opacity-50"
+                    className="action-primary w-auto"
                   >
                     Save note
                   </button>
@@ -679,7 +679,7 @@ export function RoomCaptureScreen({
           type="button"
           disabled={saving}
           onClick={() => photoInput.current?.click()}
-          className="w-full rounded-lg bg-brand-500 px-4 py-4 text-base font-semibold text-white active:bg-brand-600 disabled:opacity-50"
+          className="action-primary"
         >
           {saving ? 'Saving' : tiles.length > 0 ? 'Take another photo' : 'Take a photo'}
         </button>
@@ -698,7 +698,7 @@ export function RoomCaptureScreen({
             <button
               type="button"
               onClick={() => setViewing({ tile: lastShot, annotate: true })}
-              className="shrink-0 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium active:bg-gray-100"
+              className="action-secondary shrink-0"
             >
               Mark it up ›
             </button>
@@ -778,7 +778,7 @@ export function RoomCaptureScreen({
           {finished && queued.length === 0 && !saving ? (
             <Link
               href={reviewHref}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-center text-sm font-medium active:bg-gray-100"
+              className="action-secondary flex-1"
             >
               Review room
             </Link>
@@ -787,7 +787,7 @@ export function RoomCaptureScreen({
               type="button"
               disabled={!canFinish}
               onClick={finish}
-              className="flex-1 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100 disabled:opacity-50"
+              className="action-secondary flex-1"
             >
               {finishing ? 'Opening room…' : 'Review room'}
             </button>
@@ -795,7 +795,7 @@ export function RoomCaptureScreen({
           {next && (
             <Link
               href={next.href}
-              className="shrink-0 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium active:bg-gray-100"
+              className="action-secondary shrink-0"
             >
               Next room ›
             </Link>

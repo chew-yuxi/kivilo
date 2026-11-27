@@ -244,12 +244,12 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     active: widget.trackView,
     child: Scaffold(
     appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-    floatingActionButton: FloatingActionButton.extended(
-      onPressed: _creating ? null : _create,
-      backgroundColor: KiviloColors.pink,
-      foregroundColor: Colors.white,
-      icon: const Icon(Icons.add),
-      label: const Text('New check-in'),
+    bottomNavigationBar: KiviloActionFooter(
+      child: FilledButton.icon(
+        onPressed: _creating ? null : _create,
+        icon: const Icon(Icons.add),
+        label: const Text('New check-in'),
+      ),
     ),
     body: SafeArea(
       bottom: false,
@@ -306,7 +306,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         (available - (columns - 1) * 16) / columns;
                 return ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
+                  padding: kiviloScreenPadding,
                   children: [
                     Text(
                       'Properties',
@@ -429,18 +429,18 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                               ),
                               selected: _filter == filter,
                               onSelected: (_) => _selectFilter(filter),
-                              selectedColor: KiviloColors.ink,
+                              selectedColor: KiviloColors.pinkSoft,
                               backgroundColor: Colors.white,
-                              checkmarkColor: Colors.white,
+                              checkmarkColor: KiviloColors.pinkDark,
                               labelStyle: TextStyle(
                                 color: _filter == filter
-                                    ? Colors.white
+                                    ? KiviloColors.pinkDark
                                     : KiviloColors.body,
                                 fontWeight: FontWeight.w600,
                               ),
                               side: BorderSide(
                                 color: _filter == filter
-                                    ? KiviloColors.ink
+                                    ? KiviloColors.pinkDark
                                     : KiviloColors.border,
                               ),
                             ),
@@ -550,17 +550,6 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          if (!_api.offlineCopy) ...[
-            const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _create,
-                icon: const Icon(Icons.add),
-                label: const Text('Start check-in'),
-              ),
-            ),
-          ],
         ],
       ),
     ),

@@ -123,7 +123,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={busy}
-        className="min-h-14 w-full rounded-xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
+        className="action-primary"
       >
         {busy ? 'Working…' : stage === 'email' ? 'Email me a code' : 'Sign in'}
       </button>

@@ -169,7 +169,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
             <textarea required={rule === 'OTHER'} maxLength={2000} rows={3} value={notes} disabled={saving} onChange={(event) => setNotes(event.target.value)} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base font-normal" />
           </label>
           <p className="text-xs text-gray-500">Confirm only what the agreement says. These terms can prefill a proposed cost split; each repair still needs a separate cost agreement.</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="action-group">
             <button type="submit" disabled={saving || loading} className="action-primary">{saving ? 'Confirming…' : 'Confirm maintenance terms'}</button>
             <button type="button" disabled={saving} className="action-secondary" onClick={() => setEditing(false)}>Cancel</button>
           </div>

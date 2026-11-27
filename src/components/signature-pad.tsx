@@ -144,7 +144,7 @@ export function SignatureCanvas({
           type="button"
           disabled={!hasInk || pending || blocked}
           onClick={sign}
-          className="rounded-md bg-brand-500 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-40"
+          className="action-primary w-auto"
         >
           Sign
         </button>

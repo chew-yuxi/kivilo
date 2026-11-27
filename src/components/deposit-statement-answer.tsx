@@ -67,28 +67,28 @@ export function DepositStatementAnswer({
             rows={3}
             className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
           />
-          <div className="flex gap-2">
+          <div className="action-group">
             <button
               type="button"
               disabled={pending || !hydrated || reason.trim() === ''}
               onClick={() => send({ answer: 'DISPUTED', reason })}
-              className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              className="action-primary"
             >
               {pending ? 'Recording…' : 'Record dispute'}
             </button>
-            <button type="button" onClick={() => setDisputing(false)} className="px-3 py-2 text-sm text-gray-600">
+            <button type="button" onClick={() => setDisputing(false)} className="action-secondary">
               Cancel
             </button>
           </div>
         </div>
       ) : (
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="action-group mt-3">
           <button
             type="button"
             disabled={pending || !hydrated}
             aria-label={inPerson ? `Agree to the deposit statement, ${inPerson.name}` : undefined}
             onClick={() => send({ answer: 'AGREED' })}
-            className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+            className="action-secondary"
           >
             {pending ? 'Recording…' : `${who === 'you' ? 'I agree' : 'Agree'} to the deductions`}
           </button>
@@ -97,7 +97,7 @@ export function DepositStatementAnswer({
             disabled={pending || !hydrated}
             aria-label={inPerson ? `Dispute the deposit statement, ${inPerson.name}` : undefined}
             onClick={() => setDisputing(true)}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+            className="action-secondary"
           >
             Dispute
           </button>

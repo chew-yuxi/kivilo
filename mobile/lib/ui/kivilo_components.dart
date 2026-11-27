@@ -75,9 +75,9 @@ class _KiviloSegment<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // The chosen option is filled with the primary colour, as a FilledButton is.
+    // A selected filter stays distinct from the action that advances the handover.
     final foreground = selected && enabled
-        ? Colors.white
+        ? KiviloColors.pinkDark
         : enabled
         ? KiviloColors.muted
         : KiviloColors.subtle;
@@ -93,8 +93,9 @@ class _KiviloSegment<T> extends StatelessWidget {
           color: !selected
               ? Colors.transparent
               : enabled
-              ? KiviloColors.pink
+              ? KiviloColors.pinkSoft
               : KiviloColors.border,
+          border: selected && enabled ? Border.all(color: KiviloColors.pinkDark) : null,
           borderRadius: BorderRadius.circular(11),
         ),
         child: Material(

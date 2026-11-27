@@ -139,7 +139,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
                           }
                         })
                       }}
-                      className="min-h-11 rounded-md bg-red-700 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      className="action-danger-confirm"
                     >
                       {pending ? 'Removing…' : 'Remove access'}
                     </button>
@@ -202,7 +202,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
               <button
                 type="submit"
                 disabled={pending || email.trim().length === 0}
-                className="min-h-11 shrink-0 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                className="action-primary shrink-0 w-auto"
               >
                 {pending && !removingId ? 'Adding…' : 'Add collaborator'}
               </button>

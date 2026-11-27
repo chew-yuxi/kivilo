@@ -97,10 +97,9 @@ export function TeamDirectory({ data }: { data: Directory }) {
                 Invited as {roleName(invite.role)} · expires {date(invite.expiresAt)}
               </p>
               <p className="mt-2 text-sm text-gray-600">
-                Joining keeps your personal work private. Add new properties in the team workspace;
-                agents see only their assignments, while owners and managers oversee all team work.
+                Joining keeps your personal work private. Add new properties to the team. Agents see their assigned properties. Owners and managers see all team properties.
               </p>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 action-group">
                 <button
                   className="action-primary"
                   disabled={mutation.pending}
@@ -224,7 +223,7 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
             ? 'Owners and managers can oversee the team’s tenancies and manage assignments.'
             : 'Your team work shows tenancies assigned to you.'}
         </p>
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 action-group">
           <Link href={`/inspections/new?workspace=${encodeURIComponent(data.id)}`} className="action-primary">New check-in</Link>
           <Link href={`/inspections?workspace=${encodeURIComponent(data.id)}`} className="action-secondary">Open portfolio</Link>
         </div>

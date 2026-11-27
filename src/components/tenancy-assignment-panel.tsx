@@ -226,7 +226,7 @@ export function TenancyAssignmentPanel({
               </p>
             )}
             {agencyId && (
-              <div className="flex flex-wrap gap-2">
+              <div className="action-group">
                 <button className="action-primary" disabled={pending || !members.length}>
                   {pending
                     ? 'Saving…'

@@ -39,8 +39,7 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
 
   return (
     <div>
-      <WorkspaceSection agentId={agent.id} chosen={chosen} path="/inspections" />
-      <div className="mb-8 flex items-start justify-between gap-6">
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Inspections</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -50,11 +49,13 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
         </div>
         <Link
           href={newHref}
-          className="shrink-0 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+          className="action-primary shrink-0 sm:w-auto"
         >
           New check-in
         </Link>
       </div>
+
+      <WorkspaceSection agentId={agent.id} chosen={chosen} path="/inspections" />
 
       <RenewalCards renewals={renewals} />
 
@@ -65,12 +66,6 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
             Start a check-in when you next hand over a unit. You photograph each room and
             write the inventory against the photos.
           </p>
-          <Link
-            href={newHref}
-            className="mt-6 inline-block rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
-          >
-            New check-in
-          </Link>
         </div>
       ) : (
         <ul className="divide-y divide-gray-200 overflow-hidden rounded-lg border border-gray-200 bg-white">

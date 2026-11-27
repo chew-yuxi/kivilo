@@ -8,8 +8,8 @@ import { COMMON_COUNTRIES, COUNTRIES } from '@/lib/countries'
 
 const input = 'mt-1.5 block min-h-12 w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-base text-gray-900 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100'
 const label = 'block text-sm font-medium text-gray-700'
-const primary = 'flex min-h-12 w-full items-center justify-center rounded-xl bg-brand-500 px-4 text-[15px] font-semibold text-white transition-colors hover:bg-brand-600 disabled:opacity-50'
-const secondary = 'flex min-h-12 w-full items-center justify-center rounded-xl bg-brand-50 px-4 text-[15px] font-semibold text-brand-700 transition-colors hover:bg-brand-100'
+const primary = 'action-primary'
+const secondary = 'action-secondary w-full'
 
 const STEPS = ['Your details', 'Your ID', 'Confirm'] as const
 /// Which step asks for each field, so a problem sends the client back to fix it there.
@@ -156,7 +156,7 @@ export function CddParticularsForm({ caseId, agentName }: { caseId: string; agen
                       if (problem?.field === 'idNumber') setProblem(null)
                       setValues((current) => ({ ...current, idType: type.value }))
                     }}
-                    className={`min-h-10 rounded-lg text-sm font-semibold ${values.idType === type.value ? 'bg-brand-500 text-white shadow-sm' : 'text-gray-600'}`}
+                    className={`min-h-10 rounded-lg text-sm font-semibold ${values.idType === type.value ? 'border border-brand-700 bg-brand-50 text-brand-700' : 'text-gray-600'}`}
                   >
                     {type.label}
                   </button>

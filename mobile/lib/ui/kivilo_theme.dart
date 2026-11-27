@@ -56,7 +56,7 @@ ThemeData buildKiviloTheme() {
   final colors = ColorScheme.fromSeed(
     seedColor: KiviloColors.pink,
     primary: KiviloColors.pink,
-    onPrimary: Colors.white,
+    onPrimary: KiviloColors.ink,
     surface: Colors.white,
     onSurface: KiviloColors.ink,
     surfaceTint: Colors.transparent,
@@ -165,8 +165,11 @@ ThemeData buildKiviloTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: KiviloColors.pinkDark,
-        foregroundColor: Colors.white,
+        backgroundColor: KiviloColors.pink,
+        foregroundColor: KiviloColors.ink,
+        overlayColor: Colors.white,
+        disabledBackgroundColor: KiviloColors.disabled,
+        disabledForegroundColor: KiviloColors.muted,
         minimumSize: const Size(0, 50),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: _buttonShape,

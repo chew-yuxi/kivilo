@@ -96,26 +96,11 @@ class _CountryScreenState extends State<CountryScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: KiviloContent(
+      bottomNavigationBar: KiviloActionFooter(
         maxWidth: 560,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            // Alone on its line, so it spans the width.
-            child: SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: _saving ? null : _save,
-                child: Text(
-                  _saving
-                      ? 'Saving…'
-                      : _error != null
-                      ? 'Try again'
-                      : 'Continue',
-                ),
-              ),
-            ),
-          ),
+        child: FilledButton(
+          onPressed: _saving ? null : _save,
+          child: Text(_saving ? 'Saving…' : _error != null ? 'Try again' : 'Continue'),
         ),
       ),
     );

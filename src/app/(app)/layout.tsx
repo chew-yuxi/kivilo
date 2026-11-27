@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { MainNavigation } from '@/components/main-navigation'
 import { UploadQueueProvider, QueueStatus } from '@/components/upload-queue'
 import { ServiceWorker } from '@/components/service-worker'
 import { ErrorReporter } from '@/components/error-reporter'
@@ -40,13 +41,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             </div>
           </div>
         </header>
-        <nav aria-label="Main menu" className="border-b border-gray-200 bg-white">
-          <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 py-2 sm:px-6">
-            <Link href="/properties" className="action-secondary">Properties</Link>
-            <Link href="/inspections" className="action-secondary">My work</Link>
-            <Link href="/team" className="action-secondary">Team</Link>
-          </div>
-        </nav>
+        <MainNavigation label="Main menu" properties="Properties" work="My work" team="Team" />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-10">{children}</main>
       </div>
     </UploadQueueProvider>

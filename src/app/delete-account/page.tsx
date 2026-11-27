@@ -81,7 +81,7 @@ export default async function DeleteAccountPage() {
             </a>{' '}
             from your account address so we can help verify the request.
           </p>
-          <Link href="/login?next=%2Fdelete-account" className="mt-4 inline-block rounded-md bg-brand-600 px-4 py-2.5 font-medium text-white">
+          <Link href="/login?next=%2Fdelete-account" className="action-primary mt-4">
             Sign in to request deletion
           </Link>
         </div>
@@ -103,7 +103,7 @@ export default async function DeleteAccountPage() {
         <form action={submit} className="mt-8">
           <button
             type="submit"
-            className="rounded-md bg-red-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-red-700"
+            className="action-danger-confirm"
           >
             Request account deletion
           </button>

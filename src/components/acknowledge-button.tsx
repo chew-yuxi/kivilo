@@ -50,7 +50,7 @@ export function AcknowledgeButton({
             setError('Could not record that. Try again in a moment.')
           }
         })}
-        className="mt-4 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        className="action-primary mt-4"
       >
         {pending ? 'Recording…' : 'I acknowledge this update'}
       </button>

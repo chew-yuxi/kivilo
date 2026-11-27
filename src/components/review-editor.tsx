@@ -318,7 +318,7 @@ function ItemRow({
             <button
               type="button"
               onClick={onToggle}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+              className="action-secondary"
             >
               Done
             </button>
@@ -556,7 +556,7 @@ export function ReviewEditor({
                 type="button"
                 disabled={pending}
                 onClick={() => review({ nothingToRecord: true })}
-                className="rounded-md bg-brand-500 px-3 py-2 font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+                className="action-primary w-auto"
               >
                 Confirm
               </button>
@@ -573,7 +573,7 @@ export function ReviewEditor({
               type="button"
               disabled={pending}
               onClick={() => setConfirmEmpty(true)}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+              className="action-secondary"
             >
               Nothing to record
             </button>
@@ -582,7 +582,7 @@ export function ReviewEditor({
           type="button"
           disabled={pending || items.length === 0}
           onClick={() => review()}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+          className="action-primary"
         >
           {alreadyReviewed ? 'Save and go back' : 'Mark room reviewed'}
         </button>

@@ -15,8 +15,7 @@ const PROPERTY_TYPES: { value: PropertyType; label: string }[] = [
   { value: 'COMMERCIAL', label: 'Commercial' },
 ]
 
-const field =
-  'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none'
+const field = 'field mt-1'
 const requirement = 'ml-1 font-normal text-gray-400'
 
 export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial, plans }: {
@@ -106,7 +105,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
             {plan.needsMoreSeats ? 'This team needs a paid seat for every active member' : `Your plan’s ${plan.limit} active ${plan.limit === 1 ? 'property is' : 'properties are'} in use`}
           </p>
           <p className="mt-1 text-sm text-gray-500">A property stops counting when its check-out is signed or its tenancy ends. Existing work stays available.</p>
-          <Link href={workspace === 'personal' ? '/account' : `/account?agencyId=${encodeURIComponent(workspace)}`} className="mt-4 inline-block rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">See your plan</Link>
+          <Link href={workspace === 'personal' ? '/account' : `/account?agencyId=${encodeURIComponent(workspace)}`} className="action-primary mt-4">See your plan</Link>
         </div>
       )}
       <fieldset disabled={pending || limited} className={limited ? 'hidden' : 'space-y-8'}>
@@ -253,7 +252,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
       <button
         type="submit"
         disabled={pending || limited}
-        className="w-full rounded-md bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50 sm:w-auto"
+        className="action-primary"
       >
         {pending ? 'Creating…' : 'Create and start capturing'}
       </button>

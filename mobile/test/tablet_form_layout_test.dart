@@ -28,7 +28,8 @@ void main() {
       expect(field.width, lessThanOrEqualTo(688));
       expect(field.left, greaterThanOrEqualTo(0));
       expect(field.right, lessThanOrEqualTo(size.width));
-      expect(button.width, lessThanOrEqualTo(688));
+      expect(button.left, closeTo(field.left, 1));
+      expect(button.right, closeTo(field.right, 1));
       expect(button.center.dx, closeTo(size.width / 2, 1));
       expect(button.bottom, lessThanOrEqualTo(size.height));
       expect(field.bottom, lessThan(button.top));

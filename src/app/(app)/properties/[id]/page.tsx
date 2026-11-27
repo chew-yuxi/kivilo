@@ -36,7 +36,7 @@ export default async function PropertyPage({ params }: PageProps<'/properties/[i
           <PropertyStagePill stage={property.stage} label={property.stageLabel} />
         </div>
         {property.nextInspectionId && property.state !== 'TRASHED' && (
-          <Link href={`/inspections/${property.nextInspectionId}`} className="action-primary mt-4 flex w-full sm:inline-flex sm:w-auto">
+          <Link href={`/inspections/${property.nextInspectionId}`} className="action-primary mt-4">
             Open {property.nextInspectionKind === 'CHECK_OUT' ? 'check-out' : 'check-in'}
           </Link>
         )}

@@ -910,20 +910,17 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         ]),
       ),
     )),
-    bottomNavigationBar: KiviloContent(maxWidth: 720, child: AnimatedPadding(
+    bottomNavigationBar: AnimatedPadding(
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: FilledButton(
-            onPressed: _busy ? null : _create,
-            child: Text(_busy ? 'Creating…' : 'Create check-in'),
-          ),
+      child: KiviloActionFooter(
+        child: FilledButton(
+          onPressed: _busy ? null : _create,
+          child: Text(_busy ? 'Creating…' : 'Create check-in'),
         ),
       ),
-    )),
+    ),
   ),
   );
 
