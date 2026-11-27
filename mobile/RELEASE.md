@@ -5,6 +5,45 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Malaysia, the agent's country, and agency plans off the stores: 27 November 2026 Singapore time
+
+Server source `6be1316` on `origin/main`, deployed by Vercel (READY, `sin1`;
+`/api/v1/me/country` answers 401 signed out) after `20261118090000_property_country`
+and `20261118100000_stakeholder_country` were applied to production with `prisma
+migrate deploy` (31 properties and 82 stakeholders read back as `SG`, none null; RLS
+and client-role privileges unchanged). Each property has a country and draws its money
+in that country's currency; each agent answers "Where do you work?" once before Home;
+Malaysian properties get no OneMap, HDB or CEA checks, which also stay behind
+`KIVILO_CLIENT_CHECKS_ENABLED`. Singapore fingerprints, snapshot hashes and PDF cache
+keys are pinned unchanged against `origin/main` (`singapore-hashes.integration.test.ts`).
+The App Store and Play status endpoints offer no product to a team workspace. All 20
+Play team base plans were deactivated and read back `INACTIVE`. Apple's 20 team
+subscriptions stay on sale until the Account Holder removes them in App Store Connect:
+the API answers 409 "Only account holder can update or delete plan availability" for a
+`READY_FOR_SALE` subscription. Malaysia is **not** open on either store.
+
+| Platform / installed release | Patch / ID | Track read-back |
+| --- | --- | --- |
+| iOS App Store `1.0.0+26` | **7** / `848350` | **stable** |
+| Android internal `1.0.0+29` | **30** / `848351` | **stable** |
+| iOS TestFlight `1.0.0+25` | **58** / `848354` | **stable** |
+
+iOS 26 was patched from `6be1316` in a pinned worktree. Android 29 and iOS 25 were
+patched from `44a5a26` on `claude/cdd-patch-malaysia`: `51b34cf` plus main's app changes
+since `81b92b3` (which also carry the paused client checks), byte for byte equal to
+main's except `settings_screen.dart` and `services/api.dart`, which take the same
+change on the StoreKit-free line. `Icons.public` was replaced by `Icons.flag_outlined`
+before patching, since no release font has it; the patches add no icon against
+`9a06bbd` or `89a8534` (`b7f897f` lacks `Icons.info_outline`, used since 29 October).
+`--allow-asset-diffs` covered the icon font, and `NOTICES.Z` on Android and iOS 25. No
+native difference. Build numbers read back from the artifacts (`versionCode="29"`;
+`CFBundleVersion` 26 and 25). iOS shared 80.6% (26) and 55.9% (25) of Dart code.
+Published to staging, then set to stable on Yuxi's "ship both". Checks: 555 mobile tests
+on main and 543 on the patch source with clean analysis; typecheck, lint, build, 310
+unit (the one failure, `acquisition-keys`, also fails on `origin/main`), 456
+integration (the 8 known environment failures) and 28 of 29 e2e (billing needs a local
+Stripe webhook secret). Physical devices **NOT RUN**.
+
 ## Photos only, video capture removed: 18 November 2026 Singapore time
 
 Server source `81b92b3` on `origin/main`, deployed by Vercel (READY, `sin1`); the web
