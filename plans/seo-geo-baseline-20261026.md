@@ -101,3 +101,20 @@ measurement tooling and documentation; no production app or marketing deployment
 was made during this baseline collection. The subsequent acquisition implementation
 is recorded separately in [the work tracker](work-status.md); it does not backfill
 the baseline's unknown conversion values.
+
+## Competitor articles · 27 November 2026
+
+Kivilo published three comparisons and updated the Chapps article. The comparison directory now lists nine articles. Each new article links the vendors’ own documentation beside the feature claims. [Inventory Hive vs Kaptur](https://kivilo.app/compare/inventory-hive-vs-kaptur) · [Kivilo vs zInspector](https://kivilo.app/compare/kivilo-vs-zinspector) · [Kivilo vs Property Inspect](https://kivilo.app/compare/kivilo-vs-property-inspect)
+
+| Before publication | Clicks | Impressions | Reporting window |
+| --- | ---: | ---: | --- |
+| Google web search, all countries | 7 | 138 | 24 Oct–24 Nov |
+| Google, queries excluding “kivilo” | 0 | 26 | 24 Oct–24 Nov |
+| Google, “inventory hive vs kaptur” | 0 | 12 | 24 Oct–24 Nov |
+| Bing, all countries | 0 | 5 | 27 Aug–26 Nov |
+
+Google omits anonymized queries when a query filter is active. The two filtered rows overlap. As of release day, first-touch attribution recorded one verified Google organic signup and zero from Bing. Neither source had a first countersigned report. These counts cover all eligible acquisition records through 27 November. [Google Search Console](https://search.google.com/search-console/performance/search-analytics?resource_id=https%3A%2F%2Fkivilo.app%2F) · [Bing Webmaster Tools](https://www.bing.com/webmasters/) · [Kivilo acquisition](https://my.kivilo.app/admin)
+
+All 16 live pages passed the technical checks. Google read the sitemap and reported 16 discovered URLs. The Inventory Hive vs Kaptur URL was discovered and awaiting indexing when Google accepted the crawl request. Bing showed the HTTPS home as discovered and awaiting crawl, accepted an indexing request and was processing the sitemap. IndexNow acknowledged all 16 URLs. The apex HTTP redirect preserved the path and query on live requests.
+
+Use the existing weekly review to check index status and each article’s search terms, clicks and first signed reports. Compare matching completed periods within each engine. The private dated visibility report from 00:44 UTC records the engine readings, their periods and the acquisition totals.

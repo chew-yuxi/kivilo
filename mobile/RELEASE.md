@@ -5,6 +5,20 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Handover validation and deposit statements · 27 November 2026
+
+Server `05cb1f1` runs on both production app domains. Migration `20261127010000_tenancy_amounts_entered` added two nullable flags. Legacy signed fingerprints keep their original inputs. A deposit first supplied at check-out belongs to the published assessment. The Malaysian pilot signed both inventories with a blank deposit, then published RM2,000 less RM250 and showed RM1,750 to the tenant. A repeat publication returned the same version.
+
+| Installed build | Stable patch | Shorebird ID |
+| --- | --- | --- |
+| iOS App Store 1.0.0+26 | 8 | 848370 |
+| Android internal 1.0.0+29 | 31 | 848364 |
+| iOS TestFlight 1.0.0+25 | 59 | 848383 |
+
+All three artifacts were verified on a separate track and read back after promotion. Build 26 used the verified main app tree. The two older clients used `95dfa1b` on top of the previously released Malaysia patch source. Every release font contained all 117 required glyphs. Android’s decompressed notices matched. The TestFlight package-lock and dependencies match its preceding patch. The paired iPhone was unavailable and no Android handset was connected. [Matched before-and-after mobile screens](../plans/ux-handover-20261127.png)
+
+Fresh-install candidates for both platforms are `1.0.1+30` from `def77cf`. The signed AAB and IPA are in the operator checkout under `build/release-20261127-handover/`. The AAB signer matches installed build 29, and the packaged IPA passed strict, deep signature verification. Both identify `one.kivilo.kivilo`. Their SHA-256 digests are `4e530ea649ef4b1d7cb409c25fef50098ce7cfa335f18f73843cc08daf458831` (AAB) and `a0aedc8c2244556018fc351a9653108d0ed94bd1dc1857b64331cd05a9fde32e` (IPA). Both releases exist in Shorebird. Store distribution and Malaysia availability are separate steps. [Storefront copy and notice prepared for review](../plans/malaysia.md)
+
 ## Malaysia, the agent's country, and agency plans off the stores: 27 November 2026 Singapore time
 
 Server source `6be1316` on `origin/main`, deployed by Vercel (READY, `sin1`;

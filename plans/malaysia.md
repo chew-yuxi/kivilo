@@ -148,3 +148,29 @@ the backfill and setting and reading the agent's country. Render the changed app
 4. Privacy policy and terms: they name Singapore law, CEA and hosting. Malaysia's PDPA
    2010 and its notice requirements need market-specific review. The commissioner’s [privacy notice guide](https://www.pdp.gov.my/wp-content/uploads/2025/01/A-Quick-Guide-to-PRIVACY-NOTICE.pdf) calls for the national language and English. Wording is Yuxi’s decision.
 5. Add Malaysia on both stores, and update the listing copy.
+
+## Malaysian storefront and privacy wording for owner review
+
+These drafts are for the first Malaysian listing and onboarding notice. The owner must approve the notice and the application of the existing terms before either storefront opens. Review the English and Bahasa Malaysia texts together and make the approved notice accessible to agents and signing parties.
+
+**Store listing, English.** Record a rental handover room by room. Photograph the condition of each item, collect signatures from the landlord and tenant, and compare their agreed inventory at check-out. Enter a Malaysian address and record rent, repair costs and the deposit in ringgit. When you propose a deduction, each party can review the amount and agree or dispute it.
+
+**Penyenaraian aplikasi, Bahasa Malaysia.** Rekodkan keadaan rumah sewa mengikut bilik semasa penyerahan kunci. Ambil gambar keadaan setiap barang, dapatkan tandatangan pemilik dan penyewa, dan rujuk inventori yang dipersetujui ketika penyewa berpindah keluar. Masukkan alamat di Malaysia serta catat sewa, kos pembaikan dan deposit dalam ringgit. Jika potongan deposit dicadangkan, kedua-dua pihak boleh menyemak jumlahnya dan menyatakan persetujuan atau bantahan.
+
+### Short notice in English
+
+NotTooSweetLabs Pte. Ltd. operates Kivilo from Singapore. You, your property agent and the other people involved in the tenancy may supply names, contact details, the property address, dates and financial terms, inventory descriptions, photos, signatures and documents. We use these records to provide and secure the service, document the condition of the property, deliver reports and record the parties’ responses. Where relevant we also process subscription, device, usage and diagnostic records as described in our privacy policy.
+
+An email address is required to sign in. A property address and the parties’ names are needed to create a new handover. You can leave optional financial details blank. The agent must enter the deposit, including zero where applicable, before publishing a deposit statement. You choose whether to attach supporting documents or enable push notifications.
+
+The people with access depend on the record. Authorized agents can work on an assigned tenancy. Landlords and tenants can read the reports and documents shared with them. Anyone given a private report link can read that report until the agent revokes it. Our main database and media storage are in Singapore. Providers that host the service, deliver email or notifications, or verify payments may process data in other countries. Our full policy identifies the providers and explains retention, account deletion and which shared records may remain. To request access, correction, a limit on use or help with deletion, email hello@nottoosweetlabs.com.
+
+### Notis ringkas dalam Bahasa Malaysia
+
+NotTooSweetLabs Pte. Ltd. mengendalikan Kivilo dari Singapura. Anda, ejen hartanah anda dan pihak lain yang terlibat dalam penyewaan boleh memberikan nama, maklumat hubungan, alamat hartanah, tarikh dan syarat kewangan, butiran inventori, gambar, tandatangan dan dokumen. Kami menggunakan rekod ini untuk menyediakan dan melindungi perkhidmatan, merekodkan keadaan hartanah, menghantar laporan serta merekodkan maklum balas pihak yang terlibat. Jika berkenaan, kami turut memproses rekod langganan, peranti, penggunaan dan diagnostik seperti yang diterangkan dalam dasar privasi kami.
+
+Alamat e-mel diperlukan untuk log masuk. Alamat hartanah serta nama pemilik dan penyewa diperlukan untuk membuat rekod serahan baharu. Anda boleh membiarkan butiran kewangan pilihan kosong. Sebelum penyata deposit diterbitkan, ejen perlu memasukkan jumlah deposit, termasuk sifar jika tiada deposit dibayar. Anda boleh memilih sama ada hendak melampirkan dokumen sokongan atau mengaktifkan pemberitahuan pada peranti.
+
+Akses bergantung pada jenis rekod. Ejen yang diberi kuasa boleh menguruskan penyewaan yang ditugaskan kepada mereka. Pemilik dan penyewa boleh membaca laporan serta dokumen yang dikongsi dengan mereka. Sesiapa yang menerima pautan persendirian kepada laporan boleh membaca laporan itu sehingga ejen membatalkan pautan tersebut. Pangkalan data utama dan storan media kami berada di Singapura. Penyedia pengehosan, e-mel, pemberitahuan dan pengesahan pembayaran mungkin memproses data di negara lain. Dasar penuh kami menyenaraikan penyedia tersebut serta menerangkan tempoh penyimpanan, pemadaman akaun dan rekod bersama yang mungkin disimpan. Untuk meminta akses, pembetulan atau had penggunaan, atau mendapatkan bantuan memadamkan akaun, e-mel hello@nottoosweetlabs.com.
+
+The live notice and terms identify the operator, contact address, processors, retention rules and current Singapore governing-law clause. Review the effect of that clause for Malaysian users before release. [Privacy policy](https://my.kivilo.app/privacy) · [Terms of service](https://my.kivilo.app/terms) · [Malaysian commissioner’s guide](https://www.pdp.gov.my/wp-content/uploads/2025/01/A-Quick-Guide-to-PRIVACY-NOTICE.pdf)
