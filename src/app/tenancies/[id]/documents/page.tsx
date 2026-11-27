@@ -1,3 +1,6 @@
+import { LocaleProvider } from '@/components/locale'
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -22,6 +25,9 @@ export default async function SupportingDocumentsPage({ params, searchParams }: 
   const login = `/login?${new URLSearchParams({ next: destination })}`
   const viewer = await currentStakeholder()
   if (!viewer) redirect(login)
+  const locale = await requestLocale(viewer)
+  const m = messages(locale)
+  const w = m.pwa
 
   const workspace = await supportingDocumentsWorkspace(id, viewer.id).catch((error: unknown) => {
     if (error instanceof Error && /not found/i.test(error.message)) notFound()
@@ -29,26 +35,28 @@ export default async function SupportingDocumentsPage({ params, searchParams }: 
   })
 
   return (
-    <main className="mx-auto min-h-screen max-w-3xl px-5 py-6 sm:px-8 sm:py-10">
+    <LocaleProvider locale={locale}>
+    <main lang={locale} className="mx-auto min-h-screen max-w-3xl px-5 py-6 sm:px-8 sm:py-10">
       <header className="mb-8 space-y-6">
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-semibold tracking-tight">Kivilo</span>
-          <SignOut email={null} then={login} />
+          <SignOut locale={locale} email={null} then={login} />
         </div>
         <div>
           {workspace.role === 'agent' && (
-            <Link href="/inspections" className="text-link mb-3 inline-flex min-h-11 items-center text-sm">← My work</Link>
+            <Link href="/inspections" className="text-link mb-3 inline-flex min-h-11 items-center text-sm">{w.myWorkLabel}</Link>
           )}
-          <h1 className="text-2xl font-semibold tracking-tight">Documents</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{w.documents}</h1>
           <p className="mt-2 break-words text-sm text-gray-600">{workspace.propertyLabel}</p>
           <p data-testid="tenancy-context" className="mt-1 break-words text-sm text-gray-600">
-            {workspace.tenantName} · {new Date(workspace.startDate).toLocaleDateString('en-SG', { dateStyle: 'medium', timeZone: 'Asia/Singapore' })}
-            {' – '}{new Date(workspace.endDate).toLocaleDateString('en-SG', { dateStyle: 'medium', timeZone: 'Asia/Singapore' })}
+            {workspace.tenantName} · {new Date(workspace.startDate).toLocaleDateString(m.intl, { dateStyle: 'medium', timeZone: 'Asia/Singapore' })}
+            {' – '}{new Date(workspace.endDate).toLocaleDateString(m.intl, { dateStyle: 'medium', timeZone: 'Asia/Singapore' })}
           </p>
-          <p className="mt-1 break-words text-xs text-gray-500">Signed in as {viewer.email ?? viewer.name}</p>
+          <p className="mt-1 break-words text-xs text-gray-500">{m.web.signedInAs(viewer.email ?? viewer.name)}</p>
         </div>
       </header>
       <SupportingDocumentsPanel workspace={workspace} viewerId={viewer.id} requestedRequestId={requestedRequestId} />
     </main>
+    </LocaleProvider>
   )
 }

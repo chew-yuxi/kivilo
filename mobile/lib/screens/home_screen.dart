@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/home_tasks.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
@@ -98,8 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 property: inspection.property,
                 tenancyId: inspection.tenancyId ?? '',
                 title: inspection.kind == 'CHECK_OUT'
-                    ? 'Continue the check-out'
-                    : 'Continue the check-in',
+                    ? t.continueTheCheckOut
+                    : t.continueTheCheckIn,
                 person: inspection.tenant,
                 href: '/inspections/${inspection.id}',
               ),
@@ -166,9 +167,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _clientChecks() async {
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => CddListScreen(api: _api)),
-    );
+    await Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => CddListScreen(api: _api)));
     if (mounted) await _refresh();
   }
 
@@ -184,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (_) => NewInspectionScreen(
           api: _api,
           // Verifying both parties takes two checks.
-          offerVerification: _dueDiligence && (_freeChecksLeft == null || _freeChecksLeft! >= 2),
+          offerVerification:
+              _dueDiligence &&
+              (_freeChecksLeft == null || _freeChecksLeft! >= 2),
           freeChecksLeft: _freeChecksLeft,
           country: _workspace.profile?.country ?? 'SG',
           initialAgency: _workspace.all
@@ -238,146 +241,147 @@ class _HomeScreenState extends State<HomeScreen> {
       _ => null,
     },
     child: LayoutBuilder(
-    builder: (context, constraints) {
-      final tablet = constraints.maxWidth >= kiviloTabletBreakpoint;
-      return Scaffold(
-        appBar: _tab == 0
-            ? AppBar(
-                centerTitle: false,
-                titleSpacing: 16,
-                title: const Row(
-                  mainAxisSize: MainAxisSize.min,
+      builder: (context, constraints) {
+        final tablet = constraints.maxWidth >= kiviloTabletBreakpoint;
+        return Scaffold(
+          appBar: _tab == 0
+              ? AppBar(
+                  centerTitle: false,
+                  titleSpacing: 16,
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       KiviloMark(size: 28),
                       SizedBox(width: 10),
-                      Text('Home'),
+                      Text(t.homeTitle),
                     ],
-                ),
-                actions: [
-                  IconButton(
-                    tooltip: 'Notifications',
-                    icon: const Icon(Icons.notifications_none_outlined),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => NotificationsScreen(api: _api),
+                  ),
+                  actions: [
+                    IconButton(
+                      tooltip: t.notifications,
+                      icon: const Icon(Icons.notifications_none_outlined),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => NotificationsScreen(api: _api),
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Urgent services',
-                    icon: const Icon(Icons.home_repair_service_outlined),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ServiceDirectoryScreen(),
+                    IconButton(
+                      tooltip: t.homeUrgentServices,
+                      icon: const Icon(Icons.home_repair_service_outlined),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ServiceDirectoryScreen(),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-              )
-            : null,
-        body: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Keep the content in the same slot when an iPad window is resized.
-            SafeArea(
-              top: _tab != 0,
-              child: tablet
-                  ? NavigationRail(
-                      selectedIndex: _tab,
-                      onDestinationSelected: _selectTab,
-                      labelType: NavigationRailLabelType.all,
-                      destinations: [
-                        for (final tab in _tabs)
-                          switch (tab) {
-                            'properties' => const NavigationRailDestination(
-                              icon: Icon(Icons.apartment_rounded),
-                              selectedIcon: Icon(Icons.apartment_rounded),
-                              label: Text('Properties'),
-                            ),
-                            'account' => const NavigationRailDestination(
-                              icon: Icon(Icons.person_outline),
-                              selectedIcon: Icon(Icons.person),
-                              label: Text('Account'),
-                            ),
-                            _ => const NavigationRailDestination(
-                              icon: Icon(Icons.home_outlined),
-                              selectedIcon: Icon(Icons.home),
-                              label: Text('Home'),
-                            ),
-                          },
-                      ],
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            Expanded(
-              child: IndexedStack(
-                index: _tab,
-                children: [
-                  for (final tab in _tabs)
-                    KeyedSubtree(
-                      key: ValueKey('main-tab-$tab'),
-                      child: !_visitedTabs.contains(tab)
-                          ? const SizedBox.shrink()
-                          : switch (tab) {
-                              'properties' => _workspace.party == null
-                                  ? PropertiesScreen(
-                                      api: _api,
-                                      trackView: false,
-                                      workspace: _workspace,
-                                    )
-                                  : PartyHomesScreen(
-                                      key: ValueKey(_workspace.party),
-                                      api: _api,
-                                      workspace: _workspace,
-                                    ),
-                              'account' => SettingsScreen(
-                                api: _api,
-                                trackView: false,
-                                onCountryChanged: (profile) => setState(
-                                  () => _workspace.profile = profile,
-                                ),
-                                onStartCheckIn: _workspace.hasWork
-                                    ? null
-                                    : _create,
+                    const SizedBox(width: 8),
+                  ],
+                )
+              : null,
+          body: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Keep the content in the same slot when an iPad window is resized.
+              SafeArea(
+                top: _tab != 0,
+                child: tablet
+                    ? NavigationRail(
+                        selectedIndex: _tab,
+                        onDestinationSelected: _selectTab,
+                        labelType: NavigationRailLabelType.all,
+                        destinations: [
+                          for (final tab in _tabs)
+                            switch (tab) {
+                              'properties' => NavigationRailDestination(
+                                icon: Icon(Icons.apartment_rounded),
+                                selectedIcon: Icon(Icons.apartment_rounded),
+                                label: Text(t.settingsProperties),
                               ),
-                              _ => _overview(),
+                              'account' => NavigationRailDestination(
+                                icon: Icon(Icons.person_outline),
+                                selectedIcon: Icon(Icons.person),
+                                label: Text(t.settingsAccount),
+                              ),
+                              _ => NavigationRailDestination(
+                                icon: Icon(Icons.home_outlined),
+                                selectedIcon: Icon(Icons.home),
+                                label: Text(t.homeTitle),
+                              ),
                             },
-                    ),
-                ],
+                        ],
+                      )
+                    : const SizedBox.shrink(),
               ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: tablet
-            ? null
-            : BottomNavigationBar(
-                currentIndex: _tab,
-                onTap: _selectTab,
-                items: [
-                  for (final tab in _tabs)
-                    switch (tab) {
-                      'properties' => const BottomNavigationBarItem(
-                        icon: Icon(Icons.apartment_rounded),
-                        activeIcon: Icon(Icons.apartment_rounded),
-                        label: 'Properties',
+              Expanded(
+                child: IndexedStack(
+                  index: _tab,
+                  children: [
+                    for (final tab in _tabs)
+                      KeyedSubtree(
+                        key: ValueKey('main-tab-$tab'),
+                        child: !_visitedTabs.contains(tab)
+                            ? const SizedBox.shrink()
+                            : switch (tab) {
+                                'properties' =>
+                                  _workspace.party == null
+                                      ? PropertiesScreen(
+                                          api: _api,
+                                          trackView: false,
+                                          workspace: _workspace,
+                                        )
+                                      : PartyHomesScreen(
+                                          key: ValueKey(_workspace.party),
+                                          api: _api,
+                                          workspace: _workspace,
+                                        ),
+                                'account' => SettingsScreen(
+                                  api: _api,
+                                  trackView: false,
+                                  onCountryChanged: (profile) => setState(
+                                    () => _workspace.profile = profile,
+                                  ),
+                                  onStartCheckIn: _workspace.hasWork
+                                      ? null
+                                      : _create,
+                                ),
+                                _ => _overview(),
+                              },
                       ),
-                      'account' => const BottomNavigationBarItem(
-                        icon: Icon(Icons.person_outline),
-                        activeIcon: Icon(Icons.person),
-                        label: 'Account',
-                      ),
-                      _ => const BottomNavigationBarItem(
-                        icon: Icon(Icons.home_outlined),
-                        activeIcon: Icon(Icons.home),
-                        label: 'Home',
-                      ),
-                    },
-                ],
+                  ],
+                ),
               ),
-      );
-    },
-  ),
+            ],
+          ),
+          bottomNavigationBar: tablet
+              ? null
+              : BottomNavigationBar(
+                  currentIndex: _tab,
+                  onTap: _selectTab,
+                  items: [
+                    for (final tab in _tabs)
+                      switch (tab) {
+                        'properties' => BottomNavigationBarItem(
+                          icon: Icon(Icons.apartment_rounded),
+                          activeIcon: Icon(Icons.apartment_rounded),
+                          label: t.settingsProperties,
+                        ),
+                        'account' => BottomNavigationBarItem(
+                          icon: Icon(Icons.person_outline),
+                          activeIcon: Icon(Icons.person),
+                          label: t.settingsAccount,
+                        ),
+                        _ => BottomNavigationBarItem(
+                          icon: Icon(Icons.home_outlined),
+                          activeIcon: Icon(Icons.home),
+                          label: t.homeTitle,
+                        ),
+                      },
+                  ],
+                ),
+        );
+      },
+    ),
   );
 
   Widget _overview() => KiviloContent(
@@ -392,9 +396,9 @@ class _HomeScreenState extends State<HomeScreen> {
           if (snapshot.hasError) {
             return KiviloMessage(
               icon: Icons.cloud_off_outlined,
-              title: 'Could not load your tasks',
+              title: t.couldNotLoadYourTasks,
               body: plainError(snapshot.error!),
-              actionLabel: 'Try again',
+              actionLabel: t.tryAgain,
               onAction: _refresh,
               extra: _workspace.party != null || _workspace.all
                   ? null
@@ -402,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.only(top: kiviloButtonGap),
                       child: OutlinedButton(
                         onPressed: () => _selectWorkspace('all'),
-                        child: const Text('Show all my work'),
+                        child: Text(t.showAllMyWork),
                       ),
                     ),
             );
@@ -433,10 +437,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final firstName = name.split(RegExp(r'\s+')).first;
           final hour = DateTime.now().hour;
           final greeting = hour < 12
-              ? 'Good morning'
+              ? t.homeGoodMorning
               : hour < 18
-              ? 'Good afternoon'
-              : 'Good evening';
+              ? t.homeGoodAfternoon
+              : t.homeGoodEvening;
           final groups = [
             for (final group in homeTaskGroups.keys)
               if (data.group(group).any((task) => task.id != latest?.id)) group,
@@ -450,14 +454,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: text.headlineMedium,
               ),
               const SizedBox(height: 4),
-              Text(
-                switch (_workspace.party) {
-                  'LANDLORD' => 'Tasks for your properties.',
-                  'TENANT' => 'Tasks for your rented homes.',
-                  _ => 'Your tasks, updates and upcoming deadlines.',
-                },
-                style: text.bodyMedium,
-              ),
+              Text(switch (_workspace.party) {
+                'LANDLORD' => t.tasksForYourProperties,
+                'TENANT' => t.tasksForYourRentedHomes,
+                _ => t.yourTasksUpdatesAndUpcomingDeadlines,
+              }, style: text.bodyMedium),
               if (_workspace.showPicker) ...[
                 const SizedBox(height: 16),
                 WorkspacePicker(
@@ -468,23 +469,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
               if (_api.offlineCopy) ...[
                 const SizedBox(height: 12),
-                const KiviloNotice(
+                KiviloNotice(
                   tone: KiviloTone.warning,
-                  child: Text(
-                    'Offline. Showing tasks as they were last loaded; '
-                    'some may already be done.',
-                  ),
+                  child: Text(t.offlineShowingTasksAsTheyWereLast),
                 ),
               ] else if (snapshot.connectionState != ConnectionState.done) ...[
                 const SizedBox(height: 12),
                 Semantics(
                   liveRegion: true,
-                  child: Text('Checking for updates…', style: text.bodySmall),
+                  child: Text(t.checkingForUpdates, style: text.bodySmall),
                 ),
               ],
               if (work) ...[
                 const SizedBox(height: 16),
-                firstUse ? _startCard() : _shortcuts(latest, dueDiligence: _dueDiligence, checks: data.dueDiligenceCounts),
+                firstUse
+                    ? _startCard()
+                    : _shortcuts(
+                        latest,
+                        dueDiligence: _dueDiligence,
+                        checks: data.dueDiligenceCounts,
+                      ),
               ],
               for (final group in groups) ...[
                 const SizedBox(height: kiviloSectionGap),
@@ -500,12 +504,11 @@ class _HomeScreenState extends State<HomeScreen> {
               if (groups.isEmpty && latest == null && !firstUse) ...[
                 const SizedBox(height: kiviloSectionGap),
                 _allClear(),
-              ] else if (!groups.contains('ACTION') && latest == null && !firstUse) ...[
+              ] else if (!groups.contains('ACTION') &&
+                  latest == null &&
+                  !firstUse) ...[
                 const SizedBox(height: kiviloSectionGap),
-                Text(
-                  'Nothing needs your action right now.',
-                  style: text.bodyMedium,
-                ),
+                Text(t.nothingNeedsYourActionRightNow, style: text.bodyMedium),
               ],
               // The lessons are for someone who has not started yet; afterwards they
               // live in Account, below the work rather than in front of it.
@@ -522,7 +525,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// The newest inspection still open, and a new one: the two things an agent does
   /// most, without repeating the rows below.
-  Widget _shortcuts(HomeTask? latest, {required bool dueDiligence, ({int needsYou, int waiting, int? freeLeft})? checks}) {
+  Widget _shortcuts(
+    HomeTask? latest, {
+    required bool dueDiligence,
+    ({int needsYou, int waiting, int? freeLeft})? checks,
+  }) {
     final text = Theme.of(context).textTheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -534,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const KiviloEyebrow('Continue where you left off'),
+                  KiviloEyebrow(t.continueWhereYouLeftOff),
                   const SizedBox(height: 8),
                   Text(
                     latest.property,
@@ -561,13 +568,13 @@ class _HomeScreenState extends State<HomeScreen> {
           OutlinedButton.icon(
             onPressed: _create,
             icon: const Icon(Icons.add, size: 18),
-            label: const Text('New check-in'),
+            label: Text(t.newCheckIn),
           ),
         ] else
           FilledButton.icon(
             onPressed: _create,
             icon: const Icon(Icons.add, size: 20),
-            label: const Text('New check-in'),
+            label: Text(t.newCheckIn),
           ),
         if (dueDiligence) ...[
           const SizedBox(height: kiviloButtonGap),
@@ -587,12 +594,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: checks.needsYou > 0 ? KiviloColors.pinkSoft : KiviloColors.canvas,
+                          color: checks.needsYou > 0
+                              ? KiviloColors.pinkSoft
+                              : KiviloColors.canvas,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.fact_check_outlined,
-                          color: checks.needsYou > 0 ? KiviloColors.pinkDark : KiviloColors.muted,
+                          color: checks.needsYou > 0
+                              ? KiviloColors.pinkDark
+                              : KiviloColors.muted,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -600,21 +611,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Client checks (KYC/CDD)', style: text.titleMedium),
+                            Text(t.clientChecksKycCdd, style: text.titleMedium),
                             const SizedBox(height: 2),
                             Text(
                               [
-                                if (checks.needsYou > 0) '${checks.needsYou} need${checks.needsYou == 1 ? 's' : ''} you',
-                                if (checks.waiting > 0) '${checks.waiting} waiting on clients',
+                                if (checks.needsYou > 0)
+                                  '${checks.needsYou} need${checks.needsYou == 1 ? 's' : ''} you',
+                                if (checks.waiting > 0)
+                                  '${checks.waiting} waiting on clients',
                               ].join(' · '),
                               style: text.bodySmall?.copyWith(
-                                color: checks.needsYou > 0 ? KiviloColors.pinkDark : null,
+                                color: checks.needsYou > 0
+                                    ? KiviloColors.pinkDark
+                                    : null,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                      const Icon(
+                        Icons.chevron_right,
+                        color: KiviloColors.subtle,
+                      ),
                     ],
                   ),
                 ),
@@ -624,7 +642,7 @@ class _HomeScreenState extends State<HomeScreen> {
             OutlinedButton.icon(
               onPressed: _clientChecks,
               icon: const Icon(Icons.fact_check_outlined, size: 18),
-              label: const Text('Verify clients (KYC/CDD)'),
+              label: Text(t.verifyClientsKycCdd),
             ),
         ],
       ],
@@ -638,18 +656,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const KiviloEyebrow('Your first handover'),
+          KiviloEyebrow(t.yourFirstHandover),
           const SizedBox(height: 8),
           const KiviloIllustration(scene: KiviloScene.handover, height: 110),
           const SizedBox(height: 8),
           Text(
-            'Great handovers start with a clear record.',
+            t.greatHandoversStartWithAClearRecord,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Add the property and tenancy. We’ll guide you from the first photo '
-            'to the signed report. You can accept team invitations in Account.',
+            t.addThePropertyAndTenancyWellGuide,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
@@ -657,7 +674,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: _create,
             icon: const Icon(Icons.chevron_right, size: 20),
             iconAlignment: IconAlignment.end,
-            label: const Text('Start check-in'),
+            label: Text(t.homeStartCheckIn),
           ),
         ],
       ),
@@ -676,12 +693,12 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'You’re all caught up',
+                  t.youreAllCaughtUp,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Nothing is waiting on you or anyone else here.',
+                  t.nothingIsWaitingOnYouOrAnyone,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

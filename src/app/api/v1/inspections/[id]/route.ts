@@ -170,6 +170,10 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
         createdAt: item.createdAt.toISOString(),
         costStanding: costStanding(item.status, item.responsibilityProposals),
         costAgreement: agreed ? describeProposal(agreed, inspection.tenancy.property.country) : null,
+// The same terms as data, so the app can say them in its own language.
+        costAgreementTerms: agreed
+          ? { arrangedBy: agreed.arrangedBy, payer: agreed.payer, tenantCap: agreed.tenantCap?.toString() ?? null }
+          : null,
       }
     }),
     findings: await Promise.all(inspection.findings.map(async (finding) => ({

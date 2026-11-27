@@ -124,5 +124,5 @@ test('a tenant records move-in conditions with evidence and only a landlord-agre
   await expect(page.getByRole('heading', { name: 'Welcome to Kivilo', exact: true })).toBeVisible()
   await signIn(page, agentEmail)
   await page.goto(`/inspections/${checkoutId}`)
-  await expect(page.getByText('DAMAGED at check-in · DAMAGED at check-out', { exact: true })).toBeVisible()
+  await expect(page.getByText('Damaged at check-in · Damaged at check-out', { exact: true })).toBeVisible()
 })

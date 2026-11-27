@@ -1,4 +1,5 @@
 import '../ui/kivilo_format.dart';
+import '../l10n/l10n.dart';
 import 'handover.dart';
 import 'tenancy_access.dart';
 import 'supporting_documents.dart';
@@ -373,14 +374,26 @@ class MaintenanceEvidenceModel {
       );
 }
 
-const partyLabels = {'LANDLORD': 'Landlord', 'TENANT': 'Tenant'};
+Map<String, String> get partyLabels => {'LANDLORD': t.landlord, 'TENANT': t.tenant};
 
-const basisLabels = {
-  'MINOR_REPAIR_CLAUSE': 'Minor repair clause',
-  'TENANT_CAUSED': 'Caused by the tenant',
-  'FAIR_WEAR': 'Fair wear and tear',
-  'LANDLORD_OBLIGATION': "Landlord's obligation",
-  'OTHER': 'Other',
+/// A repair request's `category`, as a person reads it.
+Map<String, String> get maintenanceCategoryLabels => {
+  'APPLIANCE': t.assetAppliance,
+  'PLUMBING': t.categoryPlumbing,
+  'LOCKSMITH': t.categoryLocksmith,
+  'ELECTRICAL': t.categoryElectrical,
+  'AIR_CONDITIONING': t.categoryAirCon,
+  'STRUCTURAL': t.categoryStructural,
+  'PEST': t.categoryPest,
+  'OTHER': t.basisOther,
+};
+
+Map<String, String> get basisLabels => {
+  'MINOR_REPAIR_CLAUSE': t.basisMinorRepair,
+  'TENANT_CAUSED': t.basisTenantCaused,
+  'FAIR_WEAR': t.basisFairWear,
+  'LANDLORD_OBLIGATION': t.basisLandlordObligation,
+  'OTHER': t.basisOther,
 };
 
 /// Mirrors `describeProposal` in src/lib/maintenance.ts, so the preview a proposer
@@ -388,18 +401,24 @@ const basisLabels = {
 String describeProposal({
   required String arrangedBy,
   required String payer,
-  String? tenantCap,
   required String currency,
+  String? tenantCap,
 }) {
   final pays = payer == 'SHARED'
-      ? 'Tenant pays the first ${currencySymbol(currency)}$tenantCap, landlord pays the rest.'
-      : '${partyLabels[payer]} pays.';
-  return '$pays ${partyLabels[arrangedBy]} arranges the repair.';
+      ? t.proposalSharedPays('${currencySymbol(currency)}$tenantCap')
+      : payer == 'LANDLORD'
+      ? t.proposalLandlordPays
+      : t.proposalTenantPays;
+  final arranges = arrangedBy == 'LANDLORD'
+      ? t.proposalLandlordArranges
+      : t.proposalTenantArranges;
+  return '$pays $arranges';
 }
 
 class ResponsibilityProposal {
   const ResponsibilityProposal({
     required this.id,
+    this.currency = 'SGD',
     required this.side,
     required this.proposedBy,
     required this.arrangedBy,
@@ -416,6 +435,7 @@ class ResponsibilityProposal {
     this.responseNote,
   });
   final String id;
+  final String currency;
   final String side;
   final String proposedBy;
   final String arrangedBy;
@@ -424,6 +444,7 @@ class ResponsibilityProposal {
   final String basis;
   final String reason;
   final String? clauseRef;
+  /// The server's English sentence. [terms] says the same in the app's language.
   final String summary;
   final String status;
   final String? respondedBy;
@@ -431,9 +452,17 @@ class ResponsibilityProposal {
   final String? responseNote;
   final String createdAt;
 
-  factory ResponsibilityProposal.fromJson(Map<String, dynamic> json) =>
+  String get terms => describeProposal(
+    arrangedBy: arrangedBy,
+    payer: payer,
+    tenantCap: tenantCap,
+    currency: currency,
+  );
+
+  factory ResponsibilityProposal.fromJson(Map<String, dynamic> json, {String currency = 'SGD'}) =>
       ResponsibilityProposal(
         id: json['id'] as String,
+        currency: currency,
         side: json['side'] as String,
         proposedBy:
             (json['proposedBy'] as Map<String, dynamic>)['name'] as String,
@@ -511,7 +540,7 @@ class Responsibility {
   }) {
     ResponsibilityProposal? proposal(Object? value) => value == null
         ? null
-        : ResponsibilityProposal.fromJson(value as Map<String, dynamic>);
+        : ResponsibilityProposal.fromJson(value as Map<String, dynamic>, currency: currency);
     return Responsibility(
       currency: currency,
       arrangedBy: json['arrangedBy'] as String,

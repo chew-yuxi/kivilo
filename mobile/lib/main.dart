@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
+import 'l10n/l10n.dart';
 import 'screens/home_screen.dart';
 import 'screens/update_gate.dart';
 import 'services/api.dart';
@@ -24,6 +25,7 @@ import 'services/photo_cache.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppLanguage.load();
 
   if (Config.isPushComplete) {
     await Firebase.initializeApp(
@@ -78,10 +80,47 @@ Future<void> main() async {
   runApp(const KiviloApp());
 }
 
-class KiviloApp extends StatelessWidget {
+class KiviloApp extends StatefulWidget {
   const KiviloApp({super.key});
 
+  @override
+  State<KiviloApp> createState() => _KiviloAppState();
+}
+
+class _KiviloAppState extends State<KiviloApp> with WidgetsBindingObserver {
   static final PatchUpdate _patchUpdate = DevicePatchUpdate();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    AppLanguage.choice.addListener(_relocalize);
+  }
+
+  @override
+  void dispose() {
+    AppLanguage.choice.removeListener(_relocalize);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeLocales(List<Locale>? locales) => _relocalize();
+
+  /// Text is read through [t] rather than from the widget tree, so nothing below
+  /// depends on the locale. Every element is rebuilt instead, keeping its state, so a
+  /// change of language never loses a draft or the screen someone was on.
+  void _relocalize() {
+    AppLanguage.resolve(WidgetsBinding.instance.platformDispatcher.locales);
+    void rebuild(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(rebuild);
+    }
+
+    (context as Element).visitChildren(rebuild);
+    setState(() {});
+    if (Config.isComplete) _reportLanguage();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,6 +130,9 @@ class KiviloApp extends StatelessWidget {
       navigatorObservers: [productRouteObserver],
       debugShowCheckedModeBanner: false,
       theme: buildKiviloTheme(),
+      locale: AppLanguage.locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       // Above the navigator, so a retired build cannot reach any route, signed in or not.
       builder: (context, child) => UpdateGate(
         check: () => requiredUpdateUrl(Api()),
@@ -111,12 +153,23 @@ Future<void> _resumeCaptures() async {
   }
 }
 
+void _reportLanguage() {
+  final user = Supabase.instance.client.auth.currentUser;
+  if (user == null) return;
+  unawaited(
+    AppLanguage.report(Api().saveLanguage, user.id).catchError(
+      (Object error) => debugPrint('language report error: $error'),
+    ),
+  );
+}
+
 void _resumeUserServices() {
   unawaited(_resumeCaptures());
   final billing = PlayBilling.current;
   if (billing != null) unawaited(billing.resume());
   final appleBilling = AppleBilling.current;
   if (appleBilling != null) unawaited(appleBilling.resume());
+  _reportLanguage();
   // Reports wait for a session as well as for signal, so a sign-in is a moment to send.
   final reporter = ErrorReporter.current;
   if (reporter != null) unawaited(reporter.flush());

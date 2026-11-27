@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@supabase/supabase-js'
+import { usePwa } from '@/components/locale'
 import {
   enqueue,
   listPending,
@@ -220,6 +221,7 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
 /// One line in the header. Per-capture state lives on the capture itself, on the room
 /// screen; this only says that something is still leaving the phone.
 export function QueueStatus() {
+  const w = usePwa()
   const { pending, online } = useUploadQueue()
   if (online && pending.length === 0) return null
 
@@ -228,9 +230,9 @@ export function QueueStatus() {
       <span className={`size-2 shrink-0 rounded-full ${online ? 'bg-amber-500' : 'bg-gray-400'}`} />
       {!online
         ? pending.length > 0
-          ? `Offline, ${pending.length} saved here`
-          : 'Offline'
-        : `Uploading ${pending.length}`}
+          ? w.offlineSaved(pending.length)
+          : w.offline
+        : w.uploadingCount(pending.length)}
     </span>
   )
 }

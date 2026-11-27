@@ -3,6 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { timecode } from '@/lib/format'
+import { usePwa } from '@/components/locale'
 import { MarkOverlay } from '@/components/mark-overlay'
 import { CONDITION_TONE, CheckInReferencePanel } from '@/components/check-in-reference'
 import type { CheckInLine, CheckInReference } from '@/lib/check-in-reference'
@@ -48,7 +49,8 @@ export type EvidenceCapture = {
 const differs = (was: string | null, now: string | null) => (was ?? '').trim() !== (now ?? '').trim()
 
 /// "serial: ABC123", or "no serial" when the check-in left it empty.
-const quoted = (field: string, value: string | null) => (value?.trim() ? `${field}: ${value.trim()}` : `no ${field}`)
+const quoted = (said: (value: string) => string, none: string, value: string | null) =>
+  value?.trim() ? said(value.trim()) : none
 
 /// Whether a check-out row says anything its check-in line did not.
 function changedSince(item: EditableItem, baseline: CheckInLine) {
@@ -89,6 +91,7 @@ function ItemRow({
   onToggle: () => void
   onShowEvidence: (captureId: string, seconds: number | null) => void
 }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   // Held here as well as saved, so a tap shows at once rather than after the round trip.
   const [condition, setCondition] = useState(item.condition)
@@ -112,11 +115,11 @@ function ItemRow({
   const summary = [
     item.quantity > 1 ? `×${item.quantity}` : null,
     item.identifier?.trim() || null,
-    item.meterReading?.trim() ? `reading ${item.meterReading.trim()}` : null,
+    item.meterReading?.trim() ? w.readingSummary(item.meterReading.trim()) : null,
     item.notes?.trim().split('\n')[0] || null,
-    evidence.length > 0 ? `${evidence.length} ${evidence.length === 1 ? 'photo' : 'photos'}` : null,
+    evidence.length > 0 ? w.photoCount(evidence.length) : null,
   ].filter(Boolean)
-  const flag = changed ? 'Changed since check-in' : onCheckOut && !baseline ? 'Not at check-in' : null
+  const flag = changed ? w.changedSinceCheckIn : onCheckOut && !baseline ? w.notAtCheckIn : null
 
   return (
     <div data-item-row className={`border-t border-gray-100 ${pending ? 'opacity-60' : ''}`}>
@@ -139,7 +142,7 @@ function ItemRow({
           )}
         </span>
         <span className={`shrink-0 rounded px-2 py-0.5 text-xs font-medium ${CONDITION_TONE[condition]}`}>
-          {condition}
+          {w.conditionTag(condition)}
         </span>
         <span aria-hidden="true" className="shrink-0 text-lg text-gray-500">{open ? '⌄' : '›'}</span>
       </button>
@@ -147,13 +150,13 @@ function ItemRow({
       {open && (
         <div className="space-y-3 px-4 pb-4">
           <input
-            aria-label="Item name"
+            aria-label={w.itemName}
             defaultValue={item.name}
             onBlur={(e) => e.target.value !== item.name && save({ name: e.target.value })}
             className="w-full rounded border border-gray-200 px-2 py-1.5 text-sm font-medium focus:border-brand-500 focus:outline-none"
           />
 
-          <div role="radiogroup" aria-label="Condition" className="flex gap-1.5">
+          <div role="radiogroup" aria-label={w.conditionLabel} className="flex gap-1.5">
             {CONDITIONS.map((c) => (
               <button
                 key={c}
@@ -169,26 +172,26 @@ function ItemRow({
                   condition === c ? `${CONDITION_TONE[c]} ring-1 ring-current` : 'bg-gray-50 text-gray-500'
                 }`}
               >
-                {c}
+                {w.conditionTag(c)}
               </button>
             ))}
           </div>
 
           {item.category === 'METER' && (
             <input
-              aria-label="Reading"
+              aria-label={w.reading}
               defaultValue={item.meterReading ?? ''}
-              placeholder="Reading"
+              placeholder={w.reading}
               onBlur={(e) => save({ meterReading: e.target.value || null })}
               className="w-full rounded border border-gray-200 px-2 py-1.5 font-mono text-xs focus:border-brand-500 focus:outline-none"
             />
           )}
 
           <textarea
-            aria-label="Condition notes"
+            aria-label={w.conditionNotes}
             defaultValue={item.notes ?? ''}
             rows={2}
-            placeholder="Condition notes"
+            placeholder={w.conditionNotes}
             onBlur={(e) =>
               e.target.value !== (item.notes ?? '') && save({ notes: e.target.value || null })
             }
@@ -197,9 +200,9 @@ function ItemRow({
 
           <div className="flex items-center gap-2">
             <input
-              aria-label="Make, model and serial"
+              aria-label={w.makeModelSerial}
               defaultValue={item.identifier ?? ''}
-              placeholder="Make / model / serial"
+              placeholder={w.makeModelSerialHint}
               onBlur={(e) =>
                 e.target.value !== (item.identifier ?? '') &&
                 save({ identifier: e.target.value || null })
@@ -207,14 +210,14 @@ function ItemRow({
               className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1.5 font-mono text-xs text-gray-600 focus:border-brand-500 focus:outline-none"
             />
             <select
-              aria-label="Kind"
+              aria-label={w.kind}
               defaultValue={item.category}
               onChange={(e) => save({ category: e.target.value as ItemCategory })}
               className="rounded bg-gray-100 px-1.5 py-1.5 text-xs text-gray-600 focus:outline-none"
             >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
-                  {c.toLowerCase()}
+                  {w.itemCategory(c)}
                 </option>
               ))}
             </select>
@@ -224,7 +227,7 @@ function ItemRow({
             // Which photos show this line. The report prints their numbers beside it, so
             // a dispute about the fridge goes straight to the fridge's pictures.
             <div>
-              <p className="text-xs text-gray-500">Photos of this item</p>
+              <p className="text-xs text-gray-500">{w.photosOfItem}</p>
               <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
                 {captures.map((capture, index) => {
                   const selected = evidence.includes(capture.id)
@@ -233,9 +236,10 @@ function ItemRow({
                       key={capture.id}
                       type="button"
                       aria-pressed={selected}
-                      aria-label={`${capture.kind === 'VIDEO' ? 'Video' : 'Photo'} ${
-                        captures.slice(0, index + 1).filter(({ kind }) => kind === capture.kind).length
-                      }`}
+                      aria-label={w.captureN(
+                        capture.kind === 'VIDEO',
+                        captures.slice(0, index + 1).filter(({ kind }) => kind === capture.kind).length,
+                      )}
                       onClick={() => toggleEvidence(capture.id)}
                       className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border-2 ${
                         selected ? 'border-brand-500' : 'border-transparent opacity-70'
@@ -243,7 +247,7 @@ function ItemRow({
                     >
                       {capture.kind === 'VIDEO' ? (
                         <span className="flex h-full w-full items-center justify-center bg-gray-900 text-xs text-white">
-                          Video
+                          {w.video}
                         </span>
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -267,7 +271,7 @@ function ItemRow({
               onClick={() => onShowEvidence(item.sourceCaptureId!, item.sourceTimestampSec)}
               className="action-secondary px-3 font-mono text-xs"
             >
-              {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : 'photo'}
+              {item.sourceTimestampSec !== null ? timecode(item.sourceTimestampSec) : w.photoWord}
             </button>
           )}
 
@@ -275,12 +279,12 @@ function ItemRow({
             // What this line looked like when both parties signed, beside the line now.
             // Each overlay wraps its picture alone, so a check-in ring stays on its spot.
             <div>
-              <p className="text-xs text-gray-500">At check-in</p>
+              <p className="text-xs text-gray-500">{w.atCheckIn}</p>
               <div className="mt-1.5 flex gap-2 overflow-x-auto pb-1">
                 {checkInPhotos.map((photo) => (
                   <a key={photo.id} href={photo.url} target="_blank" rel="noreferrer" className="relative block shrink-0 self-start overflow-hidden rounded border border-gray-200">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={photo.url} alt="Check-in photo of this item" className="block h-20 w-auto" />
+                    <img src={photo.url} alt={w.checkInPhotoOfItem} className="block h-20 w-auto" />
                     <MarkOverlay annotations={photo.annotations} />
                   </a>
                 ))}
@@ -293,14 +297,14 @@ function ItemRow({
             // row no longer says the same, each named, so "no serial" says the serial is new.
             <p className="text-xs text-gray-500">
               {/* An addendum's line is marked as the reference panel marks it. */}
-              {baseline.update ? 'At check-in, updated:' : 'At check-in:'}{' '}
+              {baseline.update ? w.atCheckInUpdated : w.atCheckInColon}{' '}
               {[
-                baseline.condition,
-                differs(baseline.name, item.name) ? `name: ${baseline.name}` : null,
+                w.conditionTag(baseline.condition),
+                differs(baseline.name, item.name) ? w.wasNamed(baseline.name) : null,
                 baseline.quantity !== item.quantity ? `×${baseline.quantity}` : null,
-                differs(baseline.identifier, item.identifier) ? quoted('serial', baseline.identifier) : null,
-                differs(baseline.meterReading, item.meterReading) ? quoted('reading', baseline.meterReading) : null,
-                differs(baseline.notes, item.notes) ? quoted('notes', baseline.notes) : null,
+                differs(baseline.identifier, item.identifier) ? quoted(w.wasSerial, w.noSerial, baseline.identifier) : null,
+                differs(baseline.meterReading, item.meterReading) ? quoted(w.wasReading, w.noReading, baseline.meterReading) : null,
+                differs(baseline.notes, item.notes) ? quoted(w.wasNotes, w.noNotes, baseline.notes) : null,
               ]
                 .filter(Boolean)
                 .join(' · ')}
@@ -313,14 +317,14 @@ function ItemRow({
               onClick={() => startTransition(() => void deleteItem(item.id, inspectionId))}
               className="action-danger px-3 text-xs"
             >
-              Remove
+              {w.remove}
             </button>
             <button
               type="button"
               onClick={onToggle}
               className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
             >
-              Done
+              {w.done}
             </button>
           </div>
         </div>
@@ -350,6 +354,7 @@ export function ReviewEditor({
   /// Where "Mark room reviewed" goes: the next room still needing the inspector.
   nextHref: string
 }) {
+  const w = usePwa()
   const router = useRouter()
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
   const [pending, startTransition] = useTransition()
@@ -468,7 +473,7 @@ export function ReviewEditor({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={capture.posterUrl ?? capture.url}
-                  alt="Inspection photo"
+                  alt={w.inspectionPhoto}
                   className="block h-44 w-auto max-w-[85vw] object-contain sm:h-auto sm:w-full sm:max-w-none"
                 />
                 <MarkOverlay annotations={capture.annotations} />
@@ -483,8 +488,8 @@ export function ReviewEditor({
           <div>
             <h2 className="text-sm font-medium">{roomName}</h2>
             <p className="text-xs text-gray-500">
-              {items.length} {items.length === 1 ? 'item' : 'items'}
-              {checkIn && (changedCount === 0 ? ' · none changed since check-in' : ` · ${changedCount} changed since check-in`)}
+              {w.roomItemCount(items.length)}
+              {checkIn && w.changedSinceCount(changedCount)}
             </p>
           </div>
         </div>
@@ -500,9 +505,9 @@ export function ReviewEditor({
               className="flex w-full items-center justify-between border-t border-gray-100 bg-gray-50 px-4 py-3 text-left text-sm text-gray-600 hover:bg-gray-100"
             >
               <span>
-                {unchanged.length} {unchanged.length === 1 ? 'line' : 'lines'} as at check-in
+                {w.linesAsAtCheckIn(unchanged.length)}
               </span>
-              <span className="text-xs font-medium text-brand-600">{showUnchanged ? 'Hide' : 'Show'}</span>
+              <span className="text-xs font-medium text-brand-600">{showUnchanged ? w.hide : w.show}</span>
             </button>
             {showUnchanged && unchanged.map(row)}
           </>
@@ -510,7 +515,7 @@ export function ReviewEditor({
 
         {items.length === 0 && (
           <p className="border-t border-gray-100 px-4 py-8 text-center text-sm text-gray-500">
-            No items in this room yet.
+            {w.noItemsInRoom}
           </p>
         )}
 
@@ -527,21 +532,20 @@ export function ReviewEditor({
             }
             className="action-secondary"
           >
-            + Add an item
+            {w.addAnItem}
           </button>
         </div>
       </div>
 
       {unchanged.length > 0 && (
         <p className="text-right text-sm text-gray-600">
-          Marking the room reviewed records the {unchanged.length} folded{' '}
-          {unchanged.length === 1 ? 'line' : 'lines'} as you found them at check-in.
+          {w.foldedLinesNote(unchanged.length)}
         </p>
       )}
 
       {items.length === 0 && (
         <p className="text-right text-sm text-gray-600">
-          Add an item, or confirm there is nothing to record in this room.
+          {w.addOrConfirmNothing}
         </p>
       )}
 
@@ -551,21 +555,21 @@ export function ReviewEditor({
         {items.length === 0 &&
           (confirmEmpty ? (
             <div className="flex items-center gap-2 text-sm">
-              <span>Nothing to record in {roomName}?</span>
+              <span>{w.nothingToRecordIn(roomName)}</span>
               <button
                 type="button"
                 disabled={pending}
                 onClick={() => review({ nothingToRecord: true })}
                 className="rounded-md bg-brand-500 px-3 py-2 font-medium text-white hover:bg-brand-600 disabled:opacity-50"
               >
-                Confirm
+                {w.confirm}
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmEmpty(false)}
                 className="action-secondary"
               >
-                Cancel
+                {w.cancel}
               </button>
             </div>
           ) : (
@@ -575,7 +579,7 @@ export function ReviewEditor({
               onClick={() => setConfirmEmpty(true)}
               className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
             >
-              Nothing to record
+              {w.nothingToRecord}
             </button>
           ))}
         <button
@@ -584,7 +588,7 @@ export function ReviewEditor({
           onClick={() => review()}
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          {alreadyReviewed ? 'Save and go back' : 'Mark room reviewed'}
+          {alreadyReviewed ? w.saveAndGoBack : w.markRoomReviewed}
         </button>
       </div>
     </div>

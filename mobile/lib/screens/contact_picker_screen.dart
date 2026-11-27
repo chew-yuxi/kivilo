@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/property_work.dart';
@@ -35,7 +36,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: Text(
-        widget.role == 'LANDLORD' ? 'Choose the landlord' : 'Choose the tenant',
+        widget.role == 'LANDLORD' ? t.chooseTheLandlord : t.chooseTheTenant,
       ),
     ),
     body: KiviloContent(
@@ -46,7 +47,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
           if (snapshot.hasError) {
             return KiviloMessage(
               icon: Icons.cloud_off_outlined,
-              title: 'Could not load your contacts',
+              title: t.couldNotLoadYourContacts,
               body: plainError(snapshot.error!),
               actionLabel: 'Try again',
               onAction: () => setState(
@@ -61,9 +62,9 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.data!.isEmpty) {
-            return const KiviloMessage(
+            return KiviloMessage(
               icon: Icons.person_outline,
-              title: 'No contacts yet',
+              title: t.noContactsYet,
               body: 'Landlords and tenants on your tenancies appear here.',
             );
           }
@@ -89,16 +90,16 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
             children: [
               TextField(
                 controller: _search,
-                decoration: const InputDecoration(
-                  labelText: 'Search',
-                  hintText: 'Name or email',
+                decoration: InputDecoration(
+                  labelText: t.search,
+                  hintText: t.nameOrEmail,
                 ),
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               if (shown.isEmpty)
                 Text(
-                  'No contact matches.',
+                  t.noContactMatches,
                   style: Theme.of(context).textTheme.bodyMedium,
                 )
               else
@@ -119,7 +120,7 @@ class _ContactPickerScreenState extends State<ContactPickerScreen> {
                               contact.email ?? 'No email',
                               contact.roles
                                   .map((role) => _roleNames[role] ?? role)
-                                  .join(' and '),
+                                  .join(t.and),
                             ].join(' · '),
                           ),
                           trailing: const Icon(

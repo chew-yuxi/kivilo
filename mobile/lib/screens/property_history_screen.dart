@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/property_history.dart';
@@ -52,13 +53,15 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
     try {
       await _api.restoreFromBin(event.bin!.id);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Restored.')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.restored)));
       await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _restoring = null);
@@ -73,7 +76,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
       title: StreamBuilder<PropertyHistory>(
         stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
-          title: 'Change log',
+          title: t.changeLog,
           contextLabel: snapshot.data?.address ?? 'Property',
         ),
       ),
@@ -92,16 +95,15 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
               padding: kiviloScreenPadding,
               children: [
                 Text(
-                  'Every change and deletion, with who made it. Deleted rooms, '
-                  'lines, photos and findings can be restored for 30 days.',
+                  t.everyChangeAndDeletionWithWhoMade,
                   style: text.bodyMedium,
                 ),
                 const SizedBox(height: 16),
                 KiviloSegmentedControl<bool>(
                   value: _deletions,
-                  options: const [
-                    KiviloSegmentOption(value: false, label: 'All changes'),
-                    KiviloSegmentOption(value: true, label: 'Deletions'),
+                  options: [
+                    KiviloSegmentOption(value: false, label: t.allChanges),
+                    KiviloSegmentOption(value: true, label: t.deletions),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -116,12 +118,12 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                 ),
                 if (_api.offlineCopy) ...[
                   const SizedBox(height: 12),
-                  const Text('Offline. Showing previously loaded history.'),
+                  Text(t.offlineShowingPreviouslyLoadedHistory),
                 ],
                 ..._body(context, snapshot),
                 const SizedBox(height: 24),
                 Text(
-                  'History is recorded from 23 October 2026.',
+                  t.historyIsRecordedFrom23October2026,
                   textAlign: TextAlign.center,
                   style: text.bodySmall,
                 ),
@@ -158,9 +160,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              _deletions
-                  ? 'Nothing has been deleted.'
-                  : 'No changes recorded yet.',
+              _deletions ? t.nothingHasBeenDeleted : t.noChangesRecordedYet,
               textAlign: TextAlign.center,
               style: text.bodyMedium,
             ),
@@ -244,7 +244,7 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
           if (bin != null && bin.restoredAt != null)
             Padding(
               padding: const EdgeInsets.only(left: 36, top: 8),
-              child: Text('Restored', style: text.bodySmall),
+              child: Text(t.restoredLabel, style: text.bodySmall),
             )
           else if (bin != null && bin.restorable)
             Padding(
@@ -260,14 +260,14 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                    onPressed: _restoring == null
-                        ? () => _restore(event)
-                        : null,
-                    icon: const Icon(Icons.replay),
-                    label: Text(
-                      _restoring == bin.id ? 'Restoring…' : 'Restore',
+                      onPressed: _restoring == null
+                          ? () => _restore(event)
+                          : null,
+                      icon: const Icon(Icons.replay),
+                      label: Text(
+                        _restoring == bin.id ? t.restoring : t.restore,
+                      ),
                     ),
-                  ),
                   ),
                 ],
               ),

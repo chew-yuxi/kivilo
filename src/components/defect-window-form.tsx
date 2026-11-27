@@ -2,12 +2,13 @@
 
 import { useState, useTransition } from 'react'
 import { setDefectWindow } from '@/lib/handover-actions'
-import { countryName } from '@/lib/country'
 import type { Country } from '@/generated/prisma'
+import { usePwa } from '@/components/locale'
 
 export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline, country }: {
   tenancyId: string; inspectionId: string; windowDays: number; deadline: string | null; country: Country
 }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   return (
@@ -26,23 +27,21 @@ export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline
         })
       }}
     >
-      <h2 className="text-sm font-medium">Move-in defect period</h2>
+      <h2 className="text-sm font-medium">{w.defectPeriod}</h2>
       <p className="text-sm text-gray-600">
-        Confirm the period in the tenancy agreement before the tenant signs. The suggested
-        period is 30 days; use the period agreed for this tenancy. It starts on the tenancy&apos;s
-        first day and is fixed when the tenant signs. Set 0 to disable this period.
+        {w.defectPeriodBody}
       </p>
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">
-          Calendar days
+          {w.calendarDays}
           <input name="days" type="number" min={0} max={365} step={1} defaultValue={windowDays} required className="mt-1 block w-28 rounded-md border border-gray-300 px-3 py-2" />
         </label>
         <button type="submit" disabled={pending} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium disabled:opacity-50">
-          {pending ? 'Saving…' : 'Save period'}
+          {pending ? w.saving : w.savePeriod}
         </button>
       </div>
       <p className="text-xs text-gray-500">
-        {deadline ? `Current deadline: ${deadline}, end of day in ${countryName(country)}.` : 'The early move-in defect period is disabled.'}
+        {deadline ? w.currentDeadline(deadline, country === 'MY' ? w.malaysia : w.singapore) : w.defectPeriodDisabled}
       </p>
       {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
     </form>

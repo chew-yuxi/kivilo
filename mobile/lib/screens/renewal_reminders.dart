@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/renewal.dart';
 import '../services/api.dart';
 import '../ui/kivilo_layout.dart';
@@ -39,8 +40,9 @@ class _RenewalRemindersState extends State<RenewalReminders> {
       if (mounted) setState(() => _hidden.add(id));
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _busy = null);
@@ -71,7 +73,7 @@ class _RenewalRemindersState extends State<RenewalReminders> {
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Text(
-            'Renewal reminders could not be loaded. Pull down to try again.',
+            t.renewalRemindersFailed,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         );
@@ -94,12 +96,12 @@ class _RenewalRemindersState extends State<RenewalReminders> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Renewal due',
+                            t.renewalDue,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         IconButton(
-                          tooltip: 'Dismiss renewal reminder',
+                          tooltip: t.dismissRenewal,
                           onPressed: _busy == null
                               ? () => _respond(reminder.id, 'DISMISSED')
                               : null,
@@ -110,7 +112,7 @@ class _RenewalRemindersState extends State<RenewalReminders> {
                     Text(reminder.property),
                     const SizedBox(height: 4),
                     Text(
-                      '${reminder.tenant} · Tenancy ends ${reminder.endDate}',
+                      t.tenancyEnds(reminder.tenant, reminder.endDate),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
@@ -122,19 +124,19 @@ class _RenewalRemindersState extends State<RenewalReminders> {
                           onPressed: _busy == null
                               ? () => _start(reminder.id)
                               : null,
-                          child: const Text('Start renewal'),
+                          child: Text(t.startRenewal),
                         ),
                         TextButton(
                           onPressed: _busy == null
                               ? () => _respond(reminder.id, 'NOT_RENEWING')
                               : null,
-                          child: const Text('Not renewing'),
+                          child: Text(t.notRenewing),
                         ),
                         TextButton(
                           onPressed: _busy == null
                               ? () => _respond(reminder.id, 'LATER')
                               : null,
-                          child: const Text('Remind me in a week'),
+                          child: Text(t.remindWeek),
                         ),
                       ],
                     ),

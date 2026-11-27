@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/cdd.dart';
@@ -103,7 +104,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
       title: StreamBuilder<PropertyOverview>(
         stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
-          title: 'Property',
+          title: t.newProperty,
           contextLabel: snapshot.data?.address ?? 'Property',
         ),
       ),
@@ -119,7 +120,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
           if (snapshot.hasError) {
             return KiviloMessage(
               icon: Icons.cloud_off_outlined,
-              title: 'Could not open this property',
+              title: t.couldNotOpenThisProperty,
               body: plainError(snapshot.error!),
               actionLabel: 'Try again',
               onAction: _refresh,
@@ -153,7 +154,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 PropertyNextStep(
                   stage: property.state == 'TRASHED' ? 'ENDED' : property.stage,
                   label: switch (property.state) {
-                    'TRASHED' => 'Recently deleted',
+                    'TRASHED' => t.recentlyDeleted,
                     'ARCHIVED' => 'Archived · ${property.stageLabel}',
                     _ => property.nextStep ?? property.stageLabel,
                   },
@@ -161,9 +162,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 ),
                 if (_api.offlineCopy) ...[
                   const SizedBox(height: 12),
-                  const KiviloNotice(
+                  KiviloNotice(
                     tone: KiviloTone.warning,
-                    child: Text('Offline. Showing what was last loaded.'),
+                    child: Text(t.offlineShowingWhatWasLastLoaded),
                   ),
                 ],
                 for (final term in property.terms) ...[
@@ -171,10 +172,10 @@ class _PropertyScreenState extends State<PropertyScreen> {
                     const SizedBox(height: kiviloSectionGap),
                     KiviloSectionHeading(
                       title: term == current
-                          ? 'Reports and documents'
-                          : 'Earlier tenancy',
+                          ? t.reportsAndDocuments
+                          : t.earlierTenancy,
                       subtitle: term == current
-                          ? 'This tenancy’s reports, details and paperwork'
+                          ? t.thisTenancysReportsDetailsAndPaperwork
                           : '${term.tenant} · ${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
                     ),
                     const SizedBox(height: kiviloHeadingGap),
@@ -186,7 +187,7 @@ class _PropertyScreenState extends State<PropertyScreen> {
                   TenancyScreen(tenancy: tenancy, api: _api, embedded: true),
                 ],
                 const SizedBox(height: kiviloSectionGap),
-                const KiviloSectionHeading(title: 'More'),
+                KiviloSectionHeading(title: t.more),
                 const SizedBox(height: kiviloHeadingGap),
                 Card(
                   clipBehavior: Clip.antiAlias,
@@ -195,10 +196,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
                       if (property.canOpenTimeline) ...[
                         ListTile(
                           leading: const Icon(Icons.schedule_rounded),
-                          title: const Text('Property timeline'),
-                          subtitle: const Text(
-                            'What happened here over the years: reports, updates, repairs',
-                          ),
+                          title: Text(t.tenancyTimeline),
+                          subtitle: Text(t.whatHappenedHereOverTheYearsReports),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => _open(
                             PropertyTimelineScreen(
@@ -211,10 +210,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
                       ],
                       ListTile(
                         leading: const Icon(Icons.history),
-                        title: const Text('Change log'),
-                        subtitle: const Text(
-                          'Who changed what in Kivilo, and when',
-                        ),
+                        title: Text(t.changeLog),
+                        subtitle: Text(t.whoChangedWhatInKiviloAndWhen),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _open(
                           PropertyHistoryScreen(
@@ -229,12 +226,12 @@ class _PropertyScreenState extends State<PropertyScreen> {
                           leading: const Icon(Icons.person_outline),
                           title: Text(
                             accessTerms.length == 1
-                                ? 'Tenancy access'
+                                ? t.propertyTenancyAccess
                                 : '${term.tenant} access',
                           ),
                           subtitle: Text(
                             accessTerms.length == 1
-                                ? 'Manage who can work on this tenancy'
+                                ? t.manageWhoCanWorkOnThisTenancy
                                 : '${shortDate(term.startDate)} to ${shortDate(term.endDate)}',
                           ),
                           trailing: const Icon(Icons.chevron_right),
@@ -251,15 +248,14 @@ class _PropertyScreenState extends State<PropertyScreen> {
                       ListTile(
                         leading: const Icon(Icons.edit_outlined),
                         title: Text(switch (property.state) {
-                          'ARCHIVED' => 'Restore or delete property',
-                          'TRASHED' => 'Restore property',
-                          _ => 'Archive or delete property',
+                          'ARCHIVED' => t.restoreOrDeleteProperty,
+                          'TRASHED' => t.propertyRestore,
+                          _ => t.archiveOrDeleteProperty,
                         }),
                         subtitle: Text(switch (property.state) {
-                          'ARCHIVED' =>
-                            'Return it to active work or move it to trash',
-                          'TRASHED' => 'Return it to active properties',
-                          _ => 'Remove it from active work or move it to trash',
+                          'ARCHIVED' => t.returnItToActiveWorkOrMove,
+                          'TRASHED' => t.returnItToActiveProperties,
+                          _ => t.removeItFromActiveWorkOrMove,
                         }),
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () => _open(
@@ -280,29 +276,56 @@ class _PropertyScreenState extends State<PropertyScreen> {
     ),
   );
 
-  Widget _partyCheckRow(PropertyTerm term, String role, String name, PartyCheck? check) {
+  Widget _partyCheckRow(
+    PropertyTerm term,
+    String role,
+    String name,
+    PartyCheck? check,
+  ) {
     final who = role == 'LANDLORD' ? 'Landlord' : 'Tenant';
     final (icon, color, status) = switch (check) {
-      null => (Icons.add, KiviloColors.pinkDark, 'Not verified yet · CEA requires it before signing'),
+      null => (
+        Icons.add,
+        KiviloColors.pinkDark,
+        'Not verified yet · CEA requires it before signing',
+      ),
       PartyCheck(verified: true) => (
         Icons.check_circle,
         KiviloColors.green,
-        'Verified ${check.completedAt == null ? '' : shortDate(check.completedAt!.toIso8601String())}'.trim(),
+        'Verified ${check.completedAt == null ? '' : shortDate(check.completedAt!.toIso8601String())}'
+            .trim(),
       ),
-      PartyCheck(status: 'ESCALATED') => (Icons.error_outline, KiviloColors.red, 'Stopped: confirmed match'),
-      PartyCheck(needsCorrection: true) => (Icons.warning_amber_outlined, KiviloColors.amber, 'Details need correcting'),
-      PartyCheck(status: 'NEEDS_REVIEW') => (Icons.fact_check_outlined, KiviloColors.pinkDark, 'Needs your review'),
+      PartyCheck(status: 'ESCALATED') => (
+        Icons.error_outline,
+        KiviloColors.red,
+        'Stopped: confirmed match',
+      ),
+      PartyCheck(needsCorrection: true) => (
+        Icons.warning_amber_outlined,
+        KiviloColors.amber,
+        'Details need correcting',
+      ),
+      PartyCheck(status: 'NEEDS_REVIEW') => (
+        Icons.fact_check_outlined,
+        KiviloColors.pinkDark,
+        'Needs your review',
+      ),
       PartyCheck(:final requestedAt) => (
         Icons.schedule_rounded,
         KiviloColors.muted,
-        requestedAt == null ? 'Waiting for $name' : 'Waiting for $name · ${_waited(requestedAt)}',
+        requestedAt == null
+            ? 'Waiting for $name'
+            : 'Waiting for $name · ${_waited(requestedAt)}',
       ),
     };
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       leading: Icon(icon, color: color),
       title: Text('$who identity · $name'),
-      subtitle: Text(status, style: TextStyle(color: color == KiviloColors.muted ? null : color)),
+      subtitle: Text(
+        status,
+        style: TextStyle(color: color == KiviloColors.muted ? null : color),
+      ),
       trailing: const Icon(Icons.chevron_right),
       onTap: () => check == null
           ? _startCheck(term, role, name)
@@ -312,7 +335,9 @@ class _PropertyScreenState extends State<PropertyScreen> {
 
   static String _waited(DateTime since) {
     final days = DateTime.now().difference(since).inDays;
-    return days == 0 ? 'form sent today' : 'form sent ${days == 1 ? 'a day' : '$days days'} ago';
+    return days == 0
+        ? 'form sent today'
+        : 'form sent ${days == 1 ? 'a day' : '$days days'} ago';
   }
 
   Future<void> _startCheck(PropertyTerm term, String role, String name) async {
@@ -320,13 +345,16 @@ class _PropertyScreenState extends State<PropertyScreen> {
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text('Verify $name?'),
-        content: const Text(
-          'Kivilo emails them a short identity form, screens them against the sanctions and '
-          'PEP lists, and keeps the record for you. CEA requires this before the tenancy is signed.',
-        ),
+        content: Text(t.kiviloEmailsThemAShortIdentityForm),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Verify')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(t.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.verify),
+          ),
         ],
       ),
     );
@@ -337,7 +365,11 @@ class _PropertyScreenState extends State<PropertyScreen> {
       if (started.isEmpty) return await _refresh();
       await _open(CddCaseScreen(id: started.first.caseId, api: _api));
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
+      }
     }
   }
 
@@ -375,11 +407,11 @@ class _PropertyScreenState extends State<PropertyScreen> {
           ),
           title: Text(
             report.status == 'COMPLETED'
-                ? 'View ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'} report'
+                ? 'View ${report.kind == 'CHECK_OUT' ? t.checkOutLabel : t.checkInLabel} report'
                 : report.status == 'AWAITING_SIGNATURE'
-                ? 'View ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'} signatures'
+                ? 'View ${report.kind == 'CHECK_OUT' ? t.checkOutLabel : t.checkInLabel} signatures'
                 : report.id == property.nextInspectionId
-                ? 'Continue ${report.kind == 'CHECK_OUT' ? 'check-out' : 'check-in'}'
+                ? 'Continue ${report.kind == 'CHECK_OUT' ? t.checkOutLabel : t.checkInLabel}'
                 : report.kindLabel,
           ),
           subtitle: Padding(
@@ -415,16 +447,16 @@ class _PropertyScreenState extends State<PropertyScreen> {
                 ? Icons.edit_outlined
                 : Icons.description_outlined,
           ),
-          title: const Text('Tenancy details'),
+          title: Text(t.tenancyDetails),
           subtitle: Text(
             [
               if (term.canEditDetails && term.landlordEmail == null)
-                'Landlord email not provided',
+                t.landlordEmailNotProvided,
               if (term.canEditDetails && term.tenantEmail == null)
-                'Tenant email not provided',
+                t.tenantEmailNotProvided,
               if (!term.canEditDetails ||
                   (term.landlordEmail != null && term.tenantEmail != null))
-                'People, dates, rent and deposit',
+                t.peopleDatesRentAndDeposit,
             ].join(' · '),
           ),
           trailing: const Icon(Icons.chevron_right),
@@ -442,8 +474,8 @@ class _PropertyScreenState extends State<PropertyScreen> {
             vertical: 4,
           ),
           leading: const Icon(Icons.description_outlined),
-          title: const Text('Documents'),
-          subtitle: const Text('Tenancy agreement and supporting files'),
+          title: Text(t.documents),
+          subtitle: Text(t.tenancyAgreementAndSupportingFiles),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => _open(
             SupportingDocumentsScreen(tenancyId: term.tenancyId, api: _api),

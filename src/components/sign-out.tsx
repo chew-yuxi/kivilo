@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase/client'
+import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// `then` is where to go after: the login page by default, or the login page set up to
 /// come back, as when someone opens a signing link while signed in as someone else.
-export function SignOut({ email, then = '/login' }: { email: string | null; then?: string }) {
+export function SignOut({ email, then = '/login', locale }: { email: string | null; then?: string; locale?: Locale }) {
+  const contextLocale = useLocale()
   const [busy, setBusy] = useState(false)
 
   return (
@@ -23,7 +26,7 @@ export function SignOut({ email, then = '/login' }: { email: string | null; then
         }}
         className="action-secondary px-3 text-xs"
       >
-        Sign out
+        {messages(locale ?? contextLocale).web.signOut}
       </button>
     </div>
   )

@@ -1,0 +1,3063 @@
+{
+  "@@locale": "en",
+  "settingsVersion": "Version {version} ({build})",
+  "@settingsVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsVersionPatch": "{version} · Patch {patch}",
+  "@settingsVersionPatch": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "patch": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDeletionDrawerTitle": "Request account deletion?",
+  "settingsDeletionDrawerBody": "We will confirm your request and complete eligible deletion within 30 days. Inspection and report records may need to be retained under the applicable tenancy record retention policy.",
+  "cancel": "Cancel",
+  "settingsRequestDeletion": "Request deletion",
+  "settingsSignOutFailed": "Could not sign out. {error}",
+  "@settingsSignOutFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLicence": "Licence {number}",
+  "@settingsLicence": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCea": "CEA {number}",
+  "@settingsCea": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsAddAgency": "Add your agency",
+  "couldNotLoad": "Could not load: {error}",
+  "@couldNotLoad": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsBrandingEmpty": "Your name and logo at the top of PDF reports",
+  "settingsBrandingSet": "Shown on your PDF and shared reports",
+  "settingsPlan": "Plan",
+  "loading": "Loading",
+  "settingsPlanUsage": "{used} of {limit, plural, =1{1 active property} other{{limit} active properties}} in use",
+  "@settingsPlanUsage": {
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsAccount": "Account",
+  "settingsYourAccount": "Your account",
+  "settingsSignedIn": "Signed in to Kivilo",
+  "settingsForAgents": "For agents",
+  "settingsStartCheckIn": "Start a check-in",
+  "settingsStartCheckInDetail": "Write a room-by-room report of a property",
+  "settingsWorkspace": "Workspace",
+  "settingsTeam": "Team",
+  "settingsTeamDetail": "Members, invitations and assigned work",
+  "settingsProperties": "Properties",
+  "settingsPropertiesDetail": "Property settings, archived properties and trash",
+  "settingsBranding": "Report branding",
+  "settingsBrandingDetail": "Your agency on PDF and shared reports.",
+  "settingsPlanDetail": "How many properties you can work at once.",
+  "settingsPrivacySupport": "Privacy & support",
+  "settingsLanguage": "Language",
+  "settingsPhoneLanguage": "Phone language",
+  "settingsPrivacyPolicy": "Privacy policy",
+  "settingsPrivacyPolicyDetail": "How Kivilo handles your data",
+  "settingsHelp": "Help & support",
+  "settingsHelpDetail": "Get help with an inspection or your account",
+  "settingsYourData": "Your data",
+  "settingsYourDataDetail": "Manage your account and deletion request.",
+  "settingsAccountDeletion": "Account deletion",
+  "settingsDeletionAim": "We aim to complete eligible deletion within 30 days of your request.",
+  "settingsDeletionDates": "Requested {requested} · Due {due}",
+  "@settingsDeletionDates": {
+    "placeholders": {
+      "requested": {
+        "type": "String"
+      },
+      "due": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDeletionDatesCompleted": "Requested {requested} · Due {due} · Completed {completed}",
+  "@settingsDeletionDatesCompleted": {
+    "placeholders": {
+      "requested": {
+        "type": "String"
+      },
+      "due": {
+        "type": "String"
+      },
+      "completed": {
+        "type": "String"
+      }
+    }
+  },
+  "sending": "Sending…",
+  "settingsRequestAccountDeletion": "Request account deletion",
+  "settingsDeletionLoadFailed": "Could not load your deletion request. {error}",
+  "@settingsDeletionLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "signOut": "Sign out",
+  "settingsSignOutDetail": "Your saved signature is removed from this phone",
+  "unknown": "unknown",
+  "settingsDeletionCompleted": "Request completed",
+  "settingsDeletionInProgress": "Request in progress",
+  "settingsDeletionReceived": "Request received",
+  "dateShortPattern": "d MMM y",
+  "@dateShortPattern": {
+    "description": "An intl DateFormat pattern for a date such as 12 Oct 2026."
+  },
+  "dateMonthYearPattern": "MMMM y",
+  "@dateMonthYearPattern": {
+    "description": "An intl DateFormat pattern for a month heading such as October 2026."
+  },
+  "checkIn": "Check-in",
+  "checkOut": "Check-out",
+  "roomNotStarted": "Not started",
+  "roomNeedsReview": "Needs review",
+  "roomReviewed": "Reviewed",
+  "roomCapturing": "Capturing",
+  "videoCount": "{count, plural, =1{1 video} other{{count} videos}}",
+  "@videoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photoCount": "{count, plural, =1{1 photo} other{{count} photos}}",
+  "@photoCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "roomNothingCaptured": "Nothing captured yet",
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Joins a short list, such as 2 videos, 5 photos."
+  },
+  "roomSummaryWithItems": "{summary} · {count, plural, =1{1 item} other{{count} items}}",
+  "@roomSummaryWithItems": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNoConnection": "No connection. Anything you took is saved on this phone, so try again when you have signal.",
+  "errorSignedOut": "You have been signed out. Please sign in again.",
+  "errorNotFound": "This could not be found, or your account cannot open it.",
+  "errorReportFrozen": "This report has been sent for signature and cannot be changed.",
+  "errorInvalidRequest": "Please check the details and try again.",
+  "errorReviewIncomplete": "Each room needs at least one item and a review first.",
+  "errorAssessmentReviewIncomplete": "Open and confirm every finding before publishing the assessment.",
+  "errorNoDamageUnconfirmed": "Add a finding, or confirm that no damage was found, before publishing.",
+  "errorInvalidState": "This cannot be done at this stage of the report.",
+  "errorCaptureConflict": "This photo or video clashes with one already in the report. Refresh the room and check it.",
+  "errorCaptureMissing": "The upload did not finish. The file is still on this phone, so try again.",
+  "errorEvidenceMissing": "The upload did not finish. The photo is still on this phone, so try again.",
+  "errorPlanLimit": "Your plan's active properties are all in use. A property stops counting when its check-out is signed or its tenancy ends.",
+  "errorMaintenanceConflict": "Someone already updated this repair. Refresh and check the timeline.",
+  "errorMoveInDefectStale": "This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.",
+  "errorAgencyConflict": "Team access has changed. Refresh and try again.",
+  "errorPropertyHistory": "This property has report history and cannot be deleted. Archive it to preserve its records.",
+  "errorPropertyRestoreExpired": "The recovery period has ended. This property can no longer be restored.",
+  "errorPropertyTrashed": "This property is in trash. Restore it from Account → Properties → Trash before continuing.",
+  "errorFindingSaveConflict": "This finding was already saved. Reopen it to save your latest changes. Your draft is kept on this phone.",
+  "errorServer": "Kivilo could not do that just now. Please try again. (Error {status})",
+  "@errorServer": {
+    "placeholders": {
+      "status": {
+        "type": "int"
+      }
+    }
+  },
+  "errorUnexpected": "Something went wrong. Please try again.",
+  "addendumAdded": "Added: {name}",
+  "@addendumAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addendumRemoved": "Removed: {name}",
+  "@addendumRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addendumReplaced": "Replaced: {old} with {name}",
+  "@addendumReplaced": {
+    "placeholders": {
+      "old": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "addendumItem": "item",
+  "@addendumItem": {
+    "description": "Stands in for an item with no name in a heading such as Added: item."
+  },
+  "acknowledgementPending": "{role} {name}: pending acknowledgement",
+  "@acknowledgementPending": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acknowledgedInPerson": "{role} {name}: acknowledged in person {date}",
+  "@acknowledgedInPerson": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "acknowledged": "{role} {name}: acknowledged {date}",
+  "@acknowledged": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "partyRole": "{role, select, Landlord{Landlord} Tenant{Tenant} LANDLORD{Landlord} TENANT{Tenant} other{{role}}}",
+  "@partyRole": {
+    "description": "A party's role as the server names it.",
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "landlord": "Landlord",
+  "tenant": "Tenant",
+  "basisMinorRepair": "Minor repair clause",
+  "basisTenantCaused": "Caused by the tenant",
+  "basisFairWear": "Fair wear and tear",
+  "basisLandlordObligation": "Landlord's obligation",
+  "basisOther": "Other",
+  "proposalSharedPays": "Tenant pays the first {cap}, landlord pays the rest.",
+  "@proposalSharedPays": {
+    "placeholders": {
+      "cap": {
+        "type": "String"
+      }
+    }
+  },
+  "proposalLandlordPays": "Landlord pays.",
+  "proposalTenantPays": "Tenant pays.",
+  "proposalLandlordArranges": "Landlord arranges the repair.",
+  "proposalTenantArranges": "Tenant arranges the repair.",
+  "chooseLabel": "Choose {label}",
+  "@chooseLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "close": "Close",
+  "statusReported": "Reported",
+  "statusAcknowledged": "Acknowledged",
+  "statusScheduled": "Scheduled",
+  "statusAwaitingConfirmation": "Awaiting confirmation",
+  "statusResolved": "Resolved",
+  "statusClosed": "Closed",
+  "statusCompleted": "Completed",
+  "statusAwaitingSignatures": "Awaiting signatures",
+  "statusDraft": "Draft",
+  "signInConnectFailed": "Could not connect. Check your connection and try again.",
+  "signInWelcomeBack": "Welcome back",
+  "signInCheckEmail": "Check your email",
+  "signInTagline": "Your property, on record",
+  "signInContinue": "Sign in to continue your inspections.",
+  "signInEnterCode": "Enter the six-digit code sent to {email}.",
+  "@signInEnterCode": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "signInIntro": "Condition reports, repairs and their history, for agents, landlords and tenants.",
+  "signInCodeLabel": "VERIFICATION CODE",
+  "signInEmailLabel": "EMAIL ADDRESS",
+  "signInPasswordHint": "Your password",
+  "signInHidePassword": "Hide password",
+  "signInShowPassword": "Show password",
+  "working": "Working",
+  "signIn": "Sign in",
+  "signInEmailCode": "Email me a code",
+  "signInResend": "Send a new code",
+  "signInDifferentEmail": "Use a different email",
+  "signInUseCode": "Use an emailed code instead",
+  "signInWithPassword": "Sign in with password",
+  "signInFooter": "Every room. Every detail. Ready when you need it.",
+  "updateReady": "Update ready",
+  "updateKivilo": "Update Kivilo",
+  "updateRestartBody": "The update is downloaded. Kivilo will close, then notify you when it is ready to reopen.",
+  "updateDownloadBody": "A Kivilo update is available. Download it now; Kivilo will close, then notify you when it is ready to reopen.",
+  "updateCloseAndUpdate": "Close and update",
+  "update": "Update",
+  "updateStoreFailed": "Could not open the store. Search for Kivilo in it instead.",
+  "updateOpenAppStore": "Open the App Store",
+  "updateOpenGooglePlay": "Open Google Play",
+  "updateRequiredBody": "This version is no longer supported. Photos and videos already on this phone are kept and finish uploading after the update.",
+  "updateDoneTitle": "Kivilo is updated",
+  "updateDoneBody": "Tap to reopen Kivilo.",
+  "updateChannelName": "App updates",
+  "updateChannelDescription": "Completed Kivilo app updates",
+  "updateNeedsNotifications": "Notifications must be enabled so Kivilo can tell you when it is safe to reopen.",
+  "pushNewNotification": "New Kivilo notification",
+  "open": "Open",
+  "homeTitle": "Home",
+  "notifications": "Notifications",
+  "homeUrgentServices": "Urgent services",
+  "homeInspections": "Inspections",
+  "homeWorkspaceFailed": "Could not load your workspace",
+  "tryAgain": "Try again",
+  "homeShowAllProperties": "Show all properties",
+  "homeGoodMorning": "Good morning",
+  "homeGoodAfternoon": "Good afternoon",
+  "homeGoodEvening": "Good evening",
+  "homeCounts": "{inProgress} in progress · {awaiting} awaiting signatures",
+  "@homeCounts": {
+    "placeholders": {
+      "inProgress": {
+        "type": "int"
+      },
+      "awaiting": {
+        "type": "int"
+      }
+    }
+  },
+  "homeViewInspections": "View inspections",
+  "newCheckIn": "New check-in",
+  "homeGreeting": "{greeting}, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "greeting": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homePartySubtitle": "Your reports, repairs and history, in one place.",
+  "homeAgentSubtitle": "A clear next step for every handover.",
+  "homeOffline": "Offline. Showing previously loaded work.",
+  "homeYourProperties": "Your properties",
+  "homeYourPropertiesDetail": "Repairs, records and the people who live there.",
+  "homeEyebrowNextHandover": "YOUR NEXT HANDOVER",
+  "homeEyebrowWaiting": "WAITING FOR SIGNATURES",
+  "homeEyebrowNextStep": "YOUR NEXT STEP",
+  "homeHeadlineEmpty": "Great handovers start\nwith a clear record.",
+  "homeHeadlineAwaiting": "Bring everyone onto\nthe same page.",
+  "homeHeadlineFirstRoom": "Start with the first room.",
+  "homeHeadlineContinue": "One room at a time.",
+  "homeBodyEmpty": "Add the property and tenancy. We’ll guide you from the first photo to the signed report.",
+  "homeBodyAwaiting": "The inventory is frozen. Check who still needs to sign, or send their signing email again.",
+  "homeBodyFirstRoom": "Add a room, take photos, then write down what you find.",
+  "homeBodyContinue": "Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.",
+  "homeStartCheckIn": "Start check-in",
+  "homeCheckSignatures": "Check signatures",
+  "homeAddFirstRoom": "Add your first room",
+  "homeContinueInspection": "Continue inspection",
+  "homeOpenProperty": "Open property",
+  "homeOpenCheckIn": "Open check-in",
+  "homeOpenCheckOut": "Open check-out",
+  "viewReport": "View report",
+  "homeYouAreLandlord": "You are the landlord",
+  "homeYouAreTenant": "You are the tenant",
+  "homeReportPending": "Your check-in report appears here once your agent sends it.",
+  "homeReviewAndSign": "Review and sign",
+  "checkOutReport": "Check-out report",
+  "checkInReport": "Check-in report",
+  "repairs": "Repairs",
+  "homeNoProperties": "No properties yet",
+  "homeNoPropertiesDetail": "Create a check-in to add your first property.",
+  "agent": "Agent",
+  "filterAll": "All",
+  "filterInProgress": "In progress",
+  "filterAwaitingSignature": "Awaiting signature",
+  "inspectionsLoadFailed": "Could not load inspections",
+  "inspectionsSubtitle": "Your check-in and check-out reports, all in one place.",
+  "inspectionsResponsibleAgent": "Responsible agent",
+  "inspectionsAllAgents": "All agents",
+  "inspectionsTeamNote": "Shows team work your account can access.",
+  "inspectionsOffline": "Offline. Showing what was last loaded; you can keep taking photos.",
+  "inspectionsSearch": "Search inspections",
+  "inspectionsSearchHint": "Property, tenant or check-in / check-out",
+  "inspectionsClearSearch": "Clear search",
+  "inspectionsCount": "{count, plural, =1{1 report} other{{count} reports}}",
+  "@inspectionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectionsFound": "{count, plural, =1{1 report found} other{{count} reports found}}",
+  "@inspectionsFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectionsNoMatch": "No matching inspections",
+  "inspectionsNoMatchDetail": "Try another property or tenant, or change your filters.",
+  "inspectionsShowAll": "Show all inspections",
+  "inspectionsResponsible": "Responsible: {name}",
+  "@inspectionsResponsible": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "roomCount": "{count, plural, =1{1 room} other{{count} rooms}}",
+  "@roomCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inspectionsEmpty": "No inspections yet",
+  "inspectionsEmptyOffline": "Connect to create a new check-in.",
+  "inspectionsEmptyDetail": "Start a check-in for your next handover. Your inventory, photos and signed report will live here.",
+  "workspaceChoose": "Choose workspace",
+  "workspaceAll": "All properties",
+  "workspacePersonal": "Personal",
+  "workspaceInvitations": "Team invitations ({count})",
+  "@workspaceInvitations": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "workspaceAddTeam": "Add a team",
+  "teamAccessChanged": "Team access changed. Refresh and try again.",
+  "newWhoOwns": "Who owns this work?",
+  "newPersonalDetail": "Private to you until you add collaborators",
+  "newTeamDetail": "Assigned agents and team owners and managers can access this work",
+  "newCreateTeamHint": "Create or join a team in Account → Team.",
+  "newFurnishingRequired": "Choose whether the property is fully furnished.",
+  "newEndAfterStart": "The tenancy must end after it starts.",
+  "fieldRequired": "{label} (required)",
+  "@fieldRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldOptional": "{label} (optional)",
+  "@fieldOptional": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldIsRequired": "{label} is required",
+  "@fieldIsRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldInvalidEmail": "Enter a valid email address",
+  "fieldInvalidAmount": "Enter a valid {currency} amount with up to 2 decimals",
+  "@fieldInvalidAmount": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "newEssentials": "Start with the essentials",
+  "newEssentialsDetail": "Set up the property and tenancy. You can add rooms after this.",
+  "newWorkspace": "Workspace: {name}",
+  "@newWorkspace": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "newPrivate": "Private to you until you share it.",
+  "newTeamResponsible": "You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.",
+  "newProperty": "Property",
+  "newPropertyDetail": "Where the handover takes place",
+  "newAddress": "Address",
+  "newUnit": "Unit",
+  "newPostalCode": "Postal code",
+  "newPropertyTypeRequired": "Property type (required)",
+  "newChoosePropertyType": "Choose a property type",
+  "propertyTypePrivate": "Private, non-landed",
+  "propertyTypePrivateDetail": "Condominium or private apartment",
+  "propertyTypeHdb": "HDB",
+  "propertyTypeHdbDetail": "Public housing flat",
+  "propertyTypeLanded": "Landed",
+  "propertyTypeLandedDetail": "Terrace, semi-detached or detached home",
+  "propertyTypeCommercial": "Commercial",
+  "propertyTypeCommercialDetail": "Office, retail or other business premises",
+  "newFurnishing": "Furnishing (required)",
+  "newFurnishingDetail": "Fully furnished rooms start with standard inventory rows. Other rooms start empty.",
+  "newFullyFurnished": "Fully furnished",
+  "newNotFullyFurnished": "Not fully furnished",
+  "newPeople": "People",
+  "newPeopleDetail": "The landlord and tenant on the report",
+  "newLandlordName": "Landlord name",
+  "newLandlordEmail": "Landlord email",
+  "newTenantName": "Tenant name",
+  "newTenantEmail": "Tenant email",
+  "newTenancy": "Tenancy",
+  "newTenancyDetail": "Dates and agreed amounts",
+  "newStarts": "Starts (required)",
+  "newEnds": "Ends (required)",
+  "newMonthlyRent": "Monthly rent ({currency})",
+  "@newMonthlyRent": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "newDeposit": "Deposit ({currency})",
+  "@newDeposit": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "creating": "Creating…",
+  "newCreate": "Create check-in",
+  "assetAddTitle": "Add property asset",
+  "assetName": "Name",
+  "assetCategory": "Category",
+  "assetAppliance": "Appliance",
+  "assetFixture": "Fixture",
+  "assetFurniture": "Furniture",
+  "assetSurface": "Surface",
+  "assetSystem": "System",
+  "assetRoomOptional": "Room (optional)",
+  "assetIdentifierOptional": "Make, model or serial (optional)",
+  "add": "Add",
+  "minorRepairCap": "Minor repair cap",
+  "minorRepairCapBody": "The amount the tenant pays towards each minor repair under the tenancy agreement. It prefills a split when someone proposes who pays; the tenant still accepts every proposal.",
+  "minorRepairCapLabel": "Tenant pays up to",
+  "currencyPrefix": "S$ ",
+  "minorRepairCapHelper": "Leave empty if the agreement has no cap",
+  "minorRepairCapInvalid": "Enter an amount like 150",
+  "save": "Save",
+  "defectPeriod": "Move-in defect period",
+  "defectPeriodBody": "Use the period in the tenancy agreement. The tenancy start date is day 1, in Singapore time. This is fixed when the tenant first signs the check-in.",
+  "defectPeriodDays": "Number of days",
+  "defectPeriodHelper": "0 disables the move-in defect period",
+  "defectPeriodInvalid": "Enter a whole number from 0 to 365",
+  "tenancyEyebrow": "YOUR PROPERTY",
+  "tenancySubtitle": "Reports, repairs and the history of this home.",
+  "tenancyRecord": "Property record",
+  "tenancyRecordDetail": "The agreed condition and what has happened since",
+  "tenancyManageAccess": "Manage access",
+  "tenancyPropertyAccess": "Property access",
+  "tenancyOpenInspectionDetail": "Rooms, inventory and signatures",
+  "tenancyLatestCheckOut": "Latest check-out report",
+  "tenancyLatestCheckIn": "Latest check-in report",
+  "tenancyViewReport": "View the condition report",
+  "tenancyTimeline": "Property timeline",
+  "tenancyTimelineDetail": "Signed reports, repairs and agreed costs at this address",
+  "propertySettings": "Property settings",
+  "tenancyCare": "Property care",
+  "tenancyCareDetail": "Report a problem and follow each repair through",
+  "tenancyDanger": "Immediate danger?",
+  "tenancyDangerNumbers": "Police 999 · Fire or ambulance 995",
+  "reportProblem": "Report a problem",
+  "defectPeriodDisabled": "Disabled. Repairs can still be reported.",
+  "defectPeriodSummary": "{days, plural, =1{1 day} other{{days} days}} · Report by {date} (Singapore time)",
+  "@defectPeriodSummary": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "edit": "Edit",
+  "maintenance": "Maintenance",
+  "tenancyMaintenanceEmpty": "Requests for this property will appear here",
+  "requestCount": "{count, plural, =1{1 request} other{{count} requests}}",
+  "@requestCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repairAttempts": "{count, plural, =1{1 repair attempt} other{{count} repair attempts}}",
+  "@repairAttempts": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "repairCosts": "Repair costs",
+  "repairCostsDetail": "Terms that shape who pays for a repair",
+  "assets": "Property assets",
+  "assetsDetail": "Appliances and fixtures linked to maintenance",
+  "assetAdd": "Add asset",
+  "assetRepairs": "{count, plural, =1{1 repair in 365 days} other{{count} repairs in 365 days}}",
+  "@assetRepairs": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "assetRepeatFault": "Repeat fault",
+  "notSet": "Not set",
+  "minorRepairCapSummary": "Tenant pays up to S${amount} per repair",
+  "@minorRepairCapSummary": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "Set",
+  "agentMayAgreeCosts": "Agent can agree costs",
+  "agentMayAgreeCostsOn": "Lets the agent accept or reject cost proposals for you",
+  "agentMayAgreeCostsLandlordOnly": "Only the landlord can change this",
+  "tenancyNoRequests": "No open requests",
+  "tenancyNoRequestsDetail": "This tenancy has no reported maintenance problems.",
+  "assetsEmpty": "No assets have been added to this property yet.",
+  "propertyArchived": "Archived",
+  "propertyInTrash": "In trash",
+  "propertyActive": "Active property",
+  "propertyCounts": "{tenancies, plural, =1{1 tenancy} other{{tenancies} tenancies}} · {inspections, plural, =1{1 inspection} other{{inspections} inspections}} · {photos, plural, =1{1 photo} other{{photos} photos}}",
+  "@propertyCounts": {
+    "placeholders": {
+      "tenancies": {
+        "type": "int"
+      },
+      "inspections": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyTenancyAccess": "Tenancy access",
+  "propertyPersonalTenancy": "Personal tenancy",
+  "propertyResponsibleAgent": "Responsible agent: {name}",
+  "@propertyResponsibleAgent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyOpenCheckOutReport": "Open check-out report",
+  "propertyOpenCheckInReport": "Open check-in report",
+  "propertyDangerZone": "Danger zone",
+  "propertyManageOnly": "Only the property’s lead agents or agency managers can archive or delete it. You need management access to every tenancy at this address.",
+  "propertyTrashedNoDate": "This property is hidden from active work. Restore it before its recovery period ends.",
+  "propertyTrashedUntil": "This property is hidden from active work. Restore before {date}. After that, eligible records and media are permanently removed.",
+  "@propertyTrashedUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyRestore": "Restore property",
+  "propertyArchivedBody": "This property is outside the active portfolio. Its records and reports are preserved.",
+  "propertyArchiveBody": "Archive removes this address from active work and preserves its reports and history. You can restore it later.",
+  "propertyRestoreActive": "Restore to active properties",
+  "propertyArchive": "Archive property",
+  "propertyDeleteBody": "Delete a mistaken or draft-only property. It moves to trash for 30 days before eligible records and media are permanently removed.",
+  "propertyDelete": "Delete property",
+  "propertyMoveToTrash": "Move to trash",
+  "questionTitle": "{label}?",
+  "@questionTitle": {
+    "description": "A confirmation title made from an action, such as Archive property?",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyTrashBody": "This affects {tenancies, plural, =1{1 tenancy} other{{tenancies} tenancies}}, {inspections, plural, =1{1 inspection} other{{inspections} inspections}} and {photos, plural, =1{1 photo} other{{photos} photos}}. You have 30 days to restore them from Properties → Trash.",
+  "@propertyTrashBody": {
+    "placeholders": {
+      "tenancies": {
+        "type": "int"
+      },
+      "inspections": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyArchiveConfirmBody": "This removes the property from active work for everyone with access. Reports and evidence remain available in Archived properties.",
+  "propertyRestoreConfirmBody": "This restores the property and its saved work to their previous state.",
+  "propertyTypeToConfirm": "Type “{label}” to confirm.",
+  "@propertyTypeToConfirm": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyAddress": "Property address",
+  "propertiesActive": "Active",
+  "propertiesTrash": "Trash",
+  "propertiesNoActive": "No active properties.",
+  "propertiesNoArchived": "No archived properties.",
+  "propertiesTrashEmpty": "Trash is empty.",
+  "propertyListCounts": "{tenancies, plural, =1{1 tenancy} other{{tenancies} tenancies}} · {inspections, plural, =1{1 inspection} other{{inspections} inspections}}",
+  "@propertyListCounts": {
+    "placeholders": {
+      "tenancies": {
+        "type": "int"
+      },
+      "inspections": {
+        "type": "int"
+      }
+    }
+  },
+  "propertyRestoreBefore": "Restore before {date}",
+  "@propertyRestoreBefore": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCreateTitle": "Create a team",
+  "teamWorkTogether": "Work together",
+  "teamIntro": "Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.",
+  "teamInvitationTo": "Invitation to {team}",
+  "@teamInvitationTo": {
+    "placeholders": {
+      "team": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInvitationRole": "{role} · Expires {date}",
+  "@teamInvitationRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "teamJoinDetail": "Joining gives you a place in this team. Agents work on assigned tenancies; managers oversee team work.",
+  "teamJoin": "Join team",
+  "teamDecline": "Decline invitation",
+  "teamRoleMembers": "{role} · {count, plural, =1{1 member} other{{count} members}}",
+  "@teamRoleMembers": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamOpenWorkspace": "Open {team} workspace",
+  "@teamOpenWorkspace": {
+    "placeholders": {
+      "team": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCreate": "Create team",
+  "teamMembers": "Team members",
+  "teamRoleSummary": "{role} · Agents see assigned tenancies. Owners and managers oversee the team portfolio.",
+  "@teamRoleSummary": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInviteMember": "Invite member",
+  "teamRename": "Rename team",
+  "teamMembersAndInvitations": "Members and invitations",
+  "teamMemberActive": "Active",
+  "teamInvitationPending": "Invitation pending",
+  "teamMemberRemoved": "removed",
+  "teamAssignedTenancies": "{count, plural, =1{1 assigned tenancy} other{{count} assigned tenancies}}",
+  "@teamAssignedTenancies": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamExpires": "Expires {date}",
+  "@teamExpires": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "teamAssignedWork": "Assigned work",
+  "teamNoProperties": "No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.",
+  "teamRecentActivity": "Recent activity",
+  "activityCreatedTeam": "created team",
+  "activityInvitedMember": "invited member",
+  "activityResentInvitation": "resent invitation",
+  "activityRevokedInvitation": "revoked invitation",
+  "activityRemovedMember": "removed member",
+  "activityRenamedTeam": "renamed team",
+  "activityJoinedTeam": "joined team",
+  "activityDeclinedInvitation": "declined invitation",
+  "activityReassigned": "reassigned departing member’s properties",
+  "activityChangedAssignments": "changed property assignments",
+  "activityAddedProperty": "added property to team",
+  "activityAddedCollaborator": "added property collaborator",
+  "activityRemovedCollaborator": "removed property collaborator",
+  "activityPropertyArchive": "archived property",
+  "activityPropertyUnarchive": "restored archived property",
+  "activityPropertyTrash": "moved property to trash",
+  "activityPropertyRestore": "restored property from trash",
+  "activityChangedRole": "changed role to {role}",
+  "@activityChangedRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "teamName": "Team name",
+  "teamInviteColleague": "Invite a colleague",
+  "teamEmailAddress": "Email address",
+  "roleManager": "Manager",
+  "teamManagerDetail": "Managers can see team tenancies, assign work and manage members.",
+  "teamAgentDetail": "Agents work on tenancies assigned to them. Other team records stay private.",
+  "teamSendInvitation": "Send invitation",
+  "teamInvitationNotAccepted": "This invitation has not been accepted. It gives no access to team work.",
+  "teamResendInvitation": "Resend invitation",
+  "teamRevokeInvitation": "Revoke invitation",
+  "teamRemoveConfirm": "Remove {name} from {team}? Their agency access will stop. Saved work and authorship stay intact; personal properties are unaffected.",
+  "@teamRemoveConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "team": {
+        "type": "String"
+      }
+    }
+  },
+  "teamReassignFirst": "Reassign {count, plural, =1{1 tenancy} other{{count} tenancies}} before removing this member.",
+  "@teamReassignFirst": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamNewResponsibleAgent": "New responsible agent",
+  "teamChooseMember": "Choose a member",
+  "teamRolesExplained": "Owners manage the team. Managers oversee its portfolio. Agents work on assigned tenancies.",
+  "teamRemoveMember": "Remove member",
+  "teamSaveRole": "Save role",
+  "roleOwner": "Owner",
+  "accessRemoveTitle": "Remove {name}?",
+  "@accessRemoveTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "accessRemoveReportsBody": "They will lose access to their previous reports for this tenancy. Work they have already saved stays on the property.",
+  "accessRemoveBody": "They will lose access to this tenancy and its inspections, updates and repairs. Work they have already saved stays on the property.",
+  "accessRemove": "Remove access",
+  "accessPreviousReports": "Access to previous reports",
+  "accessReportsOnlyIntro": "Your access covers previous reports you worked on. The lead agent can add you as a collaborator to work on this tenancy.",
+  "accessIntro": "Collaborators can capture photos, edit inventory and manage repairs for this tenancy. This grants no access to other tenancies or properties.",
+  "accessPersonalDetail": "This work belongs to the lead agent. Moving it into a team gives its owners and managers access.",
+  "accessTeamDetail": "Team owners and managers oversee this tenancy. Assigned agents and external collaborators can work on it.",
+  "accessMoveToTeam": "Move to team",
+  "accessAssignMembers": "Assign team members",
+  "accessLeadOnly": "Only the lead agent can work on this tenancy.",
+  "accessLeadAgent": "Lead agent",
+  "accessCanWork": "Can work on this tenancy",
+  "remove": "Remove",
+  "accessPreviousReportsOnly": "Previous reports only",
+  "accessPreviousReportsDetail": "These agents keep access to reports they previously worked on. They cannot work on the rest of this tenancy.",
+  "accessPreviousReportCount": "{count, plural, =1{1 previous report} other{{count} previous reports}}",
+  "@accessPreviousReportCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "accessAddCollaboratorTitle": "Add a collaborator",
+  "accessAddCollaboratorDetail": "They can open the property after signing in to Kivilo with this email address.",
+  "saving": "Saving…",
+  "accessAddCollaborator": "Add collaborator",
+  "accessLeadManages": "Only the lead agent can add or remove collaborators.",
+  "accessTeamManages": "The responsible agent and team managers can change access.",
+  "accessHandoverDetail": "Changing the responsible agent hands over management without changing authorship or signed reports. External collaborators keep their existing access.",
+  "accessFindMember": "Find a team member",
+  "accessTeamMember": "Team member",
+  "accessSaveAssignment": "Save assignment",
+  "accessMoveTitle": "Move tenancy to team?",
+  "accessMoveBody": "This tenancy becomes team work. Owners and managers gain access and can reassign it. Existing collaborators, signed reports and authorship are preserved. Other personal tenancies stay personal.",
+  "accessCreateTeamFirst": "Create or join a team first in Account → Team.",
+  "accessChooseTeam": "Choose a team",
+  "accessTeamTenancy": "Team tenancy · {team}",
+  "@accessTeamTenancy": {
+    "placeholders": {
+      "team": {
+        "type": "String"
+      }
+    }
+  },
+  "accessPrivate": "Private",
+  "accessShared": "Shared tenancy",
+  "accessSharedWith": "Shared with {names}",
+  "@accessSharedWith": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "accessReportsSharedWith": "Previous reports shared with {names}",
+  "@accessReportsSharedWith": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "changeDamage": "Damage",
+  "changeWear": "Wear",
+  "changeMissing": "Missing",
+  "changeImproved": "Improved",
+  "changeUnchanged": "Unchanged",
+  "verdictUndecided": "Undecided",
+  "verdictTenantLiable": "Tenant liable",
+  "verdictFairWear": "Fair wear",
+  "verdictDisputed": "Disputed",
+  "roomAddTitle": "Add a room",
+  "roomName": "Room name",
+  "stillUploading": "Still uploading",
+  "stillUploadingBody": "Some photos, videos or changes have not uploaded yet. Open the rooms and tap Retry uploads before sending for signature.",
+  "sendForSignatureTitle": "Send for signature?",
+  "sendForSignatureBody": "{count, plural, =1{The room has been reviewed.} other{All {count} rooms have been reviewed.}} Sending freezes the inventory, captions and photo marks. Review the report with both parties before they sign.",
+  "@sendForSignatureBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "send": "Send",
+  "signingLinkSent": "Signing link on its way to {name}",
+  "@signingLinkSent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pdfNoViewer": "Install a PDF viewer to open this report, or use Share PDF to send it.",
+  "pdfOpenFailed": "Could not open this PDF. Please try again, or use Share PDF.",
+  "findingPhotosUnfinished": "Finish marking and uploading your finding photos before publishing. Reopen Add finding or Review finding to resume them.",
+  "publishNoDamageTitle": "Publish: no damage found?",
+  "publishAssessmentTitle": "Publish assessment?",
+  "publishNoDamageBody": "No changes are recorded between check-in and check-out. Publishing states that you checked and found no damage, and both parties see that in the shared report. Future edits require publishing a new version.",
+  "publishAssessmentBody": "The reviewed findings will be visible as a dated assessment separate from the signed inventory. Future edits require publishing a new version.",
+  "publishNoDamage": "Publish no damage",
+  "publish": "Publish",
+  "inspection": "Inspection",
+  "inspectionOpenFailed": "Could not open this inspection. {error}",
+  "@inspectionOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectionOffline": "Offline copy. Open a saved room to keep capturing. Review and signatures need a connection.",
+  "inspectionCheckInEyebrow": "CHECK-IN REPORT",
+  "inspectionCheckOutEyebrow": "CHECK-OUT REPORT",
+  "step": "Step {number} of 3: {name}",
+  "@step": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stepComplete": "Step {number} of 3: {name}, complete",
+  "@stepComplete": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stepCurrent": "Step {number} of 3: {name}, current",
+  "@stepCurrent": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "stepRooms": "Rooms",
+  "stepReview": "Review",
+  "stepSign": "Sign",
+  "inspectionSigned": "Signed and safely recorded.",
+  "inspectionReadyToSign": "Ready for both parties to sign.",
+  "inspectionRoomsReady": "Your rooms are ready. Review, then send.",
+  "inspectionBuildRecord": "Build the record, room by room.",
+  "inspectionCheckEachRoom": "Check each room before you send.",
+  "inspectionSignedBody": "Both parties have signed. The agreed report is ready to view and share.",
+  "inspectionSentBody": "The report is fixed. Collect signatures below, in person or by email.",
+  "inspectionRoomsReadyBody": "Sending fixes the inventory, captions and photo marks for both parties to sign.",
+  "inspectionRecordingBody": "Start with the room inventory. Open each item to record its condition, take photos and mark details.",
+  "inspectionReviewBody": "Check the inventory against your photos and videos, then mark each room reviewed.",
+  "roomsReviewedSuffix": "/{total} rooms reviewed",
+  "@roomsReviewedSuffix": {
+    "description": "Follows an animated number, as in 3/5 rooms reviewed.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "sendForSignature": "Send for signature",
+  "continueRoom": "Continue {room}",
+  "@continueRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "inspectionPeople": "People on this report",
+  "tenantHandover": "Tenant handover",
+  "viewCheckInBaseline": "View check-in baseline",
+  "reportSummary": "Report summary",
+  "roomsStartFirst": "Start with your first room",
+  "roomsDetail": "Inventory and media, room by room",
+  "roomsEmpty": "No rooms yet",
+  "roomsEmptyDetail": "Add a room to start the inventory.",
+  "signatures": "Signatures",
+  "signaturesDetail": "The agreed inventory is now fixed for signing.",
+  "shareReport": "Share report",
+  "shareReportDetail": "A private link, or a PDF headed with your agency.",
+  "shareReportSigned": "View or send the signed report",
+  "viewPdf": "View PDF",
+  "sharePdf": "Share PDF",
+  "shareLink": "Share link",
+  "shareLinkWarning": "Anyone with the link can read this report.",
+  "signedReportAndUpdates": "Signed report and updates",
+  "writeUpdate": "Write an update",
+  "endOfTenancy": "End of tenancy",
+  "endOfTenancyDetail": "Use this signed check-in as the baseline for a check-out.",
+  "startCheckOut": "Start check-out",
+  "maintenanceHistory": "Maintenance history",
+  "maintenanceHistoryDetail": "Context for review. A person decides whether it affects a finding.",
+  "repairCount": "{count, plural, =1{1 repair} other{{count} repairs}}",
+  "@repairCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "mediaFileCount": "{count, plural, =1{1 media file} other{{count} media files}}",
+  "@mediaFileCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "costAgreed": "Cost agreed: {agreement}",
+  "@costAgreed": {
+    "placeholders": {
+      "agreement": {
+        "type": "String"
+      }
+    }
+  },
+  "costPending": "Cost proposal waiting for an answer",
+  "costDisputed": "Cost disputed",
+  "costNotProposed": "Nobody has proposed who pays",
+  "costsOpen": "{count, plural, =1{1 repair has no agreed cost} other{{count} repairs have no agreed cost}}",
+  "@costsOpen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "costsOpenBody": "Settle who pays on each one before the deposit is decided, or link it to a finding so the decision is made there.",
+  "roomPreview": "{room} preview {number}",
+  "@roomPreview": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "signed": "Signed",
+  "noEmailOnFile": "No email on file",
+  "signingLinkEmailed": "Signing link emailed {date}",
+  "@signingLinkEmailed": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "signingLinkQueued": "Emailing the signing link",
+  "signingLinkFailed": "Could not email the signing link",
+  "signingLinkNotEmailed": "Signing link not emailed",
+  "emailSigningLink": "Email signing link",
+  "resend": "Resend",
+  "checkOutAssessment": "Check-out assessment",
+  "checkOutAssessmentDetail": "A separate, dated record of changes and responsibility.",
+  "checkOutAssessmentIntro": "Record each change since check-in. Findings stay private until you publish them, and the signed inventory does not change.",
+  "publishedVersion": "Published version {version}",
+  "@publishedVersion": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      }
+    }
+  },
+  "findings": "Findings",
+  "findingsEmpty": "No changes recorded yet",
+  "findingsCount": "{count, plural, =1{1 change recorded} other{{count} changes recorded}}",
+  "@findingsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "findingUnconfirmed": "Unconfirmed",
+  "findingEstimatedCost": "Estimated cost · SGD {amount}",
+  "@findingEstimatedCost": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "findingsConfirmFirst": "Open and confirm each unconfirmed finding before publishing.",
+  "publishNoDamageFound": "Publish: no damage found",
+  "publishAssessment": "Publish assessment",
+  "publishNewVersion": "Publish new version",
+  "categoryMeter": "Meter",
+  "conditionNew": "New",
+  "conditionGood": "Good",
+  "conditionFair": "Fair",
+  "conditionPoor": "Poor",
+  "conditionDamaged": "Damaged",
+  "photoActions": "Photo actions",
+  "videoActions": "Video actions",
+  "preview": "Preview",
+  "previewDetail": "Open the original file",
+  "editNote": "Edit note",
+  "noteHint": "Describe what this shows",
+  "markPhoto": "Mark photo",
+  "markPhotoDetail": "Circle, point to, or draw over a detail",
+  "deleteMedia": "Delete media",
+  "photo": "Photo",
+  "deletePhotoTitle": "Delete this photo?",
+  "deleteVideoTitle": "Delete this video?",
+  "deleteMediaBody": "This removes it from the room and from any inventory item it is attached to.",
+  "delete": "Delete",
+  "deleteNamed": "Delete {name}?",
+  "@deleteNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteItemBody": "This removes the line from the inventory.",
+  "nothingToRecordTitle": "Nothing to record in {room}?",
+  "@nothingToRecordTitle": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "nothingToRecordBody": "This marks the room reviewed with no items. The report will say nothing was recorded in this room.",
+  "confirm": "Confirm",
+  "signInAgain": "Sign in again to continue.",
+  "roomStillUploadingBody": "Some photos, videos or changes in this room have not uploaded yet. Open the item or Room media & walkthrough to finish any photo marks and retry uploads before continuing.",
+  "roomRename": "Rename room",
+  "roomActions": "Room actions",
+  "roomRenameDetail": "Change the room name",
+  "roomDelete": "Delete room",
+  "roomDeleteDetail": "Remove its photos, videos and inventory",
+  "roomDeleteTitle": "Delete this room?",
+  "roomDeleteBody": "Its photos, videos and inventory will be removed.",
+  "room": "Room",
+  "roomInventory": "Room inventory",
+  "roomOpenFailed": "Could not open this room. {error}",
+  "@roomOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "atCheckIn": "At check-in",
+  "atCheckInSigned": "This room as it was signed",
+  "atCheckInSignedOn": "This room as it was signed on {date}",
+  "@atCheckInSignedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "hide": "Hide",
+  "show": "Show",
+  "inventory": "Inventory",
+  "itemsInRoom": "{count, plural, =1{1 item in this room} other{{count} items in this room}}",
+  "@itemsInRoom": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inventoryEmpty": "No inventory items yet",
+  "inventoryEmptyDetail": "Add an item, then open it to take photos and mark details.",
+  "media": "Media",
+  "mediaEmptyDetail": "Photos and videos of this room",
+  "mediaOne": "1 photo or video",
+  "mediaMany": "{count} photos and videos",
+  "@mediaMany": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "newestFirst": "Newest first",
+  "oldestFirst": "Oldest first",
+  "roomMediaWalkthrough": "Room media & walkthrough",
+  "mediaEmpty": "No photos or videos yet",
+  "mediaEmptyUploading": "Photos and videos appear here once they upload.",
+  "finishRoom": "Finish this room",
+  "finishRoomEmpty": "Add an item, or confirm there is nothing to record in this room.",
+  "finishRoomBody": "Check every item against the photos and video. Your review makes this room ready for the report.",
+  "reviewedRoom": "I reviewed this room",
+  "nothingToRecord": "Nothing to record",
+  "roomOffline": "Offline copy. Keep capturing; review edits need a connection.",
+  "roomRecordEyebrow": "ROOM RECORD",
+  "roomCounts": "{items, plural, =1{1 item} other{{items} items}} · {photos, plural, =1{1 photo} other{{photos} photos}} · {videos, plural, =1{1 video} other{{videos} videos}}",
+  "@roomCounts": {
+    "placeholders": {
+      "items": {
+        "type": "int"
+      },
+      "photos": {
+        "type": "int"
+      },
+      "videos": {
+        "type": "int"
+      }
+    }
+  },
+  "roomFixedBody": "This inventory is fixed for signing. Media remains available below.",
+  "roomPendingBody": "Start with the inventory. Open an item to add photos and mark details.",
+  "roomReviewBody": "Open each inventory item to check its details and add photos, then mark this room reviewed.",
+  "roomReviewedBody": "This room has been reviewed. Open an item to update its details or add photos.",
+  "roomCapturingBody": "Add each item to the inventory, then open it to take photos and mark details.",
+  "video": "Video",
+  "photoNumber": "Photo {number}",
+  "@photoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "videoNumber": "Video {number}",
+  "@videoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "fieldNone": "no {field}",
+  "@fieldNone": {
+    "description": "A check-in field that was empty, such as no serial.",
+    "placeholders": {
+      "field": {
+        "type": "String"
+      }
+    }
+  },
+  "fieldValue": "{field}: {value}",
+  "@fieldValue": {
+    "placeholders": {
+      "field": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "atCheckInUpdatedPrefix": "At check-in, updated:",
+  "atCheckInPrefix": "At check-in:",
+  "fieldName": "name",
+  "fieldSerial": "serial",
+  "fieldReading": "reading",
+  "fieldNotes": "notes",
+  "openItem": "Open item",
+  "deleteItem": "Delete item",
+  "quantityShort": "Qty {count}",
+  "@quantityShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "identifierLine": "Identifier  {value}",
+  "@identifierLine": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "readingLine": "Reading  {value}",
+  "@readingLine": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "attachedMedia": "Attached media",
+  "markedPhotoNumber": "Marked photo {number}",
+  "@markedPhotoNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "openAttachedTo": "Open {label} attached to {item}",
+  "@openAttachedTo": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "backToMediaActions": "Back to media actions",
+  "note": "Note",
+  "saveNote": "Save note",
+  "itemNameRequired": "Enter an item name and quantity of at least one.",
+  "editItem": "Edit inventory item",
+  "editItemDetail": "Describe this item. Take photos from its inventory page.",
+  "condition": "Condition",
+  "quantity": "Quantity",
+  "makeModelSerial": "Make, model or serial",
+  "meterReading": "Meter reading",
+  "notes": "Notes",
+  "hideRoomMedia": "Hide existing room media",
+  "linkRoomMedia": "Link existing room media",
+  "finishUploadingBeforeLink": "Finish uploading this room’s photos before linking existing media.",
+  "linkRoomMediaDetail": "Choose the room photos and videos that support this inventory line. Their notes and photo marks stay attached.",
+  "noRoomMedia": "No media in this room yet.",
+  "hasPhotoMarks": "Has photo marks",
+  "saveChanges": "Save changes",
+  "captureCheckFailed": "Could not check saved media. {error}",
+  "@captureCheckFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "captureAccountChanged": "Account changed. Open this room again.",
+  "captureRoomNotLoaded": "Room has not been loaded on this phone. Connect once to open it.",
+  "captureSaveFailed": "Could not save that photo or video. {error}",
+  "@captureSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "captureAddFailed": "Could not add that photo or video. {error}",
+  "@captureAddFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "uploadPausedError": "Upload paused. {error}",
+  "@uploadPausedError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "mediaActions": "Media actions",
+  "playVideo": "Play video",
+  "markPhotoDetailShort": "Circle or point to a detail",
+  "capturePhotoNotFoundNote": "Could not find this photo. Please try the note again.",
+  "capturePhotoOpenFailed": "Could not open this photo. Please retry when connected.",
+  "savePhoto": "Save photo",
+  "capturePhotoNotFoundMarks": "Could not find this photo. Please try the marks again.",
+  "captureNotFoundDelete": "Could not find this photo or video. Please try deleting it again.",
+  "captureWaitForSave": "Wait for the photo or video to finish saving.",
+  "captureNotUploaded": "Some photos, videos or changes have not uploaded yet. Try again when you have signal.",
+  "captureReviewFailed": "Could not open review. {error}",
+  "@captureReviewFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "captureMarksFailed": "The photo uploaded, but its marks did not. Try again, or edit the marks.",
+  "finishMarking": "Finish marking",
+  "uploadSizeSuffix": " {unit} of {total} {totalUnit}",
+  "@uploadSizeSuffix": {
+    "description": "Follows an animated number, as in 2.1 MB of 4.0 MB.",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      },
+      "totalUnit": {
+        "type": "String"
+      }
+    }
+  },
+  "roomMedia": "Room media",
+  "atCheckInDate": "At check-in · {date}",
+  "@atCheckInDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "retryUploads": "Retry uploads",
+  "atCheckInLine": "At check-in: {name} · {condition} · Qty {count}",
+  "@atCheckInLine": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "condition": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "serialAtCheckIn": "Serial / model at check-in: {value}",
+  "@serialAtCheckIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "meterAtCheckIn": "Meter at check-in: {value}",
+  "@meterAtCheckIn": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "checkInNotes": "Check-in notes: {value}",
+  "@checkInNotes": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "serialModel": "Serial / model: {value}",
+  "@serialModel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "meterReadingValue": "Meter reading: {value}",
+  "@meterReadingValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "editDetails": "Edit details",
+  "photosAndVideo": "Photos & video",
+  "captureRoomIntro": "Record a room walkthrough or manage existing room media.",
+  "captureItemIntro": "Take a photo, add any marks, then save. It is attached to this item automatically.",
+  "captureOffline": "Offline. Photos and videos stay on this phone and upload when you have signal.",
+  "captureInterrupted": "{count, plural, =1{A photo or video was} other{{count} photos or videos were}} interrupted while saving. Do not uninstall Kivilo or clear its data, so nothing is lost.",
+  "@captureInterrupted": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "editsWaiting": "{count, plural, =1{A change is} other{{count} changes are}} waiting to upload. Tap to try again.",
+  "@editsWaiting": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "photos": "Photos",
+  "recordVideo": "Record video",
+  "takeAnotherPhoto": "Take another photo",
+  "takePhoto": "Take a photo",
+  "chooseVideo": "Choose video",
+  "choosePhotos": "Choose photos",
+  "itemMedia": "Item media",
+  "captureSavedFirst": "Saved on your phone first, then added to the report",
+  "captureReviewWaits": "Review opens once this room’s photos, videos and changes have uploaded. Your media stays saved on this phone while you wait for signal.",
+  "done": "Done",
+  "reviewRoom": "Review room",
+  "photoOnPhone": "Photo on this phone",
+  "videoOnPhone": "Video on this phone",
+  "inTheReport": "In the report",
+  "uploadedUpdating": "Uploaded · updating report",
+  "readyToMark": "Ready to mark",
+  "marksNeedAttention": "Marks need attention",
+  "uploadPaused": "Upload paused",
+  "preparingUpload": "Preparing secure upload",
+  "uploading": "Uploading",
+  "addingToRoom": "Adding to room",
+  "addingToItem": "Adding to item",
+  "uploadingNotes": "Uploading notes and marks",
+  "savedWaiting": "Saved safely · waiting to upload",
+  "photoNote": "Photo note",
+  "photoNoteDetail": "Describe what the viewer should notice in this photo.",
+  "photoNoteHint": "For example: chip beside the sink",
+  "disputeMoveIn": "Dispute move-in condition",
+  "disputeMoveInLabel": "What do you disagree with?",
+  "disputeMoveInHelper": "Your reason stays on the dated notice.",
+  "recordDispute": "Record dispute",
+  "handPhoneTo": "Hand the phone to {name}",
+  "@handPhoneTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "acknowledgeInPersonBody": "{name}, the {role}, has read Update {number}: {title}. Tapping below records that they acknowledged it in person, with the time and the exact content shown. It is not a new signature on the report.",
+  "@acknowledgeInPersonBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "acknowledgeUpdate": "I acknowledge this update",
+  "disputeDeductions": "Dispute the deductions",
+  "partyDisputesDeductions": "{name} disputes the deductions",
+  "@partyDisputesDeductions": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "disputeDeductionsLabel": "What is disputed, and why?",
+  "disputeDeductionsHelper": "The reason is recorded beside the statement.",
+  "agreeInPersonBody": "{name}, the {role}, has read the deposit statement. Tapping below records that they agreed to the deductions in person, with the time and the exact statement shown.",
+  "@agreeInPersonBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "agreeDeductions": "Agree to the deductions",
+  "money": "S${amount}",
+  "@money": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "depositStatement": "Deposit statement",
+  "deposit": "Deposit",
+  "deductionsLine": "Deductions ({count} of {total, plural, =1{1 finding} other{{total} findings}}, tenant liable)",
+  "@deductionsLine": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "toReturnToTenant": "To return to the tenant",
+  "deductionsExceed": "Deductions exceed the deposit by",
+  "answerAgreed": "agreed",
+  "answerDisputed": "disputed",
+  "answerNotYet": "not answered yet",
+  "inPersonSuffix": " in person",
+  "depositRecordsOnly": "Kivilo records each answer. It does not hold or move the deposit.",
+  "recording": "Recording…",
+  "iAgreeDeductions": "I agree to the deductions",
+  "dispute": "Dispute",
+  "inPersonParty": "In person: {role} {name}",
+  "@inPersonParty": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "agrees": "Agrees",
+  "disputes": "Disputes",
+  "report": "Report",
+  "propertyReport": "Property report",
+  "signAsLandlord": "Sign as landlord",
+  "signAsTenant": "Sign as tenant",
+  "signedByBoth": "Signed by both parties · {date}",
+  "@signedByBoth": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "dateRange": "{start} to {end}",
+  "@dateRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "inspected": "Inspected",
+  "notRecorded": "Not recorded",
+  "byName": "by {name}",
+  "@byName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "agreedAndSigned": "Agreed and signed",
+  "notCountersigned": "Not yet countersigned.",
+  "updatesSinceSigning": "Updates since signing",
+  "updatesSinceSigningDetail": "Recorded beside the signed report, which they do not change. Updates count once acknowledged. A move-in condition notice counts once the landlord accepts it.",
+  "reportFooter": "Rooms and items in this report were written by the inspector against a recorded walkthrough and agreed by the people named above. Where a photograph carries marks, the inspector drew them to point out a detail; they are recorded separately and nothing has been painted onto the photograph itself.",
+  "nothingRecordedInRoom": "Nothing recorded in this room.",
+  "readingValue": "Reading: {value}",
+  "@readingValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "roomPhoto": "{room} photo",
+  "@roomPhoto": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
+  "areasMarked": "{count, plural, =1{1 area marked} other{{count} areas marked}}",
+  "@areasMarked": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "signatureOf": "Signature of {name}",
+  "@signatureOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "signedOn": "Signed {date}",
+  "@signedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "updatedOn": "Updated {date} · Update {number}",
+  "@updatedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingAcknowledgement": "Pending acknowledgement",
+  "moveInConditionLine": "Tenant move-in condition · Reported {reported} · Deadline {deadline}",
+  "@moveInConditionLine": {
+    "placeholders": {
+      "reported": {
+        "type": "String"
+      },
+      "deadline": {
+        "type": "String"
+      }
+    }
+  },
+  "disputedByOn": "Disputed by {name} on {date}",
+  "@disputedByOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "disputedNoticeKept": "This notice is kept on the report and excluded from the agreed condition for check-out.",
+  "publishedByOn": "Published by {name}, {date}",
+  "@publishedByOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "conditionReported": "Condition reported: {name}",
+  "@conditionReported": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "itemFallback": "Item",
+  "wasValue": "Was: {value}",
+  "@wasValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fromRepairRecord": "From the repair record: {title}",
+  "@fromRepairRecord": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "agreePresentAtMoveIn": "I agree this was present at move-in",
+  "assessmentVersionLine": "Version {version}, published {date}. Separate from the signed inventory above.",
+  "@assessmentVersionLine": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "liabilitySummary": "{count} of {total, plural, =1{1 finding assesses} other{{total} findings assess}} tenant liability, totalling S${claim} against a deposit of S${deposit}.",
+  "@liabilitySummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "claim": {
+        "type": "String"
+      },
+      "deposit": {
+        "type": "String"
+      }
+    }
+  },
+  "findingPhotos": "Finding photos",
+  "openFindingPhoto": "Open finding photo: {name}",
+  "@openFindingPhoto": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "maintenanceRecord": "Maintenance record: {title}",
+  "@maintenanceRecord": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "findingPhoto": "Finding photo",
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "findingAlreadySaved": "This finding was already saved. Save to apply any further changes to it.",
+  "findingDraftSaveFailed": "Could not save the finding draft on this phone. {error}",
+  "@findingDraftSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseItemFirst": "Choose an item first.",
+  "describeChange": "Describe what changed and why.",
+  "costInvalid": "Enter a cost with up to 2 decimal places.",
+  "photoDraftNotReady": "Wait until the photo draft is ready.",
+  "findingSavedOriginalItem": "This finding was already saved for its original item. Choose that item to save your latest text, or discard this draft and add another finding.",
+  "findingSavedDraftKept": "This finding was already saved. Your latest draft is kept. Reopen the saved finding to make further changes.",
+  "photoOpenRetry": "Connect and retry to open this photo. Its upload is kept on this phone.",
+  "photoViewRetry": "Connect and retry to view this photo.",
+  "photoCaption": "Photo caption",
+  "caption": "Caption",
+  "saveCaption": "Save caption",
+  "discardDraftTitle": "Discard this finding draft?",
+  "discardDraftBody": "The draft text and newly added photos will be removed. Saved finding photos stay with their finding.",
+  "keepDraft": "Keep draft",
+  "discardDraft": "Discard draft",
+  "findingPhotosDetail": "Add evidence for this finding. Originals are kept; marks are stored beside each photo.",
+  "takePhotoShort": "Take photo",
+  "addFromGallery": "Add from gallery",
+  "photoUploadPending": "Photo upload pending",
+  "removingPhoto": "Removing photo…",
+  "savedFinishMarking": "Saved on this phone · Finish marking",
+  "savedUploadFailed": "Saved on this phone · Upload failed. Retry when connected.",
+  "uploadingPercent": "Uploading {percent}%…",
+  "@uploadingPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "savingPhoto": "Saving photo…",
+  "uploaded": "Uploaded",
+  "resumeMarking": "Resume marking",
+  "removePhoto": "Remove photo",
+  "chooseAnItem": "Choose an item",
+  "addFinding": "Add finding",
+  "reviewFinding": "Review finding",
+  "items": "Items",
+  "searchItems": "Search items, rooms or serial numbers",
+  "clear": "Clear",
+  "atCheckOut": "At check-out",
+  "chooseItemMissing": "For an item no longer here at check-out.",
+  "chooseItemDetail": "Choose an item using its photos and recorded condition.",
+  "allRooms": "All rooms",
+  "noItemsRecorded": "No items recorded in this inventory.",
+  "noMatchingItems": "No matching items. Try another room, name or serial number.",
+  "selectedItem": "Selected item",
+  "changeItem": "Change item",
+  "hideItemDetails": "Hide item details",
+  "showItemDetails": "Show item details",
+  "change": "Change",
+  "verdict": "Verdict",
+  "rationale": "Rationale",
+  "maintenanceMedia": "Maintenance media",
+  "noLinkedMaintenance": "No linked maintenance record",
+  "estimatedCost": "Estimated cost (SGD)",
+  "removeFinding": "Remove finding",
+  "saveReviewedFinding": "Save reviewed finding",
+  "openSourcePhoto": "Open {source} photo",
+  "@openSourcePhoto": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "openSourcePhotoNote": "Open {source} photo: {note}",
+  "@openSourcePhotoNote": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "sourcePhoto": "{source} photo",
+  "@sourcePhoto": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "serialId": "Serial / ID: {value}",
+  "@serialId": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "quantityValue": "Quantity: {count}",
+  "@quantityValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "meterValue": "Meter: {value}",
+  "@meterValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "checkInValue": "Check-in: {value}",
+  "@checkInValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutValue": "Check-out: {value}",
+  "@checkOutValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "alsoListedAtCheckOut": "Also listed at check-out",
+  "noLinkedPhotos": "No linked photos recorded for this item.",
+  "photoFinishingUpload": "Photo is finishing uploading…",
+  "categoryPlumbing": "Plumbing",
+  "categoryLocksmith": "Locksmith",
+  "categoryElectrical": "Electrical",
+  "categoryAirCon": "Air conditioning",
+  "categoryStructural": "Structural",
+  "categoryPest": "Pest",
+  "errorDraftSaved": "{error} Your draft is saved on this phone.",
+  "@errorDraftSaved": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorDraftNotSaved": "{error} This phone could not save your draft. Keep this screen open and try again.",
+  "@errorDraftNotSaved": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "propertyItemOptional": "Property item (optional)",
+  "noSpecificItem": "No specific item",
+  "priorityRoutine": "Routine",
+  "priorityUrgent": "Urgent",
+  "priorityDanger": "Danger",
+  "immediateDanger": "If someone is in immediate danger",
+  "immediateDangerDetail": "Call Police 999 or SCDF fire/ambulance 995 before reporting here.",
+  "presentAtMoveIn": "It was like this when I moved in",
+  "presentAtMoveInDetail": "After reporting, add photos and record the move-in condition. The landlord can accept or dispute it.",
+  "shortTitle": "Short title",
+  "whatHappened": "What happened?",
+  "whatHappenedHelper": "Include when it started and what you have already tried.",
+  "submitReport": "Submit report",
+  "recordMoveIn": "Record move-in condition",
+  "recordMoveInBody": "Record what was already present when you moved in. This saves a dated notice with the problem description and selected photos. It counts towards the agreed condition once the landlord accepts it.",
+  "itemInCheckIn": "Item in the check-in",
+  "notInCheckIn": "Not listed in the check-in",
+  "itemName": "Item name",
+  "itemCategory": "Item category",
+  "conditionAtMoveIn": "Condition when you moved in",
+  "chooseCondition": "Choose condition",
+  "photosToInclude": "Photos to include",
+  "beforePhoto": "Before photo {number}",
+  "@beforePhoto": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "uploadedOn": "Uploaded {date}",
+  "@uploadedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "recordCondition": "Record condition",
+  "recordCompletedRepair": "Record completed repair",
+  "whatWasRepaired": "What was repaired?",
+  "costOptional": "Cost (optional)",
+  "costHelper": "Used to split the cost as agreed",
+  "costInvalidExample": "Enter an amount like 150 or 150.50",
+  "addComment": "Add a comment",
+  "closeWithoutAction": "Close without action",
+  "closeReasonHint": "A reason is required. Both sides see it.",
+  "whatIsStillWrong": "What is still wrong?",
+  "signInBeforeRecording": "Sign in again before recording the condition.",
+  "photosNotUploadedMoveIn": "Some photos have not uploaded yet. Keep them on this phone and retry uploads before recording the move-in condition.",
+  "disputeMoveInHint": "Explain what you disagree with. Your reason stays on the dated notice.",
+  "reportedOn": "Reported {date}",
+  "@reportedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "reportedOnDeadline": "Reported {date} · Defect deadline {deadline}",
+  "@reportedOnDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "deadline": {
+        "type": "String"
+      }
+    }
+  },
+  "moveInDetail": "Add photos, then record the move-in condition as a dated notice beside the signed check-in. The landlord can accept or dispute it. The signed report stays unchanged.",
+  "addBeforePhotos": "Add before photos",
+  "addBeforePhotoFirst": "Add at least one uploaded before photo to continue.",
+  "moveInAccepted": "Accepted by the landlord. Included in the agreed condition for check-out.",
+  "moveInDisputed": "Disputed by the landlord. Kept as a dated notice and excluded from the agreed condition.",
+  "moveInWaiting": "Waiting for the landlord to accept or dispute the condition.",
+  "viewConditionNotice": "View dated condition notice",
+  "dangerCallFirst": "If anyone is in danger, call Police 999 or SCDF fire and ambulance 995 first.",
+  "whatHappenedHeading": "What happened",
+  "reportedByOn": "Reported by {name} on {date}",
+  "@reportedByOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "photosBeforeAfter": "Before and after the repair",
+  "noPhotosYetRepair": "No photos yet. A photo of the problem now settles arguments later.",
+  "history": "History",
+  "historyDetail": "Everything on this request",
+  "comment": "Comment",
+  "waitingAcknowledge": "Waiting for the landlord or agent to acknowledge",
+  "recordRepairWhenDone": "Record the repair once it is done",
+  "waitingTenantRepair": "Waiting for the tenant to repair it",
+  "waitingLandlordRepair": "Waiting for the landlord to repair it",
+  "checkRepair": "Check the repair and confirm",
+  "waitingConfirm": "Waiting for the other side to confirm the repair",
+  "confirmedFixed": "Confirmed fixed",
+  "closedWithoutRepair": "Closed without a repair",
+  "repair": "Repair",
+  "acknowledgeReport": "Acknowledge report",
+  "didRepairWork": "Did the repair work?",
+  "fixed": "Fixed",
+  "notFixed": "Not fixed",
+  "addAfterPhoto": "Add an after photo",
+  "addToReportAsUpdate": "Add to the report as an update",
+  "repairedOn": "Repaired {date}",
+  "@repairedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "repairedOnCost": "Repaired {date} · S${cost}",
+  "@repairedOnCost": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
+  "beforeRepair": "Before repair",
+  "afterRepair": "After repair",
+  "receipt": "Receipt",
+  "couldNotLoadPull": "Could not load. Pull to refresh the link.",
+  "statusChanged": "Status changed",
+  "repairRecorded": "Repair recorded",
+  "repairScheduled": "Repair scheduled",
+  "reportedNotFixed": "Reported not fixed",
+  "costProposal": "Cost proposal: {summary}",
+  "@costProposal": {
+    "placeholders": {
+      "summary": {
+        "type": "String"
+      }
+    }
+  },
+  "costProposalRejected": "Cost proposal rejected",
+  "costProposalWithdrawn": "Cost proposal withdrawn",
+  "waitingForLandlord": "Waiting for the landlord",
+  "waitingForTenant": "Waiting for the tenant",
+  "acceptSplitTitle": "Accept this split?",
+  "youAreAgreeingTo": "You are agreeing to",
+  "acceptSplitBody": "This becomes the agreement for this repair. Changing it later takes a new proposal that both sides accept.",
+  "accept": "Accept",
+  "notAgreedYet": "Not agreed yet",
+  "agreedByBoth": "Agreed by both sides",
+  "agreedChangeProposed": "Agreed, change proposed",
+  "whoPays": "Who pays",
+  "agreed": "Agreed",
+  "proposedBy": "Proposed by {name}",
+  "@proposedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "proposedAcceptedBy": "Proposed by {name}, accepted by {other}",
+  "@proposedAcceptedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "other": {
+        "type": "String"
+      }
+    }
+  },
+  "answerNeeded": "Your answer is needed",
+  "waitingForAnswer": "Waiting for an answer",
+  "partyProposes": "{party} proposes",
+  "@partyProposes": {
+    "placeholders": {
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "partyProposesChange": "{party} proposes a change",
+  "@partyProposesChange": {
+    "placeholders": {
+      "party": {
+        "type": "String"
+      }
+    }
+  },
+  "suggestDifferent": "Suggest different",
+  "reject": "Reject",
+  "withdrawProposal": "Withdraw proposal",
+  "notAgreed": "Not agreed",
+  "changeNotAgreed": "Proposed change not agreed",
+  "rejectedWhatProposed": "{name} rejected what {proposer} proposed",
+  "@rejectedWhatProposed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "proposer": {
+        "type": "String"
+      }
+    }
+  },
+  "theOtherSide": "The other side",
+  "agreeWhoPaysNow": "Agree who arranges this repair and who pays for it now, so it is not an argument at check-out.",
+  "proposeChange": "Propose a change",
+  "makeNewProposal": "Make a new proposal",
+  "proposeWhoPays": "Propose who pays",
+  "repairCost": "Repair cost",
+  "suggestDifferentSplit": "Suggest a different split",
+  "whoPaysQuestion": "Who pays?",
+  "split": "Split",
+  "fromMinorRepairCap": "From this tenancy's minor repair cap",
+  "landlordPaysAbove": "Landlord pays anything above this",
+  "whoArranges": "Who arranges the repair?",
+  "why": "Why?",
+  "basis": "Basis",
+  "whyThisSplit": "Why this split?",
+  "explainSentence": "Explain in a sentence",
+  "otherSideSees": "The other side sees this with your proposal",
+  "clauseOptional": "Contract clause (optional)",
+  "clauseHint": "e.g. Clause 5(c)",
+  "theyReadCounter": "They will read your counter-offer as",
+  "theyRead": "They will read",
+  "sendProposal": "Send proposal",
+  "rejectProposalTitle": "Reject this proposal",
+  "youAreRejecting": "You are rejecting",
+  "whyNot": "Why not?",
+  "whyNotHint": "Required. The other side sees this.",
+  "photoOpenFailed": "Could not open this photo. {error}",
+  "@photoOpenFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "marksSaveFailed": "Could not save marks. {error}",
+  "@marksSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "redrawMark": "Redraw mark {number}.",
+  "@redrawMark": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "markCircleHelp": "Draw around an issue with your finger. Kivilo will smooth it into a clean circle.",
+  "markArrowHelp": "Draw from open space toward the issue. Tap any existing mark to edit it.",
+  "markFreehandHelp": "Draw directly over the detail. Your freehand stroke stays exactly where you draw it.",
+  "markCircle": "Circle",
+  "markArrow": "Arrow",
+  "markFreehand": "Freehand",
+  "undo": "Undo",
+  "redo": "Redo",
+  "markNumber": "Mark {number}",
+  "@markNumber": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "marksOfMax": "{count} of 12 marks",
+  "@marksOfMax": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addNoteToMark": "Add a note to mark {number}",
+  "@addNoteToMark": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "editMark": "Edit mark {number}",
+  "@editMark": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "markNoteNew": "Say what this mark identifies.",
+  "markNoteEdit": "Update its note, redraw its position, or remove it.",
+  "markNoteHint": "For example: hairline crack above socket",
+  "saveMark": "Save mark",
+  "redraw": "Redraw",
+  "photoSavedWillUpload": "Photo saved on this phone. Kivilo will upload it when it can.",
+  "updateNeedsTitle": "Give the update a title before publishing.",
+  "updateNeedsChange": "Add at least one change before publishing.",
+  "updatePhotosWaiting": "Some photos are still on this phone. Wait for them to upload before publishing.",
+  "publishUpdateTitle": "Publish this update?",
+  "publishUpdateBody": "It cannot be changed afterwards, and the landlord and tenant are asked to acknowledge it.",
+  "discardUpdateTitle": "Discard this draft?",
+  "discardUpdateBody": "Its changes and the photos uploaded to it are deleted. Published updates are not affected.",
+  "discard": "Discard",
+  "updatesIntro": "Record a change after signing, such as a replaced appliance, as a dated update. The signed report stays as it was; the update counts once the landlord and tenant have both acknowledged it.",
+  "published": "Published",
+  "publishedDetail": "Open the report to show it, or to take an acknowledgement in person.",
+  "updateNumberTitle": "Update {number}: {title}",
+  "@updateNumberTitle": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "startUpdate": "Start an update",
+  "resolvedRepairs": "Resolved repairs",
+  "resolvedRepairsDetail": "Each can start a change, with its before and after photos.",
+  "draftUpdate": "Draft update",
+  "draftUpdateDetail": "Nobody else sees it until you publish it.",
+  "title": "Title",
+  "reason": "Reason",
+  "dateOfChange": "Date of the change: {date}",
+  "@dateOfChange": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "saveDetails": "Save details",
+  "addChange": "Add a change",
+  "workingEllipsis": "Working…",
+  "publishUpdate": "Publish update",
+  "publishFreezes": "Publishing freezes the update and asks the landlord and tenant to acknowledge it.",
+  "fromRepair": "From the repair: {title}",
+  "@fromRepair": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "photosWaitingUpload": "{count, plural, =1{1 photo saved on this phone, waiting to upload} other{{count} photos saved on this phone, waiting to upload}}",
+  "@photosWaitingUpload": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "choosePhoto": "Choose photo",
+  "chooseRoom": "Choose the room.",
+  "chooseItemReplaced": "Choose the item this replaces or removes.",
+  "nameNewItem": "Name the new item.",
+  "editChange": "Edit change",
+  "changeAdded": "Added",
+  "changeReplaced": "Replaced",
+  "changeRemoved": "Removed",
+  "itemItChanges": "Item it changes",
+  "whichItem": "Which item?",
+  "newItem": "New item",
+  "newItemHint": "e.g. Dishwasher",
+  "makeModelAndSerial": "Make, model and serial",
+  "addChangeShort": "Add change",
+  "saveChange": "Save change",
+  "photoPrepareFailed": "Could not prepare the photo. {error}",
+  "@photoPrepareFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "photoAddFailed": "Could not add the photo. {error}",
+  "@photoAddFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "photoSavedUploaded": "Photo saved and uploaded.",
+  "photoSavedRetry": "Photo saved on this phone. Kivilo will retry automatically.",
+  "beforePhotos": "Before photos",
+  "afterPhotos": "After photos",
+  "addPhotosCamera": "Add photos with your phone’s camera",
+  "addPhotosCameraDetail": "Use the full native camera experience, or choose a photo you already took.",
+  "chooseExistingPhoto": "Choose existing photo",
+  "drawSignatureFirst": "Draw a signature first.",
+  "uploadBeforeSigning": "Some photos, videos or changes have not uploaded yet. Go back to the rooms and tap Retry uploads before either person signs.",
+  "roleSignature": "{role} signature",
+  "@roleSignature": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "ownSignatureConfirms": "Your signature confirms that the report you just read records the property as it was handed over.",
+  "partySignatureConfirms": "Review the agreed inventory with this person before they sign. Their signature confirms the report as shown.",
+  "useThisSignature": "Use this signature",
+  "drawNewOne": "Draw a new one",
+  "clearSignature": "Clear signature",
+  "saveForNextTime": "Save for next time",
+  "saveForNextTimeDetail": "Kept only on this phone, and removed when you sign out.",
+  "confirmSignature": "Confirm signature",
+  "propertyHistory": "Property history",
+  "timelineEyebrow": "PROPERTY TIMELINE",
+  "timelineDetail": "Signed reports, repairs and agreed costs, newest first.",
+  "timelineEmpty": "Nothing has been settled here yet. Signed reports and repairs will appear as they happen.",
+  "amountInvalid": "Enter a valid SGD amount",
+  "renewTenancy": "Renew tenancy",
+  "sameParties": "Same landlord and tenant · {tenant}",
+  "@sameParties": {
+    "placeholders": {
+      "tenant": {
+        "type": "String"
+      }
+    }
+  },
+  "startsOn": "Starts {date}",
+  "@startsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "endsOn": "Ends {date}",
+  "@endsOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "renewalConfirm": "Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.",
+  "keepSharingRenewal": "Keep sharing this renewal with {names}",
+  "@keepSharingRenewal": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "renewalPrivate": "Leave unchecked to keep the new tenancy private.",
+  "createRenewal": "Create renewal check-in",
+  "brandingIntro": "Heads every PDF and shared report you prepare. Landlords and tenants see it; the signed contents of a report never change.",
+  "logo": "Logo",
+  "logoDetail": "PNG or JPEG, shown at the top left",
+  "choose": "Choose",
+  "replace": "Replace",
+  "removeLogo": "Remove logo",
+  "yourName": "Your name",
+  "agencyName": "Agency name",
+  "agencyLicenceOptional": "Agency licence (optional)",
+  "ceaOptional": "Your CEA registration (optional)",
+  "phoneOptional": "Phone (optional)",
+  "partnerPipewell": "Leaks, blocked drains, water heaters",
+  "open24Hours": "Open 24 hours",
+  "partnerFernvale": "Burst pipes, toilets, taps and mixers",
+  "daily8to10": "Daily 8am to 10pm",
+  "partnerHalcyon": "Lockouts, lock changes, digital locks",
+  "partnerKeyline": "Gate locks, key cutting, safes",
+  "monSat9to7": "Mon to Sat 9am to 7pm",
+  "policeEmergency": "Police emergency",
+  "fireAmbulance": "Fire or ambulance",
+  "kiviloPartners": "Kivilo partners",
+  "kiviloPartnersDetail": "Plumbers and locksmiths we work with",
+  "bookingSoon": "Booking through Kivilo opens soon.",
+  "guideTitle": "A handover, in three steps",
+  "guideDetail": "Tap a step for a little guidance.",
+  "guideStep1": "Write what you see",
+  "guideStep1Short": "Start with the room inventory.",
+  "guideStep1Body": "Open a room and check its starter items. Add, edit or remove lines to match what you see, and record each item’s condition. On check-out, compare with the agreed check-in beside the inventory.",
+  "guideStep2": "Capture the details",
+  "guideStep2Short": "Open an item. Photograph its condition.",
+  "guideStep2Body": "Open an inventory item to take photos of wear, damage, meter readings and serial labels. Each photo opens for marking and attaches to that item when you save it. Use Room media & walkthrough for room-wide photos or video. Captures stay on your phone until uploaded. Check every item, then review the room; if it has no items, confirm there is nothing to record.",
+  "guideStep3": "Agree and sign",
+  "guideStep3Short": "A shared record for both parties.",
+  "guideStep3Body": "Let all captures finish uploading, then send for signature. Sending freezes the inventory. The landlord and tenant can sign on your phone or through their emailed link. Once both sign, the PDF is ready.",
+  "handoverTitle": "Your tenancy in Kivilo",
+  "handoverLoadFailed": "Could not load the handover. {error}",
+  "@handoverLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "retry": "Retry",
+  "handoverAfterSigning": "The tenant handover is available after the tenant signs the check-in.",
+  "handoverScan": "Scan with your phone and sign in as yourself to see your tenancy and report a problem.",
+  "handoverQrLabel": "QR code for the tenant sign-in link",
+  "handoverNoDefectPeriod": "A move-in defect period has not been enabled for this tenancy. You can still report repairs.",
+  "handoverDefectDeadline": "Flag anything that was already present when you moved in by {date} (Singapore time).",
+  "@handoverDefectDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "handoverLinkCopied": "Tenant sign-in link copied",
+  "handoverCopyLink": "Copy sign-in link",
+  "updateTag": "Update",
+  "@updateTag": {
+    "description": "Marks a line or photo that came from an update after signing."
+  },
+  "openCheckInPhoto": "Open check-in photo {number}",
+  "@openCheckInPhoto": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "nothingAtCheckIn": "Nothing recorded in this room at check-in.",
+  "openFullCheckIn": "Open the full check-in",
+  "renewalRemindersFailed": "Renewal reminders could not be loaded. Pull down to try again.",
+  "renewalDue": "Renewal due",
+  "dismissRenewal": "Dismiss renewal reminder",
+  "tenancyEnds": "{tenant} · Tenancy ends {date}",
+  "@tenancyEnds": {
+    "placeholders": {
+      "tenant": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "startRenewal": "Start renewal",
+  "notRenewing": "Not renewing",
+  "remindWeek": "Remind me in a week",
+  "videoLoadFailed": "This video could not be loaded. Check your connection and try again.",
+  "pause": "Pause",
+  "play": "Play",
+  "noNotifications": "No notifications yet.",
+  "accountChangedPage": "Account changed. Open this page again.",
+  "noResponse": "Kivilo did not respond. Check your signal and try again. Anything you took is saved on this phone.",
+  "uploadingMedia": "Uploading Kivilo media",
+  "kiviloMedia": "Kivilo media",
+  "signInBeforeFindingPhotos": "Sign in again before adding finding photos.",
+  "photoDraftDiscarded": "This photo draft was discarded. Discard the local draft to start again.",
+  "findingSavedReopen": "This finding was saved. Reopen it to add more photos.",
+  "finishRecoveringCamera": "Finish recovering the previous camera selection before taking another photo.",
+  "chooseImageFormat": "Choose a JPEG, PNG or WebP photo. Your selection is kept; retry or discard this draft.",
+  "waitPhotosSaved": "Wait until your photos are saved on this phone.",
+  "finishFindingPhotos": "Finish marking and uploading the finding photos before saving. Your draft is kept on this phone.",
+  "connectRetryDiscard": "Connect and retry discarding. Your photos and draft are still saved on this phone.",
+  "fileMissing": "The file for this photo or video is missing from this phone.",
+  "inventoryLinkFailed": "Photo uploaded, but its inventory link could not be saved. The photo and its item are still saved on this phone.",
+  "photoFormatUnsupported": "This photo is in a format Kivilo cannot store. Take it again, or choose a JPEG or PNG.",
+  "photoStillSaving": "A photo is still being saved on this phone. Keep this draft and retry.",
+  "photoSelectionRecovery": "A photo selection still needs recovery. Retry or discard this draft before saving.",
+  "ok": "OK",
+  "planFree": "Free",
+  "agencyErrPartyAsAgent": "A landlord or tenant cannot be assigned as an agent on their own tenancy.",
+  "agencyErrAlreadyInTeam": "A tenancy already assigned to a team cannot be moved to another team.",
+  "agencyErrInvitationPending": "An invitation is already pending. Use Resend invitation if needed.",
+  "agencyErrChooseLead": "Choose a responsible lead agent.",
+  "agencyErrChooseTeam": "Choose a team before assigning team members.",
+  "agencyErrChooseActive": "Choose active members of this team.",
+  "agencyErrChooseSuccessor": "Choose an active team member to take over this person’s properties.",
+  "agencyErrLastOwner": "Make another active member an owner before removing the last owner.",
+  "agencyErrOwnerDeletion": "Make another member an owner of each team you own before requesting account deletion.",
+  "agencyErrOwnerOnly": "Only a team owner can change ownership.",
+  "agencyErrLeadIsParty": "The new lead cannot be a landlord or tenant on one of these tenancies.",
+  "agencyErrInvitationExpired": "This invitation has expired. Ask a team manager to send it again.",
+  "agencyErrAlreadyJoined": "This person has already joined the team.",
+  "agencyErrTeamWideAccess": "This person has team-wide access as an owner or manager. Change their team role to remove that access.",
+  "agencyErrAlreadyMember": "This person is already a team member.",
+  "agencyErrMustAccept": "This team member must accept an invitation before being assigned work.",
+  "agencyErrTeamChanged": "This tenancy’s team changed. Refresh and try again.",
+  "agencyErrUseRemove": "Use Remove member to remove an active team member.",
+  "agencyErrWaitAccept": "Wait for the invitation to be accepted before changing this role.",
+  "showing": "Showing",
+  "allMyWork": "All my work",
+  "homesIOwn": "Homes I own",
+  "whereYouAreTheLandlord": "Where you are the landlord",
+  "homesIRent": "Homes I rent",
+  "whereYouAreTheTenant": "Where you are the tenant",
+  "theseTermsReferToAPreviousAgreement": "These terms refer to a previous agreement. Review the latest file to update them.",
+  "hideSourceClause": "Hide source clause",
+  "showSourceClause": "Show source clause",
+  "retake": "Retake",
+  "whatShouldTheViewerNotice": "What should the viewer notice?",
+  "photoRemoved": "Photo removed",
+  "photoDeleted": "Photo deleted",
+  "flash": "Flash",
+  "switchCamera": "Switch camera",
+  "retryCamera": "Retry camera",
+  "takeTheReplacementPhoto": "Take the replacement photo",
+  "tapAPhotoToMarkItOr": "Tap a photo to mark it or add a note",
+  "theLeadAgent": "the lead agent",
+  "theResponsibleAgentOrATeamOwner": "the responsible agent or a team owner or manager",
+  "roomPhotos": "Room photos",
+  "takeRoomWidePhotosOrManageExisting": "Take room-wide photos or manage existing ones.",
+  "takeMorePhotos": "Take more photos",
+  "takePhotos": "Take photos",
+  "noPhotosOfThisItemYet": "No photos of this item yet.",
+  "reviewOpensOnceThisRoomsPhotosAnd": "Review opens once this room’s photos and changes have uploaded. Your media stays saved on this phone while you wait for signal.",
+  "couldNotOpenThisProperty": "Could not open this property",
+  "recentlyDeleted": "Recently deleted",
+  "offlineShowingWhatWasLastLoaded": "Offline. Showing what was last loaded.",
+  "reportsAndDocuments": "Reports and documents",
+  "earlierTenancy": "Earlier tenancy",
+  "thisTenancysReportsDetailsAndPaperwork": "This tenancy’s reports, details and paperwork",
+  "more": "More",
+  "whatHappenedHereOverTheYearsReports": "What happened here over the years: reports, updates, repairs",
+  "changeLog": "Change log",
+  "whoChangedWhatInKiviloAndWhen": "Who changed what in Kivilo, and when",
+  "manageWhoCanWorkOnThisTenancy": "Manage who can work on this tenancy",
+  "restoreOrDeleteProperty": "Restore or delete property",
+  "archiveOrDeleteProperty": "Archive or delete property",
+  "returnItToActiveWorkOrMove": "Return it to active work or move it to trash",
+  "returnItToActiveProperties": "Return it to active properties",
+  "removeItFromActiveWorkOrMove": "Remove it from active work or move it to trash",
+  "kiviloEmailsThemAShortIdentityForm": "Kivilo emails them a short identity form, screens them against the sanctions and PEP lists, and keeps the record for you. CEA requires this before the tenancy is signed.",
+  "verify": "Verify",
+  "checkOutLabel": "check-out",
+  "checkInLabel": "check-in",
+  "tenancyDetails": "Tenancy details",
+  "landlordEmailNotProvided": "Landlord email not provided",
+  "tenantEmailNotProvided": "Tenant email not provided",
+  "peopleDatesRentAndDeposit": "People, dates, rent and deposit",
+  "documents": "Documents",
+  "tenancyAgreementAndSupportingFiles": "Tenancy agreement and supporting files",
+  "editPropertyAsset": "Edit property asset",
+  "retireAsset": "Retire asset",
+  "retireThisAsset": "Retire this asset?",
+  "couldNotLoadRepairsAndAssets": "Could not load repairs and assets",
+  "request": "request",
+  "requests": "requests",
+  "opening": "Opening…",
+  "reviewRepairTerms": "Review repair terms",
+  "noMaintenanceReported": "No maintenance reported",
+  "theUpdateIsDownloadedAndWillTake": "The update is downloaded and will take effect the next time Kivilo starts. You can keep working now.",
+  "aKiviloUpdateIsAvailableDownloadIt": "A Kivilo update is available. Download it now or keep working and update later.",
+  "labelContinue": "Continue",
+  "notNow": "Not now",
+  "theResponsibleAgentOrATeamOwnerLabel": "the responsible agent or a team owner or manager for every tenancy here",
+  "propertyActions": "Property actions",
+  "tenancy": "tenancy",
+  "tenancies": "tenancies",
+  "inspectionLabel": "inspection",
+  "inspections": "inspections",
+  "photoWord": "photo",
+  "photosLabel": "photos",
+  "propertyRecovery": "Property recovery",
+  "takeSeveralPhotosThenMarkThemOr": "Take several photos, then mark them or add notes. Originals are always kept.",
+  "gallery": "Gallery",
+  "resume": "Resume",
+  "mark": "Mark",
+  "deletePhoto": "Delete photo",
+  "deleteFinding": "Delete finding",
+  "couldNotOpenThisRenewal": "Could not open this renewal",
+  "startWithTheRoomsFromTheLast": "Start with the rooms from the last check-in",
+  "namesOnlyTheNewCheckInRecords": "Names only; the new check-in records its own condition.",
+  "whereYouWork": "Where you work",
+  "loadingLabel": "Loading…",
+  "notChosenYet": "Not chosen yet",
+  "member": "member",
+  "members": "members",
+  "createOrJoinTeam": "Create or join a team",
+  "addAnotherTeam": "Add another team",
+  "couldNotLoadTeamsTapToTry": "Could not load teams. Tap to try again.",
+  "invitation": "invitation",
+  "invitations": "invitations",
+  "createATeamOrAcceptAnInvitation": "Create a team or accept an invitation",
+  "personalReportBranding": "Personal report branding",
+  "usedForPropertiesOutsideYourTeams": "Used for properties outside your teams.",
+  "yourActivePropertyAllowance": "Your active property allowance.",
+  "howAHandoverWorks": "How a handover works",
+  "captureWriteTheInventoryThenSign": "Capture, write the inventory, then sign",
+  "termsOfService": "Terms of service",
+  "theTermsForUsingKivilo": "The terms for using Kivilo",
+  "anAppleSubscriptionContinuesUntilYouCancel": "An Apple subscription continues until you cancel it in your Apple Account. Deleting your Kivilo account does not cancel it.",
+  "manageAppStoreSubscriptions": "Manage App Store subscriptions",
+  "couldNotLoadProperties": "Could not load properties",
+  "showAllMyWork": "Show all my work",
+  "yourPropertiesAndTheirCurrentStatus": "Your properties and their current status.",
+  "searchProperties": "Search properties",
+  "addressTenantOrStage": "Address, tenant or stage",
+  "property": "property",
+  "properties": "properties",
+  "found": " found",
+  "nothingInRecentlyDeleted": "Nothing in Recently deleted",
+  "noArchivedProperties": "No archived properties",
+  "noMatchingProperties": "No matching properties",
+  "tryAnotherAddressOrTenantOrChange": "Try another address or tenant, or change your filters.",
+  "plansBilling": "Plans & billing",
+  "seat": "seat",
+  "seats": "seats",
+  "accessUntil": "Access until",
+  "currentPeriodEnds": "Current period ends",
+  "askYourTeamOwnerOrManagerAbout": "Ask your team owner or manager about this plan.",
+  "thisPlanWasPurchasedOnTheKivilo": "This plan was purchased on the Kivilo website. You can use it in the app.",
+  "proForYourPersonalWork": "Pro for your personal work",
+  "yourAppleAccountCanSubscribeForOne": "Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.",
+  "seatsLabel": "Seats",
+  "moreSeatsTakeEffectImmediatelyFewerSeats": "More seats take effect immediately. Fewer seats take effect at renewal. Apple confirms the price and timing before you agree.",
+  "aSeatChangeReplacesThisSubscriptionImmediately": "A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.",
+  "restorePurchases": "Restore purchases",
+  "paymentIsChargedToYourAppleAccount": "Payment is charged to your Apple Account when you confirm. Cancel in App Store subscriptions at least 24 hours before renewal to avoid the next charge. Deleting Kivilo or its account does not cancel an Apple subscription.",
+  "termsOfUse": "Terms of Use",
+  "couldNotLoadNotifications": "Could not load notifications",
+  "noNotificationsYet": "No notifications yet",
+  "repairTerms": "Repair terms",
+  "couldNotOpenThisAgreement": "Could not open this agreement",
+  "checkTheClauseAgainstTheAgreementBefore": "Check the clause against the agreement before confirming the repair terms.",
+  "openAgreement": "Open agreement",
+  "clausesToReview": "Clauses to review",
+  "selectAClauseToFillInThe": "Select a clause to fill in the details below",
+  "noClauseWasFoundInTheReadable": "No clause was found in the readable text. Open the agreement and enter the source clause below.",
+  "sourcePage": "Source page",
+  "clauseText": "Clause text",
+  "repairRule": "Repair rule",
+  "firstAmount": "First amount",
+  "anotherRule": "Another rule",
+  "tenantPaysTheFirst": "Tenant pays the first",
+  "explainTheRepairRule": "Explain the repair rule",
+  "notesAndExceptionsOptional": "Notes and exceptions (optional)",
+  "confirmRepairTerms": "Confirm repair terms",
+  "somethingElse": "Something else",
+  "itemOptional": "Item (optional)",
+  "whichItemOptional": "Which item? (optional)",
+  "forExampleToiletBowl": "For example, toilet bowl",
+  "restored": "Restored.",
+  "everyChangeAndDeletionWithWhoMade": "Every change and deletion, with who made it. Deleted rooms, lines, photos and findings can be restored for 30 days.",
+  "allChanges": "All changes",
+  "deletions": "Deletions",
+  "offlineShowingPreviouslyLoadedHistory": "Offline. Showing previously loaded history.",
+  "historyIsRecordedFrom23October2026": "History is recorded from 23 October 2026.",
+  "nothingHasBeenDeleted": "Nothing has been deleted.",
+  "noChangesRecordedYet": "No changes recorded yet.",
+  "restoredLabel": "Restored",
+  "restoring": "Restoring…",
+  "restore": "Restore",
+  "thisRemovesItFromTheRoomAnd": "This removes it from the room and any item it is attached to. You can restore it from the property’s Change log for 30 days.",
+  "line": "line",
+  "lines": "lines",
+  "setCondition": "Set condition",
+  "thisRemovesTheLineFromTheInventory": "This removes the line from the inventory. You can restore it from the property’s Change log for 30 days.",
+  "somePhotosOrChangesInThisRoom": "Some photos or changes in this room have not uploaded yet. Open the item or Room photos to finish any photo marks and retry uploads before continuing.",
+  "itsPhotosVideosAndInventoryWillBe": "Its photos, videos and inventory will be removed. You can restore the room from the property’s Change log for 30 days.",
+  "couldNotOpenThisRoom": "Could not open this room",
+  "select": "Select",
+  "tapLinesToSelectThem": "Tap lines to select them",
+  "noItemsRecordedLabel": "No items recorded",
+  "addAnItemToRecordItsCondition": "Add an item to record its condition and photos.",
+  "noPhotosOrVideosRecorded": "No photos or videos recorded",
+  "checkEveryItemAgainstThePhotosYour": "Check every item against the photos. Your review makes this room ready for the report.",
+  "worthCheckingBeforeYouReview": "Worth checking before you review",
+  "thisInventoryIsFixedForSigningYou": "This inventory is fixed for signing. You can still view its photos and videos.",
+  "duplicate": "Duplicate",
+  "couldNotOpenThisRepair": "Could not open this repair",
+  "usedWithYourNameOnReportsFor": "Used with your name on reports for personal properties. Team properties use that team’s branding.",
+  "officePhoneOptional": "Office phone (optional)",
+  "editReportBranding": "Edit report branding",
+  "aTeamOwner": "a team owner",
+  "aTeamOwnerOrManager": "a team owner or manager",
+  "teamDetails": "Team details",
+  "theTeamIdentityShownOnItsReports": "The team identity shown on its reports.",
+  "addAgencyLicenceAndLogo": "Add agency licence and logo",
+  "propertyAssignments": "Property assignments",
+  "couldNotLoadTheTimeline": "Could not load the timeline",
+  "chooseAProperty": "Choose a property",
+  "couldNotLoadYourProperties": "Could not load your properties",
+  "search": "Search",
+  "addressPostalCodeOrLastTenant": "Address, postal code or last tenant",
+  "noPropertyMatches": "No property matches.",
+  "paymentProof": "Payment proof",
+  "requestAnotherDocument": "Request another document",
+  "askTheTenantForAnOptionalSupporting": "Ask the tenant for an optional supporting file.",
+  "document": "Document",
+  "requesting": "Requesting…",
+  "requestLabel": "Request",
+  "photoSavedOnThisPhoneItWill": "Photo saved on this phone. It will upload when you reconnect.",
+  "couldNotLoadDocuments": "Could not load documents",
+  "hideOtherDocuments": "Hide other documents",
+  "otherDocuments": "Other documents",
+  "optionalSupportingFilesForThisTenancy": "Optional supporting files for this tenancy",
+  "noOtherDocumentsRequested": "No other documents requested.",
+  "privateToTheTenantLandlordAndAgents": "Private to the tenant, landlord and agents with access to this tenancy.",
+  "tenancyAgreement": "Tenancy agreement",
+  "keepTheSignedAgreementWithThisProperty": "Keep the signed agreement with this property.",
+  "yourAgreementAndReviewedRepairTerms": "Your agreement and reviewed repair terms.",
+  "yourAgreementForThisTenancy": "Your agreement for this tenancy.",
+  "currentAgreement": "Current agreement",
+  "hidePreviousAgreements": "Hide previous agreements",
+  "previousAgreements": "Previous agreements",
+  "uploadPdfInBrowser": "Upload PDF in browser",
+  "reviewMaintenanceClause": "Review maintenance clause",
+  "retryUpload": "Retry upload",
+  "uploadTheRequestedDocumentBelow": "Upload the requested document below.",
+  "waitingForTheTenantToUpload": "Waiting for the tenant to upload",
+  "setUpThePropertyTheTenancyAnd": "Set up the property, the tenancy and its rooms.",
+  "aNewTenancyStaysInThePropertys": "A new tenancy stays in the property’s workspace.",
+  "newPropertyLabel": "New property",
+  "existingProperty": "Existing property",
+  "findTheAddressOptional": "Find the address (optional)",
+  "postalCodeBuildingOrStreet": "Postal code, building or street",
+  "buildingOrStreetAreaAndCity": "Building or street, area and city",
+  "condominium": "Condominium",
+  "condominiumServicedResidenceOrApartment": "Condominium, serviced residence or apartment",
+  "roomsStartWithEditableInventoryRowsSuited": "Rooms start with editable inventory rows suited to this furnishing level.",
+  "partiallyFurnished": "Partially furnished",
+  "unfurnished": "Unfurnished",
+  "sameLandlordAsLastTime": "Same landlord as last time",
+  "chooseFromYourContacts": "Choose from your contacts",
+  "verifyBothPartiesCea": "Verify both parties (CEA)",
+  "eachStartsWithStandardLinesYouCan": "Each starts with standard lines you can edit",
+  "namesOnlyThisCheckInRecordsIts": "Names only; this check-in records its own condition",
+  "bedrooms": "Bedrooms",
+  "bathrooms": "Bathrooms",
+  "anotherRoomOptional": "Another room (optional)",
+  "forExampleStudy": "For example, study",
+  "noRoomsYetYouCanAddThem": "No rooms yet. You can add them after this.",
+  "roomLabel": "room",
+  "rooms": "rooms",
+  "checkingForPhotosOnThisPhone": "Checking for photos on this phone…",
+  "deleteChange": "Delete change",
+  "suggestAChange": "Suggest a change",
+  "chooseTheLandlord": "Choose the landlord",
+  "chooseTheTenant": "Choose the tenant",
+  "couldNotLoadYourContacts": "Could not load your contacts",
+  "noContactsYet": "No contacts yet",
+  "nameOrEmail": "Name or email",
+  "noContactMatches": "No contact matches.",
+  "and": " and ",
+  "singapore": "Singapore",
+  "malaysia": "Malaysia",
+  "whereDoYouWork": "Where do you work?",
+  "newPropertiesUseThatCountrysAddressesAnd": "New properties use that country's addresses and currency. You can change this later in Account.",
+  "newPropertiesAreMadeInThisCountry": "New properties are made in this country. Properties you already have keep theirs.",
+  "couldNotLoadYourHomes": "Could not load your homes",
+  "reportsYouAgreedRepairsAndThePeople": "Reports you agreed, repairs and the people involved.",
+  "noHomesWhereYouAreTheLandlord": "No homes where you are the landlord.",
+  "noHomesWhereYouAreTheTenant": "No homes where you are the tenant.",
+  "andItsAgent": "and its agent",
+  "saveTenancyChanges": "Save tenancy changes?",
+  "theseDetailsIdentifyTheTenancyAndIts": "These details identify the tenancy and its signing parties. Check them carefully before saving.",
+  "theAddressAndTypePrintedOnThe": "The address and type printed on the report",
+  "unitOptional": "Unit (optional)",
+  "postcode": "Postcode",
+  "propertyType": "Property type",
+  "condominiumOrApartment": "Condominium or apartment",
+  "addAnEmailSoEachPartyCan": "Add an email so each party can receive and sign the report",
+  "landlordEmailOptional": "Landlord email (optional)",
+  "notProvided": "Not provided",
+  "tenantEmailOptional": "Tenant email (optional)",
+  "openThisOnTheKiviloWebsite": "Open this on the Kivilo website.",
+  "couldNotLoadYourTasks": "Could not load your tasks",
+  "nothingHereNow": "Nothing here now",
+  "thereIsMoreThanOneScreenOf": "There is more than one screen of work. Finish some of these, or open Properties to see every record.",
+  "continueTheCheckOut": "Continue the check-out",
+  "continueTheCheckIn": "Continue the check-in",
+  "tasksForYourProperties": "Tasks for your properties.",
+  "tasksForYourRentedHomes": "Tasks for your rented homes.",
+  "yourTasksUpdatesAndUpcomingDeadlines": "Your tasks, updates and upcoming deadlines.",
+  "offlineShowingTasksAsTheyWereLast": "Offline. Showing tasks as they were last loaded; some may already be done.",
+  "checkingForUpdates": "Checking for updates…",
+  "nothingNeedsYourActionRightNow": "Nothing needs your action right now.",
+  "continueWhereYouLeftOff": "Continue where you left off",
+  "clientChecksKycCdd": "Client checks (KYC/CDD)",
+  "verifyClientsKycCdd": "Verify clients (KYC/CDD)",
+  "yourFirstHandover": "Your first handover",
+  "greatHandoversStartWithAClearRecord": "Great handovers start with a clear record.",
+  "addThePropertyAndTenancyWellGuide": "Add the property and tenancy. We’ll guide you from the first photo to the signed report. You can accept team invitations in Account.",
+  "youreAllCaughtUp": "You’re all caught up",
+  "nothingIsWaitingOnYouOrAnyone": "Nothing is waiting on you or anyone else here.",
+  "somePhotosOrChangesHaveNotUploaded": "Some photos or changes have not uploaded yet. Open the rooms and tap Retry uploads before sending for signature.",
+  "remindersSentToThePartiesWithAn": "Reminders sent to the parties with an email address",
+  "confirmNoChanges": "Confirm no changes?",
+  "youAreConfirmingThatTheCheckOut": "You are confirming that the check-out matches the agreed check-in, with no damage, missing items or other changes to record. Both parties will see this in the report.",
+  "confirmNoChangesLabel": "Confirm no changes",
+  "couldNotOpenThisInspection": "Could not open this inspection",
+  "waitingForSignatures": "Waiting for signatures.",
+  "readyToSendForSignature": "Ready to send for signature.",
+  "checkTheInventoryAgainstYourPhotosThen": "Check the inventory against your photos, then mark each room reviewed.",
+  "openRoom": "Open room",
+  "changesAtCheckOut": "Changes at check-out",
+  "recordAnythingThatDiffersFromTheAgreed": "Record anything that differs from the agreed check-in.",
+  "changeLabel": "change",
+  "changes": "changes",
+  "nothingRecordedYet": "Nothing recorded yet",
+  "addDamageWearMissingItemsOrImprovements": "Add damage, wear, missing items or improvements. If there are no changes, confirm that below.",
+  "addAnotherChange": "Add another change",
+  "partiesNotVerifiedYet": "Parties not verified yet",
+  "ceaRequiresDueDiligenceOnTheLandlord": "CEA requires due diligence on the landlord and tenant before the tenancy is signed.",
+  "sendForSignatureAnyway": "Send for signature anyway",
+  "sendReminders": "Send reminders",
+  "estimatedRepairCost": "Estimated cost ({currency})",
+  "@estimatedRepairCost": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "previousTenantName": "Last tenant: {name}",
+  "@previousTenantName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPropertyFirst": "Choose the property, or switch to New property.",
+  "malaysianPostcodeLength": "A Malaysian postcode has 5 digits",
+  "chooseFurnishingLevel": "Choose the property furnishing level."
+}

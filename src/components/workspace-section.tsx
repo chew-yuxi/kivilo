@@ -1,3 +1,4 @@
+import type { Messages } from '@/lib/i18n'
 import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
@@ -24,37 +25,38 @@ export async function chosenWorkspace(agentId: string, requested: string | strin
 }
 
 export function WorkspaceSection({
+  w,
   agentId,
   chosen: { directory, workspace, asked },
   path,
 }: {
   agentId: string
+  w: Messages['pwa']
   chosen: Awaited<ReturnType<typeof chosenWorkspace>>
   path: string
 }) {
   const selectedTeam = directory.agencies.find((team) => team.id === workspace)
   return (
-    <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label="Choose workspace">
+    <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label={w.chooseWorkspace}>
       <div className="flex flex-wrap items-end gap-3">
         <WorkspaceSelector agentId={agentId} teams={directory.agencies} workspace={workspace} rememberInitial={asked !== undefined} path={path} />
-        {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">Manage team</Link>}
-        <Link href="/team" className="action-secondary">Create or join a team</Link>
+        {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">{w.manageTeam}</Link>}
+        <Link href="/team" className="action-secondary">{w.createOrJoinTeam}</Link>
       </div>
       <p className="mt-3 text-sm text-gray-600">
         {selectedTeam
           ? selectedTeam.role === 'AGENT'
-            ? 'Your assigned team properties. New check-ins belong to this team and are assigned to you.'
-            : 'All team properties. Owners and managers oversee the team; agents see their assignments.'
+            ? w.workspaceAgentNote
+            : w.workspaceManagerNote
           : workspace === 'personal'
-            ? 'Personal properties stay outside your teams. Share individual tenancies only when you choose.'
-            : 'Your assigned properties, shared tenancies and access to previous reports across workspaces.'}
+            ? w.workspacePersonalNote
+            : w.workspaceAllNote}
       </p>
       {directory.agencies.length === 0 && (
-        <p className="mt-2 text-sm text-gray-600">Create a team, invite colleagues, then add properties to its portfolio.</p>
+        <p className="mt-2 text-sm text-gray-600">{w.noTeamsHint}</p>
       )}
       {directory.invitations.length > 0 && (
-        <Link href="/team" className="text-link mt-3 inline-flex min-h-11 items-center text-sm">
-          View {directory.invitations.length} team {directory.invitations.length === 1 ? 'invitation' : 'invitations'}
+        <Link href="/team" className="text-link mt-3 inline-flex min-h-11 items-center text-sm">{w.viewInvitations(directory.invitations.length)}
         </Link>
       )}
     </section>

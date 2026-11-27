@@ -4,11 +4,15 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase/client'
+import { messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// A six digit code rather than a magic link. A link opens the phone's default browser,
 /// which for an installed PWA means the agent lands in Safari instead of the app they
 /// were just using, with no session in the app itself. A code keeps them where they are.
-export function LoginForm() {
+export function LoginForm({ locale }: { locale?: Locale }) {
+  const contextLocale = useLocale()
+  const words = messages(locale ?? contextLocale).web.login
   const params = useSearchParams()
   const next = params.get('next') || '/inspections'
 
@@ -45,7 +49,7 @@ export function LoginForm() {
     })
     if (error) {
       setBusy(false)
-      return setError('That code is not right, or it has expired. Check the email or request a new one.')
+      return setError(words.wrongCode)
     }
 
     // Deliberately stay busy, and leave with a full page load rather than the router.
@@ -70,13 +74,13 @@ export function LoginForm() {
     <form onSubmit={stage === 'email' ? sendCode : verify} className="mt-4 space-y-5" aria-busy={busy}>
       <p className="mb-8 text-lg leading-relaxed text-gray-600">
         {stage !== 'email'
-          ? 'Check your email and enter the code to continue.'
+          ? words.checkInbox
           : next.startsWith('/cdd/')
-            ? 'Your agent asked you to verify your identity. Sign in with the email address their request was sent to.'
-            : 'Enter your email to get started or sign back in.'}
+            ? words.identityIntro
+            : words.intro}
       </p>
       <label className="block text-lg font-medium text-gray-700">
-        Email
+        {words.email}
         <input
           type="email"
           required
@@ -90,14 +94,13 @@ export function LoginForm() {
 
       {stage === 'code' && (
         <p className="text-lg leading-relaxed break-words text-gray-600" role="status">
-          Sent to <span className="font-medium text-gray-800">{email}</span>. It can take a
-          minute; check spam if it does not arrive.
+          {words.sentTo(email)}
         </p>
       )}
 
       {stage === 'code' && (
         <label className="block text-lg font-medium text-gray-700">
-          Six digit code
+          {words.code}
           <input
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -111,12 +114,12 @@ export function LoginForm() {
 
       {error && <p className="text-lg leading-relaxed text-red-700" role="alert">{error}</p>}
 
-      {stage === 'email' && <p className="text-lg leading-relaxed text-gray-600">We’ll email you a six-digit code. No password needed.</p>}
+      {stage === 'email' && <p className="text-lg leading-relaxed text-gray-600">{words.passwordless}</p>}
       {stage === 'email' && (
         <p className="text-sm leading-relaxed text-gray-500">
-          By continuing you agree to Kivilo’s{' '}
-          <Link href="/terms" className="underline">terms of service</Link> and{' '}
-          <Link href="/privacy" className="underline">privacy policy</Link>.
+          {words.consentStart}
+          <Link href="/terms" className="underline">{words.terms}</Link>{words.consentAnd}
+          <Link href="/privacy" className="underline">{words.privacy}</Link>{words.consentEnd}
         </p>
       )}
 
@@ -125,7 +128,7 @@ export function LoginForm() {
         disabled={busy}
         className="min-h-14 w-full rounded-xl bg-brand-600 px-4 py-3 text-lg font-semibold text-white hover:bg-brand-700 disabled:opacity-50"
       >
-        {busy ? 'Working…' : stage === 'email' ? 'Email me a code' : 'Sign in'}
+        {busy ? words.working : stage === 'email' ? words.emailCode : words.signIn}
       </button>
 
       {stage === 'code' && (
@@ -138,7 +141,7 @@ export function LoginForm() {
           }}
           className="min-h-14 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-lg font-medium text-gray-700 hover:bg-gray-50"
         >
-          Use a different email
+          {words.differentEmail}
         </button>
       )}
     </form>

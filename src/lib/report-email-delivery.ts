@@ -8,6 +8,7 @@ import { handoverUrl } from '@/lib/handover'
 import { moveInDefectWindow } from '@/lib/move-in-defect-window'
 import { inspectionScope } from '@/lib/auth'
 import { reportAgent, reportBranding } from '@/lib/report-agent'
+import { messages } from '@/lib/i18n'
 
 /// Resend refuses a message over 40 MB, counted after base64, which grows a file by a
 /// third: an attachment of 30 MB already reaches 40 MB before the body and headers. 25 MB
@@ -78,8 +79,9 @@ export async function deliverReportEmails(limit = 20) {
     const { inspection, recipient } = row
     const { tenancy } = inspection
     const to = recipient.email!
-    const reportKind = inspection.kind === 'CHECK_OUT' ? 'Check-out' as const : 'Check-in' as const
+    const reportKind = inspection.kind
     const address = propertyLabel(tenancy.property)
+    const m = messages(recipient.locale)
     try {
       if (row.kind === 'SIGNATURE_REQUEST') {
         const role = recipient.id === tenancy.landlordId ? 'landlord' as const
@@ -102,9 +104,9 @@ export async function deliverReportEmails(limit = 20) {
           role,
           reportKind,
           address,
-          from: agent ? branding ? `${agent.name} of ${branding.agencyName}` : agent.name : 'Your agent',
+          from: agent ? { agent: agent.name, agency: branding?.agencyName ?? null } : null,
           link: link.toString(),
-        })
+        }, m)
       } else if (row.kind === 'TENANT_HANDOVER') {
         if (
           inspection.kind !== 'CHECK_IN' || recipient.id !== tenancy.tenantId ||
@@ -127,7 +129,7 @@ export async function deliverReportEmails(limit = 20) {
           windowDays: window.windowDays,
           country: tenancy.property.country,
           countersigned: inspection.status === 'COMPLETED',
-        })
+        }, m)
       } else {
         // Too large to attach: a link to where the recipient can download it once signed
         // in, which for a party is the signing page and for the agent the inspection.
@@ -152,10 +154,10 @@ export async function deliverReportEmails(limit = 20) {
           address,
           signatures: inspection.signatures.map((signature) => ({
             name: signature.stakeholder.name,
-            role: signature.stakeholderId === tenancy.landlordId ? 'Landlord' : 'Tenant',
+            role: signature.stakeholderId === tenancy.landlordId ? 'LANDLORD' as const : 'TENANT' as const,
             signedAt: signature.signedAt,
           })),
-        }, pdf ?? { link: link.toString() })
+        }, pdf ?? { link: link.toString() }, m)
       }
       await db.reportEmail.update({
         where: { id: row.id },

@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/supporting_documents.dart';
@@ -30,7 +31,10 @@ class _AgreementTermsViewState extends State<AgreementTermsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(terms.summary(widget.currency), style: Theme.of(context).textTheme.titleSmall),
+        Text(
+          terms.summary(widget.currency),
+          style: Theme.of(context).textTheme.titleSmall,
+        ),
         if (terms.notes case final notes? when notes.isNotEmpty) ...[
           const SizedBox(height: 6),
           Text(notes),
@@ -47,19 +51,15 @@ class _AgreementTermsViewState extends State<AgreementTermsView> {
         if (!(widget.matchesCurrentAgreement ??
             terms.matchesCurrentAgreement)) ...[
           const SizedBox(height: 6),
-          const KiviloNotice(
+          KiviloNotice(
             tone: KiviloTone.warning,
-            child: Text(
-              'These terms refer to a previous agreement. Review the latest file to update them.',
-            ),
+            child: Text(t.theseTermsReferToAPreviousAgreement),
           ),
         ],
         const SizedBox(height: kiviloButtonGap),
         TextButton(
           onPressed: () => setState(() => _showSource = !_showSource),
-          child: Text(
-            _showSource ? 'Hide source clause' : 'Show source clause',
-          ),
+          child: Text(_showSource ? t.hideSourceClause : t.showSourceClause),
         ),
         if (_showSource) ...[
           const SizedBox(height: kiviloHeadingGap),

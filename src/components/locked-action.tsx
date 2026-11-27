@@ -1,5 +1,7 @@
 'use client'
 
+import { usePwa } from '@/components/locale'
+
 import { useState } from 'react'
 
 /// Every action stays visible to everyone working a property; the ones this person may
@@ -17,6 +19,7 @@ export function LockedAction({
   askNames: string[]
   className?: string
 }) {
+  const w = usePwa()
   const [open, setOpen] = useState(false)
   return (
     <div className="space-y-2">
@@ -24,8 +27,7 @@ export function LockedAction({
         {label}
       </button>
       {open && (
-        <p className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700" role="status">
-          Only {who} can do this.{askNames.length > 0 && ` Ask ${listNames(askNames)}.`}
+        <p className="rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700" role="status">{w.lockedAction(who, listNames(askNames))}
         </p>
       )}
     </div>

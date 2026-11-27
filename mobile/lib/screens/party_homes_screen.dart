@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/maintenance.dart';
@@ -101,7 +102,7 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                 if (snapshot.hasError) {
                   return KiviloMessage(
                     icon: Icons.cloud_off_outlined,
-                    title: 'Could not load your homes',
+                    title: t.couldNotLoadYourHomes,
                     body: plainError(snapshot.error!),
                     actionLabel: 'Try again',
                     onAction: _refresh,
@@ -124,12 +125,12 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                       padding: kiviloScreenPadding,
                       children: [
                         Text(
-                          owner ? 'Homes I own' : 'Homes I rent',
+                          owner ? t.homesIOwn : t.homesIRent,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Reports you agreed, repairs and the people involved.',
+                          t.reportsYouAgreedRepairsAndThePeople,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         if (_workspace.showPicker) ...[
@@ -142,11 +143,9 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                         ],
                         if (_api.offlineCopy) ...[
                           const SizedBox(height: 16),
-                          const KiviloNotice(
+                          KiviloNotice(
                             tone: KiviloTone.warning,
-                            child: Text(
-                              'Offline. Showing what was last loaded.',
-                            ),
+                            child: Text(t.offlineShowingWhatWasLastLoaded),
                           ),
                         ],
                         const SizedBox(height: 16),
@@ -156,8 +155,8 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                               padding: const EdgeInsets.all(24),
                               child: Text(
                                 owner
-                                    ? 'No homes where you are the landlord.'
-                                    : 'No homes where you are the tenant.',
+                                    ? t.noHomesWhereYouAreTheLandlord
+                                    : t.noHomesWhereYouAreTheTenant,
                                 textAlign: TextAlign.center,
                               ),
                             ),
@@ -224,8 +223,8 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                 const SizedBox(height: 3),
                 Text(
                   [
-                    owner ? 'You are the landlord' : 'You are the tenant',
-                    if (alsoAgent) 'and its agent',
+                    owner ? t.homeYouAreLandlord : t.homeYouAreTenant,
+                    if (alsoAgent) t.andItsAgent,
                   ].join(' '),
                   style: text.bodySmall,
                 ),
@@ -245,17 +244,14 @@ class _PartyHomesScreenState extends State<PartyHomesScreen> {
                 ],
                 if (!shared) ...[
                   const SizedBox(height: 12),
-                  Text(
-                    'Your check-in report appears here once your agent sends it.',
-                    style: text.bodySmall,
-                  ),
+                  Text(t.homeReportPending, style: text.bodySmall),
                 ],
                 if (shared && tenancy.awaitingMySignature) ...[
                   const SizedBox(height: 14),
                   FilledButton(
                     onPressed: () =>
                         _open(ReportScreen(id: reportId, api: _api)),
-                    child: const Text('Review and sign'),
+                    child: Text(t.homeReviewAndSign),
                   ),
                 ],
               ],

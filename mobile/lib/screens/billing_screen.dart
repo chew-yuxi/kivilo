@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -113,10 +114,12 @@ class _BillingScreenState extends State<BillingScreen>
   }
 
   Future<void> _manage() async {
-    final uri = widget.billing.provider == 'apple' ? Uri.parse('https://apps.apple.com/account/subscriptions') : Uri.https('play.google.com', '/store/account/subscriptions', {
-      'package': 'one.kivilo.kivilo',
-      if (_status?.currentProductId case final String id) 'sku': id,
-    });
+    final uri = widget.billing.provider == 'apple'
+        ? Uri.parse('https://apps.apple.com/account/subscriptions')
+        : Uri.https('play.google.com', '/store/account/subscriptions', {
+            'package': 'one.kivilo.kivilo',
+            if (_status?.currentProductId case final String id) 'sku': id,
+          });
     try {
       if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         throw ApiFailure(
@@ -131,7 +134,10 @@ class _BillingScreenState extends State<BillingScreen>
 
   Future<void> _openTerms(String url) async {
     try {
-      if (!await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) {
+      if (!await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      )) {
         throw const ApiFailure('Could not open the page. Try again.', null);
       }
     } catch (error) {
@@ -145,7 +151,7 @@ class _BillingScreenState extends State<BillingScreen>
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Plans & billing')),
+    appBar: AppBar(title: Text(t.plansBilling)),
     body: SafeArea(
       child: KiviloContent(
         maxWidth: 720,
@@ -169,14 +175,14 @@ class _BillingScreenState extends State<BillingScreen>
                 padding: kiviloScreenPadding,
                 children: [
                   KiviloSelectField<String>(
-                    label: 'Workspace',
+                    label: t.settingsWorkspace,
                     sheetTitle: 'Choose billing workspace',
                     value: _workspace,
                     enabled: !busy,
                     options: [
-                      const KiviloSelectOption(
+                      KiviloSelectOption(
                         value: 'personal',
-                        label: 'Personal',
+                        label: t.workspacePersonal,
                       ),
                       for (final team in _teams)
                         KiviloSelectOption(value: team.id, label: team.name),
@@ -204,7 +210,7 @@ class _BillingScreenState extends State<BillingScreen>
                     const SizedBox(height: kiviloButtonGap),
                     TextButton(
                       onPressed: busy ? null : _initialize,
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                     const SizedBox(height: kiviloSectionGap),
                   ],
@@ -219,27 +225,25 @@ class _BillingScreenState extends State<BillingScreen>
                     ),
                     if (status.pro)
                       Text(
-                        '${status.seats} ${status.seats == 1 ? 'seat' : 'seats'}',
+                        '${status.seats} ${status.seats == 1 ? t.seat : t.seats}',
                       ),
                     if (status.currentPeriodEnd != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        '${status.cancelAtPeriodEnd ? 'Access until' : 'Current period ends'} ${MaterialLocalizations.of(context).formatMediumDate(status.currentPeriodEnd!.toLocal())}',
+                        '${status.cancelAtPeriodEnd ? t.accessUntil : t.currentPeriodEnds} ${MaterialLocalizations.of(context).formatMediumDate(status.currentPeriodEnd!.toLocal())}',
                       ),
                     ],
                     if (!status.canManageBilling) ...[
                       const SizedBox(height: 16),
                       Text(
                         status.managedByName == null
-                            ? 'Ask your team owner or manager about this plan.'
+                            ? t.askYourTeamOwnerOrManagerAbout
                             : '${status.managedByName} manages this subscription.',
                       ),
                     ],
                     if (status.provider == 'stripe') ...[
                       const SizedBox(height: 16),
-                      const Text(
-                        'This plan was purchased on the Kivilo website. You can use it in the app.',
-                      ),
+                      Text(t.thisPlanWasPurchasedOnTheKivilo),
                     ],
                     if (status.provider == widget.billing.provider &&
                         status.canManageBilling) ...[
@@ -253,27 +257,29 @@ class _BillingScreenState extends State<BillingScreen>
                       const SizedBox(height: 24),
                       Text(
                         team == null
-                            ? 'Pro for your personal work'
+                            ? t.proForYourPersonalWork
                             : 'Pro for ${team.name}',
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       if (team != null) ...[
                         const SizedBox(height: 8),
                         Text(
-                          '25 active properties per seat, shared across this team. Choose at least ${status.seatsNeeded} ${status.seatsNeeded == 1 ? 'seat' : 'seats'} for its current members.',
+                          '25 active properties per seat, shared across this team. Choose at least ${status.seatsNeeded} ${status.seatsNeeded == 1 ? t.seat : t.seats} for its current members.',
                         ),
                         if (widget.billing.provider == 'apple') ...[
                           const SizedBox(height: kiviloHeadingGap),
-                          const Text('Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.'),
+                          Text(t.yourAppleAccountCanSubscribeForOne),
                         ],
                       ],
                       const SizedBox(height: 16),
                       if (_products.isEmpty && !_loading)
-                        Text('${widget.billing.storeName} has no plans available for this account yet. Check your store account and try again.'),
+                        Text(
+                          '${widget.billing.storeName} has no plans available for this account yet. Check your store account and try again.',
+                        ),
                       if (_products.isNotEmpty) ...[
                         if (team != null) ...[
                           KiviloSelectField<String>(
-                            label: 'Seats',
+                            label: t.seatsLabel,
                             sheetTitle: 'Choose seats',
                             value: _selectedProduct!,
                             enabled: !busy,
@@ -282,7 +288,7 @@ class _BillingScreenState extends State<BillingScreen>
                                 KiviloSelectOption(
                                   value: product.id,
                                   label:
-                                      '${_seats(product.id)} ${_seats(product.id) == 1 ? 'seat' : 'seats'}',
+                                      '${_seats(product.id)} ${_seats(product.id) == 1 ? t.seat : t.seats}',
                                   description:
                                       '${_seats(product.id) * 25} active properties · ${product.price}/month',
                                 ),
@@ -298,19 +304,21 @@ class _BillingScreenState extends State<BillingScreen>
                             style: Theme.of(context).textTheme.headlineSmall,
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            '${_seats(selected.id) * 25} active properties',
-                          ),
+                          Text('${_seats(selected.id) * 25} active properties'),
                           const SizedBox(height: kiviloHeadingGap),
-                          Text('Renews automatically until canceled in ${widget.billing.storeName}.'),
+                          Text(
+                            'Renews automatically until canceled in ${widget.billing.storeName}.',
+                          ),
                         ],
                         if (team != null &&
                             status.provider == widget.billing.provider &&
                             !currentPlan) ...[
                           const SizedBox(height: kiviloHeadingGap),
-                          Text(widget.billing.provider == 'apple'
-                              ? 'More seats take effect immediately. Fewer seats take effect at renewal. Apple confirms the price and timing before you agree.'
-                              : 'A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.'),
+                          Text(
+                            widget.billing.provider == 'apple'
+                                ? t.moreSeatsTakeEffectImmediatelyFewerSeats
+                                : t.aSeatChangeReplacesThisSubscriptionImmediately,
+                          ),
                         ],
                         if (!currentPlan) ...[
                           const SizedBox(height: kiviloButtonGap),
@@ -332,7 +340,9 @@ class _BillingScreenState extends State<BillingScreen>
                     ] else if (status.canManageBilling &&
                         status.provider == null) ...[
                       const SizedBox(height: 16),
-                      Text('${widget.billing.storeName} subscriptions are not available for this workspace yet.'),
+                      Text(
+                        '${widget.billing.storeName} subscriptions are not available for this workspace yet.',
+                      ),
                     ],
                   ],
                   if (widget.billing.errorMessage != null) ...[
@@ -353,22 +363,30 @@ class _BillingScreenState extends State<BillingScreen>
                   const SizedBox(height: kiviloSectionGap),
                   TextButton(
                     onPressed: busy ? null : () => widget.billing.restore(),
-                    child: const Text('Restore purchases'),
+                    child: Text(t.restorePurchases),
                   ),
                   const SizedBox(height: kiviloHeadingGap),
-                  Text('Use the ${widget.billing.storeName} and Kivilo accounts that made the purchase. Restoring does not charge you.'),
+                  Text(
+                    'Use the ${widget.billing.storeName} and Kivilo accounts that made the purchase. Restoring does not charge you.',
+                  ),
                   if (widget.billing.provider == 'apple') ...[
                     const SizedBox(height: kiviloHeadingGap),
-                    const Text('Payment is charged to your Apple Account when you confirm. Cancel in App Store subscriptions at least 24 hours before renewal to avoid the next charge. Deleting Kivilo or its account does not cancel an Apple subscription.'),
+                    Text(t.paymentIsChargedToYourAppleAccount),
                     const SizedBox(height: kiviloButtonGap),
                     TextButton(
-                      onPressed: () => _openTerms('https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
-                      child: const Text('Terms of Use'),
+                      onPressed: () => _openTerms(
+                        'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/',
+                      ),
+                      child: Text(t.termsOfUse),
                     ),
                     const SizedBox(height: kiviloButtonGap),
                     TextButton(
-                      onPressed: () => _openTerms(Uri.parse(Config.apiBase).resolve('/privacy').toString()),
-                      child: const Text('Privacy policy'),
+                      onPressed: () => _openTerms(
+                        Uri.parse(
+                          Config.apiBase,
+                        ).resolve('/privacy').toString(),
+                      ),
+                      child: Text(t.settingsPrivacyPolicy),
                     ),
                   ],
                 ],

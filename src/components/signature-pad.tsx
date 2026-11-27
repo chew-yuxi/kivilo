@@ -4,6 +4,8 @@ import { useRef, useState, useTransition } from 'react'
 import { signInspection } from '@/lib/actions'
 import { useUploadQueue } from '@/components/upload-queue'
 import { listPending } from '@/lib/offline-queue'
+import { formatDate, messages, type Locale } from '@/lib/i18n'
+import { useLocale } from '@/components/locale'
 
 /// A party signing on the agent's phone, at the handover.
 export function SignaturePad({
@@ -19,6 +21,8 @@ export function SignaturePad({
   role: string
   signedAt: Date | null
 }) {
+  const contextLocale = useLocale()
+  const w = messages(contextLocale).pwa
   const { pending: captures, flush } = useUploadQueue()
   const unsent = captures.filter((capture) => capture.inspectionId === inspectionId).length
 
@@ -29,7 +33,7 @@ export function SignaturePad({
           {stakeholderName} <span className="font-normal text-emerald-700">({role})</span>
         </p>
         <p className="mt-0.5 text-xs text-emerald-700">
-          Signed {signedAt.toLocaleString('en-SG')}
+          {w.signedOn(formatDate(messages(contextLocale), signedAt, { dateStyle: 'medium', timeStyle: 'short' }))}
         </p>
       </div>
     )
@@ -43,13 +47,13 @@ export function SignaturePad({
         </>
       }
       blocked={unsent > 0}
-      note={unsent > 0 ? `${unsent} saved capture${unsent === 1 ? '' : 's'} must upload before signing.` : null}
+      note={unsent > 0 ? w.mustUploadBeforeSigning(unsent) : null}
       onSign={async (imageData) => {
         // A queued photograph may have been taken before Send but still be on this
         // phone. Countersigning now would make the server refuse those bytes forever.
         if ((await listPending()).some((capture) => capture.inspectionId === inspectionId)) {
           flush()
-          throw new Error('Upload saved captures before signing this report.')
+          throw new Error(w.uploadBeforeSigning)
         }
         await signInspection(inspectionId, stakeholderId, imageData)
       }}
@@ -65,12 +69,16 @@ export function SignatureCanvas({
   blocked = false,
   note = null,
   onSign,
+  locale,
 }: {
   label: React.ReactNode
   blocked?: boolean
   note?: string | null
   onSign: (imageData: string) => Promise<void>
+  locale?: Locale
 }) {
+  const contextLocale = useLocale()
+  const words = messages(locale ?? contextLocale).web.signature
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const drawing = useRef(false)
   const [hasInk, setHasInk] = useState(false)
@@ -138,15 +146,15 @@ export function SignatureCanvas({
       />
       <div className="mt-3 flex items-center justify-between">
         <button type="button" onClick={clear} className="action-secondary px-3 text-xs">
-          Clear
+          {words.clear}
         </button>
         <button
           type="button"
           disabled={!hasInk || pending || blocked}
           onClick={sign}
-          className="rounded-md bg-brand-500 px-3.5 py-1.5 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-40"
+          className="action-primary min-h-11"
         >
-          Sign
+          {words.sign}
         </button>
       </div>
       {(error || note) && <p className="mt-2 text-xs text-amber-800">{error ?? note}</p>}

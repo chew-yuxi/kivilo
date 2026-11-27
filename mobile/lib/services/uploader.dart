@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import '../l10n/l10n.dart';
 import 'api_failure.dart';
 import 'capture_backend.dart';
 import 'capture_queue.dart';
@@ -151,8 +152,8 @@ class Uploader {
           await queue.setStoragePath(capture.id, leaseId, storagePath);
           if (!credential.alreadyUploaded) {
             if (!await file.exists()) {
-              throw const ApiFailure(
-                'The file for this photo or video is missing from this phone.',
+              throw ApiFailure(
+                t.fileMissing,
                 null,
               );
             }
@@ -214,9 +215,8 @@ class Uploader {
           await backend.deleteCapture(capture.inspectionId, serverId);
         } else {
           if (!current.registrationItemApplied) {
-            throw const ApiFailure(
-              'Photo uploaded, but its inventory link could not be saved. '
-              'The photo and its item are still saved on this phone.',
+            throw ApiFailure(
+              t.inventoryLinkFailed,
               null,
             );
           }

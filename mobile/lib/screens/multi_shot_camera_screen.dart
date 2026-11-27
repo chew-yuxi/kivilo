@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -260,7 +261,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
           actions: [
             PhotoMarkAction(
               icon: Icons.notes,
-              label: 'Note',
+              label: t.note,
               onPressed: () async {
                 await _note(draft.id);
                 return false;
@@ -268,7 +269,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
             ),
             PhotoMarkAction(
               icon: Icons.camera_alt_outlined,
-              label: 'Retake',
+              label: t.retake,
               onPressed: () async {
                 retake = true;
                 return true;
@@ -276,7 +277,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
             ),
             PhotoMarkAction(
               icon: Icons.delete_outline,
-              label: 'Delete',
+              label: t.delete,
               onPressed: () async {
                 retake = false;
                 return true;
@@ -312,7 +313,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Photo note', style: Theme.of(context).textTheme.titleLarge),
+            Text(t.photoNote, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
@@ -320,14 +321,14 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
               minLines: 3,
               maxLines: 6,
               maxLength: 500,
-              decoration: const InputDecoration(
-                hintText: 'What should the viewer notice?',
+              decoration: InputDecoration(
+                hintText: t.whatShouldTheViewerNotice,
               ),
             ),
             const SizedBox(height: kiviloButtonGap),
             FilledButton(
               onPressed: () => Navigator.pop(context, controller.text),
-              child: const Text('Save note'),
+              child: Text(t.saveNote),
             ),
           ],
         ),
@@ -348,8 +349,8 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
     final closed = await ScaffoldMessenger.of(context)
         .showSnackBar(
           SnackBar(
-            content: Text(retake ? 'Photo removed' : 'Photo deleted'),
-            action: SnackBarAction(label: 'Undo', onPressed: () {}),
+            content: Text(retake ? t.photoRemoved : t.photoDeleted),
+            action: SnackBarAction(label: t.undo, onPressed: () {}),
             duration: const Duration(seconds: 4),
           ),
         )
@@ -431,7 +432,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                       ),
                       IconButton(
                         onPressed: _toggleFlash,
-                        tooltip: 'Flash',
+                        tooltip: t.flash,
                         icon: Icon(switch (_flash) {
                           FlashMode.auto => Icons.flash_auto,
                           FlashMode.always => Icons.flash_on,
@@ -441,7 +442,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                       if (_cameras.length > 1)
                         IconButton(
                           onPressed: _switchCamera,
-                          tooltip: 'Switch camera',
+                          tooltip: t.switchCamera,
                           icon: const Icon(
                             Icons.cameraswitch_outlined,
                             color: Colors.white,
@@ -476,7 +477,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                                     explicitRetry: true,
                                   ),
                                   icon: const Icon(Icons.refresh),
-                                  label: const Text('Retry camera'),
+                                  label: Text(t.retryCamera),
                                 ),
                         ),
                       if (_error != null)
@@ -507,13 +508,13 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                             child: Material(
                               color: Colors.black87,
                               borderRadius: BorderRadius.circular(12),
-                              child: const Padding(
+                              child: Padding(
                                 padding: EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 8,
                                 ),
                                 child: Text(
-                                  'Take the replacement photo',
+                                  t.takeTheReplacementPhoto,
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
@@ -540,10 +541,10 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                         draft.annotations == null &&
                         draft.note?.isNotEmpty != true,
                   ))
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
                       child: Text(
-                        'Tap a photo to mark it or add a note',
+                        t.tapAPhotoToMarkItOr,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white70),
                       ),
@@ -627,7 +628,7 @@ class _MultiShotCameraScreenState extends State<MultiShotCameraScreen>
                         child: Center(
                           child: Semantics(
                             button: true,
-                            label: 'Take photo',
+                            label: t.takePhotoShort,
                             child: InkResponse(
                               onTap: _saving ? null : _takePhoto,
                               radius: 42,

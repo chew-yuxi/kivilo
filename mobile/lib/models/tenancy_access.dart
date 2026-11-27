@@ -1,3 +1,5 @@
+import '../l10n/l10n.dart';
+
 class TenancyAccess {
   const TenancyAccess({
     required this.tenancyId,
@@ -63,14 +65,14 @@ class TenancyAccess {
   );
 
   String get label {
-    if (scope == 'INSPECTION') return 'Access to previous reports';
-    if (agency != null) return 'Team tenancy · ${agency!['name']}';
-    if (visibility == 'PRIVATE') return 'Private';
-    if (!canManageAccess) return 'Shared tenancy';
+    if (scope == 'INSPECTION') return t.accessPreviousReports;
+    if (agency != null) return t.accessTeamTenancy('${agency!['name']}');
+    if (visibility == 'PRIVATE') return t.accessPrivate;
+    if (!canManageAccess) return t.accessShared;
     if (collaborators.isNotEmpty) {
-      return 'Shared with ${collaborators.map((person) => person.name).join(', ')}';
+      return t.accessSharedWith(collaborators.map((person) => person.name).join(t.listSeparator));
     }
-    return 'Previous reports shared with ${inspectionOnly.map((person) => person.name).join(', ')}';
+    return t.accessReportsSharedWith(inspectionOnly.map((person) => person.name).join(t.listSeparator));
   }
 }
 

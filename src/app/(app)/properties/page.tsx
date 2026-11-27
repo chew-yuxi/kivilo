@@ -1,3 +1,5 @@
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 import Link from 'next/link'
 import { requireAgent } from '@/lib/auth'
 import { propertyWork, type PropertyStage } from '@/lib/property-work'
@@ -7,25 +9,27 @@ import { PropertyStagePill } from '@/components/property-stage-pill'
 import { chosenWorkspace, WorkspaceSection } from '@/components/workspace-section'
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: 'Properties' }
+export async function generateMetadata() {
+  return { title: messages(await requestLocale(await requireAgent())).pwa.properties }
+}
 
 /// The same filters as the app's Properties tab. Stage filters narrow the active list;
 /// Archived and Recently deleted are lists of their own.
 const filters = [
-  { key: 'all', label: 'All' },
-  { key: 'in-progress', label: 'In progress', stages: ['CHECK_IN_IN_PROGRESS', 'CHECK_OUT_IN_PROGRESS'] },
-  { key: 'awaiting', label: 'Awaiting signatures', stages: ['CHECK_IN_AWAITING', 'CHECK_OUT_AWAITING'] },
-  { key: 'check-out-due', label: 'Check-out due', stages: ['CHECK_OUT_DUE'] },
-  { key: 'running', label: 'Running', stages: ['RUNNING'] },
-  { key: 'ended', label: 'Ended', stages: ['ENDED'] },
-  { key: 'archived', label: 'Archived', state: 'archived' },
-  { key: 'trash', label: 'Recently deleted', state: 'trash' },
-] as const satisfies readonly { key: string; label: string; stages?: PropertyStage[]; state?: 'archived' | 'trash' }[]
-
-const longDate = (iso: string) => new Date(iso).toLocaleDateString('en-SG', { dateStyle: 'long', timeZone: 'Asia/Singapore' })
+  { key: 'all' },
+  { key: 'in-progress', stages: ['CHECK_IN_IN_PROGRESS', 'CHECK_OUT_IN_PROGRESS'] },
+  { key: 'awaiting', stages: ['CHECK_IN_AWAITING', 'CHECK_OUT_AWAITING'] },
+  { key: 'check-out-due', stages: ['CHECK_OUT_DUE'] },
+  { key: 'running', stages: ['RUNNING'] },
+  { key: 'ended', stages: ['ENDED'] },
+  { key: 'archived', state: 'archived' },
+  { key: 'trash', state: 'trash' },
+] as const satisfies readonly { key: string; stages?: PropertyStage[]; state?: 'archived' | 'trash' }[]
 
 export default async function PropertiesPage({ searchParams }: PageProps<'/properties'>) {
   const agent = await requireAgent()
+  const m = messages(await requestLocale(agent))
+  const w = m.pwa
   const query = await searchParams
   const chosen = await chosenWorkspace(agent.id, query.workspace)
   const filter = filters.find((option) => option.key === query.filter) ?? filters[0]
@@ -46,24 +50,24 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
 
   return (
     <div>
-      <WorkspaceSection agentId={agent.id} chosen={chosen} path="/properties" />
+      <WorkspaceSection w={w} agentId={agent.id} chosen={chosen} path="/properties" />
       <div className="mb-6 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Properties</h1>
-          <p className="mt-1 text-sm text-gray-500">Every address you work, at the stage of its current tenancy.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{w.properties}</h1>
+          <p className="mt-1 text-sm text-gray-500">{w.everyAddressYouWorkAtTheStage}</p>
         </div>
-        <Link href={chosen.newHref} className="action-primary shrink-0">New check-in</Link>
+        <Link href={chosen.newHref} className="action-primary shrink-0">{w.newCheckIn}</Link>
       </div>
 
       <RenewalCards renewals={renewals} />
 
       <form action="/properties" className="mb-3 flex gap-2" role="search">
         {filter.key !== 'all' && <input type="hidden" name="filter" value={filter.key} />}
-        <label className="sr-only" htmlFor="property-search">Search properties</label>
-        <input id="property-search" name="q" defaultValue={search} placeholder="Address, tenant or agent" className="field min-w-0 flex-1" />
-        <button type="submit" className="action-secondary">Search</button>
+        <label className="sr-only" htmlFor="property-search">{w.searchProperties}</label>
+        <input id="property-search" name="q" defaultValue={search} placeholder={w.addressTenantOrAgent} className="field min-w-0 flex-1" />
+        <button type="submit" className="action-secondary">{w.search}</button>
       </form>
-      <nav aria-label="Property stage" className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+      <nav aria-label={w.propertyStage} className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         {filters.map((option) => (
           <Link
             key={option.key}
@@ -71,28 +75,25 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
             aria-current={filter.key === option.key ? 'page' : undefined}
             className={`${filter.key === option.key ? 'action-primary' : 'action-secondary'} shrink-0 whitespace-nowrap`}
           >
-            {option.label}
+            {w.propertyStageLabels[option.key]}
           </Link>
         ))}
       </nav>
       {filter.key === 'trash' && (
         <p className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Deleted properties can be restored for 30 days. After that, their draft records and stored
-          media are permanently removed.
+          {w. trashNote}
         </p>
       )}
 
       {properties.length === 0 ? (
         <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center">
           <p className="text-sm font-medium">
-            {search ? 'No properties match your search' : filter.key === 'all' ? 'No properties yet' : `Nothing in ${filter.label}`}
+            {search ? w.noPropertiesMatchYourSearch : filter.key === 'all' ? w.homeNoProperties : w.noPropertiesInStage(w.propertyStageLabels[filter.key])}
           </p>
           {filter.key === 'all' && !search && (
             <>
-              <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">
-                Start a check-in when you next hand over a unit. The property appears here.
-              </p>
-              <Link href={chosen.newHref} className="action-primary mt-6 inline-flex">New check-in</Link>
+              <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">{w.startACheckInWhenYouNextLabel}</p>
+              <Link href={chosen.newHref} className="action-primary mt-6 inline-flex">{w.newCheckIn}</Link>
             </>
           )}
         </div>
@@ -111,9 +112,9 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
                     {property.leadAgentName && ` · ${property.leadAgentName}`}
                   </p>
                   {property.trashExpiresAt && (
-                    <p className="mt-1 text-xs text-red-700">Restore before {longDate(property.trashExpiresAt)}</p>
+                    <p className="mt-1 text-xs text-red-700">{w.restoreBefore(new Date(property.trashExpiresAt).toLocaleDateString(m.intl, { dateStyle: 'long', timeZone: 'Asia/Singapore' }))}</p>
                   )}
-                  <p className="mt-2"><PropertyStagePill stage={property.stage} label={property.stageLabel} /></p>
+                  <p className="mt-2"><PropertyStagePill stage={property.stage} label={w.propertyStageLabels[property.stage]} /></p>
                 </div>
                 <span aria-hidden="true" className="text-xl text-gray-500">›</span>
               </Link>

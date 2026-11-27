@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../screens/inspection_screen.dart';
 import 'kivilo_theme.dart';
@@ -17,7 +18,7 @@ class CheckInReferenceView extends StatelessWidget {
       Navigator.of(context).push<void>(
         MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(title: Text(photo.caption ?? 'At check-in')),
+            appBar: AppBar(title: Text(photo.caption ?? t.atCheckIn)),
             backgroundColor: Colors.black,
             body: Center(
               child: InteractiveViewer(
@@ -37,7 +38,7 @@ class CheckInReferenceView extends StatelessWidget {
 
   Widget _photo(BuildContext context, int index, CheckInPhoto photo) {
     final caption = [
-      [if (photo.update) 'Update', ?photo.caption].join(' · '),
+      [if (photo.update) t.updateTag, ?photo.caption].join(' · '),
       // Numbered as the report numbers them, so a ring says what it points at.
       for (final (number, mark)
           in ((photo.annotations?['marks'] as List<dynamic>?) ?? const [])
@@ -48,7 +49,7 @@ class CheckInReferenceView extends StatelessWidget {
     ].where((line) => line.isNotEmpty).join('\n');
     return Semantics(
       button: true,
-      label: 'Open check-in photo ${index + 1}',
+      label: t.openCheckInPhoto(index + 1),
       child: InkWell(
         onTap: () => _view(context, photo),
         borderRadius: BorderRadius.circular(8),
@@ -107,10 +108,7 @@ class CheckInReferenceView extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         if (reference.lines.isEmpty)
-          Text(
-            'Nothing recorded in this room at check-in.',
-            style: text.bodyMedium,
-          ),
+          Text(t.nothingAtCheckIn, style: text.bodyMedium),
         for (final line in reference.lines)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 5),
@@ -122,7 +120,7 @@ class CheckInReferenceView extends StatelessWidget {
                     line.quantity > 1
                         ? '${line.name} ×${line.quantity}'
                         : line.name,
-                    if (line.update) 'Update',
+                    if (line.update) t.updateTag,
                   ].join(' · '),
                   style: text.titleSmall,
                 ),
@@ -132,7 +130,7 @@ class CheckInReferenceView extends StatelessWidget {
                   Text(identifier, style: text.bodySmall),
                 Text(
                   [
-                    line.condition,
+                    itemConditionLabels[line.condition] ?? line.condition,
                     ?line.meterReading,
                     ?line.notes,
                   ].where((part) => part.trim().isNotEmpty).join(' · '),
@@ -150,7 +148,7 @@ class CheckInReferenceView extends StatelessWidget {
                 builder: (_) => InspectionScreen(id: reference.baselineId),
               ),
             ),
-            child: const Text('Open the full check-in'),
+            child: Text(t.openFullCheckIn),
           ),
         ),
       ],

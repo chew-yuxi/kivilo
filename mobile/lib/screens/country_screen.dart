@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/maintenance.dart';
@@ -5,9 +6,9 @@ import '../services/api.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 
-const _choices = [
-  KiviloSegmentOption(value: 'SG', label: 'Singapore'),
-  KiviloSegmentOption(value: 'MY', label: 'Malaysia'),
+List<KiviloSegmentOption<String>> get _choices => [
+  KiviloSegmentOption(value: 'SG', label: t.singapore),
+  KiviloSegmentOption(value: 'MY', label: t.malaysia),
 ];
 
 /// Asked once, before Home, of an agent who has not said where they work. Their new
@@ -70,11 +71,10 @@ class _CountryScreenState extends State<CountryScreen> {
               const SizedBox(height: 24),
               const Align(alignment: Alignment.centerLeft, child: KiviloMark()),
               const SizedBox(height: 24),
-              Text('Where do you work?', style: text.headlineMedium),
+              Text(t.whereDoYouWork, style: text.headlineMedium),
               const SizedBox(height: 6),
               Text(
-                'New properties use that country\'s addresses and currency. '
-                'You can change this later in Account.',
+                t.newPropertiesUseThatCountrysAddressesAnd,
                 style: text.bodyMedium,
               ),
               const SizedBox(height: kiviloSectionGap),
@@ -108,10 +108,10 @@ class _CountryScreenState extends State<CountryScreen> {
                 onPressed: _saving ? null : _save,
                 child: Text(
                   _saving
-                      ? 'Saving…'
+                      ? t.saving
                       : _error != null
-                      ? 'Try again'
-                      : 'Continue',
+                      ? t.tryAgain
+                      : t.labelContinue,
                 ),
               ),
             ),
@@ -158,14 +158,11 @@ class _CountryDrawerState extends State<CountryDrawer> {
 
   @override
   Widget build(BuildContext context) => KiviloDrawer(
-    title: const Text('Where do you work?'),
+    title: Text(t.whereDoYouWork),
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'New properties are made in this country. Properties you already '
-          'have keep theirs.',
-        ),
+        Text(t.newPropertiesAreMadeInThisCountry),
         const SizedBox(height: 16),
         KiviloSegmentedControl<String>(
           value: _country,
@@ -186,11 +183,11 @@ class _CountryDrawerState extends State<CountryDrawer> {
     actions: [
       TextButton(
         onPressed: _saving ? null : () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _saving ? null : _save,
-        child: Text(_saving ? 'Saving…' : 'Save'),
+        child: Text(_saving ? t.saving : t.save),
       ),
     ],
   );

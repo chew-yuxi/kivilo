@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
@@ -115,9 +116,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(plainError(error))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _openingRepairTerms = false);
@@ -133,41 +134,45 @@ class _TenancyScreenState extends State<TenancyScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => KiviloDrawer(
-          title: Text(asset == null ? 'Add property asset' : 'Edit property asset'),
+          title: Text(asset == null ? t.assetAddTitle : t.editPropertyAsset),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: name,
-                decoration: const InputDecoration(labelText: 'Name'),
+                decoration: InputDecoration(labelText: t.assetName),
               ),
               const SizedBox(height: 16),
               KiviloSelectField<String>(
-                label: 'Category',
+                label: t.assetCategory,
                 value: category,
-                options: const [
-                  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-                  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-                  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-                  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-                  KiviloSelectOption(value: 'SYSTEM', label: 'System'),
-                  KiviloSelectOption(value: 'OTHER', label: 'Other'),
+                options: [
+                  KiviloSelectOption(
+                    value: 'APPLIANCE',
+                    label: t.assetAppliance,
+                  ),
+                  KiviloSelectOption(value: 'FIXTURE', label: t.assetFixture),
+                  KiviloSelectOption(
+                    value: 'FURNITURE',
+                    label: t.assetFurniture,
+                  ),
+                  KiviloSelectOption(value: 'SURFACE', label: t.assetSurface),
+                  KiviloSelectOption(value: 'SYSTEM', label: t.assetSystem),
+                  KiviloSelectOption(value: 'OTHER', label: t.basisOther),
                 ],
                 onChanged: (value) => setDialogState(() => category = value),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: room,
-                decoration: const InputDecoration(
-                  labelText: 'Room (optional)',
-                ),
+                decoration: InputDecoration(labelText: t.assetRoomOptional),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: identifier,
-                decoration: const InputDecoration(
-                  labelText: 'Make, model or serial (optional)',
+                decoration: InputDecoration(
+                  labelText: t.assetIdentifierOptional,
                 ),
               ),
             ],
@@ -176,15 +181,15 @@ class _TenancyScreenState extends State<TenancyScreen> {
             if (asset != null)
               TextButton(
                 onPressed: () => Navigator.pop(context, 'retire'),
-                child: const Text('Retire asset'),
+                child: Text(t.retireAsset),
               ),
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, 'save'),
-              child: Text(asset == null ? 'Add' : 'Save'),
+              child: Text(asset == null ? t.add : t.save),
             ),
           ],
         ),
@@ -215,7 +220,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Retire this asset?'),
+          title: Text(t.retireThisAsset),
           content: Text(
             '${asset.name} will no longer appear when reporting a new repair. '
             'Its repair and report history will be kept.',
@@ -223,11 +228,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Retire asset'),
+              child: Text(t.retireAsset),
             ),
           ],
         ),
@@ -255,14 +260,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
           final valid =
               amount.isEmpty || RegExp(r'^\d+(?:\.\d{1,2})?$').hasMatch(amount);
           return KiviloDrawer(
-            title: const Text('Minor repair cap'),
+            title: Text(t.minorRepairCap),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'The amount the tenant pays towards each minor repair under '
-                  'the tenancy agreement. It prefills a split when someone '
-                  'proposes who pays; the tenant still accepts every proposal.',
+                  t.minorRepairCapBody,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 16),
@@ -273,10 +276,10 @@ class _TenancyScreenState extends State<TenancyScreen> {
                     decimal: true,
                   ),
                   decoration: InputDecoration(
-                    labelText: 'Tenant pays up to',
+                    labelText: t.minorRepairCapLabel,
                     prefixText: '${currencySymbol(currency)} ',
-                    helperText: 'Leave empty if the agreement has no cap',
-                    errorText: valid ? null : 'Enter an amount like 150',
+                    helperText: t.minorRepairCapHelper,
+                    errorText: valid ? null : t.minorRepairCapInvalid,
                   ),
                   onChanged: (_) => setDrawerState(() {}),
                 ),
@@ -285,11 +288,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: valid ? () => Navigator.pop(context, true) : null,
-                child: const Text('Save'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -321,7 +324,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           final value = int.tryParse(days.trim());
           final valid = value != null && value >= 0 && value <= 365;
           return KiviloDrawer(
-            title: const Text('Move-in defect period'),
+            title: Text(t.defectPeriod),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -334,11 +337,9 @@ class _TenancyScreenState extends State<TenancyScreen> {
                   autofocus: true,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: 'Number of days',
-                    helperText: '0 disables the move-in defect period',
-                    errorText: valid
-                        ? null
-                        : 'Enter a whole number from 0 to 365',
+                    labelText: t.defectPeriodDays,
+                    helperText: t.defectPeriodHelper,
+                    errorText: valid ? null : t.defectPeriodInvalid,
                   ),
                   onChanged: (value) => setDrawerState(() => days = value),
                 ),
@@ -347,11 +348,11 @@ class _TenancyScreenState extends State<TenancyScreen> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: valid ? () => Navigator.pop(context, value) : null,
-                child: const Text('Save'),
+                child: Text(t.save),
               ),
             ],
           );
@@ -376,333 +377,338 @@ class _TenancyScreenState extends State<TenancyScreen> {
   @override
   Widget build(BuildContext context) {
     final body = StreamBuilder<_TenancyData>(
-        stream: _loading.stream,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData && !snapshot.hasError) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return KiviloMessage(
-              icon: Icons.cloud_off_outlined,
+      stream: _loading.stream,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData && !snapshot.hasError) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snapshot.hasError) {
+          return KiviloMessage(
+            icon: Icons.cloud_off_outlined,
             title: widget.embedded
-                ? 'Could not load repairs and assets'
-                : 'Could not open this property',
-              body: plainError(snapshot.error!),
-              actionLabel: 'Try again',
-              onAction: _refresh,
-            );
-          }
-          final (cases, assets, terms) = snapshot.data!;
+                ? t.couldNotLoadRepairsAndAssets
+                : t.couldNotOpenThisProperty,
+            body: plainError(snapshot.error!),
+            actionLabel: 'Try again',
+            onAction: _refresh,
+          );
+        }
+        final (cases, assets, terms) = snapshot.data!;
         final children = <Widget>[
           if (!widget.embedded) ...[
-                const KiviloEyebrow('YOUR PROPERTY'),
-                const SizedBox(height: 6),
-                Text(
-                  widget.tenancy.property,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Reports, repairs and the history of this home.',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: kiviloSectionGap),
-                const KiviloSectionHeading(
-                  title: 'Property record',
-                  subtitle: 'The agreed condition and what has happened since',
-                ),
-                const SizedBox(height: kiviloHeadingGap),
-                if (terms.role == 'AGENT') ...[
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(Icons.person_outline),
-                      title: Text(
-                        terms.access?.canManageAccess == true
-                            ? 'Manage access'
-                            : 'Property access',
-                      ),
-                      subtitle: terms.access == null
-                          ? null
-                          : Text(terms.access!.label),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        await Navigator.of(context).push<void>(
-                          MaterialPageRoute(
-                            builder: (_) => TenancyAccessScreen(
-                              tenancyId: widget.tenancy.id,
-                              property: widget.tenancy.property,
-                              api: _api,
-                            ),
-                          ),
-                        );
-                        if (mounted) await _refresh();
-                      },
-                    ),
+            KiviloEyebrow(t.tenancyEyebrow),
+            const SizedBox(height: 6),
+            Text(
+              widget.tenancy.property,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              t.tenancySubtitle,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: kiviloSectionGap),
+            KiviloSectionHeading(
+              title: t.tenancyRecord,
+              subtitle: t.tenancyRecordDetail,
+            ),
+            const SizedBox(height: kiviloHeadingGap),
+            if (terms.role == 'AGENT') ...[
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.person_outline),
+                  title: Text(
+                    terms.access?.canManageAccess == true
+                        ? t.tenancyManageAccess
+                        : t.tenancyPropertyAccess,
                   ),
-                  const SizedBox(height: 10),
-                ],
-                Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.description_outlined),
-                    title: const Text('Documents'),
-                subtitle: const Text('Tenancy agreement and supporting files'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push<void>(
-                      MaterialPageRoute(
-                        builder: (_) => SupportingDocumentsScreen(
-                          tenancyId: widget.tenancy.id,
-                          api: _api,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (widget.tenancy.role == 'AGENT' &&
-                    widget.currentInspection != null &&
-                widget.currentInspection!.id != widget.tenancy.latestReportId &&
-                    ![
-                      'AWAITING_SIGNATURE',
-                      'COMPLETED',
-                    ].contains(widget.currentInspection!.status)) ...[
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.edit_outlined,
-                        color: KiviloColors.pinkDark,
-                      ),
-                      title: Text(
-                        'Open ${widget.currentInspection!.kindLabel.toLowerCase()}',
-                      ),
-                      subtitle: const Text('Rooms, inventory and signatures'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        await Navigator.of(context).push<void>(
-                          MaterialPageRoute(
-                            builder: (_) => InspectionScreen(
-                              id: widget.currentInspection!.id,
-                              api: _api,
-                            ),
-                          ),
-                        );
-                        if (mounted) await _refresh();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                if (widget.tenancy.latestReportId case final reportId?) ...[
-                  Card(
-                    child: ListTile(
-                      leading: const Icon(
-                        Icons.fact_check_outlined,
-                        color: KiviloColors.pinkDark,
-                      ),
-                      title: Text(
-                        widget.tenancy.latestReportKind == 'CHECK_OUT'
-                            ? 'Latest check-out report'
-                            : 'Latest check-in report',
-                      ),
-                      subtitle: const Text('View the condition report'),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        await Navigator.of(context).push<void>(
-                          MaterialPageRoute(
-                            builder: (_) => widget.tenancy.role == 'AGENT'
-                                ? InspectionScreen(id: reportId, api: _api)
-                                : ReportScreen(id: reportId, api: _api),
-                          ),
-                        );
-                        if (mounted) await _refresh();
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                Card(
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.history,
-                      color: KiviloColors.pinkDark,
-                    ),
-                    title: const Text('Property timeline'),
-                    subtitle: const Text(
-                      'Signed reports, repairs and agreed costs at this address',
-                    ),
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: KiviloColors.subtle,
-                    ),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => PropertyTimelineScreen(
-                          showPropertySettings: terms.role == 'AGENT',
-                          propertyId: widget.tenancy.propertyId,
-                          api: _api,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                if (terms.role == 'AGENT') ...[
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: () async {
-                      await Navigator.of(context).push<void>(
-                        MaterialPageRoute(
-                        builder: (_) => PropertySettingsScreen(
-                            propertyId: widget.tenancy.propertyId,
-                            api: _api,
-                        ),
-                        ),
-                      );
-                      if (mounted) await _refresh();
-                    },
-                    child: const Text('Property settings'),
-                  ),
-                ],
-                const SizedBox(height: kiviloSectionGap),
-          ],
-                const KiviloSectionHeading(
-                  title: 'Property care',
-                  subtitle: 'Report a problem and follow each repair through',
-                ),
-                const SizedBox(height: kiviloHeadingGap),
-                Card(
-                  color: KiviloColors.canvas,
-                  child: ListTile(
-                    leading: const Icon(Icons.emergency_outlined),
-                    title: const Text('Immediate danger?'),
-                    subtitle: const Text('Police 999 · Fire or ambulance 995'),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const ServiceDirectoryScreen(),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: kiviloButtonGap),
-                FilledButton.icon(
-                  onPressed: () => _report(assets, terms),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Report a problem'),
-                ),
-                const SizedBox(height: kiviloButtonGap),
-                if (terms.moveInDefects case final window?) ...[
-                  Card(
-                    child: ListTile(
-                      title: const Text('Move-in defect period'),
-                      subtitle: Text(
-                        window.deadline == null
-                            ? 'Disabled. Repairs can still be reported.'
-                            : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (${countryName(terms.country)} time)',
-                      ),
-                      trailing: window.canEditWindow
-                          ? TextButton(
-                        onPressed: () => _editDefectWindow(window.windowDays, terms.country),
-                              child: const Text('Edit'),
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-                const SizedBox(height: kiviloSectionGap),
-                KiviloSectionHeading(
-                  title: 'Maintenance',
-                  subtitle: cases.isEmpty
+                  subtitle: terms.access == null
                       ? null
-                      : '${cases.length} ${cases.length == 1 ? 'request' : 'requests'}',
+                      : Text(terms.access!.label),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await Navigator.of(context).push<void>(
+                      MaterialPageRoute(
+                        builder: (_) => TenancyAccessScreen(
+                          tenancyId: widget.tenancy.id,
+                          property: widget.tenancy.property,
+                          api: _api,
+                        ),
+                      ),
+                    );
+                    if (mounted) await _refresh();
+                  },
                 ),
-                const SizedBox(height: kiviloHeadingGap),
-                if (cases.isEmpty) _emptyMaintenance(),
-                for (var index = 0; index < cases.length; index++) ...[
-                  if (index > 0) const SizedBox(height: 10),
-                  Card(
-                    child: ListTile(
-                      title: Text(cases[index].title),
-                      subtitle: Text(
-                        '${cases[index].status.replaceAll('_', ' ').toLowerCase()}'
-                        '${cases[index].asset == null ? '' : ' · ${cases[index].asset}'}'
-                        '${cases[index].repairAttempts == 0 ? '' : ' · ${cases[index].repairAttempts} repair attempts'}',
-                      ),
-                      leading: Icon(
-                        cases[index].priority == 'SAFETY_EMERGENCY'
-                            ? Icons.warning_amber
-                            : Icons.build_outlined,
-                      ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => MaintenanceCaseScreen(
-                              caseId: cases[index].id,
-                              api: _api,
-                            ),
-                          ),
-                        );
-                        if (mounted) await _refresh();
-                      },
+              ),
+              const SizedBox(height: 10),
+            ],
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.description_outlined),
+                title: Text(t.documents),
+                subtitle: Text(t.tenancyAgreementAndSupportingFiles),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(
+                    builder: (_) => SupportingDocumentsScreen(
+                      tenancyId: widget.tenancy.id,
+                      api: _api,
                     ),
                   ),
-                ],
-                if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
-                  const SizedBox(height: kiviloSectionGap),
-                  const KiviloSectionHeading(
-                    title: 'Repair costs',
-                    subtitle: 'Terms that shape who pays for a repair',
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            if (widget.tenancy.role == 'AGENT' &&
+                widget.currentInspection != null &&
+                widget.currentInspection!.id != widget.tenancy.latestReportId &&
+                ![
+                  'AWAITING_SIGNATURE',
+                  'COMPLETED',
+                ].contains(widget.currentInspection!.status)) ...[
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.edit_outlined,
+                    color: KiviloColors.pinkDark,
                   ),
-                  const SizedBox(height: kiviloHeadingGap),
-                  _repairTerms(terms),
-                ],
-                if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
-                  const SizedBox(height: kiviloSectionGap),
-                  KiviloSectionHeading(
-                    title: 'Property assets',
-                    subtitle: 'Appliances and fixtures linked to maintenance',
-                    action: widget.tenancy.role == 'TENANT'
-                        ? null
-                        : TextButton.icon(
-                            onPressed: _editAsset,
-                            icon: const Icon(Icons.add, size: 18),
-                            label: const Text('Add asset'),
-                          ),
+                  title: Text(
+                    widget.currentInspection!.kind == 'CHECK_IN'
+                        ? t.homeOpenCheckIn
+                        : t.homeOpenCheckOut,
                   ),
-                  const SizedBox(height: kiviloHeadingGap),
-                  if (assets.isEmpty) _emptyAssets(),
-                  for (var index = 0; index < assets.length; index++) ...[
-                    if (index > 0) const Divider(height: 1),
-                    ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-                      title: Text(assets[index].name),
-                      subtitle: Text(
-                        [
-                          if (assets[index].roomLabel != null)
-                            assets[index].roomLabel!,
-                          if (assets[index].identifier != null)
-                            assets[index].identifier!,
-                          '${assets[index].repairVisitsLast365Days} repairs in 365 days',
-                        ].join(' · '),
+                  subtitle: Text(t.tenancyOpenInspectionDetail),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await Navigator.of(context).push<void>(
+                      MaterialPageRoute(
+                        builder: (_) => InspectionScreen(
+                          id: widget.currentInspection!.id,
+                          api: _api,
+                        ),
                       ),
-                      trailing: widget.tenancy.role == 'TENANT'
-                          ? (assets[index].repairVisitsLast365Days >= 4
-                              ? const Chip(label: Text('Repeat fault'))
-                              : null)
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (assets[index].repairVisitsLast365Days >= 4)
-                                  const Chip(label: Text('Repeat fault')),
-                                const Icon(Icons.chevron_right),
-                              ],
-                            ),
-                      onTap: widget.tenancy.role == 'TENANT'
-                          ? null
-                          : () => _editAsset(assets[index]),
+                    );
+                    if (mounted) await _refresh();
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            if (widget.tenancy.latestReportId case final reportId?) ...[
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.fact_check_outlined,
+                    color: KiviloColors.pinkDark,
+                  ),
+                  title: Text(
+                    widget.tenancy.latestReportKind == 'CHECK_OUT'
+                        ? t.tenancyLatestCheckOut
+                        : t.tenancyLatestCheckIn,
+                  ),
+                  subtitle: Text(t.tenancyViewReport),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    await Navigator.of(context).push<void>(
+                      MaterialPageRoute(
+                        builder: (_) => widget.tenancy.role == 'AGENT'
+                            ? InspectionScreen(id: reportId, api: _api)
+                            : ReportScreen(id: reportId, api: _api),
+                      ),
+                    );
+                    if (mounted) await _refresh();
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+            ],
+            Card(
+              child: ListTile(
+                leading: const Icon(
+                  Icons.history,
+                  color: KiviloColors.pinkDark,
+                ),
+                title: Text(t.tenancyTimeline),
+                subtitle: Text(t.tenancyTimelineDetail),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: KiviloColors.subtle,
+                ),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PropertyTimelineScreen(
+                      showPropertySettings: terms.role == 'AGENT',
+                      propertyId: widget.tenancy.propertyId,
+                      api: _api,
                     ),
-                  ],
-                ],
+                  ),
+                ),
+              ),
+            ),
+            if (terms.role == 'AGENT') ...[
+              const SizedBox(height: 12),
+              OutlinedButton(
+                onPressed: () async {
+                  await Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) => PropertySettingsScreen(
+                        propertyId: widget.tenancy.propertyId,
+                        api: _api,
+                      ),
+                    ),
+                  );
+                  if (mounted) await _refresh();
+                },
+                child: Text(t.propertySettings),
+              ),
+            ],
+            const SizedBox(height: kiviloSectionGap),
+          ],
+          KiviloSectionHeading(
+            title: t.tenancyCare,
+            subtitle: t.tenancyCareDetail,
+          ),
+          const SizedBox(height: kiviloHeadingGap),
+          Card(
+            color: KiviloColors.canvas,
+            child: ListTile(
+              leading: const Icon(Icons.emergency_outlined),
+              title: Text(t.tenancyDanger),
+              subtitle: Text(t.tenancyDangerNumbers),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ServiceDirectoryScreen(),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: kiviloButtonGap),
+          FilledButton.icon(
+            onPressed: () => _report(assets, terms),
+            icon: const Icon(Icons.add),
+            label: Text(t.reportProblem),
+          ),
+          const SizedBox(height: kiviloButtonGap),
+          if (terms.moveInDefects case final window?) ...[
+            Card(
+              child: ListTile(
+                title: Text(t.defectPeriod),
+                subtitle: Text(
+                  window.deadline == null
+                      ? t.defectPeriodDisabled
+                      : '${window.windowDays} days · Report by ${calendarDate(window.deadline!)} (${countryName(terms.country)} time)',
+                ),
+                trailing: window.canEditWindow
+                    ? TextButton(
+                        onPressed: () =>
+                            _editDefectWindow(window.windowDays, terms.country),
+                        child: Text(t.edit),
+                      )
+                    : null,
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          const SizedBox(height: kiviloSectionGap),
+          KiviloSectionHeading(
+            title: t.maintenance,
+            subtitle: cases.isEmpty
+                ? null
+                : '${cases.length} ${cases.length == 1 ? t.request : t.requests}',
+          ),
+          const SizedBox(height: kiviloHeadingGap),
+          if (cases.isEmpty) _emptyMaintenance(),
+          for (var index = 0; index < cases.length; index++) ...[
+            if (index > 0) const SizedBox(height: 10),
+            Card(
+              child: ListTile(
+                title: Text(cases[index].title),
+                subtitle: Text(
+                  [
+                    maintenanceStatusLabels[cases[index].status] ??
+                        cases[index].status,
+                    ?cases[index].asset,
+                    if (cases[index].repairAttempts > 0)
+                      t.repairAttempts(cases[index].repairAttempts),
+                  ].join(' · '),
+                ),
+                leading: Icon(
+                  cases[index].priority == 'SAFETY_EMERGENCY'
+                      ? Icons.warning_amber
+                      : Icons.build_outlined,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () async {
+                  await Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => MaintenanceCaseScreen(
+                        caseId: cases[index].id,
+                        api: _api,
+                      ),
+                    ),
+                  );
+                  if (mounted) await _refresh();
+                },
+              ),
+            ),
+          ],
+          if (terms.role != 'TENANT' || terms.minorRepairCap != null) ...[
+            const SizedBox(height: kiviloSectionGap),
+            KiviloSectionHeading(
+              title: t.repairCosts,
+              subtitle: t.repairCostsDetail,
+            ),
+            const SizedBox(height: kiviloHeadingGap),
+            _repairTerms(terms),
+          ],
+          if (assets.isNotEmpty || widget.tenancy.role != 'TENANT') ...[
+            const SizedBox(height: kiviloSectionGap),
+            KiviloSectionHeading(
+              title: t.assets,
+              subtitle: t.assetsDetail,
+              action: widget.tenancy.role == 'TENANT'
+                  ? null
+                  : TextButton.icon(
+                      onPressed: _editAsset,
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text(t.assetAdd),
+                    ),
+            ),
+            const SizedBox(height: kiviloHeadingGap),
+            if (assets.isEmpty) _emptyAssets(),
+            for (var index = 0; index < assets.length; index++) ...[
+              if (index > 0) const Divider(height: 1),
+              ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                title: Text(assets[index].name),
+                subtitle: Text(
+                  [
+                    if (assets[index].roomLabel != null)
+                      assets[index].roomLabel!,
+                    if (assets[index].identifier != null)
+                      assets[index].identifier!,
+                    t.assetRepairs(assets[index].repairVisitsLast365Days),
+                  ].join(' · '),
+                ),
+                trailing: widget.tenancy.role == 'TENANT'
+                    ? (assets[index].repairVisitsLast365Days >= 4
+                          ? Chip(label: Text(t.assetRepeatFault))
+                          : null)
+                    : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (assets[index].repairVisitsLast365Days >= 4)
+                            Chip(label: Text(t.assetRepeatFault)),
+                          const Icon(Icons.chevron_right),
+                        ],
+                      ),
+                onTap: widget.tenancy.role == 'TENANT'
+                    ? null
+                    : () => _editAsset(assets[index]),
+              ),
+            ],
+          ],
         ];
         if (widget.embedded) {
           return Column(
@@ -713,8 +719,8 @@ class _TenancyScreenState extends State<TenancyScreen> {
         return RefreshIndicator(
           onRefresh: _refresh,
           child: ListView(padding: kiviloScreenPadding, children: children),
-          );
-        },
+        );
+      },
     );
     if (widget.embedded) return body;
     return Scaffold(
@@ -722,12 +728,12 @@ class _TenancyScreenState extends State<TenancyScreen> {
         centerTitle: false,
         toolbarHeight: 72,
         title: PageContextTitle(
-          title: 'Property',
+          title: t.newProperty,
           contextLabel: widget.tenancy.property,
+        ),
       ),
-    ),
       body: KiviloContent(maxWidth: 840, child: body),
-  );
+    );
   }
 
   Widget _repairTerms(TenancyDetail terms) => Card(
@@ -737,9 +743,15 @@ class _TenancyScreenState extends State<TenancyScreen> {
         if (terms.maintenanceTerms case final agreementTerms?) ...[
           Padding(
             padding: EdgeInsets.fromLTRB(
-              16, 16, 16, terms.canEditMinorRepairCap ? 0 : 16,
+              16,
+              16,
+              16,
+              terms.canEditMinorRepairCap ? 0 : 16,
             ),
-            child: AgreementTermsView(terms: agreementTerms, currency: terms.currency),
+            child: AgreementTermsView(
+              terms: agreementTerms,
+              currency: terms.currency,
+            ),
           ),
           if (terms.canEditMinorRepairCap) ...[
             const SizedBox(height: kiviloButtonGap),
@@ -748,36 +760,37 @@ class _TenancyScreenState extends State<TenancyScreen> {
               child: OutlinedButton(
                 onPressed: _openingRepairTerms ? null : _reviewRepairTerms,
                 child: Text(
-                  _openingRepairTerms ? 'Opening…' : 'Review repair terms',
+                  _openingRepairTerms ? t.opening : t.reviewRepairTerms,
                 ),
               ),
             ),
           ],
         ] else
           ListTile(
-          contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
-          title: const Text('Minor repair cap'),
-          subtitle: Text(
-            terms.minorRepairCap == null
-                ? 'Not set'
-                : 'Tenant pays up to ${currencySymbol(terms.currency)}${terms.minorRepairCap} per repair',
+            contentPadding: const EdgeInsets.fromLTRB(16, 6, 8, 6),
+            title: Text(t.minorRepairCap),
+            subtitle: Text(
+              terms.minorRepairCap == null
+                  ? t.notSet
+                  : 'Tenant pays up to ${currencySymbol(terms.currency)}${terms.minorRepairCap} per repair',
+            ),
+            trailing: terms.canEditMinorRepairCap
+                ? TextButton(
+                    onPressed: () =>
+                        _editCap(terms.minorRepairCap, terms.currency),
+                    child: Text(terms.minorRepairCap == null ? t.set : t.edit),
+                  )
+                : null,
           ),
-          trailing: terms.canEditMinorRepairCap
-              ? TextButton(
-                  onPressed: () => _editCap(terms.minorRepairCap, terms.currency),
-                  child: Text(terms.minorRepairCap == null ? 'Set' : 'Edit'),
-                )
-              : null,
-        ),
         if (terms.role != 'TENANT') ...[
           const Divider(height: 1),
           SwitchListTile(
             contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
-            title: const Text('Agent can agree costs'),
+            title: Text(t.agentMayAgreeCosts),
             subtitle: Text(
               terms.canEditAgentAuthority
-                  ? 'Lets the agent accept or reject cost proposals for you'
-                  : 'Only the landlord can change this',
+                  ? t.agentMayAgreeCostsOn
+                  : t.agentMayAgreeCostsLandlordOnly,
             ),
             value: terms.agentMayAgreeCosts,
             onChanged: terms.canEditAgentAuthority ? _setAgentAuthority : null,
@@ -795,7 +808,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const Icon(Icons.task_alt, color: KiviloColors.green, size: 32),
           const SizedBox(height: 12),
           Text(
-            'No maintenance reported',
+            t.noMaintenanceReported,
             style: Theme.of(context).textTheme.titleMedium,
           ),
         ],
@@ -816,7 +829,7 @@ class _TenancyScreenState extends State<TenancyScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Text(
-              'No assets have been added to this property yet.',
+              t.assetsEmpty,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),

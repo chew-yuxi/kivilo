@@ -1,3 +1,5 @@
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAgent } from '@/lib/auth'
@@ -7,11 +9,13 @@ import { RestoreButton } from '@/components/restore-button'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Property history' }
 
-const day = (iso: string) => new Date(iso).toLocaleDateString('en-SG', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' })
-const time = (iso: string) => new Date(iso).toLocaleTimeString('en-SG', { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Singapore' })
 
 export default async function PropertyHistoryPage({ params, searchParams }: PageProps<'/properties/[id]/history'>) {
   const agent = await requireAgent()
+  const m = messages(await requestLocale(agent))
+  const w = m.pwa
+  const day = (iso: string) => new Date(iso).toLocaleDateString(m.intl, { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Singapore' })
+  const time = (iso: string) => new Date(iso).toLocaleTimeString(m.intl, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Singapore' })
   const [{ id }, query] = await Promise.all([params, searchParams])
   const filter = query.filter === 'deletions' ? 'deletions' : 'all'
   let history
@@ -26,18 +30,13 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <Link className="text-link inline-flex min-h-11 items-center text-sm" href={`/properties/${id}`}>
-        ← Property
-      </Link>
+      <Link className="text-link inline-flex min-h-11 items-center text-sm" href={`/properties/${id}`}>{w.propertyLabel}</Link>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">History</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{w.history}</h1>
         <p className="mt-2 break-words text-gray-700">{history.property.address}</p>
-        <p className="mt-2 text-sm text-gray-600">
-          Every change and deletion, with who made it. Deleted rooms, lines, photos and findings can be
-          restored for 30 days. History is recorded from 23 October 2026.
-        </p>
+        <p className="mt-2 text-sm text-gray-600">{w.everyChangeAndDeletionWithWhoMade}</p>
       </div>
-      <nav aria-label="Filter history" className="flex flex-wrap gap-2">
+      <nav aria-label={w.filterHistory} className="flex flex-wrap gap-2">
         {(['all', 'deletions'] as const).map((value) => (
           <Link
             key={value}
@@ -45,13 +44,13 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
             aria-current={filter === value ? 'page' : undefined}
             className={filter === value ? 'action-primary' : 'action-secondary'}
           >
-            {value === 'all' ? 'All changes' : 'Deletions'}
+            {value === 'all' ? w.allChanges : w.deletions}
           </Link>
         ))}
       </nav>
       {history.events.length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-600">
-          {filter === 'deletions' ? 'Nothing has been deleted.' : 'No changes recorded yet.'}
+          {filter === 'deletions' ? w.nothingHasBeenDeleted : w.noChangesRecordedYet}
         </p>
       ) : (
         [...days].map(([label, events]) => (
@@ -74,11 +73,10 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
                     </ul>
                   )}
                   {event.bin && (event.bin.restoredAt ? (
-                    <p className="mt-2 text-gray-500">Restored</p>
+                    <p className="mt-2 text-gray-500">{w.restoredLabel}</p>
                   ) : event.bin.restorable ? (
                     <>
-                      <p className="mt-2 text-gray-500">
-                        In the bin until {new Date(event.bin.expiresAt).toLocaleDateString('en-SG', { dateStyle: 'long', timeZone: 'Asia/Singapore' })}
+                      <p className="mt-2 text-gray-500">{w.inTheBinUntil} {new Date(event.bin.expiresAt).toLocaleDateString(m.intl, { dateStyle: 'long', timeZone: 'Asia/Singapore' })}
                       </p>
                       <RestoreButton binItemId={event.bin.id} propertyId={id} />
                     </>

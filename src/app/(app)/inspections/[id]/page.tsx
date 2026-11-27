@@ -28,6 +28,8 @@ import { tenancyAccess } from '@/lib/tenancy-access'
 import { TenancyAccessPanel } from '@/components/tenancy-access-panel'
 import { TenancyAssignmentPanel } from '@/components/tenancy-assignment-panel'
 import { agencyList } from '@/lib/agency'
+import { formatDate, messages, type Locale, type Messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,6 +37,9 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   const { id } = await params
 
   const agent = await requireAgent()
+  const locale = await requestLocale(agent)
+  const m = messages(locale)
+  const w = m.pwa
 
   // Scoped rather than found-then-checked, so an inspection belonging to another agent
   // is indistinguishable from one that does not exist.
@@ -170,33 +175,36 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   const nextStep =
     status === 'AWAITING_SIGNATURE'
       ? {
-          title: `Collecting signatures: ${signedCount} of ${parties.length} signed`,
-          body: 'Hand the phone to each party to sign, or they can sign from the emailed link.',
-          links: [{ href: '#signatures', label: 'Go to signatures' }],
+          title: w.collectingSignatures(signedCount, parties.length),
+          body: w.collectingSignaturesBody,
+          links: [{ href: '#signatures', label: w.goToSignatures }],
         }
       : status === 'COMPLETED' && kind === 'CHECK_IN'
         ? {
-            title: 'Signed by both parties',
-            body: 'Send both parties the report. At the end of the tenancy, the check-out starts from here.',
+            title: w.signedByBoth,
+            body: w.sendBothParties,
             links: [
-              { href: '#send', label: 'Send the report' },
+              { href: '#send', label: w.sendTheReport },
               ...(inspection.checkOut
-                ? [{ href: `/inspections/${inspection.checkOut.id}`, label: 'Open the check-out' }]
-                : access.scope === 'TENANCY' ? [{ href: '#check-out', label: 'Start the check-out' }] : []),
+                ? [{ href: `/inspections/${inspection.checkOut.id}`, label: w.openTheCheckOut }]
+                : access.scope === 'TENANCY' ? [{ href: '#check-out', label: w.startTheCheckOut }] : []),
             ],
           }
         : status === 'COMPLETED' && kind === 'CHECK_OUT'
           ? statement
             ? {
-                title: `Deposit statement: ${answers.filter((row) => row.answer === 'AGREED').length} agreed, ${
-                  answers.filter((row) => row.answer === 'DISPUTED').length} disputed, ${2 - answers.length} waiting`,
-                body: 'Each party answers from their own account or on this phone.',
-                links: [{ href: '#comparison', label: 'Go to the statement' }],
+                title: w.depositStatus(
+                  answers.filter((row) => row.answer === 'AGREED').length,
+                  answers.filter((row) => row.answer === 'DISPUTED').length,
+                  2 - answers.length,
+                ),
+                body: w.eachPartyAnswers,
+                links: [{ href: '#comparison', label: w.goToStatement }],
               }
             : {
-                title: 'Signed by both parties',
-                body: 'Record what changed against the check-in, then publish the assessment so both parties can answer the deposit statement.',
-                links: [{ href: '#comparison', label: 'Go to the comparison' }],
+                title: w.signedByBoth,
+                body: w.recordWhatChanged,
+                links: [{ href: '#comparison', label: w.goToComparison }],
               }
           : null
 
@@ -204,35 +212,35 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
     <div className="space-y-8">
       <div>
         <Link href="/inspections" className="text-link inline-flex min-h-11 items-center text-sm">
-          ← All inspections
+          {w.allInspections}
         </Link>
         <div className="mt-3 flex items-start justify-between gap-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">
-              {kind === 'CHECK_IN' ? 'Check-in' : 'Check-out'}
+              {kind === 'CHECK_IN' ? w.checkIn : w.checkOut}
             </h1>
             <p className="mt-1 text-sm text-gray-500">
               {propertyLabel(tenancy.property)} · {tenancy.tenant.name}
             </p>
             {inspection.baseline && (
               <p className="mt-1 text-sm text-gray-500">
-                Rooms copied from, and compared against,{' '}
+                {w.roomsCopiedFrom}{' '}
                 <Link
                   href={`/inspections/${inspection.baseline.id}`}
                   className="text-link"
                 >
-                  the check-in
+                  {w.theCheckIn}
                 </Link>
                 {inspection.baseline.conductedAt &&
-                  ` of ${inspection.baseline.conductedAt.toLocaleDateString('en-SG', { dateStyle: 'long' })}`}
+                  w.ofDate(formatDate(m, inspection.baseline.conductedAt, { dateStyle: 'long' }))}
                 .
               </p>
             )}
           </div>
           <div className="flex shrink-0 flex-col items-end gap-3">
             <StatusBadge status={status} />
-            <Link href={`/properties/${tenancy.propertyId}/settings`} className="action-secondary">Property settings</Link>
-            <Link href={`/properties/${tenancy.propertyId}/history`} className="action-secondary">History</Link>
+            <Link href={`/properties/${tenancy.propertyId}/settings`} className="action-secondary">{w.propertySettings}</Link>
+            <Link href={`/properties/${tenancy.propertyId}/history`} className="action-secondary">{w.history}</Link>
           </div>
         </div>
         {inspection.summary && (
@@ -248,8 +256,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
       {access.scope === 'TENANCY' && (
         <Link href={`/tenancies/${tenancy.id}/documents`} className="nav-row">
           <span>
-            <span className="block text-sm font-medium">Documents</span>
-            <span className="mt-1 block text-xs font-normal text-gray-500">Tenancy agreement and other private files</span>
+            <span className="block text-sm font-medium">{w.documents}</span>
+            <span className="mt-1 block text-xs font-normal text-gray-500">{w.tenancyAgreementAndOtherPrivateFiles}</span>
           </span>
           <span aria-hidden="true">›</span>
         </Link>
@@ -289,29 +297,26 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           <details open={status === 'AWAITING_SIGNATURE'} className="group">
             <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm">
               <span>
-                <span className="font-medium">Agreed inventory</span>
+                <span className="font-medium">{w.agreedInventory}</span>
                 <span className="text-gray-500">
-                  {' '}· {inspection.rooms.length} {inspection.rooms.length === 1 ? 'room' : 'rooms'},{' '}
-                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                  {' '}· {w.roomsItems(inspection.rooms.length, itemCount)}
                 </span>
               </span>
-              <span className="text-xs font-medium text-brand-600 group-open:hidden">Show</span>
-              <span className="hidden text-xs font-medium text-brand-600 group-open:inline">Hide</span>
+              <span className="text-xs font-medium text-brand-600 group-open:hidden">{w.show}</span>
+              <span className="hidden text-xs font-medium text-brand-600 group-open:inline">{w.hide}</span>
             </summary>
             <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-white">
               {inspection.rooms.map((room) => (
-                <AgreedRoom key={room.id} roomId={room.id} name={room.name} />
+                <AgreedRoom key={room.id} roomId={room.id} name={room.name} locale={locale} />
               ))}
             </div>
           </details>
 
           <section id="signatures" className="scroll-mt-4 space-y-3">
-            <h2 className="text-sm font-medium">Signatures</h2>
+            <h2 className="text-sm font-medium">{w.signatures}</h2>
             {status === 'AWAITING_SIGNATURE' && (
               <p className="text-sm text-gray-500">
-                Go through the inventory above with both parties, then hand the phone to
-                each of them to sign. A party with an email on file is also sent a link to
-                sign from their own phone. The report freezes once both have.
+                {w.signaturesBody}
               </p>
             )}
             <div className="grid gap-3 sm:grid-cols-2">
@@ -321,7 +326,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
                     inspectionId={id}
                     stakeholderId={party.stakeholderId}
                     stakeholderName={party.name}
-                    role={party.role === 'LANDLORD' ? 'landlord' : 'tenant'}
+                    role={m.web.role[party.role]}
                     signedAt={party.signedAt}
                   />
                   {!party.signedAt && (
@@ -357,23 +362,20 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
 
       {kind === 'CHECK_OUT' && status === 'COMPLETED' && (
         <section id="comparison" className="scroll-mt-4 space-y-3">
-          <h2 className="text-sm font-medium">Comparison against check-in</h2>
+          <h2 className="text-sm font-medium">{w.comparison}</h2>
           {unsettledCosts.length > 0 && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm">
               <p className="font-medium text-amber-900">
-                {unsettledCosts.length === 1
-                  ? '1 repair during this tenancy has no agreed cost'
-                  : `${unsettledCosts.length} repairs during this tenancy have no agreed cost`}
+                {w.unsettledCosts(unsettledCosts.length)}
               </p>
               <p className="mt-1 text-amber-800">
-                Settle who pays in the Kivilo app before the deposit is decided, or link
-                the repair to a finding below so the decision is made there.
+                {w.settleInApp}
               </p>
               <ul className="mt-3 space-y-1">
                 {unsettledCosts.map((item) => (
                   <li key={item.id} className="flex justify-between gap-4">
                     <span className="text-gray-900">{item.title}</span>
-                    <span className="shrink-0 text-amber-800">{standingLabel[item.standing]}</span>
+                    <span className="shrink-0 text-amber-800">{standingLabel(w)[item.standing]}</span>
                   </li>
                 ))}
               </ul>
@@ -398,8 +400,8 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
                 tenancy={tenancy}
               />
               {[
-                { id: tenancy.landlordId, name: tenancy.landlord.name, role: 'Landlord' },
-                { id: tenancy.tenantId, name: tenancy.tenant.name, role: 'Tenant' },
+                { id: tenancy.landlordId, name: tenancy.landlord.name, role: m.party.LANDLORD },
+                { id: tenancy.tenantId, name: tenancy.tenant.name, role: m.party.TENANT },
               ]
                 .filter((party) => !published.responses.some((response) => response.stakeholderId === party.id))
                 .map((party) => (
@@ -418,13 +420,14 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
   )
 }
 
-const standingLabel = {
-  PENDING: 'Waiting for an answer',
-  DISPUTED: 'Disputed',
-  NOT_PROPOSED: 'Nobody has proposed',
-}
+const standingLabel = (w: Messages['pwa']) => ({
+  PENDING: w.waitingForAnswer,
+  DISPUTED: w.disputed,
+  NOT_PROPOSED: w.nobodyProposed,
+})
 
-async function AgreedRoom({ roomId, name }: { roomId: string; name: string }) {
+async function AgreedRoom({ roomId, name, locale }: { roomId: string; name: string; locale: Locale }) {
+  const w = messages(locale).pwa
   const items = await db.inspectionItem.findMany({
     where: { roomId },
     orderBy: { createdAt: 'asc' },
@@ -449,9 +452,9 @@ async function AgreedRoom({ roomId, name }: { roomId: string; name: string }) {
               </span>
             )}
           </span>
-          <span className="text-xs text-gray-500 sm:col-span-2">{item.condition}</span>
+          <span className="text-xs text-gray-500 sm:col-span-2">{w.condition(item.condition)}</span>
           <span className="text-gray-600 sm:col-span-6">
-            {item.meterReading ? `Reading: ${item.meterReading}` : item.notes}
+            {item.meterReading ? w.readingValue(item.meterReading) : item.notes}
           </span>
         </div>
       ))}

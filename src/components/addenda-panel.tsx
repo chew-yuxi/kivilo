@@ -20,6 +20,7 @@ import { downscale } from '@/lib/downscale'
 import { MarkOverlay } from '@/components/mark-overlay'
 import type { AddendaWorkspace } from '@/lib/addenda-workspace'
 import type { AddendumChange } from '@/generated/prisma'
+import { usePwa } from '@/components/locale'
 
 type DraftRow = NonNullable<AddendaWorkspace['draft']>
 type EntryRow = DraftRow['entries'][number]
@@ -32,11 +33,7 @@ type TargetOption = AddendaWorkspace['targets'][number]
 /// re-encoded as JPEG in this browser first.
 const STORED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
-const CHANGE_LABEL: Record<AddendumChange, string> = {
-  ADDED: 'Added',
-  REPLACED: 'Replaced',
-  REMOVED: 'Removed',
-}
+const CHANGES: AddendumChange[] = ['ADDED', 'REPLACED', 'REMOVED']
 
 const field = 'w-full rounded border border-gray-200 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none'
 
@@ -55,6 +52,7 @@ export function AddendaPanel({
   targets,
   resolvedCases,
 }: AddendaWorkspace & { inspectionId: string }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const run = (work: () => Promise<unknown>) => startTransition(async () => {
@@ -68,12 +66,9 @@ export function AddendaPanel({
 
   return (
     <section className="space-y-3">
-      <h2 className="text-sm font-medium">Updates since signing</h2>
+      <h2 className="text-sm font-medium">{w.updatesSinceSigning}</h2>
       <p className="text-sm text-gray-500">
-        Record a change after signing, such as a replaced appliance, as a dated update. The
-        signed report stays as it was; the update is added after the signatures and counts
-        once the landlord and tenant have both acknowledged it. A party who is with you, or
-        who has no email, can acknowledge in person on this device from the update&apos;s page.
+        {w.updatesIntro}
       </p>
 
       {published.length > 0 && (
@@ -81,11 +76,11 @@ export function AddendaPanel({
           {published.map((row) => (
             <li key={row.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3 text-sm">
               <a href={`/updates/${row.id}`} className="text-link font-medium">
-                Update {row.number}: {row.title}
+                {w.updateTitle(row.number, row.title)}
               </a>
               <span className="text-xs text-gray-500">
                 {row.acknowledgements.map((ack) =>
-                  `${ack.role} ${ack.acknowledgedAt ? `acknowledged${ack.inPerson ? ' in person' : ''}` : 'pending'}`).join(' · ')}
+                  w.ackStatus(ack.role, Boolean(ack.acknowledgedAt), ack.inPerson)).join(' · ')}
               </span>
             </li>
           ))}
@@ -101,13 +96,13 @@ export function AddendaPanel({
           onClick={() => run(() => startAddendum(inspectionId))}
           className="rounded-md border border-gray-300 px-3.5 py-1.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
         >
-          Start an update
+          {w.startUpdate}
         </button>
       )}
 
       {resolvedCases.length > 0 && (
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <h3 className="text-sm font-medium">Resolved repairs</h3>
+          <h3 className="text-sm font-medium">{w.resolvedRepairs}</h3>
           <ul className="mt-2 space-y-2">
             {resolvedCases.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3 text-sm">
@@ -118,7 +113,7 @@ export function AddendaPanel({
                   onClick={() => run(() => addendumFromMaintenanceCase(item.id))}
                   className="shrink-0 rounded-md border border-gray-300 px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Add to the report as an update
+                  {w.addAsUpdate}
                 </button>
               </li>
             ))}
@@ -131,6 +126,7 @@ export function AddendaPanel({
 }
 
 function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string[]; targets: TargetOption[] }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const run = (work: () => Promise<unknown>) => startTransition(async () => {
@@ -156,28 +152,28 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
         }}
         className="space-y-2"
       >
-        <h3 className="text-sm font-medium">Draft update</h3>
+        <h3 className="text-sm font-medium">{w.draftUpdate}</h3>
         <label className="block text-xs font-medium text-gray-600">
-          Title
+          {w.title}
           <input name="title" defaultValue={draft.title} required className={field} />
         </label>
         <label className="block text-xs font-medium text-gray-600">
-          Reason
+          {w.reason}
           <textarea name="reason" defaultValue={draft.reason ?? ''} rows={2} className={field} />
         </label>
         <label className="block text-xs font-medium text-gray-600">
-          Date of the change
+          {w.dateOfChange}
           <input name="effectiveDate" type="date" defaultValue={draft.effectiveDate} required className={field} />
         </label>
         <button type="submit" disabled={pending} className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50">
-          Save details
+          {w.saveDetails}
         </button>
       </form>
 
       {draft.entries.map((entry) => (
         <div key={entry.id} className="rounded border border-gray-200 bg-white p-3">
           {entry.maintenanceCaseTitle && (
-            <p className="mb-2 text-xs text-gray-500">From the repair: {entry.maintenanceCaseTitle}</p>
+            <p className="mb-2 text-xs text-gray-500">{w.fromRepair(entry.maintenanceCaseTitle)}</p>
           )}
           <EntryForm
             addendumId={draft.id}
@@ -190,7 +186,7 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
       ))}
 
       <div className="rounded border border-dashed border-gray-300 bg-white p-3">
-        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Add a change</h4>
+        <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">{w.addChangeHeading}</h4>
         <EntryForm addendumId={draft.id} entry={null} rooms={rooms} targets={targets} />
       </div>
 
@@ -199,23 +195,23 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
           type="button"
           disabled={pending}
           onClick={() => {
-            if (!window.confirm('Publish this update? It cannot be changed afterwards, and the landlord and tenant are asked to acknowledge it.')) return
+            if (!window.confirm(w.publishConfirm)) return
             run(() => publishAddendum(draft.id))
           }}
           className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
         >
-          {pending ? 'Working…' : 'Publish update'}
+          {pending ? w.working : w.publishUpdate}
         </button>
         <button
           type="button"
           disabled={pending}
           onClick={() => {
-            if (!window.confirm('Discard this draft update? Its changes and the photos uploaded to it are deleted.')) return
+            if (!window.confirm(w.discardConfirm)) return
             run(() => discardAddendum(draft.id))
           }}
           className="action-danger ml-3"
         >
-          Discard draft
+          {w.discardDraft}
         </button>
         {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
       </div>
@@ -236,6 +232,7 @@ function EntryForm({
   rooms: string[]
   targets: TargetOption[]
 }) {
+  const w = usePwa()
   const [change, setChange] = useState<AddendumChange>(entry?.change ?? 'ADDED')
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -273,7 +270,7 @@ function EntryForm({
 
   return (
     <form
-      aria-label={entry ? `Change: ${CHANGE_LABEL[entry.change]} ${entry.name ?? ''}`.trim() : 'New change'}
+      aria-label={entry ? w.changeAria(w.addendumChange(entry.change), entry.name ?? '').trim() : w.newChange}
       onSubmit={(e) => {
         e.preventDefault()
         submit(e.currentTarget)
@@ -282,23 +279,23 @@ function EntryForm({
     >
       <div className="flex flex-wrap gap-2">
         <select
-          aria-label="Change"
+          aria-label={w.change}
           value={change}
           onChange={(e) => setChange(e.target.value as AddendumChange)}
           className="rounded border border-gray-200 px-2 py-1.5 text-sm"
         >
-          {(Object.keys(CHANGE_LABEL) as AddendumChange[]).map((value) => (
-            <option key={value} value={value}>{CHANGE_LABEL[value]}</option>
+          {CHANGES.map((value) => (
+            <option key={value} value={value}>{w.addendumChange(value)}</option>
           ))}
         </select>
         {change === 'ADDED' ? (
           <>
             <input
               name="roomName"
-              aria-label="Room"
+              aria-label={w.room}
               list={`${prefix}-rooms`}
               defaultValue={entry?.roomName ?? ''}
-              placeholder="Room"
+              placeholder={w.room}
               required
               className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1.5 text-sm"
             />
@@ -309,12 +306,12 @@ function EntryForm({
         ) : (
           <select
             name="targetKey"
-            aria-label="Item it changes"
+            aria-label={w.itemItChanges}
             defaultValue={entry?.targetKey ?? ''}
             required
             className="min-w-0 flex-1 rounded border border-gray-200 px-2 py-1.5 text-sm"
           >
-            <option value="" disabled>Which item?</option>
+            <option value="" disabled>{w.whichItem}</option>
             {targets.map((target) => <option key={target.key} value={target.key}>{target.label}</option>)}
           </select>
         )}
@@ -322,24 +319,24 @@ function EntryForm({
 
       {change !== 'REMOVED' && (
         <div className="grid gap-2 sm:grid-cols-2">
-          <input name="name" aria-label="New item" placeholder="New item, e.g. Dishwasher" defaultValue={entry?.name ?? ''} required className={field} />
-          <input name="identifier" aria-label="Make, model and serial" placeholder="Make, model and serial" defaultValue={entry?.identifier ?? ''} className={`${field} font-mono`} />
-          <select name="category" aria-label="Category" defaultValue={entry?.category ?? 'APPLIANCE'} className={field}>
-            {CATEGORIES.map((value) => <option key={value} value={value}>{value.toLowerCase()}</option>)}
+          <input name="name" aria-label={w.newItem} placeholder={w.newItemHint} defaultValue={entry?.name ?? ''} required className={field} />
+          <input name="identifier" aria-label={w.makeModelSerial} placeholder={w.makeModelSerial} defaultValue={entry?.identifier ?? ''} className={`${field} font-mono`} />
+          <select name="category" aria-label={w.category} defaultValue={entry?.category ?? 'APPLIANCE'} className={field}>
+            {CATEGORIES.map((value) => <option key={value} value={value}>{w.itemCategory(value)}</option>)}
           </select>
           <div className="flex gap-2">
-            <select name="condition" aria-label="Condition" defaultValue={entry?.condition ?? 'NEW'} className={field}>
-              {CONDITIONS.map((value) => <option key={value} value={value}>{value.toLowerCase()}</option>)}
+            <select name="condition" aria-label={w.conditionLabel} defaultValue={entry?.condition ?? 'NEW'} className={field}>
+              {CONDITIONS.map((value) => <option key={value} value={value}>{w.conditionOption(value)}</option>)}
             </select>
-            <input name="quantity" aria-label="Quantity" type="number" min={1} defaultValue={entry?.quantity ?? 1} className={`${field} w-20`} />
+            <input name="quantity" aria-label={w.quantity} type="number" min={1} defaultValue={entry?.quantity ?? 1} className={`${field} w-20`} />
           </div>
         </div>
       )}
-      <textarea name="notes" aria-label="Notes" placeholder="Notes" defaultValue={entry?.notes ?? ''} rows={2} className={field} />
+      <textarea name="notes" aria-label={w.notes} placeholder={w.notes} defaultValue={entry?.notes ?? ''} rows={2} className={field} />
 
       <div className="flex items-center gap-3">
         <button type="submit" disabled={pending} className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50">
-          {entry ? 'Save change' : 'Add change'}
+          {entry ? w.saveChange : w.addChange}
         </button>
         {entry && (
           <button
@@ -354,7 +351,7 @@ function EntryForm({
             })}
             className="action-danger px-3 text-xs"
           >
-            Remove
+            {w.remove}
           </button>
         )}
       </div>
@@ -373,6 +370,7 @@ const storage = () =>
 /// Photos for one change, from whoever supplied them. Each goes straight from this
 /// browser to storage on a one-shot signed URL, then is registered once it is there.
 function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -384,7 +382,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
         // refuse its format. A HEIC this browser cannot read is refused here, by name.
         const stored = STORED_TYPES.includes(file.type)
         const shrunk = await downscale(file, { always: !stored })
-        if (!shrunk && !stored) throw new Error(`${file.name} is not a photo this browser can read. Choose a JPEG or PNG.`)
+        if (!shrunk && !stored) throw new Error(w.notAPhoto(file.name))
         const photo = shrunk ?? file
         const input = { clientId: crypto.randomUUID(), mimeType: photo.type }
         const { storagePath, signedUrl, token } = await requestAddendumPhotoUpload(entry.id, addendumId, input)
@@ -407,7 +405,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
             <figure key={photo.id} className="relative">
               <div className="relative rounded border border-gray-200">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={photo.posterUrl ?? photo.url} alt={photo.note ?? photo.label ?? 'Update photo'} className="block h-24 w-full object-contain" />
+                <img src={photo.posterUrl ?? photo.url} alt={photo.note ?? photo.label ?? w.updatePhoto} className="block h-24 w-full object-contain" />
                 <MarkOverlay annotations={photo.annotations} />
               </div>
               <figcaption className="flex flex-wrap items-center justify-between gap-1 text-xs text-gray-500">
@@ -424,7 +422,7 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
                   })}
                   className="action-danger px-2 text-xs"
                 >
-                  Remove
+                  {w.remove}
                 </button>
               </figcaption>
             </figure>
@@ -432,13 +430,13 @@ function Photos({ addendumId, entry }: { addendumId: string; entry: EntryRow }) 
         </div>
       )}
       <label className="action-secondary cursor-pointer px-3 text-xs">
-        {pending ? 'Uploading…' : 'Add photos'}
+        {pending ? w.uploading : w.addPhotos}
         <input
           type="file"
           accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           multiple
           disabled={pending}
-          aria-label={`Photos for ${entry.name ?? entry.roomName}`}
+          aria-label={w.photosFor(entry.name ?? entry.roomName)}
           onChange={(e) => {
             // Copied out first: clearing the input empties its live FileList.
             const files = Array.from(e.currentTarget.files ?? [])

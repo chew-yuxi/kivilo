@@ -906,3 +906,51 @@ manages an existing subscription. Comps go through `pnpm plan:set`; buying is un
   2026-10-18 UX review called photo-to-line linking missing when the app's edit sheet
   and the PDF both had it, and called the list unreachable when the logo links to it.
   Before calling anything missing, grep `mobile/lib` and `src/lib/report-pdf/` too.
+
+## Languages
+
+The Flutter app speaks English, Simplified Chinese (as written in Singapore and Malaysia)
+and Thai (`plans/translations.md`). Every string a person reads lives in
+`mobile/lib/l10n/app_en.arb`, with the same key in `app_zh.arb` and `app_th.arb`;
+`flutter gen-l10n` writes `app_localizations*.dart` beside them, and those are committed
+so a patch compiles what was reviewed. Code reads text through `t` from
+`lib/l10n/l10n.dart`, which needs no `BuildContext`, so `ApiFailure`, model labels and
+notifications are translated too. A status or category code is shown through its label
+map (`itemConditionLabels`, `findingVerdictLabels`, `maintenanceCategoryLabels`), never
+by reformatting the code. `test/l10n_test.dart` fails if a key or placeholder is missing
+from either translation. Server text the app shows is rebuilt from data where it
+can be (cost terms from a proposal's fields, `costAgreementTerms`); team refusals arrive
+as English sentences, and `api_failure.dart` maps each known one, so a new
+`AgencyActionError` message needs a key there too.
+
+The language is a phone setting in Account, or the phone's own language. The report
+itself is not translated: the PDF, the shared report and every inventory line stay as
+written, since they are what both parties sign.
+
+**The account's language.** `Stakeholder.locale` (`en`, `zh`, `th`; null is never
+chosen and reads as English). The app reports the language it is showing through `PUT
+/api/v1/me/language`; the web sets it from the picker on Account (`setLanguage`), and a
+web sign-in with none stored records the browser's `Accept-Language`. Older app builds
+never call it and stay English.
+
+**Server text.** Typed catalogs in `src/lib/i18n/` (`en.ts` defines `Messages`; `zh.ts`
+and `th.ts` are typed against it, so a missing message fails `tsc`), with the web app's
+words under `pwa` in `src/lib/i18n/pwa/`. A notification is written in its recipient's
+language when it is created: pass rows with `words: (m) => ({ title, body })` through
+`inRecipientLanguage`, which is what the inbox, the push and the notification email all
+read, so a new notification kind must be written that way. Emails take the recipient's
+catalog at send time (`messages(recipient.locale)`); the sign-in code email looks the
+address up. Dates go through `formatDate(m, ...)`, in Singapore time.
+
+**Web pages.** `requestLocale(person)` is the signed-in person's stored language, else
+the browser's, else English. The language is never in the URL, so every link already
+sent keeps working. `/login` reads only the browser's, so it never reveals whether an
+address has an account. Under `(app)` the layout sets `LocaleProvider`, and client
+components read `usePwa()`; a server component reads `messages(locale).pwa`. Codes
+(conditions, categories, statuses) go through a label function in the catalog whose
+English is the code as it was shown before. Team refusals carry no code, so
+`refusalText` in `src/lib/i18n/refusals.ts` maps the known sentences.
+
+Still English by design: the report, its PDF and the shared report, room template rows
+and room-name suggestions (they become report text), `/admin`, `/verify`, and zod
+validation messages.

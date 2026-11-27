@@ -1,5 +1,7 @@
 'use client'
 
+import { useLocale, usePwa } from '@/components/locale'
+import { formatDate, messages } from '@/lib/i18n'
 import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -13,6 +15,8 @@ type Property = Awaited<ReturnType<typeof propertyManagement>>
 type Action = Parameters<typeof updatePropertyFromWeb>[1]['action']
 
 export function PropertySettings({ property }: { property: Property }) {
+  const w = usePwa()
+  const m = messages(useLocale())
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -38,15 +42,15 @@ export function PropertySettings({ property }: { property: Property }) {
         setConfirmation('')
         setNotice(
           action === 'archive'
-            ? 'Property archived. Reports and history are preserved.'
+            ? w.archivedNotice
             : action === 'unarchive'
-              ? 'Property returned to active work.'
+              ? w.unarchivedNotice
               : action === 'trash'
-                ? 'Property moved to Recently deleted. You can restore it within 30 days.'
-                : 'Property restored.',
+                ? w.trashedNotice
+                : w.restoredNotice,
         )
       } catch {
-        setError('Could not update this property. Please try again.')
+        setError(w.updatePropertyFailed)
       }
     })
   }
@@ -56,17 +60,17 @@ export function PropertySettings({ property }: { property: Property }) {
         className="text-link inline-flex min-h-11 items-center text-sm"
         href={property.state === 'TRASHED' ? '/properties?filter=trash' : `/properties/${property.id}`}
       >
-        {property.state === 'TRASHED' ? '← Recently deleted' : '← Property'}
+        {property.state === 'TRASHED' ? w.recentlyDeletedLabel : w.propertyLabel}
       </Link>
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Property settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">{w.propertySettings}</h1>
         <p className="mt-2 break-words text-gray-700">{property.label}</p>
         <p className="mt-2 inline-block rounded-md bg-gray-100 px-3 py-1 text-xs font-medium">
           {property.state === 'TRASHED'
-            ? 'Recently deleted'
+            ? w.recentlyDeleted
             : property.state === 'ARCHIVED'
-              ? 'Archived'
-              : 'Active'}
+              ? w.archived
+              : w.active}
         </p>
       </div>
       {error && (
@@ -80,19 +84,16 @@ export function PropertySettings({ property }: { property: Property }) {
         </p>
       )}
       <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="font-semibold">Property records</h2>
+        <h2 className="font-semibold">{w.propertyRecords}</h2>
         <p className="text-sm text-gray-600">
-          {property.counts.tenancies} {property.counts.tenancies === 1 ? 'tenancy' : 'tenancies'} ·{' '}
-          {property.counts.inspections}{' '}
-          {property.counts.inspections === 1 ? 'inspection' : 'inspections'} ·{' '}
-          {property.counts.photos} {property.counts.photos === 1 ? 'photo' : 'photos'}
+          {w.recordCounts(property.counts.tenancies, property.counts.inspections, property.counts.photos)}
         </p>
         <ul className="space-y-3">
           {property.tenancies.map((tenancy) => (
             <li key={tenancy.id} className="border-t border-gray-100 pt-3 text-sm">
-              <p>{tenancy.agencyName ?? 'Personal tenancy'}</p>
+              <p>{tenancy.agencyName ?? w.personalTenancy}</p>
               <p className="mt-1 text-gray-600">
-                Responsible agent: {tenancy.leadAgentName ?? 'Unassigned'}
+                {w.responsibleAgentName(tenancy.leadAgentName ?? w.unassigned)}
               </p>
               {property.state !== 'TRASHED' && (
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -102,7 +103,7 @@ export function PropertySettings({ property }: { property: Property }) {
                       key={inspection.id}
                       href={`/inspections/${inspection.id}`}
                     >
-                      {inspection.kind === 'CHECK_IN' ? 'Open check-in' : 'Open check-out'}
+                      {inspection.kind === 'CHECK_IN' ? w.openCheckIn : w.openCheckOut}
                       <span aria-hidden="true">›</span>
                     </Link>
                   ))}
@@ -113,12 +114,9 @@ export function PropertySettings({ property }: { property: Property }) {
         </ul>
       </section>
       <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="font-semibold">History</h2>
-        <p className="text-sm text-gray-600">
-          Every change and deletion, with who made it. Deleted rooms, lines, photos and findings can be restored for 30 days.
-        </p>
-        <Link className="action-secondary" href={`/properties/${property.id}/history`}>
-          View history<span aria-hidden="true">›</span>
+        <h2 className="font-semibold">{w.history}</h2>
+        <p className="text-sm text-gray-600">{w.everyChangeAndDeletionWithWhoMadeLabel}</p>
+        <Link className="action-secondary" href={`/properties/${property.id}/history`}>{w.viewHistory}<span aria-hidden="true">›</span>
         </Link>
       </section>
       <section
@@ -126,63 +124,57 @@ export function PropertySettings({ property }: { property: Property }) {
         className="space-y-5 rounded-lg border border-red-200 bg-white p-5"
       >
         <h2 id="danger-zone-title" className="text-lg font-semibold text-red-800">
-          Danger zone
+          {w.dangerZone}
         </h2>
         {!property.canManage ? (
           <div className="space-y-4">
             <LockedAction
-              label={property.state === 'TRASHED' ? 'Restore property' : property.state === 'ARCHIVED' ? 'Unarchive property' : 'Archive property'}
+              label={property.state === 'TRASHED' ? 'Restore property' : property.state === 'ARCHIVED' ? w.unarchiveProperty : w.archiveProperty}
               who={propertyManagers}
               askNames={property.askNames}
             />
             {property.state !== 'TRASHED' && (
-              <LockedAction label="Delete property" who={propertyManagers} askNames={property.askNames} className="action-danger" />
+              <LockedAction label={w.deletePropertyButton} who={propertyManagers} askNames={property.askNames} className="action-danger" />
             )}
           </div>
         ) : property.state === 'TRASHED' ? (
           <div className="space-y-3">
-            <h3 className="font-medium">Restore property</h3>
+            <h3 className="font-medium">{w.restoreProperty}</h3>
             <p className="text-sm text-gray-600">
-              This property and its drafts are in Recently deleted.{' '}
+              {w.inRecentlyDeleted}{' '}
               {property.trashExpiresAt &&
-                `Restore before ${new Date(property.trashExpiresAt).toLocaleDateString('en-SG', { dateStyle: 'long' })}.`}{' '}
-              After the recovery period, its draft records and stored media are permanently removed.
+                w.restoreBefore(formatDate(m, new Date(property.trashExpiresAt), { dateStyle: 'long' }))}{' '}
+              {w.afterRecovery}
             </p>
             <button className="action-primary" disabled={pending} onClick={() => change('restore')}>
-              Restore property
+              {w.restorePropertyButton}
             </button>
           </div>
         ) : (
           <>
             <div className="space-y-3">
               <h3 className="font-medium">
-                {property.state === 'ARCHIVED' ? 'Return to active work' : 'Archive property'}
+                {property.state === 'ARCHIVED' ? w.returnToActive : w.archiveProperty}
               </h3>
               <p className="text-sm text-gray-600">
                 {property.state === 'ARCHIVED'
-                  ? 'Put this property back in the active portfolio. Its records and access stay the same.'
-                  : 'Remove this property from active work. Reports, signatures, photos and history remain available under Archived. You can bring it back at any time.'}
+                  ? w.unarchiveBody
+                  : w.archiveBody}
               </p>
               <button
                 className="action-secondary"
                 disabled={pending}
                 onClick={() => change(property.state === 'ARCHIVED' ? 'unarchive' : 'archive')}
               >
-                {property.state === 'ARCHIVED' ? 'Unarchive property' : 'Archive property'}
+                {property.state === 'ARCHIVED' ? w.unarchiveProperty : w.archiveProperty}
               </button>
             </div>
             <div className="space-y-3 border-t border-red-100 pt-5">
-              <h3 className="font-medium text-red-800">Delete property</h3>
+              <h3 className="font-medium text-red-800">{w.deleteProperty}</h3>
               {property.canDelete ? (
                 <>
                   <p className="text-sm text-gray-600">
-                    Delete a mistaken or draft-only property. This removes{' '}
-                    {property.counts.tenancies}{' '}
-                    {property.counts.tenancies === 1 ? 'tenancy' : 'tenancies'},{' '}
-                    {property.counts.inspections}{' '}
-                    {property.counts.inspections === 1 ? 'inspection' : 'inspections'} and{' '}
-                    {property.counts.photos} {property.counts.photos === 1 ? 'photo' : 'photos'}{' '}
-                    from active work. You have 30 days to restore it before permanent removal.
+                    {w.deleteBody(property.counts.tenancies, property.counts.inspections, property.counts.photos)}
                   </p>
                   {!confirmDelete ? (
                     <button
@@ -190,7 +182,7 @@ export function PropertySettings({ property }: { property: Property }) {
                       disabled={pending}
                       onClick={() => setConfirmDelete(true)}
                     >
-                      Delete property
+                      {w.deletePropertyButton}
                     </button>
                   ) : (
                     <form
@@ -201,12 +193,10 @@ export function PropertySettings({ property }: { property: Property }) {
                       }}
                     >
                       <p className="text-sm text-red-900">
-                        Move all these draft records to Recently deleted? Any photos still waiting
-                        on a phone stay on that phone and cannot upload until the property is
-                        restored.
+                        {w.trashConfirmBody}
                       </p>
                       <label className="block text-sm font-medium" htmlFor="delete-confirmation">
-                        Type the full property address to confirm
+                        {w.typeAddress}
                       </label>
                       <p className="select-all break-words text-sm text-gray-700">
                         {property.confirmationLabel}
@@ -224,7 +214,7 @@ export function PropertySettings({ property }: { property: Property }) {
                           className="action-danger"
                           disabled={pending || confirmation !== property.confirmationLabel}
                         >
-                          Move to Recently deleted
+                          {w.moveToRecentlyDeleted}
                         </button>
                         <button
                           type="button"
@@ -235,14 +225,14 @@ export function PropertySettings({ property }: { property: Property }) {
                             setConfirmation('')
                           }}
                         >
-                          Cancel
+                          {w.cancel}
                         </button>
                       </div>
                     </form>
                   )}
                 </>
               ) : (
-                <p className="text-sm text-gray-600">{property.deleteBlockedReason}</p>
+                <p className="text-sm text-gray-600">{w.propertyHasHistory}</p>
               )}
             </div>
           </>
