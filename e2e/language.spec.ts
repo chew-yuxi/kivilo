@@ -55,10 +55,11 @@ test('an agent chooses Chinese on Account and the app stays in it', async ({ pag
     }
     await page.setViewportSize({ width: 360, height: 800 })
     await page.goto('/inspections/new')
-    const create = page.locator('form button[type="submit"].action-primary')
+    const checkInForm = page.locator('form').filter({ has: page.locator('input[name="startDate"]') })
+    const create = checkInForm.locator('button[type="submit"].action-primary')
     await expect(create).toHaveCount(1)
     const button = (await create.boundingBox())!
-    const form = (await page.locator('form').filter({ has: create }).boundingBox())!
+    const form = (await checkInForm.boundingBox())!
     expect(button.width).toBeCloseTo(form.width, 0)
     expect(button.height).toBeGreaterThanOrEqual(50)
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
