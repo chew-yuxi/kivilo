@@ -32,7 +32,7 @@ export function ShareReport({
           type="button"
           disabled={pending}
           onClick={() => startTransition(() => void shareReport(inspectionId))}
-          className="mt-4 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+          className="action-primary mt-4"
         >
           {pending ? w.creating : w.createReportLink}
         </button>
@@ -59,7 +59,7 @@ export function ShareReport({
               setTimeout(() => setCopied(false), 2000)
             })
           }}
-          className="rounded-md bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600"
+          className="action-primary w-auto"
         >
           {copied ? w.copied : w.copy}
         </button>
@@ -67,7 +67,7 @@ export function ShareReport({
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
+          className="action-secondary"
         >
           {w.preview}
         </a>

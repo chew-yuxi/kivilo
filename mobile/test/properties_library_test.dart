@@ -666,7 +666,7 @@ void main() {
   testWidgets('an empty list explains the first check-in', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
-    expect(find.text('Start check-in'), findsOneWidget);
+    expect(find.text('New check-in'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     expect(tester.takeException(), isNull);
   });

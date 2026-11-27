@@ -152,7 +152,7 @@ export function SignatureCanvas({
           type="button"
           disabled={!hasInk || pending || blocked}
           onClick={sign}
-          className="action-primary min-h-11"
+          className="action-primary w-auto"
         >
           {words.sign}
         </button>

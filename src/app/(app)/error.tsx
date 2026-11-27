@@ -31,17 +31,17 @@ export default function AppError({
       {error.digest && (
         <p className="mt-3 font-mono text-xs text-gray-400">{w.reference(error.digest)}</p>
       )}
-      <div className="mt-6 flex justify-center gap-3">
+      <div className="action-group mt-6 justify-center">
         <button
           type="button"
           onClick={reset}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+          className="action-primary"
         >
           {w.tryAgain}
         </button>
         <Link
           href="/inspections"
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+          className="action-secondary"
         >
           {w.allInspectionsLink}
         </Link>

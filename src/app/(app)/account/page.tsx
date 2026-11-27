@@ -153,21 +153,21 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
                   <label className="block text-sm text-gray-700">{w.seatsAtS39EachMonth}<input className="ml-3 w-20 rounded-md border border-gray-300 px-2 py-1" type="number" name="seats" min={workspace.seatsNeeded} max={1000} defaultValue={workspace.seatsNeeded} required />
                   </label>
                 )}
-                <button className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600">
+                <button className="action-primary">
                   {w.upgradeToPro}
                 </button>
               </form>
             )}
             {play && workspace.isManager && (
-              <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener noreferrer" className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{w.manageInGooglePlay}</a>
+              <a href="https://play.google.com/store/account/subscriptions" target="_blank" rel="noopener noreferrer" className="action-secondary">{w.manageInGooglePlay}</a>
             )}
             {apple && workspace.isManager && (
-              <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer" className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">{w.manageInTheAppStore}</a>
+              <a href="https://apps.apple.com/account/subscriptions" target="_blank" rel="noopener noreferrer" className="action-secondary">{w.manageInTheAppStore}</a>
             )}
             {managesBilling && (
               <form action={openBillingPortal}>
                 <input type="hidden" name="agencyId" value={agencyId ?? 'personal'} />
-                <button className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <button className="action-secondary">
                   {w.manageBilling}
                 </button>
               </form>

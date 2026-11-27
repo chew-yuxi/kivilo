@@ -53,7 +53,15 @@ test('an agent chooses Chinese on Account and the app stays in it', async ({ pag
       await page.getByLabel('语言').selectOption(locale)
       await expect(page.getByLabel('ภาษา')).toHaveValue(locale)
     }
+    await page.setViewportSize({ width: 360, height: 800 })
     await page.goto('/inspections/new')
+    const create = page.locator('form button[type="submit"].action-primary')
+    await expect(create).toHaveCount(1)
+    const button = (await create.boundingBox())!
+    const form = (await page.locator('form').filter({ has: create }).boundingBox())!
+    expect(button.width).toBeCloseTo(form.width, 0)
+    expect(button.height).toBeGreaterThanOrEqual(50)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
     await expect(page.getByRole('combobox', { name: team, exact: true })).toBeVisible()
     const term = page.getByRole('combobox', { name: length, exact: true })
     await term.selectOption({ label: years })

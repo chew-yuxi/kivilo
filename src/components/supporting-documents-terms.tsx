@@ -160,7 +160,7 @@ export function AgreementTermsPanel({ tenancyId, viewerId, file, agreement, curr
             <textarea required={rule === 'OTHER'} maxLength={2000} rows={3} value={notes} disabled={saving} onChange={(event) => setNotes(event.target.value)} className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-base font-normal" />
           </label>
           <p className="text-xs text-gray-500">{w.confirmOnlyWhatTheAgreementSaysThese}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="action-group">
             <button type="submit" disabled={saving || loading} className="action-primary">{saving ? w.confirming : w.confirmMaintenanceTerms}</button>
             <button type="button" disabled={saving} className="action-secondary" onClick={() => setEditing(false)}>{w.cancel}</button>
           </div>

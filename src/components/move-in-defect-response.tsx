@@ -33,12 +33,12 @@ export function MoveInDefectResponse({ addendumId, locale }: { addendumId: strin
     <div>
       <h2 className="text-base font-semibold">{words.question}</h2>
       <p className="mt-1 text-sm text-gray-700">{words.explain}</p>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="action-group mt-4">
         <button
           type="button"
           disabled={!hydrated || pending}
           onClick={() => answer(false)}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+          className="action-secondary"
         >
           {pending ? web.recording : words.agree}
         </button>
@@ -46,7 +46,7 @@ export function MoveInDefectResponse({ addendumId, locale }: { addendumId: strin
           type="button"
           disabled={!hydrated || pending}
           onClick={() => setDisputing(!disputing)}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
+          className="action-secondary"
         >
           {disputing ? words.cancelDispute : web.dispute}
         </button>
@@ -66,7 +66,7 @@ export function MoveInDefectResponse({ addendumId, locale }: { addendumId: strin
           <button
             type="submit"
             disabled={!hydrated || pending || !reason.trim()}
-            className="mt-3 rounded-md border border-gray-300 px-4 py-2 text-sm font-medium disabled:opacity-50"
+            className="action-primary mt-3"
           >
             {web.recordDispute}
           </button>

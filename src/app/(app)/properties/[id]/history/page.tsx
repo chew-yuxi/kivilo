@@ -42,7 +42,7 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
             key={value}
             href={value === 'all' ? `/properties/${id}/history` : `/properties/${id}/history?filter=deletions`}
             aria-current={filter === value ? 'page' : undefined}
-            className={filter === value ? 'action-primary' : 'action-secondary'}
+            className="action-filter"
           >
             {value === 'all' ? w.allChanges : w.deletions}
           </Link>

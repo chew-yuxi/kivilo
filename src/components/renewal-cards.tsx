@@ -35,8 +35,8 @@ export function RenewalCards({ renewals }: { renewals: RenewalCard[] }) {
             </div>
             <button type="button" aria-label={w.dismissRenewal(renewal.property)} disabled={pending} onClick={() => respond(renewal.id, 'DISMISSED')} className="action-secondary min-w-11 px-2">×</button>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
-            <Link href={`/renewals/${renewal.id}`} className="rounded-md bg-brand-500 px-3 py-2 font-medium text-white hover:bg-brand-600">{w.startRenewal}</Link>
+          <div className="mt-4 action-group text-sm">
+            <Link href={`/renewals/${renewal.id}`} className="action-primary">{w.startRenewal}</Link>
             <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'NOT_RENEWING')} className="action-secondary">{w.notRenewing}</button>
             <button type="button" disabled={pending} onClick={() => respond(renewal.id, 'LATER')} className="action-secondary">{w.remindWeek}</button>
           </div>

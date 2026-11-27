@@ -41,7 +41,7 @@ export function CheckOutButton({
             router.push(`/inspections/${id}`)
           })
         }
-        className="mt-4 rounded-md border border-gray-300 px-3.5 py-1.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+        className="action-secondary mt-4"
       >
         {pending ? w.creating : w.startCheckOut}
       </button>

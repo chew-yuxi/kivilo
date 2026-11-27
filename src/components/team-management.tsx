@@ -102,7 +102,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
               <p className="mt-2 text-sm text-gray-600">
                 {w.joiningNote}
               </p>
-              <div className="mt-3 flex gap-2">
+              <div className="mt-3 action-group">
                 <button
                   className="action-primary"
                   disabled={mutation.pending}
@@ -226,7 +226,7 @@ export function TeamWorkspace({ data, viewerId }: { data: Workspace; viewerId: s
             ? w.managersOversee
             : w.yourTeamWork}
         </p>
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 action-group">
           <Link href={`/inspections/new?workspace=${encodeURIComponent(data.id)}`} className="action-primary">{w.newCheckIn}</Link>
           <Link href={`/inspections?workspace=${encodeURIComponent(data.id)}`} className="action-secondary">{w.openPortfolio}</Link>
         </div>

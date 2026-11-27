@@ -151,7 +151,7 @@ function AddFinding({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        className="action-primary"
       >
         {pending ? w.adding : w.addFinding}
       </button>
@@ -385,7 +385,7 @@ export function FindingsPanel({
               setPublishError(error instanceof Error ? error.message : w.couldNotPublishTheAssessment)
             }
           })}
-          className="mt-3 rounded-md bg-brand-600 px-3 py-2 font-medium text-white disabled:opacity-50"
+          className="action-primary mt-3"
         >
           {pending ? w.publishing : empty ? w.publishNoDamage : w.publishAssessment}
         </button>

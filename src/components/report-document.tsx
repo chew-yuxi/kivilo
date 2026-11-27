@@ -144,7 +144,7 @@ export async function ReportDocument({
           {pdfHref && (
             <a
               href={pdfHref}
-              className="self-start rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium hover:bg-gray-50 print:hidden"
+              className="action-secondary print:hidden"
             >
               Download PDF
             </a>

@@ -107,7 +107,7 @@ export function RoomCapture({
       {upNext && (
         <Link
           href={roomHref(inspectionId, upNext)}
-          className="block w-full rounded-lg bg-brand-500 px-4 py-3.5 text-center text-base font-semibold text-white active:bg-brand-600"
+          className="action-primary"
         >
           {upNext.status === 'PENDING' ? w.startWith(upNext.name) : w.continueWith(upNext.name)}
         </Link>
@@ -157,7 +157,7 @@ export function RoomCapture({
                 setCustomName('')
               })
             }
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm active:bg-gray-100 disabled:opacity-40"
+            className="action-secondary"
           >
             {w.add}
           </button>

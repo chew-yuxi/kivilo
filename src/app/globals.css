@@ -10,6 +10,7 @@
   --color-brand-500: #ec4899;
   --color-brand-600: #db2777;
   --color-brand-700: #be185d;
+  --color-ink: #111827;
 }
 
 body {
@@ -28,14 +29,31 @@ body {
 }
 
 @layer components {
-  .action-primary, .action-secondary, .action-danger {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50;
+  .action-primary, .action-secondary, .action-danger, .action-danger-confirm, .action-filter {
+    @apply inline-flex min-h-[50px] items-center justify-center gap-2 rounded-xl border px-4 py-3 text-center text-[15px] leading-5 font-semibold transition-colors;
   }
-  .action-primary { @apply border-brand-600 bg-brand-600 text-white hover:bg-brand-700; }
-  .action-secondary { @apply border-gray-300 bg-white text-gray-800 hover:bg-gray-100; }
-  .action-danger { @apply border-red-300 bg-white text-red-700 hover:bg-red-50; }
+  .action-primary {
+    @apply w-full border-transparent bg-brand-500 text-ink;
+  }
+  .action-primary:hover:not(:disabled) { background-color: color-mix(in srgb, var(--color-brand-500), white 10%); }
+  .action-primary:active:not(:disabled) { background-color: color-mix(in srgb, var(--color-brand-500), white 18%); }
+  .action-secondary { @apply border-transparent bg-brand-50 text-brand-700 hover:bg-brand-100; }
+  .action-danger { @apply border-red-700 bg-white text-red-700 hover:bg-red-50; }
+  .action-danger-confirm { @apply border-transparent bg-red-700 text-white hover:bg-red-800; }
+  .action-primary:disabled, .action-secondary:disabled, .action-danger:disabled, .action-danger-confirm:disabled {
+    @apply cursor-not-allowed border-transparent bg-gray-100 text-gray-600;
+  }
+  .action-filter { @apply min-h-11 shrink-0 whitespace-nowrap rounded-full border-gray-300 bg-white px-3 py-2 text-sm text-gray-700; }
+  .action-filter[aria-current="page"] { @apply border-brand-700 bg-brand-50 text-brand-700; }
+  .action-group { @apply flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center; }
+  @media (width >= 40rem) {
+    .action-group > .action-primary:not(:only-child) { width: auto; }
+  }
+  .nav-tab { @apply inline-flex min-h-12 shrink-0 items-center border-b-2 border-transparent px-3 font-medium text-gray-600; }
+  .nav-tab[aria-current] { @apply border-brand-700 text-brand-700; }
+  .nav-tab:focus-visible { outline-offset: -3px; }
   .text-link { @apply text-brand-700 underline decoration-1 underline-offset-4 hover:decoration-2; }
   .nav-row { @apply flex min-h-14 items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm font-medium hover:border-brand-200 hover:bg-brand-50; }
-  .field { @apply min-h-11 w-full min-w-0 rounded-md border border-gray-300 bg-white px-3 py-2 text-base disabled:opacity-50; }
-  .app-shell button, .app-shell summary { min-height: 44px; }
+  .field { @apply min-h-12 w-full min-w-0 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-base font-normal text-ink disabled:bg-gray-100; }
+  :where(.app-shell button, .app-shell summary) { min-height: 44px; }
 }

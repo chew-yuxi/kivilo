@@ -80,6 +80,15 @@ test('team creation uses its own plan and changing workspace keeps the entered f
 test('the selected tenancy length fills the last day and preserves custom dates', async ({ page }) => {
   await signIn(page, freshEmail('tenancy-dates'))
   await page.goto('/inspections/new')
+  await expect(page.getByRole('navigation', { name: 'Main menu' }).getByRole('link', { name: 'My work' }))
+    .toHaveAttribute('aria-current', 'location')
+  const submit = page.getByRole('button', { name: 'Create and start capturing' })
+  await expect(submit).toHaveCSS('background-color', 'rgb(236, 72, 153)')
+  await expect(submit).toHaveCSS('color', 'rgb(17, 24, 39)')
+  const form = (await page.locator('form').filter({ has: submit }).boundingBox())!
+  const action = (await submit.boundingBox())!
+  expect(action.width).toBeCloseTo(form.width, 0)
+  expect(action.height).toBeGreaterThanOrEqual(50)
   const start = page.locator('input[name=startDate]')
   const end = page.locator('input[name=endDate]')
   const length = page.getByLabel('Tenancy length')

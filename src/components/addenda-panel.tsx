@@ -94,7 +94,7 @@ export function AddendaPanel({
           type="button"
           disabled={pending}
           onClick={() => run(() => startAddendum(inspectionId))}
-          className="rounded-md border border-gray-300 px-3.5 py-1.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+          className="action-secondary"
         >
           {w.startUpdate}
         </button>
@@ -111,7 +111,7 @@ export function AddendaPanel({
                   type="button"
                   disabled={pending}
                   onClick={() => run(() => addendumFromMaintenanceCase(item.id))}
-                  className="shrink-0 rounded-md border border-gray-300 px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50"
+                  className="action-secondary shrink-0"
                 >
                   {w.addAsUpdate}
                 </button>
@@ -165,7 +165,7 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
           {w.dateOfChange}
           <input name="effectiveDate" type="date" defaultValue={draft.effectiveDate} required className={field} />
         </label>
-        <button type="submit" disabled={pending} className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50">
+        <button type="submit" disabled={pending} className="action-secondary">
           {w.saveDetails}
         </button>
       </form>
@@ -198,7 +198,7 @@ function DraftEditor({ draft, rooms, targets }: { draft: DraftRow; rooms: string
             if (!window.confirm(w.publishConfirm)) return
             run(() => publishAddendum(draft.id))
           }}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+          className="action-primary"
         >
           {pending ? w.working : w.publishUpdate}
         </button>
@@ -335,7 +335,7 @@ function EntryForm({
       <textarea name="notes" aria-label={w.notes} placeholder={w.notes} defaultValue={entry?.notes ?? ''} rows={2} className={field} />
 
       <div className="flex items-center gap-3">
-        <button type="submit" disabled={pending} className="rounded-md border border-gray-300 bg-white px-3 py-1 text-xs font-medium hover:bg-gray-50 disabled:opacity-50">
+        <button type="submit" disabled={pending} className="action-secondary">
           {entry ? w.saveChange : w.addChange}
         </button>
         {entry && (

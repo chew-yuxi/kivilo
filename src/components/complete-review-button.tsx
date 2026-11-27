@@ -36,7 +36,7 @@ export function CompleteReviewButton({
   }
 
   return (
-    <div className="flex items-center justify-end gap-4 rounded-lg border border-gray-200 bg-white px-5 py-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end rounded-lg border border-gray-200 bg-white px-5 py-4">
       <div className="flex-1 text-sm text-gray-600">
         <p>{unsent > 0
           ? w.capturesStillSaved(unsent)
@@ -52,7 +52,7 @@ export function CompleteReviewButton({
         type="button"
         disabled={pending || !online || unsent > 0}
         onClick={() => void send()}
-        className="shrink-0 rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-50"
+        className="action-primary sm:w-auto sm:shrink-0"
       >
         {w.sendForSignature}
       </button>
