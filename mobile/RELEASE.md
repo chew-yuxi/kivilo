@@ -5,6 +5,12 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Google Play production submission · 27 November 2026
+
+Google Play accepted the signed Android bundle for version 1.0.1, build 30. Its SHA-256 matched the verified candidate below. The release preview showed build 30 alone, a 100% rollout, and Singapore as the sole targeted country. Play Console’s Publishing overview listed one submitted production change for build 30 under **Changes in review**, initially running its automated checks.
+
+Managed publishing is on. After Google approves build 30, verify the production version and the scope of the publish action. At submission, Play showed five older approved changes in a separate group: build 27, two English listing edits, the privacy policy URL and the Data safety form. The last public production build at submission was 25. [Play Console production](https://play.google.com/console/u/0/developers/8982183772541615481/app/4975629300074157006/tracks/production)
+
 ## Handover validation and deposit statements · 27 November 2026
 
 Server `05cb1f1` runs on both production app domains. Migration `20261127010000_tenancy_amounts_entered` added two nullable flags. Legacy signed fingerprints keep their original inputs. A deposit first supplied at check-out belongs to the published assessment. The Malaysian pilot signed both inventories with a blank deposit, then published RM2,000 less RM250 and showed RM1,750 to the tenant. A repeat publication returned the same version.
