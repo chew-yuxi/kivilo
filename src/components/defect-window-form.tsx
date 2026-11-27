@@ -34,9 +34,9 @@ export function DefectWindowForm({ tenancyId, inspectionId, windowDays, deadline
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">
           {w.calendarDays}
-          <input name="days" type="number" min={0} max={365} step={1} defaultValue={windowDays} required className="mt-1 block w-28 rounded-md border border-gray-300 px-3 py-2" />
+          <input name="days" type="number" min={0} max={365} step={1} defaultValue={windowDays} required className="field mt-1 block w-28" />
         </label>
-        <button type="submit" disabled={pending} className="rounded-md border border-gray-300 px-3 py-2 text-sm font-medium disabled:opacity-50">
+        <button type="submit" disabled={pending} className="action-secondary">
           {pending ? w.saving : w.savePeriod}
         </button>
       </div>

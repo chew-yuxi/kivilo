@@ -144,7 +144,7 @@ export async function ReportDocument({
           {pdfHref && (
             <a
               href={pdfHref}
-              className="action-secondary print:hidden"
+              className="action-secondary self-start print:hidden"
             >
               Download PDF
             </a>
