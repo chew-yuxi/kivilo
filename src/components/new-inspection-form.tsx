@@ -1,5 +1,6 @@
 'use client'
 
+import { TenancyPeriodFields } from './tenancy-period-fields'
 import Link from 'next/link'
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -13,16 +14,6 @@ const PROPERTY_TYPES: PropertyType[] = ['PRIVATE_NON_LANDED', 'HDB', 'LANDED', '
 const field =
   'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none'
 const requirement = 'ml-1 font-normal text-gray-400'
-
-/// A two year tenancy is the common case in Singapore, so the dates start there and
-/// the agent adjusts rather than fills in from empty.
-function defaultDates() {
-  const start = new Date()
-  const end = new Date(start)
-  end.setFullYear(end.getFullYear() + 2)
-  const iso = (d: Date) => d.toISOString().slice(0, 10)
-  return { start: iso(start), end: iso(end) }
-}
 
 export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial, plans }: {
   agentId: string
@@ -39,7 +30,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
   useEffect(() => {
     if (rememberInitial) rememberWorkspace(agentId, initialWorkspace)
   }, [agentId, initialWorkspace, rememberInitial])
-  const dates = defaultDates()
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' })
   const plan = plans[workspace]
   const limited = plan.needsMoreSeats || plan.active >= plan.limit
 
@@ -205,14 +196,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">{w.tenancy}</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-xs font-medium text-gray-600">
-            {w.starts} <span className={requirement}>{w.required}</span>
-            <input name="startDate" type="date" required defaultValue={dates.start} className={field} />
-          </label>
-          <label className="block text-xs font-medium text-gray-600">
-            {w.ends} <span className={requirement}>{w.required}</span>
-            <input name="endDate" type="date" required defaultValue={dates.end} className={field} />
-          </label>
+          <TenancyPeriodFields initialStart={today} field={field} />
           <label className="block text-xs font-medium text-gray-600">
             {w.monthlyRent} <span className={requirement}>{w.optional}</span>
             <div className="group relative">

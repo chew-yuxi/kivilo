@@ -98,7 +98,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Write a room-by-room report of a property';
 
   @override
-  String get settingsWorkspace => 'Workspace';
+  String get settingsWorkspace => 'Teams';
 
   @override
   String get settingsTeam => 'Team';
@@ -604,7 +604,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeInspections => 'Inspections';
 
   @override
-  String get homeWorkspaceFailed => 'Could not load your workspace';
+  String get homeWorkspaceFailed => 'Could not load your teams';
 
   @override
   String get tryAgain => 'Try again';
@@ -845,7 +845,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Start a check-in for your next handover. Your inventory, photos and signed report will live here.';
 
   @override
-  String get workspaceChoose => 'Choose workspace';
+  String get workspaceChoose => 'Choose a team';
 
   @override
   String get workspaceAll => 'All properties';
@@ -916,7 +916,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String newWorkspace(String name) {
-    return 'Workspace: $name';
+    return 'Team: $name';
   }
 
   @override
@@ -1449,7 +1449,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamIntro =>
-      'Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.';
+      'Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.';
 
   @override
   String teamInvitationTo(String team) {
@@ -1484,7 +1484,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String teamOpenWorkspace(String team) {
-    return 'Open $team workspace';
+    return 'Open $team';
   }
 
   @override
@@ -1537,7 +1537,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get teamNoProperties =>
-      'No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.';
+      'No team properties yet. Choose this team when you start a check-in. You can also move an existing personal tenancy from Property access.';
 
   @override
   String get teamRecentActivity => 'Recent activity';
@@ -4903,7 +4903,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yourAppleAccountCanSubscribeForOne =>
-      'Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.';
+      'Your Apple Account can subscribe for one team, with up to 20 seats, alongside your Personal plan.';
 
   @override
   String get seatsLabel => 'Seats';
@@ -5228,7 +5228,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aNewTenancyStaysInThePropertys =>
-      'A new tenancy stays in the property’s workspace.';
+      'A new tenancy keeps the same team or stays Personal.';
 
   @override
   String get newPropertyLabel => 'New property';
@@ -5559,4 +5559,42 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseFurnishingLevel => 'Choose the property furnishing level.';
+
+  @override
+  String get choosePlan => 'Choose a plan';
+
+  @override
+  String storePlanUnavailable(String store) {
+    return '$store subscriptions are not available for this plan yet.';
+  }
+
+  @override
+  String get reportTenancyPeriod => 'Tenancy Period';
+
+  @override
+  String get tenancyLength => 'Tenancy length';
+
+  @override
+  String get chooseTenancyLength => 'Choose tenancy length';
+
+  @override
+  String get oneYear => '1 year';
+
+  @override
+  String get twoYears => '2 years';
+
+  @override
+  String get threeYears => '3 years';
+
+  @override
+  String get customDates => 'Custom dates';
+
+  @override
+  String get chooseWhatToShow => 'Choose what to show';
+
+  @override
+  String get yourHomesGroup => 'Your homes';
+
+  @override
+  String get myWork => 'My work';
 }

@@ -340,15 +340,15 @@ void main() {
                   ),
                 )
                 .then((value) => selected = value),
-            child: const Text('Choose workspace'),
+            child: const Text('Choose a team'),
           ),
         ),
       ),
     );
 
-    await tester.tap(find.text('Choose workspace'));
+    await tester.tap(find.text('Choose a team'));
     await tester.pumpAndSettle();
-    expect(find.text('Open Green Agency workspace'), findsNothing);
+    expect(find.text('Open Green Agency'), findsNothing);
     await tester.tap(find.text('Green Agency'));
     await tester.pumpAndSettle();
     expect(selected, 'team');

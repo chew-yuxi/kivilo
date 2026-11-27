@@ -235,7 +235,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsWorkspace.
   ///
   /// In en, this message translates to:
-  /// **'Workspace'**
+  /// **'Teams'**
   String get settingsWorkspace;
 
   /// No description provided for @settingsTeam.
@@ -1061,7 +1061,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeWorkspaceFailed.
   ///
   /// In en, this message translates to:
-  /// **'Could not load your workspace'**
+  /// **'Could not load your teams'**
   String get homeWorkspaceFailed;
 
   /// No description provided for @tryAgain.
@@ -1457,7 +1457,7 @@ abstract class AppLocalizations {
   /// No description provided for @workspaceChoose.
   ///
   /// In en, this message translates to:
-  /// **'Choose workspace'**
+  /// **'Choose a team'**
   String get workspaceChoose;
 
   /// No description provided for @workspaceAll.
@@ -1571,7 +1571,7 @@ abstract class AppLocalizations {
   /// No description provided for @newWorkspace.
   ///
   /// In en, this message translates to:
-  /// **'Workspace: {name}'**
+  /// **'Team: {name}'**
   String newWorkspace(String name);
 
   /// No description provided for @newPrivate.
@@ -2387,7 +2387,7 @@ abstract class AppLocalizations {
   /// No description provided for @teamIntro.
   ///
   /// In en, this message translates to:
-  /// **'Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.'**
+  /// **'Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.'**
   String get teamIntro;
 
   /// No description provided for @teamInvitationTo.
@@ -2429,7 +2429,7 @@ abstract class AppLocalizations {
   /// No description provided for @teamOpenWorkspace.
   ///
   /// In en, this message translates to:
-  /// **'Open {team} workspace'**
+  /// **'Open {team}'**
   String teamOpenWorkspace(String team);
 
   /// No description provided for @teamCreate.
@@ -2507,7 +2507,7 @@ abstract class AppLocalizations {
   /// No description provided for @teamNoProperties.
   ///
   /// In en, this message translates to:
-  /// **'No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.'**
+  /// **'No team properties yet. Choose this team when you start a check-in. You can also move an existing personal tenancy from Property access.'**
   String get teamNoProperties;
 
   /// No description provided for @teamRecentActivity.
@@ -8116,7 +8116,7 @@ abstract class AppLocalizations {
   /// No description provided for @yourAppleAccountCanSubscribeForOne.
   ///
   /// In en, this message translates to:
-  /// **'Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.'**
+  /// **'Your Apple Account can subscribe for one team, with up to 20 seats, alongside your Personal plan.'**
   String get yourAppleAccountCanSubscribeForOne;
 
   /// No description provided for @seatsLabel.
@@ -8710,7 +8710,7 @@ abstract class AppLocalizations {
   /// No description provided for @aNewTenancyStaysInThePropertys.
   ///
   /// In en, this message translates to:
-  /// **'A new tenancy stays in the property’s workspace.'**
+  /// **'A new tenancy keeps the same team or stays Personal.'**
   String get aNewTenancyStaysInThePropertys;
 
   /// No description provided for @newPropertyLabel.
@@ -9306,6 +9306,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose the property furnishing level.'**
   String get chooseFurnishingLevel;
+
+  /// No description provided for @choosePlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a plan'**
+  String get choosePlan;
+
+  /// No description provided for @storePlanUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'{store} subscriptions are not available for this plan yet.'**
+  String storePlanUnavailable(String store);
+
+  /// No description provided for @reportTenancyPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenancy Period'**
+  String get reportTenancyPeriod;
+
+  /// No description provided for @tenancyLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Tenancy length'**
+  String get tenancyLength;
+
+  /// No description provided for @chooseTenancyLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose tenancy length'**
+  String get chooseTenancyLength;
+
+  /// No description provided for @oneYear.
+  ///
+  /// In en, this message translates to:
+  /// **'1 year'**
+  String get oneYear;
+
+  /// No description provided for @twoYears.
+  ///
+  /// In en, this message translates to:
+  /// **'2 years'**
+  String get twoYears;
+
+  /// No description provided for @threeYears.
+  ///
+  /// In en, this message translates to:
+  /// **'3 years'**
+  String get threeYears;
+
+  /// No description provided for @customDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom dates'**
+  String get customDates;
+
+  /// No description provided for @chooseWhatToShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what to show'**
+  String get chooseWhatToShow;
+
+  /// No description provided for @yourHomesGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Your homes'**
+  String get yourHomesGroup;
+
+  /// No description provided for @myWork.
+  ///
+  /// In en, this message translates to:
+  /// **'My work'**
+  String get myWork;
 }
 
 class _AppLocalizationsDelegate

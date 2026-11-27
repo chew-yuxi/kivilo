@@ -114,7 +114,7 @@ describe('check-in setup', () => {
       await expect(create(person, { propertyId: tenancy.propertyId, agencyId })).rejects.toThrow('Property not found')
     }
     // It stays in its team's workspace.
-    await expect(create(manager, { propertyId: tenancy.propertyId })).rejects.toThrow('workspace')
+    await expect(create(manager, { propertyId: tenancy.propertyId })).rejects.toThrow('same team')
 
     const next = await create(manager, { propertyId: tenancy.propertyId, agencyId: agency.id, rooms: ['Kitchen'] })
     const created = await db.inspection.findUniqueOrThrow({ where: { id: next }, include: { tenancy: { include: { property: true } } } })

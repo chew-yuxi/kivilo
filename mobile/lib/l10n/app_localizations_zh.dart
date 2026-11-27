@@ -90,7 +90,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsStartCheckInDetail => '逐个房间记录房产状况';
 
   @override
-  String get settingsWorkspace => '工作区';
+  String get settingsWorkspace => '团队';
 
   @override
   String get settingsTeam => '团队';
@@ -547,7 +547,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeInspections => '检查';
 
   @override
-  String get homeWorkspaceFailed => '无法加载您的工作区';
+  String get homeWorkspaceFailed => '无法加载您的团队';
 
   @override
   String get tryAgain => '再试一次';
@@ -757,7 +757,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get inspectionsEmptyDetail => '为下一次交接开始入住检查。您的物品清单、照片和已签署的报告都会保存在这里。';
 
   @override
-  String get workspaceChoose => '选择工作区';
+  String get workspaceChoose => '选择团队';
 
   @override
   String get workspaceAll => '所有房产';
@@ -825,7 +825,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String newWorkspace(String name) {
-    return '工作区：$name';
+    return '团队：$name';
   }
 
   @override
@@ -1270,7 +1270,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get teamIntro =>
-      '创建或加入团队，邀请同事，然后在团队工作区中添加房产。中介负责被分配的工作；所有者和经理管理整个团队。您自己的房产请选择“个人”。';
+      '创建或加入团队，与同事一起管理房产。中介可以查看分配给自己的房产，所有者和经理可以查看团队的全部房产。管理自己的房产时，请选择“个人”。';
 
   @override
   String teamInvitationTo(String team) {
@@ -1298,7 +1298,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String teamOpenWorkspace(String team) {
-    return '打开 $team 工作区';
+    return '打开 $team';
   }
 
   @override
@@ -1345,7 +1345,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get teamNoProperties =>
-      '还没有团队房产。打开这个团队的工作区并开始入住检查。您也可以在“房产访问权限”中把现有的个人租约移入团队。';
+      '团队还没有房产。开始入住检查时请选择这个团队。您也可以在“房产访问权限”中将现有的个人租约移入团队。';
 
   @override
   String get teamRecentActivity => '最近动态';
@@ -4456,7 +4456,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get yourAppleAccountCanSubscribeForOne =>
-      '你的 Apple 账户可在个人方案以外，为一个团队工作区订阅最多 20 个席位。';
+      '除个人方案外，您的 Apple 账户还可以为一个团队订阅方案，最多可供 20 人使用。';
 
   @override
   String get seatsLabel => '席位';
@@ -4762,7 +4762,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get setUpThePropertyTheTenancyAnd => '设置房产、租约及房间。';
 
   @override
-  String get aNewTenancyStaysInThePropertys => '新租约会保留在该房产所属的工作区。';
+  String get aNewTenancyStaysInThePropertys => '新租约仍属于原团队。个人房产的租约仍归个人。';
 
   @override
   String get newPropertyLabel => '新房产';
@@ -5071,4 +5071,42 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chooseFurnishingLevel => '请选择房产的家具配置。';
+
+  @override
+  String get choosePlan => '选择方案';
+
+  @override
+  String storePlanUnavailable(String store) {
+    return '这个方案暂时无法通过 $store 订阅。';
+  }
+
+  @override
+  String get reportTenancyPeriod => '租期';
+
+  @override
+  String get tenancyLength => '租期长度';
+
+  @override
+  String get chooseTenancyLength => '选择租期';
+
+  @override
+  String get oneYear => '1 年';
+
+  @override
+  String get twoYears => '2 年';
+
+  @override
+  String get threeYears => '3 年';
+
+  @override
+  String get customDates => '自选日期';
+
+  @override
+  String get chooseWhatToShow => '选择要查看的内容';
+
+  @override
+  String get yourHomesGroup => '您的房屋';
+
+  @override
+  String get myWork => '我的工作';
 }

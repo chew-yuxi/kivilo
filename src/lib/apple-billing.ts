@@ -52,7 +52,7 @@ export async function prepareApplePurchase(productId: string, agencyId?: string 
       throw new AppleBillingError('billing_conflict', 'Choose enough seats for the current team members.')
     }
     if (current && (current.stripeSubscriptionId || current.googlePlayPurchaseId) && subscriptionCanResume(current)) {
-      throw new AppleBillingError('billing_conflict', 'This workspace already has a subscription. Manage that plan before buying another.')
+      throw new AppleBillingError('billing_conflict', 'You already have a subscription here. Manage your current plan before buying another.')
     }
     // An Apple account can hold one subscription per group. Bind the group to its
     // original workspace; even another Kivilo login cannot transfer a paid receipt.
@@ -62,7 +62,7 @@ export async function prepareApplePurchase(productId: string, agencyId?: string 
       state: { in: ['APPLE_ACTIVE', 'APPLE_CANCELED', 'APPLE_GRACE_PERIOD', 'APPLE_BILLING_RETRY'] },
       OR: [{ expiresAt: { gt: new Date() } }, { autoRenewing: true }],
     } })
-    if (other) throw new AppleBillingError('billing_conflict', 'Your App Store team subscription belongs to another workspace. Manage its existing plan first.')
+    if (other) throw new AppleBillingError('billing_conflict', 'Your App Store subscription belongs to another team. Manage its existing plan first.')
     const binding = await tx.appleBillingAccount.upsert({
       where: { workspaceKey_stakeholderId: { workspaceKey: context.workspaceKey, stakeholderId: agent.id } },
       create: { workspaceKey: context.workspaceKey, stakeholderId: agent.id }, update: {},
@@ -138,7 +138,7 @@ export async function reconcileApplePurchase(originalTransactionId: string, envi
     return { verified: true }
   }, { timeout: 30_000, maxWait: 10_000 })
   if (result && 'conflict' in result && expectedOwnerId) {
-    throw new AppleBillingError('billing_conflict', 'This purchase could not be assigned to the workspace. Contact support for help requesting an Apple refund. Your existing plan is unchanged.')
+    throw new AppleBillingError('billing_conflict', 'We could not apply this purchase to your plan. Contact support for help requesting an Apple refund. Your existing plan is unchanged.')
   }
   return result
 }

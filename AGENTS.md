@@ -21,6 +21,10 @@ That is deliberate: `project_id` names the local Docker containers, so changing 
 up a fresh stack and orphans the current database and storage. Rename all three together
 when someone is ready to re-migrate and re-seed.
 
+## Product language
+
+Write for real estate agents doing a handover. Use the words they use with landlords, tenants and colleagues. Call the shared group a team. Use “Teams” and “Choose a team” in the picker, with “Personal” for the agent’s own properties. Prefer plain instructions about the next action over technical or design terminology.
+
 ## Core principles
 
 1. **Simplicity first.** No premature abstractions, no helpers wrapping a single call site.

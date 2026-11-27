@@ -25,10 +25,10 @@ class WorkspacePicker extends StatelessWidget {
     final invitations = workspace.index.invitations.length;
     final contexts = workspace.contexts;
     final homes = contexts.landlord || contexts.tenant;
-    final work = homes && workspace.hasWork ? 'My work' : null;
+    final work = homes && workspace.hasWork ? t.myWork : null;
     return KiviloSelectField<String>(
       label: homes ? t.showing : t.settingsWorkspace,
-      sheetTitle: homes ? 'Choose what to show' : t.workspaceChoose,
+      sheetTitle: homes ? t.chooseWhatToShow : t.workspaceChoose,
       value: workspace.value,
       options: [
         if (workspace.hasWork) ...[
@@ -47,7 +47,7 @@ class WorkspacePicker extends StatelessWidget {
           KiviloSelectOption(
             value: _addTeam,
             label: invitations > 0
-                ? 'Team invitations ($invitations)'
+                ? t.workspaceInvitations(invitations)
                 : t.workspaceAddTeam,
             icon: Icons.add,
             action: true,
@@ -59,14 +59,14 @@ class WorkspacePicker extends StatelessWidget {
             value: 'landlord',
             label: t.homesIOwn,
             description: t.whereYouAreTheLandlord,
-            group: 'Your homes',
+            group: t.yourHomesGroup,
           ),
         if (contexts.tenant)
           KiviloSelectOption(
             value: 'tenant',
             label: t.homesIRent,
             description: t.whereYouAreTheTenant,
-            group: 'Your homes',
+            group: t.yourHomesGroup,
           ),
       ],
       onChanged: (value) => value == _addTeam ? onTeams() : onChanged(value),

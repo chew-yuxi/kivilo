@@ -43,4 +43,21 @@ test('an agent chooses Chinese on Account and the app stays in it', async ({ pag
   await other.goto('/inspections')
   await expect(other.getByRole('heading', { name: '检查' })).toBeVisible()
   await english.close()
+
+  for (const [locale, team, length, years] of [
+    ['zh', '团队', '租期长度', '2 年'],
+    ['th', 'ทีม', 'ระยะสัญญาเช่า', '2 ปี'],
+  ]) {
+    if (locale === 'th') {
+      await page.goto('/account')
+      await page.getByLabel('语言').selectOption(locale)
+      await expect(page.getByLabel('ภาษา')).toHaveValue(locale)
+    }
+    await page.goto('/inspections/new')
+    await expect(page.getByRole('combobox', { name: team, exact: true })).toBeVisible()
+    const term = page.getByRole('combobox', { name: length, exact: true })
+    await term.selectOption({ label: years })
+    await page.locator('input[name="startDate"]').fill('2026-11-19')
+    await expect(page.locator('input[name="endDate"]')).toHaveValue('2028-11-18')
+  }
 })

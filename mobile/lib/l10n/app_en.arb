@@ -80,7 +80,7 @@
   "settingsForAgents": "For agents",
   "settingsStartCheckIn": "Start a check-in",
   "settingsStartCheckInDetail": "Write a room-by-room report of a property",
-  "settingsWorkspace": "Workspace",
+  "settingsWorkspace": "Teams",
   "settingsTeam": "Team",
   "settingsTeamDetail": "Members, invitations and assigned work",
   "settingsProperties": "Properties",
@@ -379,7 +379,7 @@
   "notifications": "Notifications",
   "homeUrgentServices": "Urgent services",
   "homeInspections": "Inspections",
-  "homeWorkspaceFailed": "Could not load your workspace",
+  "homeWorkspaceFailed": "Could not load your teams",
   "tryAgain": "Try again",
   "homeShowAllProperties": "Show all properties",
   "homeGoodMorning": "Good morning",
@@ -493,7 +493,7 @@
   "inspectionsEmpty": "No inspections yet",
   "inspectionsEmptyOffline": "Connect to create a new check-in.",
   "inspectionsEmptyDetail": "Start a check-in for your next handover. Your inventory, photos and signed report will live here.",
-  "workspaceChoose": "Choose workspace",
+  "workspaceChoose": "Choose a team",
   "workspaceAll": "All properties",
   "workspacePersonal": "Personal",
   "workspaceInvitations": "Team invitations ({count})",
@@ -547,7 +547,7 @@
   },
   "newEssentials": "Start with the essentials",
   "newEssentialsDetail": "Set up the property and tenancy. You can add rooms after this.",
-  "newWorkspace": "Workspace: {name}",
+  "newWorkspace": "Team: {name}",
   "@newWorkspace": {
     "placeholders": {
       "name": {
@@ -814,7 +814,7 @@
   },
   "teamCreateTitle": "Create a team",
   "teamWorkTogether": "Work together",
-  "teamIntro": "Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.",
+  "teamIntro": "Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.",
   "teamInvitationTo": "Invitation to {team}",
   "@teamInvitationTo": {
     "placeholders": {
@@ -848,7 +848,7 @@
       }
     }
   },
-  "teamOpenWorkspace": "Open {team} workspace",
+  "teamOpenWorkspace": "Open {team}",
   "@teamOpenWorkspace": {
     "placeholders": {
       "team": {
@@ -889,7 +889,7 @@
     }
   },
   "teamAssignedWork": "Assigned work",
-  "teamNoProperties": "No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.",
+  "teamNoProperties": "No team properties yet. Choose this team when you start a check-in. You can also move an existing personal tenancy from Property access.",
   "teamRecentActivity": "Recent activity",
   "activityCreatedTeam": "created team",
   "activityInvitedMember": "invited member",
@@ -2847,7 +2847,7 @@
   "askYourTeamOwnerOrManagerAbout": "Ask your team owner or manager about this plan.",
   "thisPlanWasPurchasedOnTheKivilo": "This plan was purchased on the Kivilo website. You can use it in the app.",
   "proForYourPersonalWork": "Pro for your personal work",
-  "yourAppleAccountCanSubscribeForOne": "Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.",
+  "yourAppleAccountCanSubscribeForOne": "Your Apple Account can subscribe for one team, with up to 20 seats, alongside your Personal plan.",
   "seatsLabel": "Seats",
   "moreSeatsTakeEffectImmediatelyFewerSeats": "More seats take effect immediately. Fewer seats take effect at renewal. Apple confirms the price and timing before you agree.",
   "aSeatChangeReplacesThisSubscriptionImmediately": "A seat change replaces this subscription immediately. Google Play credits the remaining time and confirms your next payment date before you agree.",
@@ -2946,7 +2946,7 @@
   "uploadTheRequestedDocumentBelow": "Upload the requested document below.",
   "waitingForTheTenantToUpload": "Waiting for the tenant to upload",
   "setUpThePropertyTheTenancyAnd": "Set up the property, the tenancy and its rooms.",
-  "aNewTenancyStaysInThePropertys": "A new tenancy stays in the property’s workspace.",
+  "aNewTenancyStaysInThePropertys": "A new tenancy keeps the same team or stays Personal.",
   "newPropertyLabel": "New property",
   "existingProperty": "Existing property",
   "findTheAddressOptional": "Find the address (optional)",
@@ -3059,5 +3059,24 @@
   },
   "selectPropertyFirst": "Choose the property, or switch to New property.",
   "malaysianPostcodeLength": "A Malaysian postcode has 5 digits",
-  "chooseFurnishingLevel": "Choose the property furnishing level."
+  "chooseFurnishingLevel": "Choose the property furnishing level.",
+  "choosePlan": "Choose a plan",
+  "storePlanUnavailable": "{store} subscriptions are not available for this plan yet.",
+  "reportTenancyPeriod": "Tenancy Period",
+  "tenancyLength": "Tenancy length",
+  "chooseTenancyLength": "Choose tenancy length",
+  "oneYear": "1 year",
+  "twoYears": "2 years",
+  "threeYears": "3 years",
+  "customDates": "Custom dates",
+  "chooseWhatToShow": "Choose what to show",
+  "yourHomesGroup": "Your homes",
+  "@storePlanUnavailable": {
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "myWork": "My work"
 }

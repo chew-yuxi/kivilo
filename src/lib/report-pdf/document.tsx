@@ -206,7 +206,7 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
         <Fact label="Inspector" value={model.inspector ?? 'Not recorded'} />
         <Fact label="Landlord" value={model.landlord} verified={model.landlordVerifiedAt} />
         <Fact label="Tenant" value={model.tenant} verified={model.tenantVerifiedAt} />
-        <Fact label="Tenancy" value={`${longDate.format(new Date(model.tenancyStart))} to ${longDate.format(new Date(model.tenancyEnd))}`} />
+        <Fact label="Tenancy Period" value={`${longDate.format(new Date(model.tenancyStart))} to ${longDate.format(new Date(model.tenancyEnd))}`} />
         <Fact label="Signed" value={signedBy.length > 0 ? signedBy.join('\n') : 'Not yet signed'} />
       </View>
 
@@ -325,11 +325,11 @@ function NotedCondition({ model }: { model: ReportModel }) {
 
 function PhotoRefs({ refs, labelled = false }: { refs: { ref: string; anchor: string }[]; labelled?: boolean }) {
   return (
-    <View style={{ width: labelled ? 90 : 70, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-      {labelled && refs.length > 0 && <Text style={{ fontSize: 8, color: MUTED }}>{refs.length === 1 ? 'Photo ' : 'Photos '}</Text>}
-      {refs.map((photo, index) => (
+    <View style={{ width: labelled ? 90 : 70, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', columnGap: 4, rowGap: 2 }}>
+      {labelled && refs.length > 0 && <Text style={{ fontSize: 8, color: MUTED }}>{refs.length === 1 ? 'Photo' : 'Photos'}</Text>}
+      {refs.toSorted((a, b) => a.ref.localeCompare(b.ref, 'en', { numeric: true })).map(photo => (
         <Link key={photo.anchor} src={`#${photo.anchor}`} style={[s.link, { fontSize: 8 }]}>
-          {index > 0 ? `, ${photo.ref}` : photo.ref}
+          {photo.ref}
         </Link>
       ))}
     </View>
@@ -337,8 +337,21 @@ function PhotoRefs({ refs, labelled = false }: { refs: { ref: string; anchor: st
 }
 
 function RoomSection({ room, assets }: { room: ReportRoom; assets: ReportAssets }) {
-  const rows: ReportPhoto[][] = []
-  for (let index = 0; index < room.photos.length; index += 3) rows.push(room.photos.slice(index, index + 3))
+  // Keep the numbered reading order. Give wide photos more of the row and fit
+  // each original inside its own bounds so annotations stay on the evidence.
+  type Tile = { photo: ReportPhoto; bitmap: Bitmap | null; aspect: number }
+  const rows: { tiles: Tile[]; totalAspect: number }[] = []
+  for (const photo of room.photos) {
+    const bitmap = assets.photos.get(photo.storagePath) ?? null
+    const aspect = bitmap ? Math.max(0.65, bitmap.width / bitmap.height) : 1
+    let row = rows.at(-1)
+    if (!row || row.tiles.length === 3 || (row.totalAspect + aspect) * 155 + row.tiles.length * GRID_GAP > CONTENT_WIDTH) {
+      row = { tiles: [], totalAspect: 0 }
+      rows.push(row)
+    }
+    row.tiles.push({ photo, bitmap, aspect })
+    row.totalAspect += aspect
+  }
 
   return (
     <View id={room.anchor}>
@@ -384,26 +397,29 @@ function RoomSection({ room, assets }: { room: ReportRoom; assets: ReportAssets 
         <Text style={[s.small, { marginBottom: 16 }]}>Nothing recorded in this room.</Text>
       )}
 
-      {rows.map((row) => (
-        <View key={row[0].anchor} style={s.photoRow} wrap={false}>
-          {row.map((photo) => (
-            <PhotoTile key={photo.anchor} photo={photo} bitmap={assets.photos.get(photo.storagePath) ?? null} />
-          ))}
-        </View>
-      ))}
+      {rows.map(({ tiles, totalAspect }) => {
+        const height = Math.min(220, (CONTENT_WIDTH - GRID_GAP * (tiles.length - 1)) / totalAspect)
+        return (
+          <View key={tiles[0].photo.anchor} style={s.photoRow} wrap={false}>
+            {tiles.map(({ photo, bitmap, aspect }) => (
+              <PhotoTile key={photo.anchor} photo={photo} bitmap={bitmap} width={height * aspect} maxHeight={height} />
+            ))}
+          </View>
+        )
+      })}
       {rows.length === 0 && <Text style={s.small}>No photos in this room.</Text>}
     </View>
   )
 }
 
-/// One photograph, fitted whole inside a square tile (never cropped: what is outside
+/// One photograph, fitted whole at its original aspect ratio (never cropped: what is outside
 /// the crop is evidence too), with the inspector's marks drawn over it as vectors.
-function PhotoTile({ photo, bitmap }: { photo: ReportPhoto; bitmap: Bitmap | null }) {
+function PhotoTile({ photo, bitmap, width = TILE, maxHeight = TILE_HEIGHT }: { photo: ReportPhoto; bitmap: Bitmap | null; width?: number; maxHeight?: number }) {
   const notes = markNotes(photo)
   return (
-    <View id={photo.anchor} style={{ width: TILE }}>
-      <View style={s.tileBox}>
-        {bitmap ? <MarkedImage annotations={photo.annotations} bitmap={bitmap} /> : <Text style={s.small}>Photo unavailable</Text>}
+    <View id={photo.anchor} style={{ width }}>
+      <View style={{ alignItems: 'flex-start' }}>
+        {bitmap ? <MarkedImage annotations={photo.annotations} bitmap={bitmap} maxWidth={width} maxHeight={maxHeight} /> : <Text style={s.small}>Photo unavailable</Text>}
       </View>
       <View style={{ marginTop: 4 }}>
         <Text style={[s.small, s.bold]}>

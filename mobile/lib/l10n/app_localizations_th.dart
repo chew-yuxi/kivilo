@@ -91,7 +91,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get settingsStartCheckInDetail => 'เขียนรายงานที่พักทีละห้อง';
 
   @override
-  String get settingsWorkspace => 'พื้นที่ทำงาน';
+  String get settingsWorkspace => 'ทีม';
 
   @override
   String get settingsTeam => 'ทีม';
@@ -573,7 +573,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get homeInspections => 'การตรวจ';
 
   @override
-  String get homeWorkspaceFailed => 'โหลดพื้นที่ทำงานของคุณไม่ได้';
+  String get homeWorkspaceFailed => 'โหลดทีมของคุณไม่ได้';
 
   @override
   String get tryAgain => 'ลองอีกครั้ง';
@@ -793,7 +793,7 @@ class AppLocalizationsTh extends AppLocalizations {
       'เริ่มเช็กอินสำหรับการส่งมอบครั้งถัดไป รายการทรัพย์สิน รูปภาพ และรายงานที่ลงนามแล้วจะอยู่ที่นี่';
 
   @override
-  String get workspaceChoose => 'เลือกพื้นที่ทำงาน';
+  String get workspaceChoose => 'เลือกทีม';
 
   @override
   String get workspaceAll => 'ที่พักทั้งหมด';
@@ -864,7 +864,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String newWorkspace(String name) {
-    return 'พื้นที่ทำงาน: $name';
+    return 'ทีม: $name';
   }
 
   @override
@@ -1322,7 +1322,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get teamIntro =>
-      'สร้างหรือเข้าร่วมทีม เชิญเพื่อนร่วมงาน แล้วเพิ่มที่พักในพื้นที่ทำงานของทีม นายหน้าทำงานตามที่ได้รับมอบหมาย เจ้าของและผู้จัดการดูแลทีม เลือก ส่วนตัว สำหรับที่พักของคุณเอง';
+      'สร้างหรือเข้าร่วมทีมเพื่อดูแลที่พักร่วมกับเพื่อนร่วมงาน นายหน้าเห็นที่พักที่ได้รับมอบหมาย เจ้าของและผู้จัดการทีมเห็นที่พักทั้งหมดของทีม เลือก “ส่วนตัว” สำหรับที่พักของคุณเอง';
 
   @override
   String teamInvitationTo(String team) {
@@ -1351,7 +1351,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String teamOpenWorkspace(String team) {
-    return 'เปิดพื้นที่ทำงาน $team';
+    return 'เปิดทีม $team';
   }
 
   @override
@@ -1398,7 +1398,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get teamNoProperties =>
-      'ยังไม่มีที่พักของทีม เปิดพื้นที่ทำงานของทีมนี้แล้วเริ่มเช็กอิน หรือย้ายสัญญาเช่าส่วนตัวที่มีอยู่จาก สิทธิ์เข้าถึงที่พัก';
+      'ทีมยังไม่มีที่พัก เลือกทีมนี้เมื่อเริ่มตรวจรับเข้า หรือย้ายสัญญาเช่าส่วนตัวที่มีอยู่จากหน้าสิทธิ์เข้าถึงที่พัก';
 
   @override
   String get teamRecentActivity => 'กิจกรรมล่าสุด';
@@ -4661,7 +4661,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get yourAppleAccountCanSubscribeForOne =>
-      'บัญชี Apple ของคุณสมัครสมาชิกพื้นที่ทำงานของทีมได้หนึ่งทีม สูงสุด 20 ที่นั่ง ควบคู่กับแผนส่วนตัว';
+      'นอกจากแผนส่วนตัวแล้ว บัญชี Apple ของคุณยังสมัครแผนสำหรับทีมได้หนึ่งทีม สูงสุด 20 คน';
 
   @override
   String get seatsLabel => 'ที่นั่ง';
@@ -4984,7 +4984,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get aNewTenancyStaysInThePropertys =>
-      'สัญญาเช่าใหม่จะอยู่ในพื้นที่ทำงานเดิมของทรัพย์สิน';
+      'สัญญาเช่าใหม่จะอยู่กับทีมเดิม หากเป็นที่พักส่วนตัวก็จะยังเป็นส่วนตัว';
 
   @override
   String get newPropertyLabel => 'ทรัพย์สินใหม่';
@@ -5310,4 +5310,42 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get chooseFurnishingLevel => 'เลือกระดับการจัดเฟอร์นิเจอร์ของที่พัก';
+
+  @override
+  String get choosePlan => 'เลือกแผน';
+
+  @override
+  String storePlanUnavailable(String store) {
+    return 'ยังสมัครแผนนี้ผ่าน $store ไม่ได้';
+  }
+
+  @override
+  String get reportTenancyPeriod => 'ระยะเวลาเช่า';
+
+  @override
+  String get tenancyLength => 'ระยะสัญญาเช่า';
+
+  @override
+  String get chooseTenancyLength => 'เลือกระยะสัญญาเช่า';
+
+  @override
+  String get oneYear => '1 ปี';
+
+  @override
+  String get twoYears => '2 ปี';
+
+  @override
+  String get threeYears => '3 ปี';
+
+  @override
+  String get customDates => 'กำหนดวันที่เอง';
+
+  @override
+  String get chooseWhatToShow => 'เลือกสิ่งที่ต้องการดู';
+
+  @override
+  String get yourHomesGroup => 'บ้านของคุณ';
+
+  @override
+  String get myWork => 'งานของฉัน';
 }

@@ -180,6 +180,17 @@ describe('report PDF', () => {
     expect(pages.join(' ')).toContain('Nothing recorded in this room.')
   })
 
+  it('prints the tenancy period and sorted photo numbers without commas', async () => {
+    const itemRoom = room(6, 'Living room', 12)
+    itemRoom.items.push({
+      name: 'Wardrobe', condition: 'GOOD', quantity: 1, identifier: null, meterReading: null, notes: null,
+      photoRefs: [12, 3, 10].map(index => itemRoom.photos[index - 1]),
+    })
+    const [cover, ...pages] = await render(model([itemRoom]))
+    expect(cover.toLowerCase()).toContain('tenancy period')
+    expect(pages.join(' ')).toMatch(/Wardrobe Good 6\.3 6\.10 6\.12/)
+  })
+
   it('lists noted condition with photo references, and captions in place', async () => {
     const bedroom = room(1, 'Master bedroom', 3, [{
       name: 'Wardrobe',

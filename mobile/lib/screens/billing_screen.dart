@@ -176,7 +176,7 @@ class _BillingScreenState extends State<BillingScreen>
                 children: [
                   KiviloSelectField<String>(
                     label: t.settingsWorkspace,
-                    sheetTitle: 'Choose billing workspace',
+                    sheetTitle: t.choosePlan,
                     value: _workspace,
                     enabled: !busy,
                     options: [
@@ -341,7 +341,7 @@ class _BillingScreenState extends State<BillingScreen>
                         status.provider == null) ...[
                       const SizedBox(height: 16),
                       Text(
-                        '${widget.billing.storeName} subscriptions are not available for this workspace yet.',
+                        t.storePlanUnavailable(widget.billing.storeName),
                       ),
                     ],
                   ],

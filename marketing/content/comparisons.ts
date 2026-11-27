@@ -370,7 +370,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Agency operations",
-          kivilo: "Agency workspaces, tenancy assignments and management oversight.",
+          kivilo: "Teams assign tenancies and managers oversee their properties.",
           competitor: "Scheduling, client access, invoicing and an inventory supplier network.",
           source: inventoryBaseResidential,
         },
@@ -484,7 +484,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Office and property visits",
-          kivilo: "Property workspaces and tenancy collaborators, with capture upload retries when connection returns.",
+          kivilo: "Who is this property for?s and tenancy collaborators, with capture upload retries when connection returns.",
           competitor: "Web, phone and tablet access with reports synchronized between devices.",
           source: inventoryHiveApp,
         },
@@ -851,7 +851,7 @@ export const comparisons: ResourceArticle[] = [
         },
         {
           topic: "Recurring inspection operations",
-          kivilo: "Agency workspaces organize assigned tenancy work and property records.",
+          kivilo: "Teams can assign tenancies and keep property records together.",
           competitor: "Scheduling and reminders can follow move-in, move-out and renewal dates.",
           source: rentCheckAutomation,
         },

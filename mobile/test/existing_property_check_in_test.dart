@@ -160,7 +160,7 @@ void main() {
       await tester.tap(find.text('8 Jalan Kayu #04-11, 799487'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Workspace: Harbour Homes'), findsOneWidget);
+      expect(find.text('Team: Harbour Homes'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Address (required)'), findsNothing);
       await _reveal(tester, find.text('Start with the rooms from the last check-in'));
       expect(find.text('3 rooms to set up'), findsOneWidget);
@@ -246,6 +246,7 @@ void main() {
     final api = _Api();
     await _show(tester, RenewalScreen(tenancyId: 'tenancy-1', api: api));
     expect(find.text('Start with the rooms from the last check-in'), findsOneWidget);
+    await _reveal(tester, find.widgetWithText(InputChip, 'Study'));
     await tester.tap(
       find.descendant(
         of: find.widgetWithText(InputChip, 'Study'),
@@ -253,7 +254,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.text('Create renewal check-in'));
+    await _reveal(tester, find.text('Create renewal check-in'));
     await tester.tap(find.text('Create renewal check-in'));
     await tester.pumpAndSettle();
     expect(api.renewalRequests.single['rooms'], ['Living room', 'Kitchen']);

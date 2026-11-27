@@ -27,9 +27,6 @@ export default async function RenewalPage({ params }: PageProps<'/renewals/[tena
   const access = await tenancyAccess(tenancyId, agent.id)
   const start = new Date(tenancy.endDate)
   start.setUTCDate(start.getUTCDate() + 1)
-  const end = new Date(start)
-  end.setUTCFullYear(end.getUTCFullYear() + 2)
-  end.setUTCDate(end.getUTCDate() - 1)
 
   return (
     <div className="mx-auto max-w-xl">
@@ -40,7 +37,6 @@ export default async function RenewalPage({ params }: PageProps<'/renewals/[tena
       <RenewalForm
         tenancyId={tenancy.id}
         startDate={start.toISOString().slice(0, 10)}
-        endDate={end.toISOString().slice(0, 10)}
         monthlyRent={recordedAmount(tenancy.monthlyRent, tenancy.monthlyRentEntered) ?? ''}
         deposit={recordedAmount(tenancy.deposit, tenancy.depositEntered) ?? ''}
         currency={currency(tenancy.property.country)}

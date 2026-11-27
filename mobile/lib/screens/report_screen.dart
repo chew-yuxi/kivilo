@@ -520,7 +520,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 _fact(t.tenant, report.tenant),
                 if (report.agent != null) _fact(t.agent, report.agent!),
                 _fact(
-                  t.newTenancy,
+                  t.reportTenancyPeriod,
                   t.dateRange(
                     shortDate(report.startDate),
                     shortDate(report.endDate),
@@ -733,7 +733,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     borderRadius: BorderRadius.circular(8),
                     child: Image(
                       image: StoredNetworkImage(photo.posterUrl ?? photo.url),
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       semanticLabel: photo.note ?? t.roomPhoto(room.name),
                       errorBuilder: (_, _, _) =>
                           const ColoredBox(color: KiviloColors.canvas),

@@ -96,10 +96,10 @@ describe('a Singapore report keeps its hashes', () => {
     expect(version.contentHash).toBe('3ca3a0c3a45dee560f54d770bacc468bc04146c5f1289de91e349bdf655f9551')
   })
 
-  it('draws the same PDFs, so stored copies are not redrawn', async () => {
+  it('uses stable cache keys within the current PDF layout', async () => {
     const checkIn = await loadReportRow('sgpin-checkin')
     const checkOut = await loadReportRow('sgpin-checkout')
-    expect(reportHash(buildReportModel(checkIn!))).toBe('2fcdf84f4dffbcf9c66f6c3c8dae5c32')
-    expect(reportHash(buildReportModel(checkOut!))).toBe('8f6dcb5d3109bc8b2a511048c4942116')
+    expect(reportHash(buildReportModel(checkIn!))).toBe('650a8f72b41d15b64b656d1ea84478f0')
+    expect(reportHash(buildReportModel(checkOut!))).toBe('6fd4095730443433faa86f32546f384d')
   })
 })

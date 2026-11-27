@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/property_work.dart';
 import '../services/api.dart';
+import '../ui/tenancy_period.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 
@@ -44,6 +45,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
   );
   late final _deposit = TextEditingController(text: widget.term.deposit ?? '');
   late DateTime _startDate = DateTime.parse(widget.term.startDate);
+  late int _termYears = matchingTenancyYears(_startDate, _endDate);
   late DateTime _endDate = DateTime.parse(widget.term.endDate);
   bool _busy = false;
   String? _error;
@@ -66,17 +68,14 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   Future<void> _pickDate(bool start) async {
-    final selected = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: start ? _startDate : _endDate,
-    );
+    final selected = await pickTenancyDate(context, start ? _startDate : _endDate);
     if (selected != null && mounted) {
       setState(() {
         if (start) {
           _startDate = selected;
+          if (_termYears > 0) _endDate = tenancyEndDate(selected, _termYears);
         } else {
+          _termYears = 0;
           _endDate = selected;
         }
         _error = null;
@@ -318,6 +317,14 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               const SizedBox(height: 32),
               KiviloSectionHeading(title: t.newTenancy),
               const SizedBox(height: kiviloHeadingGap),
+              TenancyLengthPicker(
+                years: _termYears,
+                onChanged: _busy || !widget.term.canEditDetails ? null : (years) => setState(() {
+                  _termYears = years;
+                  if (years > 0) _endDate = tenancyEndDate(_startDate, years);
+                }),
+              ),
+              const SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
