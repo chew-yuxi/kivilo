@@ -301,7 +301,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             horizontal: 16,
             vertical: 6,
           ),
-          leading: const Icon(Icons.public),
+          leading: const Icon(Icons.flag_outlined),
           title: const Text('Where you work'),
           subtitle: Text(
             snapshot.hasError
