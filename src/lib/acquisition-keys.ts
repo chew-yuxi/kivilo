@@ -23,6 +23,9 @@ export const ACQUISITION_LANDINGS = [
   '/compare/kivilo-vs-chapps-rental-inspector',
   '/compare/kivilo-vs-snapinspect',
   '/compare/kivilo-vs-rentcheck',
+  '/compare/inventory-hive-vs-kaptur',
+  '/compare/kivilo-vs-zinspector',
+  '/compare/kivilo-vs-property-inspect',
   '/guides/rental-handover-checklist-singapore',
   '/guides/rental-inspection-app-singapore',
 ] as const

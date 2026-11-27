@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function ComparePage() {
   return <div className={styles.hub}>
     <h1>Choose the right app for your next rental handover.</h1>
-    <p>Compare Kivilo with other inspection apps through the work Singapore agents actually do: photograph the unit, write the inventory, get agreement and keep a clear record through check-out.</p>
+    <p>Compare inspection apps for the work your team does. See who can record the move-in, how tenants can respond and what the next agent sees at check-out.</p>
     <p>These comparisons are published by Kivilo. Each names the vendor sources, explains where the other product fits, and gives you a practical workflow to test.</p>
     <div className={styles.cards}>{comparisons.map(article => <article className={styles.card} key={article.slug}>
       <h2><Link href={`/compare/${article.slug}`}>{article.title}</Link></h2>

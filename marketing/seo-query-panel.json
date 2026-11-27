@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "panelId": "kivilo-en-sg-2026-10-26-v1",
+  "panelId": "kivilo-en-sg-2026-11-27-v2",
   "site": "https://kivilo.app/",
   "locale": "en-SG",
   "market": "SG",
@@ -90,6 +90,27 @@
       "query": "RentCheck alternatives agent led inspections",
       "assistantPrompt": "What alternatives to RentCheck should I compare if a property agent will conduct the rental inspection rather than the tenant?",
       "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-rentcheck"]
+    },
+    {
+      "id": "comparison-zinspector",
+      "category": "comparison",
+      "query": "zInspector alternatives move in inspection",
+      "assistantPrompt": "How do zInspector and Kivilo compare for a tenant move-in and an agent move-out?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-zinspector"]
+    },
+    {
+      "id": "comparison-property-inspect",
+      "category": "comparison",
+      "query": "Property Inspect alternatives check out photos",
+      "assistantPrompt": "Which inspection apps let agents refer back to check-in photos and explain changes at check-out?",
+      "expectedLandingPages": ["https://kivilo.app/compare/kivilo-vs-property-inspect"]
+    },
+    {
+      "id": "comparison-inventory-hive-kaptur",
+      "category": "comparison",
+      "query": "inventory hive vs kaptur",
+      "assistantPrompt": "How do Inventory Hive and Kaptur handle tenant feedback and outsourced inventory visits?",
+      "expectedLandingPages": ["https://kivilo.app/compare/inventory-hive-vs-kaptur"]
     }
   ]
 }

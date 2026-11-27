@@ -20,6 +20,14 @@ const inventoryBaseResidential = {
   label: "InventoryBase: residential inspections",
   url: "https://inventorybase.co.uk/residential/",
 }
+const kapturProduct = {
+  label: "Kaptur’s reporting software and Konnect service",
+  url: "https://kaptursoftware.co.uk/",
+}
+const inventoryHiveTenantGuide = {
+  label: "Inventory Hive’s tenant guide to receiving and reviewing an inventory",
+  url: "https://app.inventoryhive.co.uk/documents/guides/paperless-process-tenant-guide.pdf",
+}
 const inventoryHiveProduct = {
   label: "Inventory Hive: inventory and inspection software",
   url: "https://www.inventoryhive.co.uk/",
@@ -39,6 +47,26 @@ const chappsCheckOut = {
 const chappsDelivery = {
   label: "Chapps: report delivery",
   url: "https://support.chapps.com/en/knowledgecenter/how-are-the-rental-reports-sent",
+}
+const chappsCorrections = {
+  label: "Chapps guide to revising a finished inspection",
+  url: "https://support.chapps.com/en/knowledgecenter/how-can-i-post-process-an-inspection-report",
+}
+const zInspectorMoveIn = {
+  label: "zInspector guide to tenant move-in inspections",
+  url: "https://support.zinspector.com/article/13-4-tenant-completed-move-in/",
+}
+const zInspectorComparison = {
+  label: "zInspector guide to side-by-side comparison reports",
+  url: "https://support.zinspector.com/article/move-out-comparison/",
+}
+const propertyInspectPhotos = {
+  label: "Property Inspect guide to comparison photos",
+  url: "https://support.propertyinspect.com/en/articles/9117626-comparison-photos-on-move-out-reports",
+}
+const propertyInspectClose = {
+  label: "Property Inspect guide to closing reports",
+  url: "https://support.propertyinspect.com/en/articles/5667408-how-to-close-inspection-reports",
 }
 const chappsRoles = {
   label: "Chapps: user roles",
@@ -70,6 +98,117 @@ const rentCheckReporting = {
 }
 
 export const comparisons: ResourceArticle[] = [
+  {
+    slug: "inventory-hive-vs-kaptur",
+    title: "Inventory Hive vs Kaptur for rental inventories",
+    description: "Compare how tenants review a report in Inventory Hive and how letting agents cover an inspection in Kaptur. Includes a two-visit trial for agencies weighing both.",
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    summary: "If your bottleneck is collecting tenant feedback after key handover, look at Inventory Hive’s receipt, comment and photo workflow. If it is finding someone to attend the visit, look at Kaptur’s mix of in-house reporting and outsourced inventory clerks. Both products support staff who carry out inspections themselves.",
+    summarySources: [inventoryHiveTenantGuide, kapturProduct],
+    introduction: [
+      "Take a Friday with two check-ins at the same time. One agent is available. On Monday, a tenant sends a picture of a stained worktop and asks for the inventory to be corrected. The Friday scheduling problem and the Monday evidence problem call for different parts of a product demo.",
+    ],
+    sections: [
+      { id: "tenant-feedback", title: "Inventory Hive separates receipt from the tenant’s review", paragraphs: [
+        "Inventory Hive’s paperless guide describes two steps. The tenant first confirms receipt of the inventory email. After moving in, they can review individual descriptions, submit comments with photos or sign their approval. Ask the demonstrator to show both the initial receipt and the final record for the worktop.",
+        "Its check-out sample also shows earlier inventory alongside check-out observations and retains the history of tenant comments and photos. Open the tenant’s original photo from the final report to see whether another clerk can follow the change.",
+      ], sources: [inventoryHiveTenantGuide, inventoryHiveProduct] },
+      { id: "cover-the-visit", title: "Kaptur gives an agency a way to cover the second visit", paragraphs: [
+        "Kaptur describes guided mobile templates, offline capture and on-site signatures for your own inspectors. Its Konnect service lets agencies send work to the No Letting Go network. Ask for a demonstration that starts with an in-house booking, assigns the second visit externally and ends with the report back in the office.",
+        "Kaptur describes its market as UK letting and property management. Confirm clerk coverage, turnaround and the quote for the actual address before promising a visit. A Singapore agency can evaluate reporting software separately from the local availability of a clerk.",
+      ], sources: [kapturProduct] },
+      { id: "run-the-trial", title: "Keep both outputs from the same handover", paragraphs: [
+        "Give each demonstrator the same worktop photo and a sample floor plan. Time how long it takes the manager to locate the returned report, the tenant’s amendment and the version a new clerk should use at check-out.",
+        "If your team attends its own handovers in Singapore, Kivilo offers another workflow to try. The agent writes each room’s inventory, landlord and tenant sign the report, and an acknowledged addendum can carry the changed item forward to check-out.",
+      ], bullets: [
+        "Who owns the second visit when the usual clerk is unavailable?",
+        "Where can the tenant attach the worktop photo and see the response?",
+        "Can a colleague reading the final record distinguish receipt, agreement and a later change?",
+      ] },
+    ],
+    questions: [
+      { question: "Does Kaptur require an agency to outsource every inspection?", answer: "Kaptur describes in-house, outsourced and mixed inspection teams. Konnect is the option it advertises for additional capacity." },
+      { question: "What can a tenant add in Inventory Hive?", answer: "Its paperless workflow lets tenants comment on individual items and attach photos before submitting their response." },
+    ],
+    related: [
+      { label: "Compare Kivilo and Inventory Hive", href: "/compare/kivilo-vs-inventory-hive" },
+      { label: "Compare agent-led and tenant-led inspections", href: "/compare/kivilo-vs-zinspector" },
+    ],
+  },
+  {
+    slug: "kivilo-vs-zinspector",
+    title: "Kivilo vs zInspector for move-in and move-out inspections",
+    description: "Who should record the starting condition? Compare a tenant-led move-in in zInspector with an agent-led, countersigned handover in Kivilo.",
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    summary: "zInspector lets a tenant inspect a unit before the manager returns for move-out. In Kivilo, the agent writes the inventory and both the landlord and tenant sign it. Start with who will have the keys, the time and the responsibility to document the first visit.",
+    summarySources: [zInspectorMoveIn],
+    introduction: [
+      "Imagine the tenant gets the keys on Friday night. On Monday they send a photo of a chip in the hob. When the tenancy ends, a colleague will need to find that photo and understand who agreed when the chip was first recorded.",
+    ],
+    comparison: {
+      competitor: "zInspector",
+      rows: [
+        { topic: "Move-in visit", kivilo: "The inspector writes and reviews each room’s inventory.", competitor: "The manager invites one tenant on the lease to complete a room-by-room inspection in zTenant.", source: zInspectorMoveIn },
+        { topic: "Signing and delivery", kivilo: "Landlord and tenant can sign in person or from an emailed invitation. Each receives the signed report.", competitor: "The tenant signs the move-in inspection. The manager and tenant receive copies, and the report appears on the property timeline.", source: zInspectorMoveIn },
+        { topic: "Return visit", kivilo: "Each copied inventory line retains its agreed description and linked check-in photos for the agent to consult.", competitor: "The manager can select two condition-table inspections at the same property and download a PDF pairing conditions and photos.", source: zInspectorComparison },
+      ],
+    },
+    sections: [
+      { id: "absent-agent", title: "When the agent cannot attend move-in", paragraphs: [
+        "In zInspector, set up the rooms in advance and invite a colleague acting as the tenant. Ask them to record the hob chip, sign and complete the visit. Open the emailed report as the manager. Can you identify the chip and its location without calling the tenant?",
+        "For an attended handover in Kivilo, photograph the hob, link the photo to its inventory line and describe the chip. Open the report through the tenant’s signing invitation and check that the photo and description give them enough detail to sign.",
+      ], sources: [zInspectorMoveIn] },
+      { id: "return-visit", title: "Give the move-out to a different colleague", paragraphs: [
+        "In zInspector, select the move-in and move-out at the same address and open the comparison PDF. In Kivilo, open the hob line at check-out, consult the agreed photo and record what changed. If you propose a deduction, give the parties the dated assessment and check that they can identify the finding behind the amount.",
+      ], sources: [zInspectorComparison] },
+    ],
+    questions: [
+      { question: "Can a manager compare their move-out with a tenant’s move-in in zInspector?", answer: "Yes. zInspector documents that pairing. Both records must be condition-table inspections for the same property." },
+    ],
+    related: [
+      { label: "Kivilo vs RentCheck for tenant-guided inspections", href: "/compare/kivilo-vs-rentcheck" },
+      { label: "Singapore rental handover checklist", href: "/guides/rental-handover-checklist-singapore" },
+    ],
+  },
+  {
+    slug: "kivilo-vs-property-inspect",
+    title: "Kivilo vs Property Inspect for check-out photos and signatures",
+    description: "Follow one damaged cupboard from check-in to check-out. Compare Property Inspect’s paired photos and report closure with Kivilo’s signed inventory and deposit statement.",
+    published: "2026-11-27",
+    updated: "2026-11-27",
+    summary: "Property Inspect lets an inspector retake an earlier photo and show both views together in a linked check-out report. Kivilo keeps the signed inventory line and its photos beside the agent’s new observations, then lets the agent explain a proposed deduction in a deposit statement.",
+    summarySources: [propertyInspectPhotos],
+    introduction: [
+      "At check-in, the left cupboard door already has a scratch. At check-out, the right hinge is broken. A close-up can show the hinge clearly and still leave the landlord unsure which damage was already there. Try that example in both products.",
+    ],
+    comparison: {
+      competitor: "Property Inspect",
+      rows: [
+        { topic: "Setting up the second visit", kivilo: "Start check-out from the signed check-in. The room retains its agreed lines and photos, including acknowledged updates.", competitor: "Continue from the closed check-in and enable photo comparison for that check-out or report type.", source: propertyInspectPhotos },
+        { topic: "Reading the evidence", kivilo: "Open an inventory line to see its agreed photos while recording its condition today.", competitor: "Retake a previous item photo. Expanding the resulting report image shows the old and new pictures.", source: propertyInspectPhotos },
+        { topic: "When edits stop", kivilo: "Sending freezes the report content the parties sign. An agreed later change is recorded in a dated addendum.", competitor: "Closing a report locks it, including signatures. A manager can close it manually or configure automatic closure.", source: propertyInspectClose },
+      ],
+    },
+    sections: [
+      { id: "match-the-photo", title: "Can the next inspector find the same cupboard?", paragraphs: [
+        "In Property Inspect, use a linked check-out with photo comparison enabled. Have a second inspector find the check-in image and use the retake control from a similar angle. Open the expanded pair on the recipient’s report. Property Inspect documents this for lifecycle reports, so a standalone inspection is a different test.",
+        "In Kivilo, write separate inventory lines for the door and the hinge where they need separate observations. Link a photo to each. At check-out, ask your colleague to record which condition changed and see whether the landlord can follow that finding back to the right line.",
+      ], sources: [propertyInspectPhotos] },
+      { id: "signing-order", title: "Try one late signature", paragraphs: [
+        "If you use Property Inspect, check the declaration and signature settings, leave one signature outstanding and establish when the manager will close the report. Its help centre says a closed report cannot accept another signature.",
+        "In Kivilo, send the inventory and have each party sign. Later, publish the check-out findings and deposit statement. Ask the tenant to dispute one proposed amount and verify which version of the statement their response names.",
+      ], sources: [propertyInspectClose] },
+    ],
+    questions: [
+      { question: "Does Property Inspect show paired photos on a standalone move-out?", answer: "Its help centre specifies a check-out continued from a previous check-in, with photo comparison enabled. Ask about feature availability for your account before trying the example." },
+    ],
+    related: [
+      { label: "Kivilo vs Chapps Rental Inspector", href: "/compare/kivilo-vs-chapps-rental-inspector" },
+      { label: "How to evaluate a rental inspection app", href: "/guides/rental-inspection-app-singapore" },
+    ],
+  },
   {
     slug: "kivilo-vs-report-and-run",
     title: "Kivilo vs Report and Run for Singapore rental agents",
@@ -404,6 +543,7 @@ export const comparisons: ResourceArticle[] = [
       },
     ],
     related: [
+      { label: "Inventory Hive vs Kaptur for rental inventories", href: "/compare/inventory-hive-vs-kaptur" },
       { label: "Kivilo vs Report and Run", href: "/compare/kivilo-vs-report-and-run" },
       { label: "Kivilo vs InventoryBase", href: "/compare/kivilo-vs-inventorybase" },
       { label: "Kivilo vs RentCheck", href: "/compare/kivilo-vs-rentcheck" },
@@ -417,7 +557,7 @@ export const comparisons: ResourceArticle[] = [
     description:
       "Compare Kivilo and Chapps Rental Inspector for Singapore rental handovers: offline visits, signatures, successive inspections and agency assignments.",
     published: "2026-10-25",
-    updated: "2026-10-25",
+    updated: "2026-11-27",
     summary:
       "Chapps Rental Inspector supports rental visits with offline capture, on-site signatures and a sequence of inspections built from previous visits. Kivilo connects an agent-written inventory to party signatures, acknowledged tenancy changes and the next check-out. Both merit a trial that follows the property beyond the first handover.",
     summarySources: [chappsProduct, chappsCheckOut],
@@ -478,11 +618,13 @@ export const comparisons: ResourceArticle[] = [
       },
       {
         id: "agreed-changes",
-        title: "Kivilo keeps agreed tenancy changes beside the signed record",
+        title: "What happens when the refrigerator is replaced?",
         paragraphs: [
+          "Chapps keeps the original PDF when an inspector revises a finished visit in Rental Manager. The inspector can issue a full replacement report or an addendum showing the changes. For signatures on that revision, Chapps describes paper or an external signing service.",
           "Kivilo freezes the condition report when it is sent for signature. If a refrigerator is replaced during the tenancy, the agent records an addendum instead of changing that report. Once both parties acknowledge the update, it becomes part of the agreed state used when the agent starts check-out.",
           "The check-out keeps a frozen check-in reference while the agent writes the current observations. This helps a replacement agent identify which refrigerator was agreed and which condition belongs to the new visit. A fresh tenancy remains a separate record on the same property.",
         ],
+        sources: [chappsCorrections],
       },
       {
         id: "handover-demo",
