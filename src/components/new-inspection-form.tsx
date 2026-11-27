@@ -1,5 +1,6 @@
 'use client'
 
+import { TenancyPeriodFields } from './tenancy-period-fields'
 import Link from 'next/link'
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -18,16 +19,6 @@ const field =
   'mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-normal focus:border-brand-500 focus:outline-none'
 const requirement = 'ml-1 font-normal text-gray-400'
 
-/// A two year tenancy is the common case in Singapore, so the dates start there and
-/// the agent adjusts rather than fills in from empty.
-function defaultDates() {
-  const start = new Date()
-  const end = new Date(start)
-  end.setFullYear(end.getFullYear() + 2)
-  const iso = (d: Date) => d.toISOString().slice(0, 10)
-  return { start: iso(start), end: iso(end) }
-}
-
 export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberInitial, plans }: {
   agentId: string
   teams: WorkspaceTeam[]
@@ -42,7 +33,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
   useEffect(() => {
     if (rememberInitial) rememberWorkspace(agentId, initialWorkspace)
   }, [agentId, initialWorkspace, rememberInitial])
-  const dates = defaultDates()
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Singapore' })
   const plan = plans[workspace]
   const limited = plan.needsMoreSeats || plan.active >= plan.limit
 
@@ -91,9 +82,9 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
   return (
     <form onSubmit={submit} className="mt-8 space-y-8">
       <fieldset className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-        <legend className="text-sm font-medium">Property workspace</legend>
+        <legend className="text-sm font-medium">Who is this property for?</legend>
         <label className="block text-xs font-medium text-gray-600">
-          Workspace
+          Teams
           <select name="workspace" className={field} value={workspace} disabled={pending} onChange={(event) => {
             setWorkspace(event.target.value)
             rememberWorkspace(agentId, event.target.value)
@@ -210,14 +201,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
       <fieldset className="space-y-4">
         <legend className="text-sm font-medium">Tenancy</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block text-xs font-medium text-gray-600">
-            Starts <span className={requirement}>(required)</span>
-            <input name="startDate" type="date" required defaultValue={dates.start} className={field} />
-          </label>
-          <label className="block text-xs font-medium text-gray-600">
-            Ends <span className={requirement}>(required)</span>
-            <input name="endDate" type="date" required defaultValue={dates.end} className={field} />
-          </label>
+          <TenancyPeriodFields initialStart={today} field={field} />
           <label className="block text-xs font-medium text-gray-600">
             Monthly rent (SGD) <span className={requirement}>(optional)</span>
             <div className="group relative">

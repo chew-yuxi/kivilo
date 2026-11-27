@@ -40,7 +40,7 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
             </div>
           </div>
         </header>
-        <nav aria-label="Workspace" className="border-b border-gray-200 bg-white">
+        <nav aria-label="Main menu" className="border-b border-gray-200 bg-white">
           <div className="mx-auto flex max-w-5xl flex-wrap gap-2 px-4 py-2 sm:px-6">
             <Link href="/properties" className="action-secondary">Properties</Link>
             <Link href="/inspections" className="action-secondary">My work</Link>

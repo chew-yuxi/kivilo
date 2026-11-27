@@ -34,7 +34,7 @@ export function WorkspaceSection({
 }) {
   const selectedTeam = directory.agencies.find((team) => team.id === workspace)
   return (
-    <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label="Choose workspace">
+    <section className="mb-6 rounded-lg border border-gray-200 bg-white p-4" aria-label="Choose a team">
       <div className="flex flex-wrap items-end gap-3">
         <WorkspaceSelector agentId={agentId} teams={directory.agencies} workspace={workspace} rememberInitial={asked !== undefined} path={path} />
         {selectedTeam && <Link href={`/team/${selectedTeam.id}`} className="action-secondary">Manage team</Link>}
@@ -47,7 +47,7 @@ export function WorkspaceSection({
             : 'All team properties. Owners and managers oversee the team; agents see their assignments.'
           : workspace === 'personal'
             ? 'Personal properties stay outside your teams. Share individual tenancies only when you choose.'
-            : 'Your assigned properties, shared tenancies and access to previous reports across workspaces.'}
+            : 'Your personal properties, team assignments and reports shared with you.'}
       </p>
       {directory.agencies.length === 0 && (
         <p className="mt-2 text-sm text-gray-600">Create a team, invite colleagues, then add properties to its portfolio.</p>

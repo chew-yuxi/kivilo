@@ -107,7 +107,7 @@ test('invite once, assign by name, transfer responsibility, and offboard with pr
     await colleaguePage.getByRole('link', { name: 'Team', exact: true }).click()
     await colleaguePage.getByRole('button', { name: 'Accept invitation' }).click()
     await expect(colleaguePage).toHaveURL(`/inspections?workspace=${agencyId}`)
-    await expect(colleaguePage.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+    await expect(colleaguePage.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue(agencyId)
     const colleague = { Authorization: `Bearer ${await accessTokenFor(colleagueEmail)}` }
     const colleagueId = (await (await request.get('/api/v1/me', { headers: colleague })).json())
       .id as string
@@ -273,17 +273,17 @@ test('team-first workspace keeps personal work separate and new team properties 
 
   // A new team never hides existing work: the list still opens on everything.
   await page.goto('/inspections')
-  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('all')
+  await expect(page.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue('all')
   await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(1)
   // Selecting the team is the entry point. Existing personal work is not moved.
-  await page.getByRole('combobox', { name: 'Workspace', exact: true }).selectOption(agencyId)
+  await page.getByRole('combobox', { name: 'Teams', exact: true }).selectOption(agencyId)
   await expect(page).toHaveURL(`/inspections?workspace=${agencyId}`)
-  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
-  expect((await page.getByRole('combobox', { name: 'Workspace', exact: true }).boundingBox())!.width).toBeGreaterThanOrEqual(200)
+  await expect(page.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue(agencyId)
+  expect((await page.getByRole('combobox', { name: 'Teams', exact: true }).boundingBox())!.width).toBeGreaterThanOrEqual(200)
   await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toHaveCount(0)
   await page.getByRole('link', { name: 'New check-in', exact: true }).first().click()
   await expect(page).toHaveURL(`/inspections/new?workspace=${agencyId}`)
-  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+  await expect(page.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue(agencyId)
   await page.screenshot({ path: 'build/team-workspace-20261022/new-check-in-phone.png', fullPage: true })
   await page.getByLabel('Address').fill('41 Harbour Walk')
   await page.getByLabel('Postal code').fill('238801')
@@ -303,15 +303,15 @@ test('team-first workspace keeps personal work separate and new team properties 
 
   await page.goto('/inspections')
   await expect(page.getByRole('link', { name: /41 Harbour Walk/ })).toBeVisible()
-  await page.getByRole('combobox', { name: 'Workspace', exact: true }).selectOption('personal')
+  await page.getByRole('combobox', { name: 'Teams', exact: true }).selectOption('personal')
   await expect(page.getByRole('link', { name: /17 Personal Lane/ })).toBeVisible()
   await expect(page.getByRole('link', { name: /41 Harbour Walk/ })).toHaveCount(0)
   await page.getByRole('link', { name: 'New check-in', exact: true }).first().click()
   await expect(page).toHaveURL('/inspections/new?workspace=personal')
-  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('personal')
+  await expect(page.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue('personal')
   // Header navigation remembers the explicit personal choice across screens.
   await page.getByRole('link', { name: 'My work', exact: true }).click()
-  await expect(page.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue('personal')
+  await expect(page.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue('personal')
 
   const agentContext = await browser.newContext({ baseURL, viewport: { width: 393, height: 851 } })
   try {
@@ -320,7 +320,7 @@ test('team-first workspace keeps personal work separate and new team properties 
     await agentPage.getByRole('link', { name: 'Team', exact: true }).click()
     await agentPage.getByRole('button', { name: 'Accept invitation' }).click()
     await expect(agentPage).toHaveURL(`/inspections?workspace=${agencyId}`)
-    await expect(agentPage.getByRole('combobox', { name: 'Workspace', exact: true })).toHaveValue(agencyId)
+    await expect(agentPage.getByRole('combobox', { name: 'Teams', exact: true })).toHaveValue(agencyId)
     await expect(agentPage.getByRole('link', { name: /41 Harbour Walk/ })).toHaveCount(0)
     const agent = { Authorization: `Bearer ${await accessTokenFor(agentEmail)}` }
     expect((await request.get(`/api/v1/inspections/${teamInspectionId}`, { headers: agent })).status()).toBe(404)

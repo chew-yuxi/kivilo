@@ -169,8 +169,8 @@ class _BillingScreenState extends State<BillingScreen>
                 padding: kiviloScreenPadding,
                 children: [
                   KiviloSelectField<String>(
-                    label: 'Workspace',
-                    sheetTitle: 'Choose billing workspace',
+                    label: 'Teams',
+                    sheetTitle: 'Choose a plan',
                     value: _workspace,
                     enabled: !busy,
                     options: [
@@ -264,7 +264,7 @@ class _BillingScreenState extends State<BillingScreen>
                         ),
                         if (widget.billing.provider == 'apple') ...[
                           const SizedBox(height: kiviloHeadingGap),
-                          const Text('Your Apple Account can subscribe for one team workspace, with up to 20 seats, alongside your Personal plan.'),
+                          const Text('Your Apple Account can subscribe for one team, with up to 20 seats, alongside your Personal plan.'),
                         ],
                       ],
                       const SizedBox(height: 16),
@@ -332,7 +332,7 @@ class _BillingScreenState extends State<BillingScreen>
                     ] else if (status.canManageBilling &&
                         status.provider == null) ...[
                       const SizedBox(height: 16),
-                      Text('${widget.billing.storeName} subscriptions are not available for this workspace yet.'),
+                      Text('${widget.billing.storeName} subscriptions are not available for this plan yet.'),
                     ],
                   ],
                   if (widget.billing.errorMessage != null) ...[

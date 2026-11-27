@@ -584,7 +584,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               ),
             ],
             const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(title: 'Workspace'),
+            const KiviloSectionHeading(title: 'Teams'),
             const SizedBox(height: kiviloHeadingGap),
             _countryCard(),
             const SizedBox(height: kiviloButtonGap),

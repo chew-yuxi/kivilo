@@ -35,7 +35,7 @@ export async function startCheckout(formData?: FormData) {
     if ((workspace.subscription?.googlePlayPurchaseId || workspace.subscription?.applePurchaseId) && subscriptionCanResume(workspace.subscription)) {
       throw new Error('Manage your existing app store subscription before changing billing providers')
     }
-    if (workspace.plan === 'PRO') throw new Error('This workspace is already on Pro')
+    if (workspace.plan === 'PRO') throw new Error('This plan is already on Pro')
     if (!workspace.isManager) throw new Error('Only the member who manages billing can subscribe')
     if (!checkoutOpen()) throw new Error('Pro is not on sale yet')
 

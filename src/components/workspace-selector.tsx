@@ -25,7 +25,7 @@ export function WorkspaceSelector({
 
   return (
     <label className="block min-w-0 basis-full text-sm font-medium sm:flex-1">
-      Workspace
+      Teams
       <select
         className="field mt-1"
         value={workspace}

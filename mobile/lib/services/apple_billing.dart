@@ -167,7 +167,7 @@ class AppleBilling extends StoreBilling {
             int.parse(expiry) > DateTime.now().millisecondsSinceEpoch &&
             purchase.appAccountToken?.toLowerCase() != token.toLowerCase()) {
           throw const ApiFailure(
-            'This Apple Account already has a plan for another Kivilo account or workspace. Restore it in the account that bought it.',
+            'This Apple Account already has a plan for another Kivilo account or team. Restore it in the account that bought it.',
             409,
           );
         }

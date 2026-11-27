@@ -59,7 +59,7 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
       </div>
 
       {agencies.length > 0 && (
-        <nav aria-label="Billing workspace" className="mt-8 flex flex-wrap gap-2">
+        <nav aria-label="Personal and team plans" className="mt-8 flex flex-wrap gap-2">
           <Link href="/account" aria-current={!agencyId ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${!agencyId ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>Personal</Link>
           {agencies.map((agency) => (
             <Link key={agency.id} href={`/account?agencyId=${encodeURIComponent(agency.id)}`} aria-current={agencyId === agency.id ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${agencyId === agency.id ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api.dart';
 import '../services/product_events.dart';
+import '../ui/tenancy_period.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
@@ -42,7 +43,8 @@ class _RenewalScreenState extends State<RenewalScreen> {
       previousEnd.day + 1,
     );
     _start = _earliestStart;
-    _end = DateTime(_start!.year + 2, _start!.month, _start!.day - 1);
+    _termYears = 2;
+    _end = tenancyEndDate(_start!, _termYears);
     _rent.text = data['monthlyRent'] as String;
     _deposit.text = data['deposit'] as String;
     _rooms
@@ -61,15 +63,24 @@ class _RenewalScreenState extends State<RenewalScreen> {
   String _iso(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
+  int _termYears = 2;
+
   Future<void> _date(bool start) async {
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: start ? _start! : _end!,
-      firstDate: _earliestStart!,
-      lastDate: DateTime(2100),
+    final selected = await pickTenancyDate(
+      context,
+      start ? _start! : _end!,
+      earliest: _earliestStart,
     );
     if (selected != null && mounted) {
-      setState(() => start ? _start = selected : _end = selected);
+      setState(() {
+        if (start) {
+          _start = selected;
+          if (_termYears > 0) _end = tenancyEndDate(selected, _termYears);
+        } else {
+          _termYears = 0;
+          _end = selected;
+        }
+      });
     }
   }
 
@@ -159,14 +170,24 @@ class _RenewalScreenState extends State<RenewalScreen> {
                     'Same landlord and tenant · ${snapshot.data!['tenant']}',
                   ),
                   const SizedBox(height: 24),
-                  OutlinedButton(
-                    onPressed: _busy ? null : () => _date(true),
-                    child: Text('Starts ${_iso(_start!)}'),
+                  TenancyLengthPicker(
+                    years: _termYears,
+                    onChanged: _busy ? null : (years) => setState(() {
+                      _termYears = years;
+                      if (years > 0) _end = tenancyEndDate(_start!, years);
+                    }),
                   ),
                   const SizedBox(height: 12),
-                  OutlinedButton(
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.calendar_today_outlined),
+                    onPressed: _busy ? null : () => _date(true),
+                    label: Text('Starts ${_iso(_start!)}'),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.calendar_today_outlined),
                     onPressed: _busy ? null : () => _date(false),
-                    child: Text('Ends ${_iso(_end!)}'),
+                    label: Text('Ends ${_iso(_end!)}'),
                   ),
                   const SizedBox(height: 16),
                   _amount(_rent, 'Monthly rent ($currency)', currency),

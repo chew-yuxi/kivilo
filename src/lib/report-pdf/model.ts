@@ -9,7 +9,7 @@ import { reportAgent, reportBranding } from '@/lib/report-agent'
 import { verifiedParties } from '@/lib/report'
 
 /// Bump whenever the document's layout changes, so every cached PDF is redrawn.
-export const RENDER_VERSION = 10
+export const RENDER_VERSION = 11
 
 const reportInclude = {
   tenancy: {

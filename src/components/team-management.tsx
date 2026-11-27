@@ -170,7 +170,7 @@ export function TeamDirectory({ data }: { data: Directory }) {
       >
         <h2 className="font-semibold">Create a team</h2>
         <p className="text-sm text-gray-600">
-          Invite colleagues once, then add properties to the team workspace. Owners and managers
+          Invite colleagues, then add properties to your team. Owners and managers
           oversee all team work; agents see their assignments. Existing personal properties stay private.
         </p>
         <label className="block text-sm font-medium" htmlFor="agency-name">

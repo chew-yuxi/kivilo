@@ -10,6 +10,7 @@ import '../models/property_work.dart';
 import 'contact_picker_screen.dart';
 import 'property_picker_screen.dart';
 import '../services/product_events.dart';
+import '../ui/tenancy_period.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
@@ -156,11 +157,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   String _propertyType = 'PRIVATE_NON_LANDED';
   String? _furnishingLevel;
   DateTime _startDate = DateTime.now();
-  late DateTime _endDate = DateTime(
-    _startDate.year + 2,
-    _startDate.month,
-    _startDate.day,
-  );
+  int _termYears = 2;
+  late DateTime _endDate = tenancyEndDate(_startDate, _termYears);
   bool _busy = false;
   String? _error;
 
@@ -211,6 +209,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           DateTime.tryParse(draft['startDate'] as String? ?? '') ?? _startDate;
       _endDate =
           DateTime.tryParse(draft['endDate'] as String? ?? '') ?? _endDate;
+      final savedYears = draft['termYears'];
+      _termYears = savedYears == 0 ? 0 : matchingTenancyYears(_startDate, _endDate);
       _bedrooms = draft['bedrooms'] as int? ?? _bedrooms;
       _bathrooms = draft['bathrooms'] as int? ?? _bathrooms;
       final extras = (draft['extras'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -242,6 +242,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       },
       'propertyType': _propertyType,
       'furnishingLevel': _furnishingLevel,
+      'termYears': _termYears,
       'startDate': _iso(_startDate),
       'endDate': _iso(_endDate),
       'bedrooms': _bedrooms,
@@ -351,17 +352,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   Future<void> _pickDate(bool start) async {
-    final selected = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: start ? _startDate : _endDate,
-    );
+    final selected = await pickTenancyDate(context, start ? _startDate : _endDate);
     if (selected != null && mounted) {
       _change(() {
         if (start) {
           _startDate = selected;
+          if (_termYears > 0) _endDate = tenancyEndDate(selected, _termYears);
         } else {
+          _termYears = 0;
           _endDate = selected;
         }
       });
@@ -574,13 +572,13 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           OutlinedButton(
             onPressed: _busy || _existing != null ? null : _chooseWorkspace,
             child: Text(
-              'Workspace: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
+              'Team: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
             ),
           ),
           const SizedBox(height: 8),
           Text(
             _existing != null
-                ? 'A new tenancy stays in the property’s workspace.'
+                ? 'A new tenancy keeps the same team or stays Personal.'
                 : _agency == null
                 ? 'Private to you until you share it.'
                 : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
@@ -861,6 +859,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             subtitle: 'Dates and agreed amounts',
           ),
           const SizedBox(height: kiviloHeadingGap),
+          TenancyLengthPicker(
+            years: _termYears,
+            onChanged: _busy ? null : (years) => _change(() {
+              _termYears = years;
+              if (years > 0) _endDate = tenancyEndDate(_startDate, years);
+            }),
+          ),
+          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(

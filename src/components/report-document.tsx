@@ -169,7 +169,7 @@ export async function ReportDocument({
             </div>
           )}
           <div>
-            <dt className="text-xs uppercase tracking-wide text-gray-500">Tenancy</dt>
+            <dt className="text-xs uppercase tracking-wide text-gray-500">Tenancy Period</dt>
             <dd className="mt-0.5">
               {dateFormat.format(tenancy.startDate)} to {dateFormat.format(tenancy.endDate)}
             </dd>
@@ -506,15 +506,12 @@ type EvidencePhoto = {
 function PhotoRefs({ photos }: { photos: EvidencePhoto[] }) {
   if (photos.length === 0) return null
   return (
-    <span className="mt-0.5 block text-xs text-gray-500">
-      {photos.length === 1 ? 'Photo ' : 'Photos '}
-      {photos.map((photo, index) => (
-        <span key={photo.id}>
-          {index > 0 && ', '}
-          <a href={`#photo-${photo.ref.replace('.', '-')}`} className="text-brand-600 underline underline-offset-4">
-            {photo.ref}
-          </a>
-        </span>
+    <span className="mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-gray-500">
+      <span>{photos.length === 1 ? 'Photo' : 'Photos'}</span>
+      {photos.map(photo => (
+        <a key={photo.id} href={`#photo-${photo.ref.replace('.', '-')}`} className="whitespace-nowrap text-brand-600 underline underline-offset-4">
+          {photo.ref}
+        </a>
       ))}
     </span>
   )
