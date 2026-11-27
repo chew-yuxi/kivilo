@@ -143,9 +143,12 @@ describe('a Malaysian property', () => {
     expect(detail).toMatchObject({ country: 'MY', currency: 'MYR', deposit: '5000.5', property: `A-12-3, Residensi Sentral, Jalan Tun Sambanthan, Kuala Lumpur, ${POSTAL} Malaysia` })
     expect((await tenancyDetail(tenancyId, by.id)).currency).toBe('MYR')
 
+    // Even with client checks switched on, a Malaysian tenancy is refused and not offered.
+    vi.stubEnv('KIVILO_CLIENT_CHECKS_ENABLED', 'true')
     await expect(verifyTenancyParties(by.id, tenancyId)).rejects.toThrow('for Singapore properties only')
     const verification = await (await verificationRoute.GET(new Request('http://test/'), params({ id: tenancyId }))).json()
     expect(verification).toMatchObject({ enabled: false })
+    vi.unstubAllEnvs()
     const overview = await (await overviewRoute.GET(new Request('http://test/'), params({ id: tenancy.propertyId }))).json()
     expect(overview).toMatchObject({ country: 'MY', currency: 'MYR' })
     expect(overview.terms[0].verification).toBeNull()

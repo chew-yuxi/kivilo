@@ -9,7 +9,7 @@ import { requestParticulars, sendDueReminders, startDeal, verifyTenancyParties }
 
 vi.mock('@/lib/auth', () => ({ currentStakeholder: async () => ({ id: 'agent' }) }))
 vi.mock('@/lib/home-tasks', () => ({ homeTasks: async () => ({ tasks: [] }) }))
-vi.mock('@/lib/property-work', () => ({ propertyOverview: async () => ({ terms: [{ tenancyId: 't', monthlyRent: '1000' }] }) }))
+vi.mock('@/lib/property-work', () => ({ propertyOverview: async () => ({ country: 'SG', terms: [{ tenancyId: 't', monthlyRent: '1000' }] }) }))
 vi.mock('@/lib/actions', () => ({ createInspection: vi.fn(async () => 'check-in') }))
 vi.mock('@/lib/db', () => ({ db: {} })) // The paused paths must not look up a client or enqueue anything.
 afterEach(() => vi.unstubAllEnvs())
@@ -44,5 +44,5 @@ it('hides the Home card and property prompts and keeps the ordinary tenancy visi
   const tasks = await home(request, { params: Promise.resolve({}) })
   expect(await tasks.json()).toEqual({ tasks: [], dueDiligence: false })
   const details = await overview(request, { params: Promise.resolve({ id: 'property' }) })
-  expect(await details.json()).toEqual({ terms: [{ tenancyId: 't', monthlyRent: '1000', verification: null }] })
+  expect(await details.json()).toEqual({ country: 'SG', terms: [{ tenancyId: 't', monthlyRent: '1000', verification: null }] })
 })

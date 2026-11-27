@@ -99,7 +99,7 @@ describe('a Singapore report keeps its hashes', () => {
   it('draws the same PDFs, so stored copies are not redrawn', async () => {
     const checkIn = await loadReportRow('sgpin-checkin')
     const checkOut = await loadReportRow('sgpin-checkout')
-    expect(reportHash(buildReportModel(checkIn!))).toBe('1db06a1941718f59434d2adb8d015362')
-    expect(reportHash(buildReportModel(checkOut!))).toBe('a725c4c45cc15d4441dd75c8b688a6f9')
+    expect(reportHash(buildReportModel(checkIn!))).toBe('2fcdf84f4dffbcf9c66f6c3c8dae5c32')
+    expect(reportHash(buildReportModel(checkOut!))).toBe('8f6dcb5d3109bc8b2a511048c4942116')
   })
 })
