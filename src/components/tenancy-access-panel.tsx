@@ -147,7 +147,7 @@ export function TenancyAccessPanel({ access, viewerId }: {
                       type="button"
                       disabled={pending}
                       onClick={() => setRemovingId(null)}
-                      className="min-h-11 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-50"
+                      className="action-secondary"
                     >
                       Keep access
                     </button>

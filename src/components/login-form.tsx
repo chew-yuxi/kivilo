@@ -136,7 +136,7 @@ export function LoginForm() {
             setCode('')
             setError(null)
           }}
-          className="min-h-14 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-lg font-medium text-gray-700 hover:bg-gray-50"
+          className="action-secondary w-full"
         >
           Use a different email
         </button>
