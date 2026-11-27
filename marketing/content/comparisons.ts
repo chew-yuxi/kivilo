@@ -8,6 +8,10 @@ const reportAndRunManual = {
   label: "Report and Run: report structure",
   url: "https://docs.reportandrun.com/manual/report-and-run/content/reports",
 }
+const reportAndRunFollowUp = {
+  label: "Report and Run guide to follow-up photos and before-and-after images",
+  url: "https://docs.reportandrun.com/manual/report-and-run-integrate/content/images/add-follow-up-image",
+}
 const reportAndRunCloud = {
   label: "Report and Run Cloud: sharing and collaboration",
   url: "https://www.reportandrun.com/cloud/send.html",
@@ -211,17 +215,17 @@ export const comparisons: ResourceArticle[] = [
   },
   {
     slug: "kivilo-vs-report-and-run",
-    title: "Kivilo vs Report and Run for Singapore rental agents",
+    title: "Kivilo vs Report and Run for rental handovers",
     description:
-      "Compare Kivilo and Report and Run for Singapore rental handovers: photo reports, inventory, signing, tenancy changes and check-out evidence.",
+      "Compare Report and Run’s annotated photos and before-and-after exports with Kivilo’s signed rental inventory. Follow a kitchen repair from check-in to check-out.",
     published: "2026-10-25",
-    updated: "2026-10-25",
+    updated: "2026-11-27",
     summary:
-      "Report and Run describes its reports as general purpose, covering inspections, maintenance requests and scopes of work. Kivilo organizes rental check-ins, signatures, changes during a tenancy and check-outs around a property record. Choose according to the work that must happen after the photos are taken.",
-    summarySources: [reportAndRunManual],
+      "Report and Run is a good fit when a landlord needs a photo report showing what a contractor fixed. Its Cloud mobile app can put the original and follow-up photos side by side. Kivilo keeps the condition the landlord and tenant signed for at check-in beside the agent’s findings at check-out.",
+    summarySources: [reportAndRunFollowUp],
     introduction: [
       "For a Singapore rental agent, the immediate job might be a photo report of a furnished condo. The longer job is remembering what the landlord and tenant agreed, recording a replacement appliance, and explaining a changed condition at handback. Those are useful requirements to take into either product trial.",
-      "Report and Run has separate Offline and Cloud offerings; check the edition you are evaluating.",
+      "Report and Run’s Offline app can generate a PDF on the phone. Its Cloud offering lets a colleague finish the report at a desk after the visit.",
     ],
     comparison: {
       competitor: "Report and Run",
@@ -241,7 +245,7 @@ export const comparisons: ResourceArticle[] = [
         {
           topic: "Report delivery",
           kivilo: "Shared web reports and signed report PDFs, with landlord and tenant signing workflows.",
-          competitor: "PDF and DOCX exports; Cloud also offers report download links.",
+          competitor: "Cloud generates PDF or DOCX files and can issue a download link that expires after seven days.",
           source: reportAndRunCloud,
         },
         {
@@ -251,10 +255,10 @@ export const comparisons: ResourceArticle[] = [
           source: reportAndRunCloud,
         },
         {
-          topic: "Report format",
-          kivilo: "A condition report built around each room and its inventory.",
-          competitor: "Configurable photo layouts and editable DOCX output.",
-          source: reportAndRunProduct,
+          topic: "Return visit",
+          kivilo: "At check-out, open a kitchen inventory line to read its agreed condition and see its linked check-in photos.",
+          competitor: "In the Cloud mobile app, attach a follow-up to the original image and use Image Builder to place the two views together.",
+          source: reportAndRunFollowUp,
         },
       ],
     },
@@ -264,9 +268,9 @@ export const comparisons: ResourceArticle[] = [
         title: "When Report and Run belongs on your shortlist",
         paragraphs: [
           "Consider Report and Run when your deliverable is a flexible photo report: a site visit, maintenance observation or work summary. Its product pages emphasize image markup and document exports, while Cloud adds collaboration across mobile and desktop. Those capabilities can matter if your agency produces reports beyond rental handovers.",
-          "Bring your preferred report layout to a trial. Check whether the photographs remain readable, whether colleagues can finish the document, and how the recipient receives the final version.",
+          "Suppose a contractor reseals a leaking kitchen sink. Photograph the joint before work starts and again after the repair. In Report and Run’s Cloud mobile app, attach the second photo to the first, build a side-by-side image and send the result to the landlord. Check whether they can see exactly which joint was repaired.",
         ],
-        sources: [reportAndRunProduct, reportAndRunCloud],
+        sources: [reportAndRunProduct, reportAndRunFollowUp, reportAndRunCloud],
       },
       {
         id: "rental-record",
@@ -280,7 +284,7 @@ export const comparisons: ResourceArticle[] = [
         id: "trial-one-room",
         title: "Try one realistic handover, including the return visit",
         paragraphs: [
-          "Use a furnished kitchen as your trial. Record a refrigerator serial label, an existing cabinet chip and the condition of the hob. Then work through the same questions in each product. These are evaluation questions, not claims that an undocumented competitor feature is unavailable.",
+          "Use a furnished kitchen as your trial. Record a refrigerator serial label, an existing cabinet chip and the condition of the hob. Give the return visit to someone who missed the check-in and see what they can establish from the record alone.",
         ],
         bullets: [
           "Can each photograph be found beside the item it explains?",
@@ -310,12 +314,13 @@ export const comparisons: ResourceArticle[] = [
           "Yes. They can sign through their own accounts or in person on the agent's device. Each signature records a fingerprint of the report content. Kivilo also provides a PDF of the completed report.",
       },
       {
-        question: "Does this comparison prove Report and Run lacks a feature?",
+        question: "Which version of Report and Run should I try for a photo handover?",
         answer:
-          "No. It summarizes the official documentation cited here. Where a particular tenancy workflow is not established by those sources, ask Report and Run to demonstrate it rather than treating silence as an absence.",
+          "Try Offline if you need to create the PDF on your phone before leaving the unit. Try Cloud if someone in the office needs to edit the visit with you or you want to invite a client to view the report as it takes shape.",
       },
     ],
     related: [
+      { label: "Compare check-out photos in Kivilo and Property Inspect", href: "/compare/kivilo-vs-property-inspect" },
       { label: "Kivilo vs InventoryBase", href: "/compare/kivilo-vs-inventorybase" },
       { label: "Kivilo vs Inventory Hive", href: "/compare/kivilo-vs-inventory-hive" },
       { label: "Kivilo vs SnapInspect", href: "/compare/kivilo-vs-snapinspect" },
