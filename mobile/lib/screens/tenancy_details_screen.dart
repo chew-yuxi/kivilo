@@ -39,9 +39,9 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
     text: widget.term.tenantEmail ?? '',
   );
   late final _monthlyRent = TextEditingController(
-    text: widget.term.monthlyRent ?? '0',
+    text: widget.term.monthlyRent ?? '',
   );
-  late final _deposit = TextEditingController(text: widget.term.deposit ?? '0');
+  late final _deposit = TextEditingController(text: widget.term.deposit ?? '');
   late DateTime _startDate = DateTime.parse(widget.term.startDate);
   late DateTime _endDate = DateTime.parse(widget.term.endDate);
   bool _busy = false;
@@ -95,7 +95,8 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
   bool get _malaysia => widget.property.country == 'MY';
 
   String? _moneyError(String? value) {
-    if (!RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value?.trim() ?? '')) {
+    if (value == null || value.trim().isEmpty) return null;
+    if (!RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(value.trim())) {
       return 'Enter a valid ${widget.property.currency} amount with up to 2 decimals';
     }
     return null;
@@ -164,6 +165,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
         'tenantEmail': tenantEmail.isEmpty ? null : tenantEmail,
         'startDate': _iso(_startDate),
         'endDate': _iso(_endDate),
+        'preservesBlankAmounts': true,
         'monthlyRent': _monthlyRent.text.trim(),
         'deposit': _deposit.text.trim(),
       });

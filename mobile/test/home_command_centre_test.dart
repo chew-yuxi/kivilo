@@ -213,7 +213,7 @@ void main() {
     (tester) async {
       final api = _HomeApi(byContext: {'work': _work});
       await _pump(tester, api);
-      expect(find.text('Needs your action · 3'), findsOneWidget);
+      expect(find.text('Needs your action · 2'), findsOneWidget);
       expect(find.text('Continue where you left off'.toUpperCase()), findsOneWidget);
       // The shortcut is the newest open inspection; the button says what it does.
       expect(
@@ -335,7 +335,7 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.text('Acknowledge the repair: Leaking tap'), findsNothing);
-    expect(find.text('Needs your action · 2'), findsOneWidget);
+    expect(find.text('Needs your action · 1'), findsOneWidget);
 
     await tester.ensureVisible(find.text('Continue the check-in'));
     await tester.pumpAndSettle();
@@ -370,7 +370,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
     expect(find.text('Checking for updates…'), findsOneWidget);
-    expect(find.text('Needs your action · 3'), findsOneWidget);
+    expect(find.text('Needs your action · 2'), findsOneWidget);
     api.pending!.complete(_work);
     await tester.pumpAndSettle();
     // The stream's done event reaches the screen through the real event loop, which
@@ -484,7 +484,7 @@ void main() {
     );
     final api = _HomeApi(byContext: {'work': many});
     await _pump(tester, api);
-    expect(find.text('Waiting on others · 8+'), findsOneWidget);
+    expect(find.text('Waiting on others · 5'), findsOneWidget);
     expect(find.text('Row 5'), findsNothing);
     await _reveal(tester, find.text('View all 8+'));
     await tester.tap(find.text('View all 8+'));

@@ -70,6 +70,7 @@ class InspectionDetail {
     required this.maintenanceHistory,
     required this.checkOutItems,
     required this.checkInItems,
+    this.needsDeposit = false,
     this.country = 'SG',
     this.currency = 'SGD',
   });
@@ -79,6 +80,7 @@ class InspectionDetail {
   /// The property's country, and the currency of the deposit and findings' costs.
   final String country;
   final String currency;
+  final bool needsDeposit;
   final String? tenancyRecordId;
   final bool clientChecksEnabled;
   final String? propertyId;
@@ -117,6 +119,7 @@ class InspectionDetail {
         id: json['id'] as String,
         country: countryOf(json),
         currency: currencyOf(json),
+        needsDeposit: json['needsDeposit'] as bool? ?? false,
         tenancyRecordId: json['tenancyRecordId'] as String?,
         clientChecksEnabled: json['clientChecksEnabled'] == true,
         propertyId: json['propertyId'] as String?,

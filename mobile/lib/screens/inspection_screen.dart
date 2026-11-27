@@ -396,7 +396,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
 
   /// With no findings, publishing states that no damage was found, so the drawer says
   /// exactly that and the request carries the confirmation the server requires.
-  Future<void> _publishFindings(bool noFindings) async {
+  Future<void> _publishFindings(InspectionDetail inspection) async {
+    final noFindings = inspection.findings.isEmpty;
     final owner = Supabase.instance.client.auth.currentUser?.id;
     if (owner != null) {
       try {
@@ -415,18 +416,38 @@ class _InspectionScreenState extends State<InspectionScreen> {
       }
     }
     if (!mounted) return;
+    final depositForm = GlobalKey<FormState>();
+    String? confirmedDeposit;
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
         title: Text(noFindings ? 'Confirm no changes?' : 'Publish assessment?'),
-        content: Text(
-          noFindings
+        content: Form(
+          key: depositForm,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          Text(noFindings
               ? 'You are confirming that the check-out matches the agreed '
                     'check-in, with no damage, missing items or other changes '
                     'to record. Both parties will see this in the report.'
               : 'The reviewed findings will be visible as a dated '
                     'assessment separate from the signed inventory. Future '
-                    'edits require publishing a new version.',
+                    'edits require publishing a new version.'),
+          if (inspection.needsDeposit) ...[
+            const SizedBox(height: 16),
+            TextFormField(
+              decoration: InputDecoration(labelText: 'Deposit (${inspection.currency})',
+                helperText: 'Enter 0 if no deposit was paid.'),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              onChanged: (value) => confirmedDeposit = value.trim(),
+              validator: (value) => RegExp(r'^\d{1,8}(?:\.\d{1,2})?$').hasMatch(value?.trim() ?? '')
+                  ? null : 'Enter the amount paid, or 0.',
+            ),
+          ],
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -434,14 +455,16 @@ class _InspectionScreenState extends State<InspectionScreen> {
             child: const Text('Cancel'),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () {
+              if (depositForm.currentState!.validate()) Navigator.pop(context, true);
+            },
             child: Text(noFindings ? 'Confirm no changes' : 'Publish'),
           ),
         ],
       ),
     );
     if (confirmed == true) {
-      await _run(() => _api.publishFindings(widget.id, noFindings: noFindings));
+      await _run(() => _api.publishFindings(widget.id, noFindings: noFindings, confirmedDeposit: confirmedDeposit));
     }
   }
 
@@ -1509,7 +1532,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               _busy ||
                   inspection.findings.any((finding) => !finding.editedByHuman)
               ? null
-              : () => _publishFindings(inspection.findings.isEmpty),
+              : () => _publishFindings(inspection),
           icon: const Icon(Icons.publish_outlined),
           label: Text(
             inspection.findings.isEmpty

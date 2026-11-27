@@ -1570,10 +1570,11 @@ class Api {
   Future<void> publishFindings(
     String inspectionId, {
     bool noFindings = false,
+    String? confirmedDeposit,
   }) => _call(() async {
     await _dio.post(
       '/api/v1/inspections/$inspectionId/findings/publish',
-      data: {if (noFindings) 'noFindings': true},
+      data: {if (noFindings) 'noFindings': true, 'confirmedDeposit': ?confirmedDeposit},
     );
   });
 

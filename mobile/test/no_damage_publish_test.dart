@@ -54,6 +54,7 @@ class _FakeApi extends Api {
   Future<void> publishFindings(
     String inspectionId, {
     bool noFindings = false,
+    String? confirmedDeposit,
   }) async => published.add(noFindings);
 }
 

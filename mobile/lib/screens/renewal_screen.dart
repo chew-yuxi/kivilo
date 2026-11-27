@@ -88,6 +88,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
       final id = await _api.createRenewal(widget.tenancyId, {
         'startDate': _iso(_start!),
         'endDate': _iso(_end!),
+        'preservesBlankAmounts': true,
         'monthlyRent': _rent.text.trim(),
         'deposit': _deposit.text.trim(),
         'keepCollaborators': _keepCollaborators,

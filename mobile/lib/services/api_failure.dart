@@ -26,6 +26,8 @@ class ApiFailure implements Exception {
         'Each room needs at least one item and a review first.',
       'assessment_review_incomplete' =>
         'Open and confirm every finding before publishing the assessment.',
+      'deposit_required' => 'Enter the deposit, or 0 if none was paid, before publishing.',
+      'deposit_changed' => 'Refresh and review the deposit before publishing.',
       'no_damage_unconfirmed' =>
         'Add a finding, or confirm that no damage was found, before publishing.',
       // Due diligence explains itself: show the server's message when there is one.
