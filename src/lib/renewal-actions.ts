@@ -1,5 +1,6 @@
 'use server'
 
+import { amountEntered } from '@/lib/tenancy-amounts'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { db } from '@/lib/db'
@@ -32,6 +33,7 @@ const renewalInput = z.object({
   endDate: z.iso.date(),
   monthlyRent: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
   deposit: z.string().regex(/^\d{1,8}(\.\d{1,2})?$/),
+  preservesBlankAmounts: z.boolean().optional(),
   keepCollaborators: z.boolean().default(false),
   /// The rooms the next term's check-in starts with, normally the last check-in's
   /// names. Names only: the signed report's conditions are never carried forward.
@@ -83,6 +85,8 @@ export async function createRenewal(tenancyId: string, raw: z.input<typeof renew
           renewedFromId: source.id,
           startDate,
           endDate,
+          monthlyRentEntered: amountEntered(input.monthlyRent, input.preservesBlankAmounts === true),
+          depositEntered: amountEntered(input.deposit, input.preservesBlankAmounts === true),
           monthlyRent: input.monthlyRent,
           deposit: input.deposit,
           minorRepairCap: source.minorRepairCap,

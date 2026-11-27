@@ -1,5 +1,6 @@
 'use server'
 
+import { recordedAmount, tenancyAmount } from '@/lib/tenancy-amounts'
 import { createHash } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { authorizeInspection, inspectionScope, requireAgent } from '@/lib/auth'
@@ -19,7 +20,7 @@ import { assertFindingPhotoDraftsReady } from '@/lib/finding-photos'
 /// assessment nobody actually made.
 export async function publishAssessment(
   inspectionId: string,
-  { noFindings = false }: { noFindings?: boolean } = {},
+  { noFindings = false, confirmedDeposit }: { noFindings?: boolean; confirmedDeposit?: string } = {},
 ) {
   const agent = await requireAgent()
   const authorized = await authorizeInspection(inspectionId, agent.id)
@@ -64,10 +65,24 @@ export async function publishAssessment(
       throw new Error('Finding photos are still uploading')
     }
 
+    const latest = await tx.assessmentVersion.findFirst({
+      where: { inspectionId },
+      orderBy: { version: 'desc' },
+    })
+    const previous = latest && assessmentSnapshotSchema.parse(latest.snapshot)
+    const recorded = recordedAmount(inspection.tenancy.deposit, inspection.tenancy.depositEntered)
+    const priorConfirmation = previous?.depositConfirmed ? previous.deposit : undefined
+    const supplied = confirmedDeposit === undefined ? undefined : tenancyAmount.parse(confirmedDeposit)
+    const deposit = recorded ?? priorConfirmation ?? supplied
+    if (deposit === undefined) throw new Error('Enter the tenancy deposit, or 0 if no deposit was paid, before publishing.')
+    if (supplied !== undefined && Number(deposit) !== Number(supplied)) {
+      throw new Error('The recorded deposit changed. Refresh and review it before publishing.')
+    }
     const snapshot = assessmentSnapshotSchema.parse({
       schemaVersion: 1 as const,
       summary: inspection.summary,
-      deposit: inspection.tenancy.deposit.toString(),
+      deposit: recorded ?? priorConfirmation ?? Number(deposit).toString(),
+      ...(recorded === null && { depositConfirmed: true }),
       // Only outside Singapore, so a Singapore snapshot hashes as it always has.
       ...(inspection.tenancy.property.country !== 'SG' && { country: inspection.tenancy.property.country }),
       findings: inspection.findings.map((finding) => ({
@@ -109,10 +124,6 @@ export async function publishAssessment(
       })),
     })
     const contentHash = createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')
-    const latest = await tx.assessmentVersion.findFirst({
-      where: { inspectionId },
-      orderBy: { version: 'desc' },
-    })
     // Published objects outlive their editable finding. Removing a later draft photo
     // must not remove the original bytes a party read in this version. Also protect
     // every included object on an idempotent publication retry.

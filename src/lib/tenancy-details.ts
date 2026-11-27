@@ -1,3 +1,4 @@
+import { amountEntered, optionalTenancyAmount, recordedAmount } from '@/lib/tenancy-amounts'
 import { z } from 'zod'
 import { db } from '@/lib/db'
 import { actsAsAgent } from '@/lib/auth'
@@ -10,7 +11,6 @@ const email = z.preprocess(
   (value) => typeof value === 'string' ? value.trim().toLowerCase() || null : value,
   z.email().nullable(),
 )
-const money = z.string().trim().regex(/^\d{1,8}(?:\.\d{1,2})?$/, 'Enter a valid amount with up to 2 decimals')
 const optionalText = (max: number) => z.preprocess(
   (value) => typeof value === 'string' ? value.trim() || null : value,
   z.string().max(max).nullable(),
@@ -28,8 +28,9 @@ export const tenancyDetailsInput = z.object({
   tenantEmail: email,
   startDate: z.iso.date(),
   endDate: z.iso.date(),
-  monthlyRent: money,
-  deposit: money,
+  monthlyRent: optionalTenancyAmount,
+  deposit: optionalTenancyAmount,
+  preservesBlankAmounts: z.boolean().optional(),
 })
 
 function calendarDate(value: string) {
@@ -90,7 +91,7 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
       where: { AND: [{ id: tenancyId }, actsAsAgent(actorId)] },
       select: {
         id: true, propertyId: true, agentId: true, startDate: true, endDate: true,
-        monthlyRent: true, deposit: true,
+        monthlyRent: true, deposit: true, monthlyRentEntered: true, depositEntered: true,
         property: { select: { id: true, line1: true, unit: true, postalCode: true, type: true, country: true } },
         landlord: { select: { id: true, name: true, email: true, authUserId: true } },
         tenant: { select: { id: true, name: true, email: true, authUserId: true } },
@@ -138,10 +139,12 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
       throw new Error('A landlord or tenant cannot also be an agent on this tenancy')
     }
 
+    const monthlyRentEntered = amountEntered(input.monthlyRent, input.preservesBlankAmounts === true || current.monthlyRentEntered === true && current.monthlyRent.isZero())
+    const depositEntered = amountEntered(input.deposit, input.preservesBlankAmounts === true || current.depositEntered === true && current.deposit.isZero())
     await tx.tenancy.update({ where: { id: tenancyId }, data: {
       landlordId, tenantId, startDate, endDate,
-      monthlyRent: input.monthlyRent,
-      deposit: input.deposit,
+      monthlyRent: input.monthlyRent || '0', monthlyRentEntered,
+      deposit: input.deposit || '0', depositEntered,
     } })
     if (propertyChanges.length) {
       await tx.property.update({ where: { id: current.propertyId }, data: {
@@ -167,7 +170,10 @@ export async function updateTenancyDetails(tenancyId: string, actorId: string, r
           tenantName: 'Tenant name', tenantEmail: 'Tenant email',
         },
       ),
-      ...fieldChanges(current, { startDate, endDate, monthlyRent: input.monthlyRent, deposit: input.deposit }, {
+      ...fieldChanges({
+        ...current, monthlyRent: recordedAmount(current.monthlyRent, current.monthlyRentEntered),
+        deposit: recordedAmount(current.deposit, current.depositEntered),
+      }, { startDate, endDate, monthlyRent: monthlyRentEntered ? input.monthlyRent : null, deposit: depositEntered ? input.deposit : null }, {
         startDate: 'Tenancy start', endDate: 'Tenancy end', monthlyRent: 'Monthly rent', deposit: 'Deposit',
       }),
     ]

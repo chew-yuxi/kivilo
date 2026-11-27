@@ -175,7 +175,7 @@ export function FindingsPanel({
 }: {
   inspectionId: string
   findings: FindingRow[]
-  depositAmount: string
+  depositAmount: string | null
   country: Country
   publishedVersion: number | null
   maintenanceCases: { id: string; title: string; status: string }[]
@@ -186,6 +186,8 @@ export function FindingsPanel({
   // With no findings, publishing states that no damage was found. The server refuses
   // that unless it is confirmed, so the agent has to tick it.
   const [noDamage, setNoDamage] = useState(false)
+  const [depositInput, setDepositInput] = useState('')
+  const [publishError, setPublishError] = useState('')
   const empty = findings.length === 0
 
   const liable = findings.filter((f) => f.verdict === 'TENANT_LIABLE')
@@ -204,7 +206,7 @@ export function FindingsPanel({
         </div>
         <div className="text-right">
           <p className="text-xl font-semibold tabular-nums">{money(claimTotal, country)}</p>
-          <p className="text-xs text-gray-500">of {money(depositAmount, country)} held</p>
+          <p className="text-xs text-gray-500">{depositAmount === null ? 'Deposit not recorded' : `of ${money(depositAmount, country)} held`}</p>
         </div>
       </div>
 
@@ -370,12 +372,26 @@ export function FindingsPanel({
             </span>
           </label>
         )}
+        {depositAmount === null && <label className="mt-3 block text-sm">
+          Deposit ({country === 'MY' ? 'MYR' : 'SGD'})
+          <input className="ml-2 rounded border p-2" inputMode="decimal" value={depositInput}
+            onChange={event => setDepositInput(event.target.value)} aria-describedby="deposit-help" />
+          <span id="deposit-help" className="mt-1 block">Enter the amount paid, or 0 if there was no deposit.</span>
+        </label>}
+        {publishError && <p role="alert">{publishError}</p>}
         <button
           type="button"
           disabled={
-            pending || (empty && !noDamage) || findings.some((finding) => !finding.editedByHuman)
+            pending || (depositAmount === null && !/^\d{1,8}(?:\.\d{1,2})?$/.test(depositInput.trim())) || (empty && !noDamage) || findings.some((finding) => !finding.editedByHuman)
           }
-          onClick={() => startTransition(() => void publishAssessment(inspectionId, { noFindings: empty }))}
+          onClick={() => startTransition(async () => {
+            setPublishError('')
+            try {
+              await publishAssessment(inspectionId, { noFindings: empty, confirmedDeposit: depositAmount === null ? depositInput.trim() : undefined })
+            } catch (error) {
+              setPublishError(error instanceof Error ? error.message : 'Could not publish the assessment.')
+            }
+          })}
           className="mt-3 rounded-md bg-brand-600 px-3 py-2 font-medium text-white disabled:opacity-50"
         >
           {pending ? 'Publishing…' : empty ? 'Publish: no damage found' : 'Publish assessment'}

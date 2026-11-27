@@ -73,7 +73,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
     agent: reportAgent(inspection)?.name ?? null,
     startDate: tenancy.startDate.toISOString(),
     endDate: tenancy.endDate.toISOString(),
-    deposit: tenancy.deposit.toString(),
+    deposit: assessment?.deposit ?? (tenancy.depositEntered === false ? '' : tenancy.deposit.toString()),
     /// The currency of every amount in this report, its deposit statement included.
     currency: currency(tenancy.property.country),
     conductedAt: inspection.conductedAt?.toISOString() ?? null,

@@ -1,3 +1,4 @@
+import { recordedAmount } from '@/lib/tenancy-amounts'
 import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { db } from '@/lib/db'
 import { authorizeInspection, inspectionScope, tenancyScope } from '@/lib/auth'
@@ -98,9 +99,12 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
   // Unpublished work: an edit or addition since the last version (updatedAt), or a
   // deletion, which leaves no row behind and shows only as a different count.
   const latest = inspection.assessments[0]
+  const latestSnapshot = latest && assessmentSnapshotSchema.parse(latest.snapshot)
+  const deposit = recordedAmount(inspection.tenancy.deposit, inspection.tenancy.depositEntered) ??
+    (latestSnapshot?.depositConfirmed ? latestSnapshot.deposit : null)
   const draftChanged = !latest ||
     inspection.findings.some((finding) => finding.updatedAt > latest.publishedAt) ||
-    inspection.findings.length !== assessmentSnapshotSchema.parse(latest.snapshot).findings.length
+    inspection.findings.length !== latestSnapshot!.findings.length
 
   const checkInConditions = inspection.kind === 'CHECK_OUT' && inspection.findings.length > 0
     ? await findingCheckInConditions(id, agent.id) : null
@@ -118,7 +122,8 @@ export const GET = authed(async (agent, { id }: { id: string }, request) => {
     landlordId: inspection.tenancy.landlordId,
     tenant: inspection.tenancy.tenant.name,
     tenantId: inspection.tenancy.tenantId,
-    deposit: inspection.tenancy.deposit.toString(),
+    deposit: deposit ?? '',
+    needsDeposit: deposit == null,
     /// The property's country, and the currency of the deposit and every finding's cost.
     country: inspection.tenancy.property.country,
     currency: currency(inspection.tenancy.property.country),

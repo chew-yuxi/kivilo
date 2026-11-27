@@ -1,5 +1,6 @@
 'use server'
 
+import { amountEntered, optionalTenancyAmount } from '@/lib/tenancy-amounts'
 import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { headers } from 'next/headers'
@@ -163,6 +164,7 @@ export async function createInspection(input: {
   endDate: string
   monthlyRent: string
   deposit: string
+  preservesBlankAmounts?: boolean
   /// Rooms to start with, in order, each with its standard editable lines.
   rooms?: string[]
 }) {
@@ -178,6 +180,8 @@ export async function createInspection(input: {
     }
   }
 
+  const monthlyRent = optionalTenancyAmount.parse(input.monthlyRent)
+  const deposit = optionalTenancyAmount.parse(input.deposit)
   if (input.sameLandlord && !input.propertyId) throw new Error('Same landlord needs an existing property')
   const required = [
     ...(input.propertyId ? [] : [input.line1, input.postalCode]),
@@ -253,8 +257,10 @@ export async function createInspection(input: {
         create: {
           startDate: start,
           endDate: end,
-          monthlyRent: input.monthlyRent || '0',
-          deposit: input.deposit || '0',
+          monthlyRent: monthlyRent || '0',
+          deposit: deposit || '0',
+          monthlyRentEntered: amountEntered(monthlyRent, input.preservesBlankAmounts === true),
+          depositEntered: amountEntered(deposit, input.preservesBlankAmounts === true),
           // connect rather than a scalar agentId: Prisma will not mix a foreign key
           // with nested relation creates in the same input.
           agent: { connect: { id: agent.id } },

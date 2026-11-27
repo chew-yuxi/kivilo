@@ -77,6 +77,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
           tenantEmail: value('tenantEmail') || null,
           startDate: value('startDate'),
           endDate: value('endDate'),
+          preservesBlankAmounts: true,
           monthlyRent: value('monthlyRent'),
           deposit: value('deposit'),
         })
@@ -222,6 +223,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
             <div className="group relative">
               <input
                 name="monthlyRent"
+                pattern={String.raw`[0-9]{1,8}(\.[0-9]{1,2})?`}
                 inputMode="decimal"
                 placeholder="6800"
                 className={`${field} pr-16 sm:pr-3`}
@@ -240,6 +242,7 @@ export function NewInspectionForm({ agentId, teams, initialWorkspace, rememberIn
             <div className="group relative">
               <input
                 name="deposit"
+                pattern={String.raw`[0-9]{1,8}(\.[0-9]{1,2})?`}
                 inputMode="decimal"
                 enterKeyHint="done"
                 placeholder="13600"

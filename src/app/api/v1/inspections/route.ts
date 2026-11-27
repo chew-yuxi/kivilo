@@ -1,3 +1,4 @@
+import { optionalTenancyAmount } from '@/lib/tenancy-amounts'
 import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { z } from 'zod'
 import { db } from '@/lib/db'
@@ -80,8 +81,9 @@ const newInspection = z.object({
   tenantEmail: z.email().nullable().default(null),
   startDate: z.string().min(1),
   endDate: z.string().min(1),
-  monthlyRent: z.string().min(1),
-  deposit: z.string().min(1),
+  monthlyRent: optionalTenancyAmount.default(''),
+  deposit: optionalTenancyAmount.default(''),
+  preservesBlankAmounts: z.boolean().optional(),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
   /// Start CEA due diligence on both parties as the check-in is made. Singapore only.
   verifyParties: z.boolean().optional(),

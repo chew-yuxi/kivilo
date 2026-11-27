@@ -1,3 +1,4 @@
+import { recordedAmount } from '@/lib/tenancy-amounts'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
@@ -381,7 +382,7 @@ export default async function InspectionPage({ params }: PageProps<'/inspections
           <FindingsPanel
             inspectionId={id}
             findings={findings}
-            depositAmount={tenancy.deposit.toString()}
+            depositAmount={recordedAmount(tenancy.deposit, tenancy.depositEntered) ?? (snapshot?.depositConfirmed ? snapshot.deposit ?? null : null)}
             country={tenancy.property.country}
             publishedVersion={inspection.assessments[0]?.version ?? null}
             maintenanceCases={maintenanceCases}

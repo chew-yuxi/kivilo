@@ -107,8 +107,8 @@ class HomeTaskRow extends StatelessWidget {
   }
 }
 
-/// One group on Home: its first rows, and a way to every row. The count is the whole
-/// group, or "at least" when the server stopped at its bound.
+/// The heading counts the visible rows. View all includes the promoted task and
+/// shows a lower bound when the server truncated the list.
 class HomeTaskSection extends StatelessWidget {
   const HomeTaskSection({
     super.key,
@@ -142,7 +142,7 @@ class HomeTaskSection extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            '${homeTaskGroups[group]} · $count',
+            '${homeTaskGroups[group]} · ${shown.length}',
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),

@@ -54,8 +54,8 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
       id: tenancy.id,
       startDate: tenancy.startDate.toISOString(),
       endDate: tenancy.endDate.toISOString(),
-      monthlyRent: tenancy.monthlyRent.toString(),
-      deposit: tenancy.deposit.toString(),
+      monthlyRent: tenancy.monthlyRentEntered === false ? null : tenancy.monthlyRent.toString(),
+      deposit: tenancy.depositEntered === false ? null : tenancy.deposit.toString(),
       property: {
         line1: tenancy.property.line1,
         unit: tenancy.property.unit,

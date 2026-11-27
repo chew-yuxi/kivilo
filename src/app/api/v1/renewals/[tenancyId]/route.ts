@@ -1,3 +1,4 @@
+import { recordedAmount } from '@/lib/tenancy-amounts'
 import { z } from 'zod'
 import { authed } from '@/lib/api/route'
 import { createRenewal, respondToRenewal } from '@/lib/renewal-actions'
@@ -17,8 +18,8 @@ export const GET = authed<{ tenancyId: string }>(async (agent, { tenancyId }) =>
     property: propertyLabel(tenancy.property),
     tenant: tenancy.tenant.name,
     endDate: tenancy.endDate.toISOString().slice(0, 10),
-    monthlyRent: tenancy.monthlyRent.toString(),
-    deposit: tenancy.deposit.toString(),
+    monthlyRent: recordedAmount(tenancy.monthlyRent, tenancy.monthlyRentEntered) ?? '',
+    deposit: recordedAmount(tenancy.deposit, tenancy.depositEntered) ?? '',
     /// The property's, which the renewal keeps.
     currency: currency(tenancy.property.country),
     collaborators: access.collaborators.map(({ stakeholderId, name, email }) => ({ stakeholderId, name, email })),

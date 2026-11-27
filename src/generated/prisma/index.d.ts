@@ -28697,6 +28697,8 @@ export namespace Prisma {
     endDate: Date | null
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    monthlyRentEntered: boolean | null
+    depositEntered: boolean | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
     defectWindowDays: number | null
@@ -28718,6 +28720,8 @@ export namespace Prisma {
     endDate: Date | null
     monthlyRent: Decimal | null
     deposit: Decimal | null
+    monthlyRentEntered: boolean | null
+    depositEntered: boolean | null
     minorRepairCap: Decimal | null
     agentMayAgreeCosts: boolean | null
     defectWindowDays: number | null
@@ -28739,6 +28743,8 @@ export namespace Prisma {
     endDate: number
     monthlyRent: number
     deposit: number
+    monthlyRentEntered: number
+    depositEntered: number
     minorRepairCap: number
     minorRepairClause: number
     agentMayAgreeCosts: number
@@ -28777,6 +28783,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    monthlyRentEntered?: true
+    depositEntered?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
     defectWindowDays?: true
@@ -28798,6 +28806,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    monthlyRentEntered?: true
+    depositEntered?: true
     minorRepairCap?: true
     agentMayAgreeCosts?: true
     defectWindowDays?: true
@@ -28819,6 +28829,8 @@ export namespace Prisma {
     endDate?: true
     monthlyRent?: true
     deposit?: true
+    monthlyRentEntered?: true
+    depositEntered?: true
     minorRepairCap?: true
     minorRepairClause?: true
     agentMayAgreeCosts?: true
@@ -28928,6 +28940,8 @@ export namespace Prisma {
     endDate: Date
     monthlyRent: Decimal
     deposit: Decimal
+    monthlyRentEntered: boolean | null
+    depositEntered: boolean | null
     minorRepairCap: Decimal | null
     minorRepairClause: JsonValue | null
     agentMayAgreeCosts: boolean
@@ -28969,6 +28983,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    monthlyRentEntered?: boolean
+    depositEntered?: boolean
     minorRepairCap?: boolean
     minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
@@ -29005,6 +29021,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    monthlyRentEntered?: boolean
+    depositEntered?: boolean
     minorRepairCap?: boolean
     minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
@@ -29033,6 +29051,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    monthlyRentEntered?: boolean
+    depositEntered?: boolean
     minorRepairCap?: boolean
     minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
@@ -29061,6 +29081,8 @@ export namespace Prisma {
     endDate?: boolean
     monthlyRent?: boolean
     deposit?: boolean
+    monthlyRentEntered?: boolean
+    depositEntered?: boolean
     minorRepairCap?: boolean
     minorRepairClause?: boolean
     agentMayAgreeCosts?: boolean
@@ -29072,7 +29094,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "agencyId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "minorRepairCap" | "minorRepairClause" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
+  export type TenancyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "propertyId" | "landlordId" | "tenantId" | "agentId" | "agencyId" | "startDate" | "endDate" | "monthlyRent" | "deposit" | "monthlyRentEntered" | "depositEntered" | "minorRepairCap" | "minorRepairClause" | "agentMayAgreeCosts" | "defectWindowDays" | "renewalDecision" | "renewalSnoozedUntil" | "renewedFromId" | "createdAt" | "updatedAt", ExtArgs["result"]["tenancy"]>
   export type TenancyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     property?: boolean | PropertyDefaultArgs<ExtArgs>
     landlord?: boolean | StakeholderDefaultArgs<ExtArgs>
@@ -29134,6 +29156,11 @@ export namespace Prisma {
       endDate: Date
       monthlyRent: Prisma.Decimal
       deposit: Prisma.Decimal
+      /**
+       * Null on older rows where a zero could also mean the optional field was blank.
+       */
+      monthlyRentEntered: boolean | null
+      depositEntered: boolean | null
       /**
        * Tenant pays up to this per repair, landlord the rest. Only prefills a cost
        * proposal; the tenant still accepts or rejects every one.
@@ -29610,6 +29637,8 @@ export namespace Prisma {
     readonly endDate: FieldRef<"Tenancy", 'DateTime'>
     readonly monthlyRent: FieldRef<"Tenancy", 'Decimal'>
     readonly deposit: FieldRef<"Tenancy", 'Decimal'>
+    readonly monthlyRentEntered: FieldRef<"Tenancy", 'Boolean'>
+    readonly depositEntered: FieldRef<"Tenancy", 'Boolean'>
     readonly minorRepairCap: FieldRef<"Tenancy", 'Decimal'>
     readonly minorRepairClause: FieldRef<"Tenancy", 'Json'>
     readonly agentMayAgreeCosts: FieldRef<"Tenancy", 'Boolean'>
@@ -85515,6 +85544,8 @@ export namespace Prisma {
     endDate: 'endDate',
     monthlyRent: 'monthlyRent',
     deposit: 'deposit',
+    monthlyRentEntered: 'monthlyRentEntered',
+    depositEntered: 'depositEntered',
     minorRepairCap: 'minorRepairCap',
     minorRepairClause: 'minorRepairClause',
     agentMayAgreeCosts: 'agentMayAgreeCosts',
@@ -88504,6 +88535,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
+    depositEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
@@ -88539,6 +88572,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    monthlyRentEntered?: SortOrderInput | SortOrder
+    depositEntered?: SortOrderInput | SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     minorRepairClause?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
@@ -88578,6 +88613,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
+    depositEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
@@ -88612,6 +88649,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    monthlyRentEntered?: SortOrderInput | SortOrder
+    depositEntered?: SortOrderInput | SortOrder
     minorRepairCap?: SortOrderInput | SortOrder
     minorRepairClause?: SortOrderInput | SortOrder
     agentMayAgreeCosts?: SortOrder
@@ -88642,6 +88681,8 @@ export namespace Prisma {
     endDate?: DateTimeWithAggregatesFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: BoolNullableWithAggregatesFilter<"Tenancy"> | boolean | null
+    depositEntered?: BoolNullableWithAggregatesFilter<"Tenancy"> | boolean | null
     minorRepairCap?: DecimalNullableWithAggregatesFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: JsonNullableWithAggregatesFilter<"Tenancy">
     agentMayAgreeCosts?: BoolWithAggregatesFilter<"Tenancy"> | boolean
@@ -94340,6 +94381,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -94374,6 +94417,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -94398,6 +94443,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -94432,6 +94479,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -94461,6 +94510,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -94478,6 +94529,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -94499,6 +94552,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -100307,6 +100362,11 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
+  export type BoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type DecimalNullableFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -100341,6 +100401,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    monthlyRentEntered?: SortOrder
+    depositEntered?: SortOrder
     minorRepairCap?: SortOrder
     minorRepairClause?: SortOrder
     agentMayAgreeCosts?: SortOrder
@@ -100370,6 +100432,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    monthlyRentEntered?: SortOrder
+    depositEntered?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
     defectWindowDays?: SortOrder
@@ -100391,6 +100455,8 @@ export namespace Prisma {
     endDate?: SortOrder
     monthlyRent?: SortOrder
     deposit?: SortOrder
+    monthlyRentEntered?: SortOrder
+    depositEntered?: SortOrder
     minorRepairCap?: SortOrder
     agentMayAgreeCosts?: SortOrder
     defectWindowDays?: SortOrder
@@ -100422,6 +100488,14 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -106422,6 +106496,10 @@ export namespace Prisma {
     divide?: Decimal | DecimalJsLike | number | string
   }
 
+  export type NullableBoolFieldUpdateOperationsInput = {
+    set?: boolean | null
+  }
+
   export type NullableDecimalFieldUpdateOperationsInput = {
     set?: Decimal | DecimalJsLike | number | string | null
     increment?: Decimal | DecimalJsLike | number | string
@@ -110551,6 +110629,11 @@ export namespace Prisma {
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
   }
 
+  export type NestedBoolNullableFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableFilter<$PrismaModel> | boolean | null
+  }
+
   export type NestedDecimalNullableFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
@@ -110583,6 +110666,14 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    not?: NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedBoolNullableFilter<$PrismaModel>
+    _max?: NestedBoolNullableFilter<$PrismaModel>
   }
 
   export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -111405,6 +111496,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -111437,6 +111530,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -111471,6 +111566,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -111503,6 +111600,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -111537,6 +111636,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -111569,6 +111670,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -113032,6 +113135,8 @@ export namespace Prisma {
     endDate?: DateTimeFilter<"Tenancy"> | Date | string
     monthlyRent?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
+    depositEntered?: BoolNullableFilter<"Tenancy"> | boolean | null
     minorRepairCap?: DecimalNullableFilter<"Tenancy"> | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: JsonNullableFilter<"Tenancy">
     agentMayAgreeCosts?: BoolFilter<"Tenancy"> | boolean
@@ -114599,6 +114704,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -114631,6 +114738,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -117371,6 +117480,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -117403,6 +117514,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -118696,6 +118809,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -118729,6 +118844,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -118757,6 +118874,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -118790,6 +118909,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -119388,6 +119509,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -119421,6 +119544,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -119455,6 +119580,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -119488,6 +119615,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -119527,6 +119656,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -119560,6 +119691,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -119813,6 +119946,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -119846,6 +119981,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -120095,6 +120232,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -120128,6 +120267,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -120932,6 +121073,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -120965,6 +121108,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -123443,6 +123588,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -123476,6 +123623,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -124013,6 +124162,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -124046,6 +124197,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -126424,6 +126577,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -126457,6 +126612,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -126637,6 +126794,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -126670,6 +126829,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -127488,6 +127649,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -127521,6 +127684,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -127738,6 +127903,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -127771,6 +127938,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -133500,6 +133669,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -133533,6 +133704,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -134040,6 +134213,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -134073,6 +134248,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135088,6 +135265,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -135109,6 +135288,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -135130,6 +135311,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -135603,6 +135786,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135635,6 +135820,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135663,6 +135850,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135680,6 +135869,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135712,6 +135903,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135740,6 +135933,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135757,6 +135952,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135789,6 +135986,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -135817,6 +136016,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -137328,6 +137529,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -137436,6 +137639,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -137468,6 +137673,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -137496,6 +137703,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -137913,6 +138122,8 @@ export namespace Prisma {
     endDate: Date | string
     monthlyRent: Decimal | DecimalJsLike | number | string
     deposit: Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: boolean | null
+    depositEntered?: boolean | null
     minorRepairCap?: Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: boolean
@@ -137987,6 +138198,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -138019,6 +138232,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean
@@ -138047,6 +138262,8 @@ export namespace Prisma {
     endDate?: DateTimeFieldUpdateOperationsInput | Date | string
     monthlyRent?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     deposit?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    monthlyRentEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
+    depositEntered?: NullableBoolFieldUpdateOperationsInput | boolean | null
     minorRepairCap?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     minorRepairClause?: NullableJsonNullValueInput | InputJsonValue
     agentMayAgreeCosts?: BoolFieldUpdateOperationsInput | boolean

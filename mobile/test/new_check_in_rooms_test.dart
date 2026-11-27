@@ -78,8 +78,14 @@ void main() {
     await _fillRequired(tester);
 
     await _reveal(tester, find.text('Bedrooms'), up: true);
-    await tester.tap(find.text('3').first);
-    await tester.tap(find.text('1').last);
+    final bedrooms = find.text('3').first;
+    final bathrooms = find.text('1').last;
+    for (final option in [bedrooms, bathrooms]) {
+      await tester.ensureVisible(option);
+      await tester.pumpAndSettle();
+      await tester.tap(option);
+      await tester.pumpAndSettle();
+    }
     for (final name in ['Living room', 'Balcony']) {
       final box = find.widgetWithText(CheckboxListTile, name);
       await _reveal(tester, box);

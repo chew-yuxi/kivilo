@@ -102,6 +102,12 @@ export function authed<P>(
       if (/A revised statement has been published|already been answered/i.test(message)) {
         return Response.json({ error: 'statement_changed' }, { status: 409 })
       }
+      if (/^Enter the tenancy deposit/.test(message)) {
+        return Response.json({ error: 'deposit_required', message }, { status: 409 })
+      }
+      if (/^The recorded deposit changed/.test(message)) {
+        return Response.json({ error: 'deposit_changed', message }, { status: 409 })
+      }
       if (/Confirm that no damage was found/i.test(message)) {
         return Response.json({ error: 'no_damage_unconfirmed' }, { status: 409 })
       }

@@ -119,6 +119,31 @@ Future<void> _reveal(WidgetTester tester, Finder target) async {
 }
 
 void main() {
+  testWidgets('Create reveals missing furnishing from the bottom and keeps the draft', (tester) async {
+    final api = _Api();
+    await _show(tester, NewInspectionScreen(api: api, cache: _NoDraft()));
+    for (final entry in {
+      'Address (required)': '12 Example Street', 'Postal code (required)': '123456',
+      'Landlord name (required)': 'Landlord', 'Tenant name (required)': 'Tenant',
+    }.entries) {
+      final field = find.widgetWithText(TextFormField, entry.key);
+      await _reveal(tester, field);
+      await tester.enterText(field, entry.value);
+    }
+    await tester.tap(find.text('Create check-in'));
+    await tester.pumpAndSettle();
+    expect(api.checkIns, isEmpty);
+    expect(find.text('Choose the property furnishing level.').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Unfurnished'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create check-in'));
+    await tester.pumpAndSettle();
+    expect(api.checkIns.single, containsPair('tenantName', 'Tenant'));
+    expect(api.checkIns.single, containsPair('deposit', ''));
+    expect(api.checkIns.single, containsPair('monthlyRent', ''));
+    expect(api.checkIns.single, containsPair('preservesBlankAmounts', true));
+  });
+
   testWidgets(
     'a new tenancy at an existing property keeps its address, workspace and rooms',
     (tester) async {

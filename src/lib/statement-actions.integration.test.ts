@@ -32,7 +32,7 @@ const as = (person: Stakeholder) => {
   vi.mocked(requireStakeholder).mockResolvedValue(person)
 }
 
-async function checkOut() {
+async function checkOut(deposit = '6000.10', depositEntered: boolean | null = null) {
   const run = randomUUID().slice(0, 8)
   const [agent, landlord, tenant, outsider] = await Promise.all(['agent', 'landlord', 'tenant', 'outsider'].map((role) =>
     db.stakeholder.create({ data: { name: `Statement ${role}`, email: `${role}-${run}@statement.test` } })))
@@ -40,7 +40,7 @@ async function checkOut() {
   const tenancy = await db.tenancy.create({
     data: {
       propertyId: property.id, landlordId: landlord.id, tenantId: tenant.id, agentId: agent.id,
-      startDate: new Date('2024-01-01'), endDate: new Date('2026-01-01'), monthlyRent: '3000', deposit: '6000.10',
+      startDate: new Date('2024-01-01'), endDate: new Date('2026-01-01'), monthlyRent: '3000', deposit, depositEntered,
     },
   })
   const inspection = await db.inspection.create({ data: { tenancyId: tenancy.id, kind: 'CHECK_OUT', status: 'COMPLETED' } })
@@ -56,11 +56,30 @@ async function checkOut() {
     ],
   })
   as(agent)
-  await publishAssessment(inspection.id)
+  if (deposit !== '0' || depositEntered) await publishAssessment(inspection.id)
   return { agent, landlord, tenant, outsider, tenancy, inspection }
 }
 
 describe('deposit statement', () => {
+  it.each([null, false])('requires confirmation for an ambiguous or missing zero (%s)', async (depositEntered) => {
+    const { inspection, tenancy } = await checkOut('0', depositEntered)
+    await expect(publishAssessment(inspection.id)).rejects.toThrow('Enter the tenancy deposit')
+    expect(await db.assessmentVersion.count({ where: { inspectionId: inspection.id } })).toBe(0)
+    await expect(publishAssessment(inspection.id, { confirmedDeposit: '-1' })).rejects.toThrow()
+    const version = await publishAssessment(inspection.id, { confirmedDeposit: '0.00' })
+    expect((await publishAssessment(inspection.id)).version).toBe(version.version)
+    const saved = await db.assessmentVersion.findFirstOrThrow({ where: { inspectionId: inspection.id } })
+    expect(saved.snapshot).toMatchObject({ deposit: '0', depositConfirmed: true })
+    expect((await db.tenancy.findUniqueOrThrow({ where: { id: tenancy.id } })).depositEntered).toBe(depositEntered)
+  })
+
+  it('publishes an explicitly recorded zero without asking again', async () => {
+    const { inspection } = await checkOut('0', true)
+    const saved = await db.assessmentVersion.findFirstOrThrow({ where: { inspectionId: inspection.id } })
+    expect(saved.snapshot).toMatchObject({ deposit: '0' })
+    expect(saved.snapshot).not.toHaveProperty('depositConfirmed')
+  })
+
   it('freezes the deposit, deducts only tenant-liable costs, and asks both parties', async () => {
     const { landlord, tenant, tenancy, inspection } = await checkOut()
     const version = await db.assessmentVersion.findFirstOrThrow({ where: { inspectionId: inspection.id } })

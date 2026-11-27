@@ -1,3 +1,4 @@
+import { recordedAmount } from '@/lib/tenancy-amounts'
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { requireAgent, authorizeAgentTenancy, authorizeLeadTenancy } from '@/lib/auth'
@@ -37,8 +38,8 @@ export default async function RenewalPage({ params }: PageProps<'/renewals/[tena
         tenancyId={tenancy.id}
         startDate={start.toISOString().slice(0, 10)}
         endDate={end.toISOString().slice(0, 10)}
-        monthlyRent={tenancy.monthlyRent.toString()}
-        deposit={tenancy.deposit.toString()}
+        monthlyRent={recordedAmount(tenancy.monthlyRent, tenancy.monthlyRentEntered) ?? ''}
+        deposit={recordedAmount(tenancy.deposit, tenancy.depositEntered) ?? ''}
         currency={currency(tenancy.property.country)}
         collaboratorNames={access.collaborators.map((collaborator) => collaborator.name)}
       />

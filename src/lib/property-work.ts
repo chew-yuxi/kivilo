@@ -1,3 +1,4 @@
+import { recordedAmount } from '@/lib/tenancy-amounts'
 import { db } from '@/lib/db'
 import { actsAsAgent, inspectionScope, managedTenancies, supportingDocumentTenancies } from '@/lib/auth'
 import { inspectionWorkScope, type InspectionWorkFilters } from '@/lib/inspection-work'
@@ -354,7 +355,7 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
       id: true, kind: true, status: true, createdAt: true, conductedAt: true,
       tenancy: {
         select: {
-          id: true, startDate: true, endDate: true, createdAt: true, monthlyRent: true, deposit: true,
+          id: true, startDate: true, endDate: true, createdAt: true, monthlyRent: true, deposit: true, monthlyRentEntered: true, depositEntered: true,
           landlordId: true, tenantId: true,
           tenant: { select: { name: true, email: true } },
           landlord: { select: { name: true, email: true } },
@@ -422,8 +423,8 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
         landlord: term.landlord.name,
         landlordEmail: fullAccess ? term.landlord.email : null,
         tenantEmail: fullAccess ? term.tenant.email : null,
-        monthlyRent: fullAccess ? term.monthlyRent.toString() : null,
-        deposit: fullAccess ? term.deposit.toString() : null,
+        monthlyRent: fullAccess ? recordedAmount(term.monthlyRent, term.monthlyRentEntered) ?? '' : null,
+        deposit: fullAccess ? recordedAmount(term.deposit, term.depositEntered) ?? '' : null,
         canEditDetails: fullAccess && !detailsFrozen,
         detailsLockedReason: !fullAccess
           ? 'Only an agent working this tenancy can edit these details.'

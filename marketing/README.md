@@ -213,11 +213,13 @@ Requests should return 200 with the reviewed export's content and expected heade
 On 26 November 2026, the homepage and handover checklist both served HTTP 200
 over plain HTTP as well as HTTPS. The 18 November Bing URL Inspection showed the
 HTTP homepage indexed and the HTTPS homepage discovered but still awaiting a crawl.
-The proposed Cloudflare Single Redirect matches `http.host eq "kivilo.app" and not ssl`.
-Use status 301, dynamic target `concat("https://kivilo.app", http.request.uri.path)`
-and Preserve query string. After enabling it, check the homepage and a guide with
-a query string for one permanent redirect to the matching HTTPS page. Inspect
-both homepage URLs in Bing to see which version it stores after its next crawl.
+The Cloudflare Single Redirect enabled on 27 November 2026 matches `http.host eq "kivilo.app" and not ssl`.
+It uses status 301, dynamic target `concat("https://kivilo.app", http.request.uri.path)`
+and Preserve query string. Live GETs for the homepage, checklist and Inventory Hive vs Kaptur
+page returned one 301 to the matching HTTPS page with the query intact. The release
+contains 16 canonical pages, including nine comparisons. Google accepted the refreshed
+sitemap and IndexNow acknowledged all 16 URLs. Bing accepted a recrawl request for
+the HTTPS homepage, which still showed “Discovered but not crawled” at submission.
 
 Bing Webmaster Tools ownership of `https://kivilo.app/` was verified through
 `public/BingSiteAuth.xml` on 26 October 2026 Singapore time (25 October UTC).

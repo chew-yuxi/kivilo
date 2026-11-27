@@ -165,7 +165,7 @@ ThemeData buildKiviloTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: KiviloColors.pink,
+        backgroundColor: KiviloColors.pinkDark,
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 50),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

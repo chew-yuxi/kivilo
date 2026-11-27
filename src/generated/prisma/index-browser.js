@@ -336,6 +336,8 @@ exports.Prisma.TenancyScalarFieldEnum = {
   endDate: 'endDate',
   monthlyRent: 'monthlyRent',
   deposit: 'deposit',
+  monthlyRentEntered: 'monthlyRentEntered',
+  depositEntered: 'depositEntered',
   minorRepairCap: 'minorRepairCap',
   minorRepairClause: 'minorRepairClause',
   agentMayAgreeCosts: 'agentMayAgreeCosts',

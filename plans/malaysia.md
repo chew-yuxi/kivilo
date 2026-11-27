@@ -144,7 +144,7 @@ the backfill and setting and reading the agent's country. Render the changed app
 2. **A new store build before Malaysia opens.** A Shorebird patch applies on the second
    launch, so a new install's first session runs the store build, which would make a
    Malaysian agent's first property a Singapore one.
-3. A MYR price for Personal on Apple and Google (pricing is parked; this needs one).
+3. App Store Connect shows an existing Malaysian Personal price of RM129.90 per month (Singapore S$39). On 27 Nov 2026 Google Play had no Malaysian Personal price or new-subscriber availability. The owner decides the Google price before activation.
 4. Privacy policy and terms: they name Singapore law, CEA and hosting. Malaysia's PDPA
-   2010 applies to Malaysian users; wording is Yuxi's decision.
+   2010 and its notice requirements need market-specific review. The commissioner’s [privacy notice guide](https://www.pdp.gov.my/wp-content/uploads/2025/01/A-Quick-Guide-to-PRIVACY-NOTICE.pdf) calls for the national language and English. Wording is Yuxi’s decision.
 5. Add Malaysia on both stores, and update the listing copy.

@@ -24,7 +24,7 @@ export function RenewalForm({ tenancyId, startDate, endDate, monthlyRent, deposi
       try {
         const id = await createRenewal(tenancyId, {
           startDate: String(data.get('startDate')), endDate: String(data.get('endDate')),
-          monthlyRent: String(data.get('monthlyRent')), deposit: String(data.get('deposit')),
+          preservesBlankAmounts: true, monthlyRent: String(data.get('monthlyRent')), deposit: String(data.get('deposit')),
           keepCollaborators: data.get('keepCollaborators') === 'on',
         })
         router.push(`/inspections/${id}`)

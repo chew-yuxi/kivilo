@@ -151,6 +151,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     ])
       name: TextEditingController(),
   };
+  late final _fieldFocus = {for (final key in _fields.keys) key: FocusNode()};
+  final _furnishingFocus = FocusNode();
   String _propertyType = 'PRIVATE_NON_LANDED';
   String? _furnishingLevel;
   DateTime _startDate = DateTime.now();
@@ -179,6 +181,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     _customRoom.dispose();
     _lookup.dispose();
     _lookupDelay?.cancel();
+    for (final node in _fieldFocus.values) {
+      node.dispose();
+    }
+    _furnishingFocus.dispose();
     super.dispose();
   }
 
@@ -423,16 +429,28 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
 
   Future<void> _create() async {
     FocusManager.instance.primaryFocus?.unfocus();
-    if (!_form.currentState!.validate()) return;
+    final invalid = _form.currentState!.validateGranularly();
+    if (invalid.isNotEmpty) {
+      double top(FormFieldState<Object?> state) =>
+          (state.context.findRenderObject()! as RenderBox).localToGlobal(Offset.zero).dy;
+      final first = invalid.reduce((a, b) => top(a) <= top(b) ? a : b);
+      final field = first.widget;
+      if (field is TextFormField) {
+        _fieldFocus.entries.firstWhere((entry) =>
+            identical(_fields[entry.key], field.controller)).value.requestFocus();
+      } else {
+        _furnishingFocus.requestFocus();
+      }
+      await WidgetsBinding.instance.endOfFrame;
+      if (first.mounted) {
+        await Scrollable.ensureVisible(first.context, alignment: 0.12,
+            duration: const Duration(milliseconds: 220));
+      }
+      return;
+    }
     if (_choosingExisting && _existing == null) {
       setState(
         () => _error = 'Choose the property, or switch to New property.',
-      );
-      return;
-    }
-    if (_furnishingLevel == null) {
-      setState(
-        () => _error = 'Choose the property furnishing level.',
       );
       return;
     }
@@ -474,10 +492,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             : value('tenantEmail'),
         'startDate': _iso(_startDate),
         'endDate': _iso(_endDate),
-        'monthlyRent': value('monthlyRent').isEmpty
-            ? '0'
-            : value('monthlyRent'),
-        'deposit': value('deposit').isEmpty ? '0' : value('deposit'),
+        'preservesBlankAmounts': true,
+        'monthlyRent': value('monthlyRent'),
+        'deposit': value('deposit'),
         'clientId': _clientId,
         'rooms': _rooms,
         if (_offersVerification) 'verifyParties': _verifyParties,
@@ -505,6 +522,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     String? hint,
   }) => TextFormField(
     controller: _fields[key],
+    focusNode: _fieldFocus[key],
     decoration: InputDecoration(
       labelText: '$label (${required ? 'required' : 'optional'})',
       hintText: hint,
@@ -540,9 +558,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     appBar: AppBar(title: const Text('New check-in')),
     body: KiviloContent(maxWidth: 720, child: Form(
       key: _form,
-      child: ListView(
+      child: SingleChildScrollView(
         padding: kiviloScreenPadding,
-        children: [
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Text(
             'Start with the essentials',
             style: Theme.of(context).textTheme.headlineMedium,
@@ -722,41 +740,51 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             ),
           ],
           const SizedBox(height: 20),
-          Text(
-            'Furnishing (required)',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Rooms start with editable inventory rows suited to this furnishing level.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          RadioGroup<String>(
-            groupValue: _furnishingLevel,
-            onChanged: (value) => _change(() {
-              _furnishingLevel = value;
-              _error = null;
-            }),
-            child: const Column(
-              children: [
-                RadioListTile<String>(
-                  value: 'FULLY_FURNISHED',
-                  title: Text('Fully furnished'),
-                  contentPadding: EdgeInsets.zero,
+          FormField<String>(
+            validator: (_) => _furnishingLevel == null ? 'Choose the property furnishing level.' : null,
+            builder: (field) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(
+                'Furnishing (required)',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Rooms start with editable inventory rows suited to this furnishing level.',
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              if (field.errorText != null)
+                Semantics(liveRegion: true, child: Text(field.errorText!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error))),
+              RadioGroup<String>(
+                groupValue: _furnishingLevel,
+                onChanged: (value) => _change(() {
+                  _furnishingLevel = value;
+                  field.didChange(value);
+                  if (field.hasError) field.validate();
+                  _error = null;
+                }),
+                child: Column(
+                  children: [
+                    RadioListTile<String>(
+                      focusNode: _furnishingFocus,
+                      value: 'FULLY_FURNISHED',
+                      title: Text('Fully furnished'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    RadioListTile<String>(
+                      value: 'PARTIALLY_FURNISHED',
+                      title: Text('Partially furnished'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    RadioListTile<String>(
+                      value: 'UNFURNISHED',
+                      title: Text('Unfurnished'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
                 ),
-                RadioListTile<String>(
-                  value: 'PARTIALLY_FURNISHED',
-                  title: Text('Partially furnished'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                RadioListTile<String>(
-                  value: 'UNFURNISHED',
-                  title: Text('Unfurnished'),
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-          ),
+              ),
+          ])),
           const SizedBox(height: 32),
           const Divider(),
           const SizedBox(height: kiviloSectionGap),
@@ -873,7 +901,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                 style: const TextStyle(color: KiviloColors.red),
               ),
             ),
-        ],
+        ]),
       ),
     )),
     bottomNavigationBar: KiviloContent(maxWidth: 720, child: AnimatedPadding(

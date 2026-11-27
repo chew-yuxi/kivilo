@@ -431,6 +431,9 @@ model Tenancy {
   endDate             DateTime
   monthlyRent         Decimal          @db.Decimal(10, 2)
   deposit             Decimal          @db.Decimal(10, 2)
+  /// Null on older rows where a zero could also mean the optional field was blank.
+  monthlyRentEntered  Boolean?
+  depositEntered      Boolean?
   /// Tenant pays up to this per repair, landlord the rest. Only prefills a cost
   /// proposal; the tenant still accepts or rejects every one.
   minorRepairCap      Decimal?         @db.Decimal(10, 2)
