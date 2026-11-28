@@ -582,6 +582,51 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('both inspection starts stay in reach while browsing properties', (
+    tester,
+  ) async {
+    await _open(tester, _LibraryApi());
+    tester.view.physicalSize = const Size(390, 844);
+    await tester.pumpAndSettle();
+    final checkIn = find.widgetWithText(FilledButton, 'New check-in');
+    final checkOut = find.widgetWithText(FilledButton, 'Start check-out');
+    final first = tester.getRect(checkIn);
+    final second = tester.getRect(checkOut);
+    expect(first.center.dy, second.center.dy);
+    expect(first.height, greaterThanOrEqualTo(48));
+    expect(second.height, greaterThanOrEqualTo(48));
+    expect(second.bottom, lessThan(tester.getTopLeft(find.text('Teams')).dy));
+
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -480));
+    await tester.pumpAndSettle();
+    expect(checkIn.hitTestable(), findsOneWidget);
+    expect(checkOut.hitTestable(), findsOneWidget);
+    expect(tester.getRect(checkIn).top, lessThan(first.top));
+  });
+
+  testWidgets('narrow phones with large text show both starts at full width', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      theme: buildKiviloTheme(),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(2)),
+        child: child!,
+      ),
+      home: PropertiesScreen(api: _LibraryApi(active: [])),
+    ));
+    await tester.pumpAndSettle();
+    final first = tester.getRect(find.text('New check-in').hitTestable());
+    final second = tester.getRect(find.text('Start check-out').hitTestable());
+    expect(first.bottom, lessThan(second.top));
+    expect(tester.getSize(find.widgetWithText(FilledButton, 'New check-in')).width, 288);
+    expect(tester.getSize(find.widgetWithText(FilledButton, 'Start check-out')).width, 288);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('an empty list explains the first check-in', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);

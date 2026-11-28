@@ -197,7 +197,7 @@ void main() {
           ),
         ),
       );
-      await tester.drag(find.byType(ListView), const Offset(0, -400));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -400));
       await tester.pumpAndSettle();
       final scrollOffset = scrollable.position.pixels;
       expect(scrollOffset, greaterThan(0));
@@ -309,13 +309,13 @@ void main() {
       );
       expect(first.top, second.top);
       expect(first.right, lessThan(second.left));
-      expect(tester.getSize(find.byType(ListView)).width, 1200);
-      expect(tester.getCenter(find.byType(ListView)).dx, 800);
+      expect(tester.getSize(find.byType(CustomScrollView)).width, 1200);
+      expect(tester.getCenter(find.byType(CustomScrollView)).dx, 800);
       expect(tester.takeException(), isNull);
 
       tester.view.physicalSize = const Size(520, 900);
       await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -300));
       await tester.pumpAndSettle();
       final narrowFirst = tester.getRect(
         _cardWith('Property 1 at a long Cairnhill Rise address'),
