@@ -4981,6 +4981,20 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nothingNeedsYourActionRightNow => '目前没有需要您处理的事项。';
 
   @override
+  String homeDismissReminder(String property) {
+    return '隐藏$property的提醒';
+  }
+
+  @override
+  String get homeReminderDismissed => '已隐藏提醒';
+
+  @override
+  String get homeReminderSaveFailed => '无法保存提醒更改。';
+
+  @override
+  String get homeDismissedRemindersHint => '你可以在“房产”中继续检查。';
+
+  @override
   String get continueWhereYouLeftOff => '接着上次的进度';
 
   @override
