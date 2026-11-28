@@ -56,22 +56,36 @@ Future<void> openHomeTask(BuildContext context, Api api, HomeTask task) async {
   }
 }
 
-class DismissReminderButton extends StatelessWidget {
-  const DismissReminderButton({
+/// The heading and close icon share a centre line. The tap target reaches the
+/// trailing edge so its built-in padding supplies the icon's visual inset.
+class ReminderHeading extends StatelessWidget {
+  const ReminderHeading({
     super.key,
+    required this.heading,
     required this.property,
-    required this.onPressed,
+    required this.onDismiss,
   });
 
+  final Widget heading;
   final String property;
-  final VoidCallback onPressed;
+  final VoidCallback onDismiss;
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    tooltip: t.homeDismissReminder(property),
-    constraints: const BoxConstraints.tightFor(width: 48, height: 48),
-    onPressed: onPressed,
-    icon: const Icon(Icons.close, size: 20, color: KiviloColors.muted),
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 0, 8),
+          child: heading,
+        ),
+      ),
+      IconButton(
+        tooltip: t.homeDismissReminder(property),
+        constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+        onPressed: onDismiss,
+        icon: const Icon(Icons.close, size: 20, color: KiviloColors.muted),
+      ),
+    ],
   );
 }
 
@@ -90,6 +104,52 @@ class HomeTaskRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final date = homeTaskDate(task);
+    final title = Text(task.title, style: text.titleMedium);
+    final details = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          task.property,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: text.bodyMedium,
+        ),
+        if (task.person != null) ...[
+          const SizedBox(height: 2),
+          Text(task.person!, style: text.bodySmall),
+        ],
+        if (date != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            date,
+            style: text.bodySmall?.copyWith(
+              color: task.overdue ? KiviloColors.red : null,
+              fontWeight: task.overdue ? FontWeight.w700 : null,
+            ),
+          ),
+        ],
+      ],
+    );
+    final dismiss = onDismiss;
+    if (task.isInspectionReminder && dismiss != null) {
+      return InkWell(
+        onTap: onTap,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ReminderHeading(
+              heading: title,
+              property: task.property,
+              onDismiss: dismiss,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              child: details,
+            ),
+          ],
+        ),
+      );
+    }
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -99,40 +159,11 @@ class HomeTaskRow extends StatelessWidget {
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(task.title, style: text.titleMedium),
-                  const SizedBox(height: 3),
-                  Text(
-                    task.property,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.bodyMedium,
-                  ),
-                  if (task.person != null) ...[
-                    const SizedBox(height: 2),
-                    Text(task.person!, style: text.bodySmall),
-                  ],
-                  if (date != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      date,
-                      style: text.bodySmall?.copyWith(
-                        color: task.overdue ? KiviloColors.red : null,
-                        fontWeight: task.overdue ? FontWeight.w700 : null,
-                      ),
-                    ),
-                  ],
-                ],
+                children: [title, const SizedBox(height: 3), details],
               ),
             ),
             const SizedBox(width: 8),
-            if (task.isInspectionReminder && onDismiss != null)
-              DismissReminderButton(
-                property: task.property,
-                onPressed: onDismiss!,
-              )
-            else
-              const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
           ],
         ),
       ),

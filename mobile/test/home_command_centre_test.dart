@@ -264,6 +264,27 @@ void main() {
     },
   );
 
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('reminder close aligns with the heading and card edge at ${scale}x', (tester) async {
+      await _pump(tester, _HomeApi(byContext: {'work': _work}),
+          size: const Size(320, 568), scale: scale);
+      for (final (label, property) in [
+        ('CONTINUE WHERE YOU LEFT OFF', '3 Newer Walk, Singapore 100003'),
+        ('Continue the check-in', '12 Cairnhill Rise, Singapore 229700'),
+      ]) {
+        final close = find.byTooltip('Dismiss reminder for $property');
+        await _reveal(tester, close);
+        final bounds = tester.getRect(close);
+        final icon = find.descendant(of: close, matching: find.byIcon(Icons.close));
+        final card = find.ancestor(of: close, matching: find.byType(Card)).first;
+        expect(tester.getCenter(icon).dy, closeTo(tester.getCenter(find.text(label)).dy, 0.5));
+        expect(bounds.right, closeTo(tester.getRect(card).right, 0.5));
+        expect(bounds.size, const Size.square(48));
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('dismiss and undo the newest inspection without changing other work', (tester) async {
     final cache = _ReminderCache();
     final api = _HomeApi(cache: cache, byContext: {'work': _work});
