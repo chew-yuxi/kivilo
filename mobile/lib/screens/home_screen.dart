@@ -597,48 +597,40 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         if (latest != null) ...[
           Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ReminderHeading(
+                  heading: KiviloEyebrow(t.continueWhereYouLeftOff),
+                  property: latest.property,
+                  onDismiss: () => _setDismissed(latest, true),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            KiviloEyebrow(t.continueWhereYouLeftOff),
-                            const SizedBox(height: 8),
-                            Text(
-                              latest.property,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: text.titleMedium,
-                            ),
-                            if (latest.person != null) ...[
-                              const SizedBox(height: 2),
-                              Text(latest.person!, style: text.bodySmall),
-                            ],
-                          ],
-                        ),
+                      Text(
+                        latest.property,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleMedium,
                       ),
-                      DismissReminderButton(
-                        property: latest.property,
-                        onPressed: () => _setDismissed(latest, true),
+                      if (latest.person != null) ...[
+                        const SizedBox(height: 2),
+                        Text(latest.person!, style: text.bodySmall),
+                      ],
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        onPressed: () => _open(latest),
+                        icon: const Icon(Icons.chevron_right, size: 20),
+                        iconAlignment: IconAlignment.end,
+                        label: Text(latest.title),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: () => _open(latest),
-                    icon: const Icon(Icons.chevron_right, size: 20),
-                    iconAlignment: IconAlignment.end,
-                    label: Text(latest.title),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: kiviloButtonGap),
