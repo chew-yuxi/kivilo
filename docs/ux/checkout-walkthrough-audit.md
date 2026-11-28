@@ -17,6 +17,6 @@ The first review failed two of ten task checks. The walkthrough still said “St
 | Review and sign the report | Simulator creates the report against the local backend, which records both test signatures |
 | Explain the refund | Native report shows S$1,940 after a S$60 deduction from S$2,000 |
 
-All ten checks passed after the fixes. The count describes this expert walkthrough. The physical iPhone was unavailable and no Android handset was attached. Camera optics, on-device delivery and Jac’s own experience are unmeasured.
+All ten checks passed after the fixes. The Android emulator also completed the same missing-item visit and rendered the same refund on both the combined app and the public build-25 compatibility source. The count describes this expert walkthrough. The physical iPhone was unavailable and no Android handset was attached. Camera optics, on-device delivery and Jac’s own experience are unmeasured.
 
-[Matched native walkthrough at 390 × 844](checkout-walkthrough-audit.png)
+[Matched native walkthrough at 390 × 844](checkout-walkthrough-audit.png) · [Refund on iPhone and Android](checkout-refund-phones.png)

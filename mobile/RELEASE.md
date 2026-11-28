@@ -5,6 +5,21 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Standalone check-out · 28 November 2026 Singapore time
+
+Agents can start with an address, use a paper check-in, and record damage, missing items or a clear visit. They can resume on the same phone and enter party and deposit details at review. The audit fixed missing issue classifications and offscreen validation. Both native platforms completed the signed S$2,000 example with one S$60 deduction. The combined source passed all 579 Flutter tests. [Audit and screenshots](../docs/ux/checkout-walkthrough-audit.md)
+
+Backend revision `daca52c` is live. All 58 database migration checksums matched, including the two additive migrations. Deployment `dpl_GKCjttxRvH3wNuZzV5a9WijzSu9X` was ready and both installed-client origins served the new route.
+
+| Distribution | Release and verified outcome |
+| --- | --- |
+| iPhone App Store 1.0.0 (26) | Stable patch 9, ID 852437. The phone update endpoint offered the patch and its download succeeded. Its 117 glyphs were present in the installed font. Shorebird reported 54.3% code sharing and warned that execution may be slower. |
+| Android 1.0.1 (30) | Stable patch 1, ID 852430. All three architecture downloads succeeded and the update service returned the expected installed-code hashes. The Singapore Play listing and associated disclosures still await managed publication. |
+| Public Android 1.0.0 (25) | Compatibility source `e3e44bb` preserves the installed camera and billing dependencies. Its 398 Flutter tests and emulator walkthrough passed. Publishing requires Shorebird sign-in. |
+| Android internal 1.0.0 (29) and iOS TestFlight 1.0.0 (25) | Compatibility source `f8e5ab5` passed 567 Flutter tests. Android patch 32 was staged. Stable promotion and TestFlight publication require Shorebird sign-in. |
+
+The older public Android build remains eligible for the independently prepared build-25 patch. Existing phones display the in-app update prompt on launch. The CLI publisher session expired after the first two stable publications. No physical handset was attached.
+
 ## Google Play production submission · 27 November 2026
 
 Google Play accepted the signed Android bundle for version 1.0.1, build 30. Its SHA-256 matched the verified candidate below. The release preview showed build 30 alone, a 100% rollout, and Singapore as the sole targeted country. Play Console’s Publishing overview listed one submitted production change for build 30 under **Changes in review**, initially running its automated checks.
