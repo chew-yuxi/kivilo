@@ -234,7 +234,12 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
     }
     pickerIntent = {'issue': editing!['id'], 'id': newCaptureId()};
     await _persist();
-    final file = await ImagePicker().pickImage(source: source, maxWidth: evidencePhotoEdge, maxHeight: evidencePhotoEdge, imageQuality: 92);
+    final file = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: evidencePhotoEdge,
+      maxHeight: evidencePhotoEdge,
+      imageQuality: 92,
+    );
     if (file == null) {
       pickerIntent = null;
       await _persist();
@@ -284,6 +289,18 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
     if (mounted) Navigator.pop(context, id);
   }
 
+  bool _valid() {
+    final invalid = form.currentState!.validateGranularly();
+    if (invalid.isEmpty) return true;
+    final first = invalid.first;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (first.mounted) {
+        Scrollable.ensureVisible(first.context, alignment: 0.2);
+      }
+    });
+    return false;
+  }
+
   Widget _field(
     String name,
     String label,
@@ -302,26 +319,77 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
       maxLines: lines,
       keyboardType: keyboard,
       decoration: InputDecoration(labelText: label),
-      validator: (v) =>
-          required && (v ?? '').trim().isEmpty ? 'Enter $label' : null,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (v) {
+        final text = (v ?? '').trim();
+        if (text.isEmpty) return required ? 'Enter $label' : null;
+        if (keyboard == TextInputType.emailAddress &&
+            !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text)) {
+          return 'Enter a valid email address';
+        }
+        if (name == 'postalCode' &&
+            widget.country == 'MY' &&
+            !RegExp(r'^\d{5}$').hasMatch(text)) {
+          return 'Enter a five-digit postcode';
+        }
+        if (name == 'deposit' &&
+            !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(text)) {
+          return 'Enter a deposit amount with up to two decimal places';
+        }
+        return null;
+      },
     );
   }
 
   Widget _date(String name, String label) {
-    return OutlinedButton(
-      onPressed: () async {
-        final now = DateTime.now();
-        final day = await showDatePicker(
-          context: context,
-          initialDate: DateTime.tryParse(details[name] ?? '') ?? now,
-          firstDate: DateTime(1970),
-          lastDate: DateTime(now.year + 30),
-        );
-        if (day != null && mounted) {
-          _change(() => details[name] = day.toIso8601String().substring(0, 10));
+    final start = DateTime.tryParse(details['startDate'] ?? '');
+    return FormField<String>(
+      key: ValueKey(name),
+      initialValue: details[name],
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      validator: (value) {
+        if (value == null) return 'Choose the ${label.toLowerCase()} date';
+        if (name == 'endDate' &&
+            start != null &&
+            !DateTime.parse(value).isAfter(start)) {
+          return 'Choose an end date after the tenancy start';
         }
+        return null;
       },
-      child: Text('$label · ${details[name] ?? 'Choose date'}'),
+      builder: (field) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          OutlinedButton(
+            onPressed: () async {
+              final now = DateTime.now();
+              final first = name == 'endDate' && start != null
+                  ? DateTime(start.year, start.month, start.day + 1)
+                  : DateTime(1970);
+              final initial = DateTime.tryParse(field.value ?? '') ?? now;
+              final last = DateTime(now.year + 30, 12, 31);
+              final day = await showDatePicker(
+                context: context,
+                initialDate: initial.isBefore(first) ? first : initial,
+                firstDate: first,
+                lastDate: first.isAfter(last) ? first : last,
+              );
+              if (day == null || !mounted || !field.mounted) return;
+              final value = day.toIso8601String().substring(0, 10);
+              field.didChange(value);
+              _change(() => details[name] = value);
+            },
+            child: Text('$label · ${field.value ?? 'Choose date'}'),
+          ),
+          if (field.hasError)
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                field.errorText!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -329,7 +397,13 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
   Widget build(BuildContext context) {
     final issue = editing;
     return Scaffold(
-      appBar: AppBar(title: const Text('Start check-out')),
+      appBar: AppBar(
+        title: Text(switch (step) {
+          'walk' => issue == null ? 'Walkthrough' : 'Record an issue',
+          'details' => 'Review check-out',
+          _ => 'Start check-out',
+        }),
+      ),
       body: SafeArea(
         child: Form(
           key: form,
@@ -341,7 +415,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: 12),
-              if (error != null)
+              if (error != null && !loaded)
                 Text(
                   error!,
                   style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -400,7 +474,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                         ),
                         FilledButton(
                           onPressed: () {
-                            if (form.currentState!.validate()) _run(_begin);
+                            if (_valid()) _run(_begin);
                           },
                           child: Text(
                             selected?['checkOutId'] != null
@@ -467,12 +541,16 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                           ),
                           FilledButton(
                             onPressed: () {
-                              if (!form.currentState!.validate()) return;
+                              if (!_valid()) return;
                               _run(() async {
-                                issues.removeWhere(
+                                final index = issues.indexWhere(
                                   (i) => i['id'] == issue['id'],
                                 );
-                                issues.add(Map.of(issue));
+                                if (index < 0) {
+                                  issues.add(Map.of(issue));
+                                } else {
+                                  issues[index] = Map.of(issue);
+                                }
                                 editing = null;
                                 await _persist();
                               });
@@ -489,7 +567,17 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                             ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Text(i['label']),
-                              subtitle: Text(i['note']),
+                              subtitle: Text(
+                                [
+                                  switch (i['change']) {
+                                    'MISSING' => 'Missing item',
+                                    'WEAR' => 'Wear',
+                                    _ => 'Damage',
+                                  },
+                                  if ((i['note'] as String).isNotEmpty)
+                                    i['note'],
+                                ].join(' · '),
+                              ),
                               trailing: step == 'walk'
                                   ? TextButton(
                                       onPressed: () =>
@@ -521,7 +609,8 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                                     : 'Review visit',
                               ),
                             ),
-                            const Text('Walkthrough saved on this device.'),
+                            if (error == null && !busy)
+                              const Text('Walkthrough saved on this device.'),
                           ] else ...[
                             if (issues.isEmpty)
                               const Text(
@@ -545,6 +634,11 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                                   details[entry.key] ?? '',
                                   (v) => details[entry.key] = v,
                                   required: !entry.key.endsWith('Email'),
+                                  keyboard: entry.key.endsWith('Email')
+                                      ? TextInputType.emailAddress
+                                      : entry.key == 'postalCode'
+                                      ? TextInputType.number
+                                      : TextInputType.name,
                                 ),
                               KiviloSelectField<String>(
                                 value:
@@ -588,20 +682,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                             ],
                             FilledButton(
                               onPressed: () {
-                                if (!form.currentState!.validate()) return;
-                                if (term.isEmpty &&
-                                    (details['startDate'] == null ||
-                                        details['endDate'] == null ||
-                                        details['startDate']!.compareTo(
-                                              details['endDate']!,
-                                            ) >=
-                                            0)) {
-                                  setState(
-                                    () => error =
-                                        'Choose the tenancy start and a later end date.',
-                                  );
-                                  return;
-                                }
+                                if (!_valid()) return;
                                 _run(_finish);
                               },
                               child: Text(
@@ -615,6 +696,16 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                           ],
                         ],
                       ],
+                      if (error != null)
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            error!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
                       if (busy) const LinearProgressIndicator(),
                     ],
                   ),

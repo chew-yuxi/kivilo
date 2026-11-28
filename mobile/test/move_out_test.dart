@@ -66,6 +66,66 @@ void main() {
     },
   );
 
+  for (final width in [320.0, 390.0]) {
+    testWidgets(
+      'review brings the first invalid field into view at width $width',
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = Size(width, 620);
+        addTearDown(tester.view.reset);
+        final cache = _Cache();
+        final queue = CaptureQueue(NativeDatabase.memory());
+        addTearDown(queue.close);
+        await tester.pumpWidget(
+          MaterialApp(
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: TextScaler.linear(1.3)),
+              child: child!,
+            ),
+            home: MoveOutScreen(
+              api: _Api(),
+              country: 'SG',
+              cache: cache,
+              queue: queue,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextFormField), '18 Palm Walk');
+        await tester.tap(find.text('Start walkthrough'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Finish with no issues'));
+        await tester.pumpAndSettle();
+        final submit = find.text('Create check-out report');
+        await tester.dragUntilVisible(
+          submit.hitTestable(),
+          find.byType(ListView),
+          const Offset(0, -240),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(submit);
+        await tester.pumpAndSettle();
+        expect(find.text('Enter Postal code').hitTestable(), findsOneWidget);
+        expect(
+          find.text('No issues observed during this visit.'),
+          findsOneWidget,
+        );
+        expect(find.text('Choose the tenancy start date'), findsOneWidget);
+        final email = find.byKey(const ValueKey('details-tenantEmail'));
+        await tester.ensureVisible(email);
+        await tester.enterText(email, 'mistyped');
+        await tester.pumpAndSettle();
+        expect(find.text('Enter a valid email address'), findsOneWidget);
+        await tester.enterText(email, 'tenant@example.com');
+        await tester.pumpAndSettle();
+        expect(find.text('Enter a valid email address'), findsNothing);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'record an issue before entering tenancy details and resume after leaving',
     (tester) async {
@@ -104,6 +164,8 @@ void main() {
       await tester.pumpWidget(const SizedBox());
       await open();
       expect(find.text('Missing remote'), findsOneWidget);
+      expect(find.text('Damage'), findsOneWidget);
+      expect(find.text('Walkthrough'), findsOneWidget);
       await tester.tap(find.text('Review visit'));
       await tester.pumpAndSettle();
       expect(find.text('Tenancy details for the report'), findsOneWidget);
