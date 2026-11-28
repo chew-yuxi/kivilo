@@ -5,6 +5,23 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Radial tap feedback · 28 November 2026 Singapore time
+
+Tabs and segmented choices show a neutral ripple from the touch point. Reduce Motion gives a stationary press, and the pink half-pill marks the selected tab. Public Android 25 uses the same controls on its Properties, History and inventory screens. [Matched native frames](../plans/design-system/native-tap-feedback.png) · [HTML replay](../plans/design-system/kivilo-design-preview.html) · [PR 10](https://github.com/chew-yuxi/kivilo/pull/10)
+
+| Distribution | Release | Stable patch | Shorebird ID | Compiled source |
+| --- | --- | --- | --- | --- |
+| Public iPhone App Store | 1.0.0+26 | 12 | 853287 | [b170c25](https://github.com/chew-yuxi/kivilo/commit/b170c25) |
+| Public Google Play | 1.0.0+25 | 66 | 853276 | [5c5522a](https://github.com/chew-yuxi/kivilo/commit/5c5522a) |
+| TestFlight | 1.0.0+25 | 67 | 853288 | [2ccea04](https://github.com/chew-yuxi/kivilo/commit/2ccea04) |
+| Android internal | 1.0.0+29 | 35 | 853273 | [2ccea04](https://github.com/chew-yuxi/kivilo/commit/2ccea04) |
+| Android 30 | 1.0.1+30 | 7 | 853274 | [cfdc615](https://github.com/chew-yuxi/kivilo/commit/cfdc615) |
+| Prepared iPhone 30 | 1.0.1+30 | 8 | 853286 | [b170c25](https://github.com/chew-yuxi/kivilo/commit/b170c25) |
+
+Flutter analysis passed on the main and compatibility sources. Their test suites passed 587 tests on main, 575 on the test-client source and 405 on public Android. All 12 update requests from the preceding stable patches returned the expected compiled-code hashes and delivered their artifacts on both the verification and stable tracks. Physical handset installation remains unverified.
+
+Shorebird reported partial iOS code sharing for builds 26 at 54.8%, 25 at 41.0%, 30 at 56.4%. Execution may be slower on these patches.
+
 ## Home reminder close-button alignment · 28 November 2026 Singapore time
 
 The × now lines up with the reminder heading, including at double text size, with a 48 × 48 tap target. On both Home layouts its center sits 24 points from the top and trailing edges. [Matched mobile screenshots](../docs/ux/reminder-close-alignment.png) · [PR 9](https://github.com/chew-yuxi/kivilo/pull/9)
