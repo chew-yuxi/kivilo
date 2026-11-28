@@ -13,8 +13,8 @@ Use this standard for the agent app, the browser app and forms opened by landlor
 | Open optional detail | A short text link with a clear destination. Keep it visually quieter than the task. | Flutter `kiviloTertiary`. Web `text-link` with underline. |
 | Delete content or remove access | Red outline to open the decision. A filled red confirmation names the thing being removed. | Flutter `kiviloDangerOutlined` and `kiviloDangerFilled`. Web `action-danger` and `action-danger-confirm`. |
 | Choose between valid answers | Give both answers the same weight. Selecting Dispute can open a reason field. Its submit button then records the chosen answer. | Use peer secondary buttons for Agree and Dispute. |
-| Switch between lists or sections | Teasa’s view tabs use plain labels, muted when idle and semibold ink when selected. Centre an 18 × 3 ink mark beneath the current label. Keep the selected view visible when labels scroll. | Flutter `KiviloViewTabs`. Web `ViewTabs` with real links and `aria-current` for the current page or section. |
-| Narrow the current list or choose a field value | Room filters use an ink check and a light grey selected surface. Form choices use the labelled segmented control or selection field. | Flutter `ChoiceChip`, `KiviloSegmentedControl` and `KiviloSelectField`. |
+| Switch between lists or sections | Teasa’s view tabs use plain labels, muted when idle and semibold ink when selected. On mobile, centre a 22 × 5 action-pink capsule beneath the current label. The browser uses an 18 × 3 ink mark. Keep the selected view visible when labels scroll. | Flutter `KiviloViewTabs`. Web `ViewTabs` with real links and `aria-current` for the current page or section. |
+| Narrow the current list or choose a field value | Room filters use an ink check and a light grey selected surface. For a few form choices, slide a white segment across a single grey track and use deep pink for its selected label. | Flutter `ChoiceChip`, `KiviloSegmentedControl` and `KiviloSelectField`. |
 
 A page with separate forms can have an action for each form. Never repeat the same primary at the top, in an empty card and over the content. A full-width label and a compact icon are different controls. Compact controls belong beside their field, in a toolbar, or in a clearly related row.
 
@@ -22,9 +22,9 @@ A page with separate forms can have an action for each form. Never repeat the sa
 
 | Token | Value | Use |
 | --- | --- | --- |
-| Action pink | `#DB2777` | Primary fill, with white text and icons |
+| Action pink | `#DB2777` | Primary fill with white labels, and the mobile tab marker |
 | Brand pink | `#EC4899` | Brand marks |
-| Ink | `#111827` | Selected tab text and indicator, icons and headings |
+| Ink | `#111827` | Selected tab text, browser tab indicator, icons and headings |
 | Deep pink | `#BE185D` | Text, selected outlines and navigation accents |
 | Soft pink | `#FDF2F8` | Secondary and selected surfaces |
 | Body / muted | `#374151` / `#6B7280` | Main text and supporting labels |
@@ -43,7 +43,7 @@ White on action pink measures **4.60:1**. Hover and press deepen the fill so the
 
 ## Tabs and filters
 
-Use 48-unit tab targets with 14-unit labels. Keep the row horizontally scrollable on narrow screens. Give the selected tab a short rounded mark above a one-unit neutral divider. The mark slides for 220 ms and changes immediately with reduced motion. Links retain keyboard focus, direct URLs and Back navigation. Within an inventory, choosing a room narrows the items below the tabs. Show its check even when colour is hard to distinguish. [Mobile comparison](design-system/tabs-mobile.png) · [Browser comparison](design-system/tabs-web.png)
+Use 48-unit tab targets with 14-unit labels. Keep the row horizontally scrollable on narrow screens. The mobile marker has fully rounded ends and a two-unit gap above the divider. The mark slides for 220 ms and changes immediately with reduced motion. Links retain keyboard focus, direct URLs and Back navigation. Within an inventory, choosing a room narrows the items below the tabs. Show its check even when colour is hard to distinguish. [Mobile tab and switch comparison](design-system/native-tab-and-toggle.png) · [Browser comparison](design-system/tabs-web.png)
 
 ## Behaviour at a handover
 

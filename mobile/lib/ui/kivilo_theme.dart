@@ -25,6 +25,7 @@ class KiviloColors {
   static const redBorder = Color(0xFFFECACA);
   static const pinkBorder = Color(0xFFFBCFE8);
   static const field = Color(0xFFD1D5DB);
+  static const choiceTrack = Color(0xFFF0F1F3);
   static const disabled = Color(0xFFF3F4F6);
 }
 
