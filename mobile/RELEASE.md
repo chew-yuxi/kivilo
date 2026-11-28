@@ -5,6 +5,23 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Properties bottom action bar · 28 November 2026 Singapore time
+
+New check-in and Start check-out sit above the app navigation. The fixed footer uses the same soft gray edge as the tab bar. On narrow phones with large text, the actions stack at full width. [Matched phone screenshots](../docs/ux/properties-start-actions.png) · [PR 11](https://github.com/chew-yuxi/kivilo/pull/11)
+
+| Distribution | Release | Stable patch | Shorebird ID | Compiled source |
+| --- | --- | --- | --- | --- |
+| Public iPhone App Store | 1.0.0+26 | 13 | 853350 | [5a5f165](https://github.com/chew-yuxi/kivilo/commit/5a5f165) |
+| Public Google Play | 1.0.0+25 | 68 | 853335 | [f361761](https://github.com/chew-yuxi/kivilo/commit/f361761) |
+| TestFlight | 1.0.0+25 | 69 | 853349 | [a4fab48](https://github.com/chew-yuxi/kivilo/commit/a4fab48) |
+| Android internal | 1.0.0+29 | 36 | 853338 | [a4fab48](https://github.com/chew-yuxi/kivilo/commit/a4fab48) |
+| Android 30 | 1.0.1+30 | 9 | 853336 | [31d84d1](https://github.com/chew-yuxi/kivilo/commit/31d84d1) |
+| Prepared iPhone 30 | 1.0.1+30 | 10 | 853348 | [5a5f165](https://github.com/chew-yuxi/kivilo/commit/5a5f165) |
+
+The candidates include the preceding stable tap-feedback release. Flutter analysis passed on all three source variants. The suites passed 590 tests on main, 578 on the test-client source and 407 on public Android. All 12 stable update requests from the previous patches delivered the expected artifacts and matched local compiled-code hashes. Physical handset installation remains unverified.
+
+Shorebird reported partial iOS code sharing for builds 26 at 54.8%, 25 at 41.0%, 30 at 56.4%. Execution may be slower on these patches.
+
 ## Radial tap feedback · 28 November 2026 Singapore time
 
 Tabs and segmented choices show a neutral ripple from the touch point. Reduce Motion gives a stationary press, and the pink half-pill marks the selected tab. Public Android 25 uses the same controls on its Properties, History and inventory screens. [Matched native frames](../plans/design-system/native-tap-feedback.png) · [HTML replay](../plans/design-system/kivilo-design-preview.html) · [PR 10](https://github.com/chew-yuxi/kivilo/pull/10)
