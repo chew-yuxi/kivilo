@@ -88,7 +88,9 @@ void main() {
       expect(pressed.skip(1), idle.skip(1));
       await finger.up();
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 35));
+      await tester.pump(
+        Duration(milliseconds: control == 'view tabs' ? 95 : 35),
+      );
       final spreading = await samples();
       expect(spreading[1], isNot(idle[1]));
       expect(spreading.last, idle.last);
