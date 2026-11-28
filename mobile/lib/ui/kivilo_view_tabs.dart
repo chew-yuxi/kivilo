@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'kivilo_theme.dart';
 
+const _dividerHeight = 1.0;
+
 /// Switches between views of a list. The current view stays visible in a narrow strip.
 class KiviloViewTabs extends StatefulWidget {
   const KiviloViewTabs({
@@ -76,6 +78,7 @@ class _KiviloViewTabsState extends State<KiviloViewTabs>
         fontWeight: FontWeight.w500,
       ),
       labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+      dividerHeight: _dividerHeight,
       dividerColor: KiviloColors.border,
       indicator: const _ViewMark(),
       indicatorSize: TabBarIndicatorSize.tab,
@@ -101,15 +104,17 @@ class _MarkPainter extends BoxPainter {
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size!;
+    const width = 22.0;
+    const height = 5.0;
     final rect = Rect.fromLTWH(
-      offset.dx + (size.width - 18) / 2,
-      offset.dy + size.height - 3,
-      18,
-      3,
+      offset.dx + (size.width - width) / 2,
+      offset.dy + size.height - _dividerHeight - height,
+      width,
+      height,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(1.5)),
-      Paint()..color = KiviloColors.ink,
+      const BorderRadius.vertical(top: Radius.circular(height)).toRRect(rect),
+      Paint()..color = KiviloColors.actionPink,
     );
   }
 }
