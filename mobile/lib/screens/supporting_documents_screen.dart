@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -182,7 +183,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
   }
 
   Future<void> _request() async {
-    final title = TextEditingController(text: 'Payment proof');
+    final title = TextEditingController(text: t.paymentProof);
     final clientId = newCaptureId();
     bool saving = false;
     String? error;
@@ -190,18 +191,18 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
       context: context,
       builder: (drawerContext) => StatefulBuilder(
         builder: (context, setDrawerState) => KiviloDrawer(
-          title: const Text('Request another document'),
+          title: Text(t.requestAnotherDocument),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Ask the tenant for an optional supporting file.'),
+              Text(t.askTheTenantForAnOptionalSupporting),
               const SizedBox(height: 16),
               TextField(
                 controller: title,
                 enabled: !saving,
                 maxLength: 120,
-                decoration: const InputDecoration(labelText: 'Document'),
+                decoration: InputDecoration(labelText: t.document),
               ),
               if (error != null)
                 Text(error!, style: const TextStyle(color: KiviloColors.red)),
@@ -210,7 +211,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           actions: [
             TextButton(
               onPressed: saving ? null : () => Navigator.pop(drawerContext),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: saving
@@ -243,7 +244,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
                         }
                       }
                     },
-              child: Text(saving ? 'Requesting…' : 'Request'),
+              child: Text(saving ? t.requesting : t.requestLabel),
             ),
           ],
         ),
@@ -264,11 +265,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
         final uploaded = await _photos.add(requestId, source);
         if (uploaded == false && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Photo saved on this phone. It will upload when you reconnect.',
-              ),
-            ),
+            SnackBar(content: Text(t.photoSavedOnThisPhoneItWill)),
           );
         }
         final data = _data;
@@ -334,7 +331,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
     return Scaffold(
       appBar: AppBar(
         title: PageContextTitle(
-          title: 'Documents',
+          title: t.documents,
           contextLabel: _data?.propertyLabel ?? '',
         ),
       ),
@@ -346,7 +343,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
                 child: _data == null && _error != null
                     ? KiviloMessage(
                         icon: Icons.error_outline,
-                        title: 'Could not load documents',
+                        title: t.couldNotLoadDocuments,
                         body: _error!,
                         actionLabel: 'Try again',
                         onAction: _busy ? null : _load,
@@ -365,7 +362,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
                               const SizedBox(height: 8),
                               OutlinedButton(
                                 onPressed: _busy ? null : _load,
-                                child: const Text('Try again'),
+                                child: Text(t.tryAgain),
                               ),
                               const SizedBox(height: 12),
                             ],
@@ -382,35 +379,31 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
                                       !_showOtherDocuments,
                                 ),
                                 child: Text(
-                                  '${_showOtherDocuments ? 'Hide other documents' : 'Other documents'} (${data.requests.length})',
+                                  '${_showOtherDocuments ? t.hideOtherDocuments : t.otherDocuments} (${data.requests.length})',
                                 ),
                               ),
                               if (!_showOtherDocuments && otherPending > 0)
                                 Text(
-                                  '$otherPending ${otherPending == 1 ? 'photo' : 'photos'} saved on this phone, waiting to upload.',
+                                  '$otherPending ${otherPending == 1 ? t.photoWord : t.photosLabel} saved on this phone, waiting to upload.',
                                 ),
                               if (_showOtherDocuments) ...[
-                                const Text(
-                                  'Optional supporting files for this tenancy',
-                                ),
+                                Text(t.optionalSupportingFilesForThisTenancy),
                                 const SizedBox(height: 12),
                                 if (data.canRequest) ...[
                                   OutlinedButton(
                                     onPressed: _busy ? null : _request,
-                                    child: const Text(
-                                      'Request another document',
-                                    ),
+                                    child: Text(t.requestAnotherDocument),
                                   ),
                                   const SizedBox(height: 12),
                                 ],
                                 for (final request in data.requests)
                                   _requestCard(request),
                                 if (data.requests.isEmpty)
-                                  const Text('No other documents requested.'),
+                                  Text(t.noOtherDocumentsRequested),
                               ],
                               const SizedBox(height: 24),
-                              const Text(
-                                'Private to the tenant, landlord and agents with access to this tenancy.',
+                              Text(
+                                t.privateToTheTenantLandlordAndAgents,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: KiviloColors.subtle,
@@ -444,22 +437,22 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Tenancy agreement',
+              t.tenancyAgreement,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
               agreement.files.isEmpty
-                  ? 'Keep the signed agreement with this property.'
+                  ? t.keepTheSignedAgreementWithThisProperty
                   : agreement.canReview
-                  ? 'Your agreement and reviewed repair terms.'
-                  : 'Your agreement for this tenancy.',
+                  ? t.yourAgreementAndReviewedRepairTerms
+                  : t.yourAgreementForThisTenancy,
             ),
             if (agreement.requestId case final requestId?) ...[
               if (current.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                const Text(
-                  'Current agreement',
+                Text(
+                  t.currentAgreement,
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
                 ..._files(requestId, current),
@@ -470,7 +463,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
                     () => _showPreviousAgreements = !_showPreviousAgreements,
                   ),
                   child: Text(
-                    '${_showPreviousAgreements ? 'Hide previous agreements' : 'Previous agreements'} (${previous.length})',
+                    '${_showPreviousAgreements ? t.hidePreviousAgreements : t.previousAgreements} (${previous.length})',
                   ),
                 ),
                 if (_showPreviousAgreements) ..._files(requestId, previous),
@@ -481,7 +474,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               const SizedBox(height: kiviloButtonGap),
               FilledButton(
                 onPressed: _busy ? null : () => _openBrowser(agreement: true),
-                child: const Text('Upload PDF in browser'),
+                child: Text(t.uploadPdfInBrowser),
               ),
               const SizedBox(height: kiviloButtonGap),
               _photoButtons(agreementQueueTarget),
@@ -495,13 +488,15 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               ),
             ] else if (data.currentMinorRepairCap case final cap?) ...[
               const SizedBox(height: 16),
-              Text('Current minor repair cap: ${currencySymbol(data.currency)}$cap per repair'),
+              Text(
+                'Current minor repair cap: ${currencySymbol(data.currency)}$cap per repair',
+              ),
             ],
             if (agreement.canReview && agreement.currentFileId != null) ...[
               const SizedBox(height: 12),
               OutlinedButton(
                 onPressed: _busy ? null : () => _reviewClause(data),
-                child: const Text('Review maintenance clause'),
+                child: Text(t.reviewMaintenanceClause),
               ),
             ],
           ],
@@ -537,7 +532,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
     if (pending.isNotEmpty) ...[
       const SizedBox(height: 12),
       Text(
-        '${pending.length} ${pending.length == 1 ? 'photo' : 'photos'} saved on this phone, waiting to upload.',
+        '${pending.length} ${pending.length == 1 ? t.photoWord : t.photosLabel} saved on this phone, waiting to upload.',
       ),
       for (final error
           in pending.map((row) => row.lastError).whereType<String>().toSet())
@@ -545,7 +540,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
       const SizedBox(height: kiviloButtonGap),
       OutlinedButton(
         onPressed: _busy ? null : () => _run(_photos.retry, refresh: true),
-        child: const Text('Retry upload'),
+        child: Text(t.retryUpload),
       ),
     ],
   ];
@@ -557,7 +552,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           onPressed: _busy
               ? null
               : () => _addPhoto(requestId, ImageSource.camera),
-          child: const Text('Take photo'),
+          child: Text(t.takePhotoShort),
         ),
       ),
       const SizedBox(width: kiviloButtonGap),
@@ -566,7 +561,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           onPressed: _busy
               ? null
               : () => _addPhoto(requestId, ImageSource.gallery),
-          child: const Text('Choose photo'),
+          child: Text(t.choosePhoto),
         ),
       ),
     ],
@@ -590,8 +585,8 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
           if (request.files.isEmpty)
             Text(
               request.canUpload
-                  ? 'Upload the requested document below.'
-                  : 'Waiting for the tenant to upload',
+                  ? t.uploadTheRequestedDocumentBelow
+                  : t.waitingForTheTenantToUpload,
             ),
           ..._files(request.id, request.files),
           ..._pendingPhotos(_pending[request.id] ?? const []),
@@ -603,7 +598,7 @@ class _SupportingDocumentsScreenState extends State<SupportingDocumentsScreen>
               onPressed: _busy
                   ? null
                   : () => _openBrowser(requestId: request.id),
-              child: const Text('Upload PDF in browser'),
+              child: Text(t.uploadPdfInBrowser),
             ),
           ],
         ],

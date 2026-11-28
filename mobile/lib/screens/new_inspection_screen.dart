@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/read_cache.dart';
@@ -10,6 +11,7 @@ import '../models/property_work.dart';
 import 'contact_picker_screen.dart';
 import 'property_picker_screen.dart';
 import '../services/product_events.dart';
+import '../ui/tenancy_period.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
@@ -84,6 +86,22 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   /// that same person by the server.
   bool _sameLandlord = true;
 
+  /// The team this check-in will belong to: the existing property's, or the one chosen.
+  String? get _teamId => _existing != null ? _existing!.agencyId : _agency?.id;
+  AgencyDetail? _team;
+  String? _myId;
+  String? _teamError;
+  int _teamRun = 0;
+
+  /// Team agents get no access through membership alone, so each is assigned here.
+  final _assigned = <String>{};
+
+  List<AgencyMember> get _teamAgents => [
+    for (final member in _team?.members ?? const <AgencyMember>[])
+      if (member.active && member.role == 'AGENT' && member.stakeholderId != _myId)
+        member,
+  ];
+
   bool get _keepsLandlord =>
       _existing?.lastLandlordName != null && _sameLandlord;
 
@@ -109,16 +127,16 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   List<String> get _rooms => _previousMode
       ? [..._previousRooms, ..._custom]
       : [
-    for (final name in ['Living room', 'Dining area', 'Kitchen'])
-      if (_extras[name]!) name,
-    for (var i = 1; i <= _bedrooms; i++)
-      _bedrooms == 1 ? 'Bedroom' : 'Bedroom $i',
-    for (var i = 1; i <= _bathrooms; i++)
-      _bathrooms == 1 ? 'Bathroom' : 'Bathroom $i',
-    for (final name in ['Balcony', 'Utility room'])
-      if (_extras[name]!) name,
-    ..._custom,
-  ];
+          for (final name in ['Living room', 'Dining area', 'Kitchen'])
+            if (_extras[name]!) name,
+          for (var i = 1; i <= _bedrooms; i++)
+            _bedrooms == 1 ? 'Bedroom' : 'Bedroom $i',
+          for (var i = 1; i <= _bathrooms; i++)
+            _bathrooms == 1 ? 'Bathroom' : 'Bathroom $i',
+          for (final name in ['Balcony', 'Utility room'])
+            if (_extras[name]!) name,
+          ..._custom,
+        ];
 
   Future<void> _chooseExisting() async {
     final chosen = await Navigator.push<StartableProperty>(
@@ -136,7 +154,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       _furnishingLevel ??= chosen.furnishingLevel;
       _error = null;
     });
+    unawaited(_loadTeam());
   }
+
   final _fields = <String, TextEditingController>{
     for (final name in [
       'line1',
@@ -156,11 +176,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   String _propertyType = 'PRIVATE_NON_LANDED';
   String? _furnishingLevel;
   DateTime _startDate = DateTime.now();
-  late DateTime _endDate = DateTime(
-    _startDate.year + 2,
-    _startDate.month,
-    _startDate.day,
-  );
+  int _termYears = 2;
+  late DateTime _endDate = tenancyEndDate(_startDate, _termYears);
   bool _busy = false;
   String? _error;
 
@@ -170,7 +187,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     for (final controller in _fields.values) {
       controller.addListener(_saveDraft);
     }
-    unawaited(_restoreDraft());
+    unawaited(_restoreDraft().then((_) => _loadTeam()));
   }
 
   @override
@@ -211,6 +228,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           DateTime.tryParse(draft['startDate'] as String? ?? '') ?? _startDate;
       _endDate =
           DateTime.tryParse(draft['endDate'] as String? ?? '') ?? _endDate;
+      final savedYears = draft['termYears'];
+      _termYears = savedYears == 0 ? 0 : matchingTenancyYears(_startDate, _endDate);
       _bedrooms = draft['bedrooms'] as int? ?? _bedrooms;
       _bathrooms = draft['bathrooms'] as int? ?? _bathrooms;
       final extras = (draft['extras'] as Map?)?.cast<String, dynamic>() ?? {};
@@ -227,10 +246,41 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           : null;
       _previousRooms
         ..clear()
-        ..addAll(((draft['previousRooms'] as List?) ?? const []).cast<String>());
+        ..addAll(
+          ((draft['previousRooms'] as List?) ?? const []).cast<String>(),
+        );
       _usePreviousRooms = draft['usePreviousRooms'] as bool? ?? true;
       _sameLandlord = draft['sameLandlord'] as bool? ?? true;
+      _assigned
+        ..clear()
+        ..addAll(((draft['assigned'] as List?) ?? const []).cast<String>());
     });
+  }
+
+  /// A later answer replaces an earlier one, never the reverse. Failing to load leaves
+  /// the form usable, because access can still be set on the property afterwards.
+  Future<void> _loadTeam() async {
+    if (!mounted) return;
+    final id = _teamId;
+    final run = ++_teamRun;
+    setState(() {
+      _team = null;
+      _teamError = null;
+    });
+    if (id == null) return;
+    try {
+      final me = await _api.me();
+      final team = await _api.agency(id);
+      if (!mounted || run != _teamRun) return;
+      setState(() {
+        _myId = me.id;
+        _team = team;
+      });
+    } catch (error) {
+      if (mounted && run == _teamRun) {
+        setState(() => _teamError = plainError(error));
+      }
+    }
   }
 
   void _saveDraft() {
@@ -242,6 +292,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       },
       'propertyType': _propertyType,
       'furnishingLevel': _furnishingLevel,
+      'termYears': _termYears,
       'startDate': _iso(_startDate),
       'endDate': _iso(_endDate),
       'bedrooms': _bedrooms,
@@ -253,6 +304,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       'previousRooms': [..._previousRooms],
       'usePreviousRooms': _usePreviousRooms,
       'sameLandlord': _sameLandlord,
+      'assigned': [..._assigned],
     };
     // Each write waits for the one before, so an older copy never replaces a newer one.
     _pendingDraftWrite = _pendingDraftWrite.then((_) async {
@@ -303,7 +355,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       if (!mounted || run != _lookupRun) return;
       setState(() {
         _matches = const [];
-        _lookupNote = 'Could not look up addresses (${plainError(error)}) '
+        _lookupNote =
+            'Could not look up addresses (${plainError(error)}) '
             'Type it below.';
       });
     } finally {
@@ -351,17 +404,14 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
   Future<void> _pickDate(bool start) async {
-    final selected = await showDatePicker(
-      context: context,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      initialDate: start ? _startDate : _endDate,
-    );
+    final selected = await pickTenancyDate(context, start ? _startDate : _endDate);
     if (selected != null && mounted) {
       _change(() {
         if (start) {
           _startDate = selected;
+          if (_termYears > 0) _endDate = tenancyEndDate(selected, _termYears);
         } else {
+          _termYears = 0;
           _endDate = selected;
         }
       });
@@ -380,35 +430,30 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       final selection = await showKiviloDrawer<String>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: const Text('Who owns this work?'),
+          title: Text(t.newWhoOwns),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                title: const Text('Personal'),
-                subtitle: const Text(
-                  'Private to you until you add collaborators',
-                ),
+                title: Text(t.workspacePersonal),
+                subtitle: Text(t.newPersonalDetail),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.pop(context, 'personal'),
               ),
               for (final agency in index.agencies)
                 ListTile(
                   title: Text(agency.name),
-                  subtitle: const Text(
-                    'Assigned agents and team owners and managers can access this work',
-                  ),
+                  subtitle: Text(t.newTeamDetail),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => Navigator.pop(context, agency.id),
                 ),
-              if (index.agencies.isEmpty)
-                const Text('Create or join a team in Account → Team.'),
+              if (index.agencies.isEmpty) Text(t.newCreateTeamHint),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
           ],
         ),
@@ -419,6 +464,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               ? null
               : index.agencies.firstWhere((agency) => agency.id == selection),
         );
+        unawaited(_loadTeam());
       }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
@@ -432,30 +478,37 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     final invalid = _form.currentState!.validateGranularly();
     if (invalid.isNotEmpty) {
       double top(FormFieldState<Object?> state) =>
-          (state.context.findRenderObject()! as RenderBox).localToGlobal(Offset.zero).dy;
+          (state.context.findRenderObject()! as RenderBox)
+              .localToGlobal(Offset.zero)
+              .dy;
       final first = invalid.reduce((a, b) => top(a) <= top(b) ? a : b);
       final field = first.widget;
       if (field is TextFormField) {
-        _fieldFocus.entries.firstWhere((entry) =>
-            identical(_fields[entry.key], field.controller)).value.requestFocus();
+        _fieldFocus.entries
+            .firstWhere(
+              (entry) => identical(_fields[entry.key], field.controller),
+            )
+            .value
+            .requestFocus();
       } else {
         _furnishingFocus.requestFocus();
       }
       await WidgetsBinding.instance.endOfFrame;
       if (first.mounted) {
-        await Scrollable.ensureVisible(first.context, alignment: 0.12,
-            duration: const Duration(milliseconds: 220));
+        await Scrollable.ensureVisible(
+          first.context,
+          alignment: 0.12,
+          duration: const Duration(milliseconds: 220),
+        );
       }
       return;
     }
     if (_choosingExisting && _existing == null) {
-      setState(
-        () => _error = 'Choose the property, or switch to New property.',
-      );
+      setState(() => _error = t.selectPropertyFirst);
       return;
     }
     if (!_endDate.isAfter(_startDate)) {
-      setState(() => _error = 'The tenancy must end after it starts.');
+      setState(() => _error = t.newEndAfterStart);
       return;
     }
     setState(() {
@@ -464,6 +517,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     });
     try {
       String value(String key) => _fields[key]!.text.trim();
+      final memberIds = [
+        for (final member in _teamAgents)
+          if (_assigned.contains(member.stakeholderId)) member.stakeholderId,
+      ];
       final id = await _api.createInspection({
         if (_existing case final property?) ...{
           // The property keeps its own address, type and workspace.
@@ -498,6 +555,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'clientId': _clientId,
         'rooms': _rooms,
         if (_offersVerification) 'verifyParties': _verifyParties,
+        if (memberIds.isNotEmpty) 'memberIds': memberIds,
       });
       await _pendingDraftWrite;
       try {
@@ -524,28 +582,28 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     controller: _fields[key],
     focusNode: _fieldFocus[key],
     decoration: InputDecoration(
-      labelText: '$label (${required ? 'required' : 'optional'})',
+      labelText: required ? t.fieldRequired(label) : t.fieldOptional(label),
       hintText: hint,
     ),
     keyboardType: keyboardType,
     onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
     validator: (value) {
       final text = value?.trim() ?? '';
-      if (required && text.isEmpty) return '$label is required';
+      if (required && text.isEmpty) return t.fieldIsRequired(label);
       if (text.isNotEmpty &&
           keyboardType == TextInputType.emailAddress &&
           !RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(text)) {
-        return 'Enter a valid email address';
+        return t.fieldInvalidEmail;
       }
       if (text.isNotEmpty &&
           (key == 'monthlyRent' || key == 'deposit') &&
           !RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(text)) {
-        return 'Enter a valid $_currency amount with up to 2 decimals';
+        return t.fieldInvalidAmount(_currency);
       }
       if (key == 'postalCode' &&
           _malaysia &&
           !RegExp(r'^\d{5}$').hasMatch(text)) {
-        return 'A Malaysian postcode has 5 digits';
+        return t.malaysianPostcodeLength;
       }
       return null;
     },
@@ -555,395 +613,502 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.newInspection,
     child: Scaffold(
-    appBar: AppBar(title: const Text('New check-in')),
-    body: KiviloContent(maxWidth: 720, child: Form(
-      key: _form,
-      child: SingleChildScrollView(
-        padding: kiviloScreenPadding,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(
-            'Start with the essentials',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'Set up the property, the tenancy and its rooms.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
-          OutlinedButton(
-            onPressed: _busy || _existing != null ? null : _chooseWorkspace,
-            child: Text(
-              'Workspace: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _existing != null
-                ? 'A new tenancy stays in the property’s workspace.'
-                : _agency == null
-                ? 'Private to you until you share it.'
-                : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',
-          ),
-          const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'Property',
-            subtitle: 'Where the handover takes place',
-          ),
-          const SizedBox(height: kiviloHeadingGap),
-          KiviloSegmentedControl<bool>(
-            value: _choosingExisting,
-            options: const [
-              KiviloSegmentOption(value: false, label: 'New property'),
-              KiviloSegmentOption(value: true, label: 'Existing property'),
-            ],
-            onChanged: _busy
-                ? null
-                : (value) {
-                    _change(() {
-                      _choosingExisting = value!;
-                      if (!value) _existing = null;
-                    });
-                    if (value! && _existing == null) {
-                      unawaited(_chooseExisting());
-                    }
-                  },
-          ),
-          const SizedBox(height: 12),
-          if (_choosingExisting) ...[
-            if (_existing case final property?)
-              Card(
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 6,
-                  ),
-                  title: Text(property.address),
-                  subtitle: Text('Last tenant: ${property.lastTenant}'),
-                  trailing: TextButton(
-                    onPressed: _busy ? null : _chooseExisting,
-                    child: const Text('Change'),
+      appBar: AppBar(title: Text(t.newCheckIn)),
+      body: KiviloContent(
+        maxWidth: 720,
+        child: Form(
+          key: _form,
+          child: SingleChildScrollView(
+            padding: kiviloScreenPadding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  t.newEssentials,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  t.setUpThePropertyTheTenancyAnd,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 20),
+                OutlinedButton(
+                  onPressed: _busy || _existing != null
+                      ? null
+                      : _chooseWorkspace,
+                  child: Text(
+                    t.newWorkspace(
+                      _existing != null
+                          ? _existing!.agencyName ?? t.workspacePersonal
+                          : _agency?.name ?? t.workspacePersonal,
+                    ),
                   ),
                 ),
-              )
-            else
-              OutlinedButton(
-                onPressed: _busy ? null : _chooseExisting,
-                child: const Text('Choose a property'),
-              ),
-          ] else ...[
-            // OneMap knows Singapore addresses only.
-            if (!_malaysia)
-              TextField(
-                controller: _lookup,
-                readOnly: _busy,
-                textInputAction: TextInputAction.search,
-                decoration: InputDecoration(
-                  labelText: 'Find the address (optional)',
-                  hintText: 'Postal code, building or street',
-                  suffixIcon: _lookingUp
-                      ? const Padding(
-                          padding: EdgeInsets.all(14),
-                          child: SizedBox.square(
-                            dimension: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
-                      : null,
+                const SizedBox(height: 8),
+                Text(
+                  _existing != null
+                      ? t.aNewTenancyStaysInThePropertys
+                      : _agency == null
+                      ? t.newPrivate
+                      : t.newTeamResponsible,
                 ),
-                onChanged: _lookupChanged,
-              ),
-            if (!_malaysia && _matches.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Card(
-                clipBehavior: Clip.antiAlias,
-                child: Column(
-                  children: [
-                    for (final (index, match) in _matches.indexed) ...[
-                      if (index > 0) const Divider(height: 1),
-                      ListTile(
-                        title: Text(match.line1),
-                        subtitle: Text(
-                          [
-                            ?match.building,
-                            'Singapore ${match.postalCode}',
-                          ].join(' · '),
+                if (_teamId != null) ..._accessSection(),
+                const SizedBox(height: kiviloSectionGap),
+                KiviloSectionHeading(
+                  title: t.newProperty,
+                  subtitle: t.newPropertyDetail,
+                ),
+                const SizedBox(height: kiviloHeadingGap),
+                KiviloSegmentedControl<bool>(
+                  value: _choosingExisting,
+                  options: [
+                    KiviloSegmentOption(
+                      value: false,
+                      label: t.newPropertyLabel,
+                    ),
+                    KiviloSegmentOption(value: true, label: t.existingProperty),
+                  ],
+                  onChanged: _busy
+                      ? null
+                      : (value) {
+                          _change(() {
+                            _choosingExisting = value!;
+                            if (!value) _existing = null;
+                          });
+                          if (value == false) unawaited(_loadTeam());
+                          if (value! && _existing == null) {
+                            unawaited(_chooseExisting());
+                          }
+                        },
+                ),
+                const SizedBox(height: 12),
+                if (_choosingExisting) ...[
+                  if (_existing case final property?)
+                    Card(
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
                         ),
-                        onTap: _busy ? null : () => _useAddress(match),
+                        title: Text(property.address),
+                        subtitle: Text(
+                          t.previousTenantName(property.lastTenant),
+                        ),
+                        trailing: TextButton(
+                          onPressed: _busy ? null : _chooseExisting,
+                          child: Text(t.change),
+                        ),
+                      ),
+                    )
+                  else
+                    OutlinedButton(
+                      onPressed: _busy ? null : _chooseExisting,
+                      child: Text(t.chooseAProperty),
+                    ),
+                ] else ...[
+                  // OneMap knows Singapore addresses only.
+                  if (!_malaysia)
+                    TextField(
+                      controller: _lookup,
+                      readOnly: _busy,
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        labelText: t.findTheAddressOptional,
+                        hintText: t.postalCodeBuildingOrStreet,
+                        suffixIcon: _lookingUp
+                            ? const Padding(
+                                padding: EdgeInsets.all(14),
+                                child: SizedBox.square(
+                                  dimension: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : null,
+                      ),
+                      onChanged: _lookupChanged,
+                    ),
+                  if (!_malaysia && _matches.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        children: [
+                          for (final (index, match) in _matches.indexed) ...[
+                            if (index > 0) const Divider(height: 1),
+                            ListTile(
+                              title: Text(match.line1),
+                              subtitle: Text(
+                                [
+                                  ?match.building,
+                                  'Singapore ${match.postalCode}',
+                                ].join(' · '),
+                              ),
+                              onTap: _busy ? null : () => _useAddress(match),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (!_malaysia && _lookupNote != null) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      _lookupNote!,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                  if (!_malaysia) const SizedBox(height: 12),
+                  _textField(
+                    'line1',
+                    'Address',
+                    required: true,
+                    hint: _malaysia ? t.buildingOrStreetAreaAndCity : null,
+                  ),
+                  const SizedBox(height: 12),
+                  _textField('unit', 'Unit'),
+                  const SizedBox(height: 12),
+                  _textField(
+                    'postalCode',
+                    _malaysia ? 'Postcode' : 'Postal code',
+                    required: true,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 12),
+                  KiviloSelectField<String>(
+                    label: t.newPropertyTypeRequired,
+                    sheetTitle: 'Choose a property type',
+                    value: _propertyType,
+                    options: [
+                      _malaysia
+                          ? KiviloSelectOption(
+                              value: 'PRIVATE_NON_LANDED',
+                              label: t.condominium,
+                              description:
+                                  t.condominiumServicedResidenceOrApartment,
+                              icon: Icons.apartment_rounded,
+                            )
+                          : KiviloSelectOption(
+                              value: 'PRIVATE_NON_LANDED',
+                              label: t.propertyTypePrivate,
+                              description: t.propertyTypePrivateDetail,
+                              icon: Icons.apartment_rounded,
+                            ),
+                      // Public housing is Singapore's; the server refuses it in Malaysia.
+                      if (!_malaysia)
+                        KiviloSelectOption(
+                          value: 'HDB',
+                          label: 'HDB',
+                          description: t.propertyTypeHdbDetail,
+                          icon: Icons.location_city_rounded,
+                        ),
+                      KiviloSelectOption(
+                        value: 'LANDED',
+                        label: t.propertyTypeLanded,
+                        description: t.propertyTypeLandedDetail,
+                        icon: Icons.home_rounded,
+                      ),
+                      KiviloSelectOption(
+                        value: 'COMMERCIAL',
+                        label: t.propertyTypeCommercial,
+                        description: t.propertyTypeCommercialDetail,
+                        icon: Icons.store_rounded,
                       ),
                     ],
-                  ],
-                ),
-              ),
-            ],
-            if (!_malaysia && _lookupNote != null) ...[
-              const SizedBox(height: 6),
-              Text(_lookupNote!, style: Theme.of(context).textTheme.bodySmall),
-            ],
-            if (!_malaysia) const SizedBox(height: 12),
-            _textField(
-              'line1',
-              'Address',
-              required: true,
-              hint: _malaysia ? 'Building or street, area and city' : null,
-            ),
-            const SizedBox(height: 12),
-            _textField('unit', 'Unit'),
-            const SizedBox(height: 12),
-            _textField(
-              'postalCode',
-              _malaysia ? 'Postcode' : 'Postal code',
-              required: true,
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 12),
-            KiviloSelectField<String>(
-              label: 'Property type (required)',
-              sheetTitle: 'Choose a property type',
-              value: _propertyType,
-              options: [
-                _malaysia
-                    ? const KiviloSelectOption(
-                        value: 'PRIVATE_NON_LANDED',
-                        label: 'Condominium',
-                        description: 'Condominium, serviced residence or apartment',
-                        icon: Icons.apartment_rounded,
-                      )
-                    : const KiviloSelectOption(
-                        value: 'PRIVATE_NON_LANDED',
-                        label: 'Private, non-landed',
-                        description: 'Condominium or private apartment',
-                        icon: Icons.apartment_rounded,
-                      ),
-                // Public housing is Singapore's; the server refuses it in Malaysia.
-                if (!_malaysia)
-                  const KiviloSelectOption(
-                    value: 'HDB',
-                    label: 'HDB',
-                    description: 'Public housing flat',
-                    icon: Icons.location_city_rounded,
+                    onChanged: (value) => _change(() => _propertyType = value),
                   ),
-                const KiviloSelectOption(
-                  value: 'LANDED',
-                  label: 'Landed',
-                  description: 'Terrace, semi-detached or detached home',
-                  icon: Icons.home_rounded,
+                ],
+                const SizedBox(height: 20),
+                FormField<String>(
+                  validator: (_) =>
+                      _furnishingLevel == null ? t.chooseFurnishingLevel : null,
+                  builder: (field) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t.newFurnishing,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        t.roomsStartWithEditableInventoryRowsSuited,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      if (field.errorText != null)
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            field.errorText!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                        ),
+                      RadioGroup<String>(
+                        groupValue: _furnishingLevel,
+                        onChanged: (value) => _change(() {
+                          _furnishingLevel = value;
+                          field.didChange(value);
+                          if (field.hasError) field.validate();
+                          _error = null;
+                        }),
+                        child: Column(
+                          children: [
+                            RadioListTile<String>(
+                              focusNode: _furnishingFocus,
+                              value: 'FULLY_FURNISHED',
+                              title: Text(t.newFullyFurnished),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            RadioListTile<String>(
+                              value: 'PARTIALLY_FURNISHED',
+                              title: Text(t.partiallyFurnished),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            RadioListTile<String>(
+                              value: 'UNFURNISHED',
+                              title: Text(t.unfurnished),
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const KiviloSelectOption(
-                  value: 'COMMERCIAL',
-                  label: 'Commercial',
-                  description: 'Office, retail or other business premises',
-                  icon: Icons.store_rounded,
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: kiviloSectionGap),
+                ..._roomsSection(),
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: kiviloSectionGap),
+                KiviloSectionHeading(
+                  title: t.newPeople,
+                  subtitle: t.newPeopleDetail,
                 ),
-              ],
-              onChanged: (value) => _change(() => _propertyType = value),
-            ),
-          ],
-          const SizedBox(height: 20),
-          FormField<String>(
-            validator: (_) => _furnishingLevel == null ? 'Choose the property furnishing level.' : null,
-            builder: (field) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(
-                'Furnishing (required)',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Rooms start with editable inventory rows suited to this furnishing level.',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              if (field.errorText != null)
-                Semantics(liveRegion: true, child: Text(field.errorText!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error))),
-              RadioGroup<String>(
-                groupValue: _furnishingLevel,
-                onChanged: (value) => _change(() {
-                  _furnishingLevel = value;
-                  field.didChange(value);
-                  if (field.hasError) field.validate();
-                  _error = null;
-                }),
-                child: Column(
+                const SizedBox(height: kiviloHeadingGap),
+                if (_existing?.lastLandlordName case final name?)
+                  CheckboxListTile(
+                    value: _sameLandlord,
+                    title: Text(t.sameLandlordAsLastTime),
+                    subtitle: Text(
+                      [name, ?_existing!.lastLandlordEmail].join(' · '),
+                    ),
+                    contentPadding: EdgeInsets.zero,
+                    onChanged: _busy
+                        ? null
+                        : (value) => _change(() => _sameLandlord = value!),
+                  ),
+                if (!_keepsLandlord) ...[
+                  _textField('landlordName', t.newLandlordName, required: true),
+                  const SizedBox(height: 12),
+                  _textField(
+                    'landlordEmail',
+                    t.newLandlordEmail,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(
+                    onPressed: _busy ? null : () => _chooseContact('LANDLORD'),
+                    child: Text(t.chooseFromYourContacts),
+                  ),
+                ],
+                const SizedBox(height: 12),
+                _textField('tenantName', t.newTenantName, required: true),
+                const SizedBox(height: 12),
+                _textField(
+                  'tenantEmail',
+                  t.newTenantEmail,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 12),
+                TextButton(
+                  onPressed: _busy ? null : () => _chooseContact('TENANT'),
+                  child: Text(t.chooseFromYourContacts),
+                ),
+                if (_offersVerification) ...[
+                  const SizedBox(height: 16),
+                  Card(
+                    margin: EdgeInsets.zero,
+                    child: SwitchListTile(
+                      contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
+                      title: Text(t.verifyBothPartiesCea),
+                      subtitle: Text(
+                        'Kivilo emails the landlord and tenant a short identity form and screens '
+                        'them. CEA requires this before the tenancy is signed.'
+                        '${widget.freeChecksLeft == null ? '' : ' Uses 2 of your ${widget.freeChecksLeft} free client checks.'}',
+                      ),
+                      value: _verifyParties,
+                      onChanged: _busy
+                          ? null
+                          : (value) => setState(() => _verifyParties = value),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 32),
+                const Divider(),
+                const SizedBox(height: kiviloSectionGap),
+                KiviloSectionHeading(
+                  title: t.newTenancy,
+                  subtitle: t.newTenancyDetail,
+                ),
+                const SizedBox(height: kiviloHeadingGap),
+                TenancyLengthPicker(
+                  years: _termYears,
+                  onChanged: _busy ? null : (years) => _change(() {
+                    _termYears = years;
+                    if (years > 0) _endDate = tenancyEndDate(_startDate, years);
+                  }),
+                ),
+                const SizedBox(height: 12),
+                Row(
                   children: [
-                    RadioListTile<String>(
-                      focusNode: _furnishingFocus,
-                      value: 'FULLY_FURNISHED',
-                      title: Text('Fully furnished'),
-                      contentPadding: EdgeInsets.zero,
+                    Expanded(
+                      child: _dateCard(
+                        t.newStarts,
+                        _startDate,
+                        () => _pickDate(true),
+                      ),
                     ),
-                    RadioListTile<String>(
-                      value: 'PARTIALLY_FURNISHED',
-                      title: Text('Partially furnished'),
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    RadioListTile<String>(
-                      value: 'UNFURNISHED',
-                      title: Text('Unfurnished'),
-                      contentPadding: EdgeInsets.zero,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _dateCard(
+                        t.newEnds,
+                        _endDate,
+                        () => _pickDate(false),
+                      ),
                     ),
                   ],
                 ),
-              ),
-          ])),
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: kiviloSectionGap),
-          ..._roomsSection(),
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'People',
-            subtitle: 'The landlord and tenant on the report',
-          ),
-          const SizedBox(height: kiviloHeadingGap),
-          if (_existing?.lastLandlordName case final name?)
-            CheckboxListTile(
-              value: _sameLandlord,
-              title: const Text('Same landlord as last time'),
-              subtitle: Text(
-                [name, ?_existing!.lastLandlordEmail].join(' · '),
-              ),
-              contentPadding: EdgeInsets.zero,
-              onChanged: _busy
-                  ? null
-                  : (value) => _change(() => _sameLandlord = value!),
-            ),
-          if (!_keepsLandlord) ...[
-            _textField('landlordName', 'Landlord name', required: true),
-            const SizedBox(height: 12),
-            _textField(
-              'landlordEmail',
-              'Landlord email',
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _busy ? null : () => _chooseContact('LANDLORD'),
-              child: const Text('Choose from your contacts'),
-            ),
-          ],
-          const SizedBox(height: 12),
-          _textField('tenantName', 'Tenant name', required: true),
-          const SizedBox(height: 12),
-          _textField(
-            'tenantEmail',
-            'Tenant email',
-            keyboardType: TextInputType.emailAddress,
-          ),
-          const SizedBox(height: 12),
-          TextButton(
-            onPressed: _busy ? null : () => _chooseContact('TENANT'),
-            child: const Text('Choose from your contacts'),
-          ),
-          if (_offersVerification) ...[
-            const SizedBox(height: 16),
-            Card(
-              margin: EdgeInsets.zero,
-              child: SwitchListTile(
-                contentPadding: const EdgeInsets.fromLTRB(16, 6, 12, 6),
-                title: const Text('Verify both parties (CEA)'),
-                subtitle: Text(
-                  'Kivilo emails the landlord and tenant a short identity form and screens '
-                  'them. CEA requires this before the tenancy is signed.'
-                  '${widget.freeChecksLeft == null ? '' : ' Uses 2 of your ${widget.freeChecksLeft} free client checks.'}',
+                const SizedBox(height: 16),
+                _textField(
+                  'monthlyRent',
+                  t.newMonthlyRent(_currency),
+                  keyboardType: TextInputType.number,
                 ),
-                value: _verifyParties,
-                onChanged: _busy ? null : (value) => setState(() => _verifyParties = value),
-              ),
-            ),
-          ],
-          const SizedBox(height: 32),
-          const Divider(),
-          const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'Tenancy',
-            subtitle: 'Dates and agreed amounts',
-          ),
-          const SizedBox(height: kiviloHeadingGap),
-          Row(
-            children: [
-              Expanded(
-                child: _dateCard(
-                  'Starts (required)',
-                  _startDate,
-                  () => _pickDate(true),
+                const SizedBox(height: 12),
+                _textField(
+                  'deposit',
+                  t.newDeposit(_currency),
+                  keyboardType: TextInputType.number,
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _dateCard(
-                  'Ends (required)',
-                  _endDate,
-                  () => _pickDate(false),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          _textField(
-            'monthlyRent',
-            'Monthly rent ($_currency)',
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 12),
-          _textField(
-            'deposit',
-            'Deposit ($_currency)',
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 20),
-          if (_error != null)
-            KiviloNotice(
-              tone: KiviloTone.error,
-              child: Text(
-                _error!,
-                style: const TextStyle(color: KiviloColors.red),
-              ),
+                const SizedBox(height: 20),
+                if (_error != null)
+                  KiviloNotice(
+                    tone: KiviloTone.error,
+                    child: Text(
+                      _error!,
+                      style: const TextStyle(color: KiviloColors.red),
+                    ),
+                  ),
+              ],
             ),
-        ]),
-      ),
-    )),
-    bottomNavigationBar: KiviloContent(maxWidth: 720, child: AnimatedPadding(
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOut,
-      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: FilledButton(
-            onPressed: _busy ? null : _create,
-            child: Text(_busy ? 'Creating…' : 'Create check-in'),
           ),
         ),
       ),
-    )),
-  ),
+      bottomNavigationBar: AnimatedPadding(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+        child: KiviloActionFooter(
+          child: FilledButton(
+            onPressed: _busy ? null : _create,
+            child: Text(_busy ? t.creating : t.newCreate),
+          ),
+        ),
+      ),
+    ),
   );
+
+  List<Widget> _accessSection() {
+    final team = _team;
+    Widget fixed(String name, String role) => CheckboxListTile(
+      value: true,
+      title: Text(name),
+      subtitle: Text(role),
+      contentPadding: EdgeInsets.zero,
+      onChanged: null,
+    );
+    return [
+      const SizedBox(height: kiviloSectionGap),
+      const KiviloSectionHeading(
+        title: 'Property access',
+        subtitle: 'Team agents can open it only if you tick them here',
+      ),
+      const SizedBox(height: kiviloHeadingGap),
+      if (_teamError != null) ...[
+        KiviloNotice(
+          tone: KiviloTone.warning,
+          child: Text(
+            'Could not load the team (${_teamError!}) '
+            'You can still create this and share it from the property.',
+          ),
+        ),
+        const SizedBox(height: kiviloButtonGap),
+        OutlinedButton(
+          onPressed: _busy ? null : _loadTeam,
+          child: const Text('Try again'),
+        ),
+      ] else if (team == null)
+        const LinearProgressIndicator()
+      else ...[
+        for (final member in team.members)
+          if (member.active && member.stakeholderId == _myId)
+            fixed('${member.name} (you)', 'Responsible agent'),
+        for (final member in team.members)
+          if (member.active &&
+              member.role != 'AGENT' &&
+              member.stakeholderId != _myId)
+            fixed(
+              member.name,
+              'Team ${agencyRoleLabel(member.role).toLowerCase()}, sees all team properties',
+            ),
+        for (final member in _teamAgents)
+          CheckboxListTile(
+            value: _assigned.contains(member.stakeholderId),
+            title: Text(member.name),
+            subtitle: Text(member.email ?? 'Team agent'),
+            contentPadding: EdgeInsets.zero,
+            onChanged: _busy
+                ? null
+                : (selected) => _change(() {
+                    if (selected == true) {
+                      _assigned.add(member.stakeholderId);
+                    } else {
+                      _assigned.remove(member.stakeholderId);
+                    }
+                  }),
+          ),
+        if (_teamAgents.isEmpty)
+          const Text('No other agents in this team yet.'),
+      ],
+    ];
+  }
 
   List<Widget> _roomsSection() {
     final text = Theme.of(context).textTheme;
     final rooms = _rooms;
     return [
-      const KiviloSectionHeading(
-        title: 'Rooms',
-        subtitle: 'Each starts with standard lines you can edit',
+      KiviloSectionHeading(
+        title: t.stepRooms,
+        subtitle: t.eachStartsWithStandardLinesYouCan,
       ),
       const SizedBox(height: kiviloHeadingGap),
       if (_existing?.rooms.isNotEmpty == true)
         CheckboxListTile(
           value: _usePreviousRooms,
-          title: const Text('Start with the rooms from the last check-in'),
-          subtitle: const Text(
-            'Names only; this check-in records its own condition',
-          ),
+          title: Text(t.startWithTheRoomsFromTheLast),
+          subtitle: Text(t.namesOnlyThisCheckInRecordsIts),
           contentPadding: EdgeInsets.zero,
           onChanged: _busy
               ? null
               : (value) => _change(() => _usePreviousRooms = value!),
         ),
       if (!_previousMode) ...[
-        Text('Bedrooms', style: text.bodySmall),
+        Text(t.bedrooms, style: text.bodySmall),
         const SizedBox(height: 6),
         KiviloSegmentedControl<int>(
           value: _bedrooms,
@@ -956,7 +1121,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               : (value) => _change(() => _bedrooms = value!),
         ),
         const SizedBox(height: 12),
-        Text('Bathrooms', style: text.bodySmall),
+        Text(t.bathrooms, style: text.bodySmall),
         const SizedBox(height: 6),
         KiviloSegmentedControl<int>(
           value: _bathrooms,
@@ -987,9 +1152,9 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               controller: _customRoom,
               readOnly: _busy,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Another room (optional)',
-                hintText: 'For example, study',
+              decoration: InputDecoration(
+                labelText: t.anotherRoomOptional,
+                hintText: t.forExampleStudy,
               ),
               onSubmitted: (_) => _addCustomRoom(),
             ),
@@ -1000,7 +1165,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
             child: TextButton.icon(
               onPressed: _busy ? null : _addCustomRoom,
               icon: const Icon(Icons.add),
-              label: const Text('Add'),
+              label: Text(t.add),
             ),
           ),
         ],
@@ -1008,8 +1173,8 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       const SizedBox(height: 16),
       Text(
         rooms.isEmpty
-            ? 'No rooms yet. You can add them after this.'
-            : '${rooms.length} ${rooms.length == 1 ? 'room' : 'rooms'} to set up',
+            ? t.noRoomsYetYouCanAddThem
+            : '${rooms.length} ${rooms.length == 1 ? t.roomLabel : t.rooms} to set up',
         style: text.bodySmall,
       ),
       if (rooms.isNotEmpty) ...[

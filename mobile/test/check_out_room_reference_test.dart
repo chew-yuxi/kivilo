@@ -89,9 +89,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('At check-in'), findsOneWidget);
-    expect(find.text('At check-in: GOOD · serial: OLD-SERIAL'), findsOneWidget);
+    expect(find.text('At check-in: Good · serial: OLD-SERIAL'), findsOneWidget);
     expect(
-      find.text('At check-in: GOOD · ×2 · notes: Light scratches'),
+      find.text('At check-in: Good · ×2 · notes: Light scratches'),
       findsOneWidget,
     );
     expect(find.textContaining('At check-in: '), findsNWidgets(2));

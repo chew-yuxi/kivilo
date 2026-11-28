@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/workspace.dart';
 import 'kivilo_components.dart';
 
@@ -24,15 +25,19 @@ class WorkspacePicker extends StatelessWidget {
     final invitations = workspace.index.invitations.length;
     final contexts = workspace.contexts;
     final homes = contexts.landlord || contexts.tenant;
-    final work = homes && workspace.hasWork ? 'My work' : null;
+    final work = homes && workspace.hasWork ? t.myWork : null;
     return KiviloSelectField<String>(
-      label: homes ? 'Showing' : 'Workspace',
-      sheetTitle: homes ? 'Choose what to show' : 'Choose workspace',
+      label: homes ? t.showing : t.settingsWorkspace,
+      sheetTitle: homes ? t.chooseWhatToShow : t.workspaceChoose,
       value: workspace.value,
       options: [
         if (workspace.hasWork) ...[
-          KiviloSelectOption(value: 'all', label: 'All my work', group: work),
-          KiviloSelectOption(value: 'personal', label: 'Personal', group: work),
+          KiviloSelectOption(value: 'all', label: t.allMyWork, group: work),
+          KiviloSelectOption(
+            value: 'personal',
+            label: t.workspacePersonal,
+            group: work,
+          ),
           for (final agency in workspace.index.agencies)
             KiviloSelectOption(
               value: agency.id,
@@ -42,26 +47,26 @@ class WorkspacePicker extends StatelessWidget {
           KiviloSelectOption(
             value: _addTeam,
             label: invitations > 0
-                ? 'Team invitations ($invitations)'
-                : 'Add a team',
+                ? t.workspaceInvitations(invitations)
+                : t.workspaceAddTeam,
             icon: Icons.add,
             action: true,
             group: work,
           ),
         ],
         if (contexts.landlord)
-          const KiviloSelectOption(
+          KiviloSelectOption(
             value: 'landlord',
-            label: 'Homes I own',
-            description: 'Where you are the landlord',
-            group: 'Your homes',
+            label: t.homesIOwn,
+            description: t.whereYouAreTheLandlord,
+            group: t.yourHomesGroup,
           ),
         if (contexts.tenant)
-          const KiviloSelectOption(
+          KiviloSelectOption(
             value: 'tenant',
-            label: 'Homes I rent',
-            description: 'Where you are the tenant',
-            group: 'Your homes',
+            label: t.homesIRent,
+            description: t.whereYouAreTheTenant,
+            group: t.yourHomesGroup,
           ),
       ],
       onChanged: (value) => value == _addTeam ? onTeams() : onChanged(value),

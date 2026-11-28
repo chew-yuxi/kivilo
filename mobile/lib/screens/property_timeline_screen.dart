@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../ui/kivilo_format.dart';
@@ -73,106 +74,102 @@ class _PropertyTimelineScreenState extends State<PropertyTimelineScreen> {
       title: StreamBuilder<PropertyTimeline>(
         stream: _loading.stream,
         builder: (context, snapshot) => PageContextTitle(
-          title: 'Property timeline',
-          contextLabel: snapshot.data?.property ?? 'Property history',
+          title: t.tenancyTimeline,
+          contextLabel: snapshot.data?.property ?? t.propertyHistory,
         ),
       ),
     ),
     body: KiviloContent(
       maxWidth: 840,
       child: StreamBuilder<PropertyTimeline>(
-      stream: _loading.stream,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData && !snapshot.hasError) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return KiviloMessage(
-            icon: Icons.cloud_off_outlined,
-            title: 'Could not load the timeline',
-            body: plainError(snapshot.error!),
-            actionLabel: 'Try again',
-            onAction: _refresh,
-          );
-        }
-        final timeline = snapshot.data!;
-        final text = Theme.of(context).textTheme;
-        final months = <String, List<TimelineEvent>>{};
-        for (final event in timeline.events) {
-          months.putIfAbsent(monthYear(event.at), () => []).add(event);
-        }
-        return RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: kiviloScreenPadding,
-            children: [
-              const KiviloEyebrow('PROPERTY TIMELINE'),
-              const SizedBox(height: 4),
-              Text(timeline.property, style: text.headlineMedium),
-              const SizedBox(height: 6),
-              Text(
-                'Signed reports, repairs and agreed costs, newest first.',
-                style: text.bodyMedium,
-              ),
-              if (widget.showPropertySettings) ...[
-                const SizedBox(height: 16),
-                OutlinedButton(
-                  onPressed: () async {
+        stream: _loading.stream,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData && !snapshot.hasError) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return KiviloMessage(
+              icon: Icons.cloud_off_outlined,
+              title: t.couldNotLoadTheTimeline,
+              body: plainError(snapshot.error!),
+              actionLabel: 'Try again',
+              onAction: _refresh,
+            );
+          }
+          final timeline = snapshot.data!;
+          final text = Theme.of(context).textTheme;
+          final months = <String, List<TimelineEvent>>{};
+          for (final event in timeline.events) {
+            months.putIfAbsent(monthYear(event.at), () => []).add(event);
+          }
+          return RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              padding: kiviloScreenPadding,
+              children: [
+                KiviloEyebrow(t.timelineEyebrow),
+                const SizedBox(height: 4),
+                Text(timeline.property, style: text.headlineMedium),
+                const SizedBox(height: 6),
+                Text(t.timelineDetail, style: text.bodyMedium),
+                if (widget.showPropertySettings) ...[
+                  const SizedBox(height: 16),
+                  OutlinedButton(
+                    onPressed: () async {
                       await Navigator.of(context).push<void>(
                         MaterialPageRoute(
-                      builder: (_) => PropertySettingsScreen(
+                          builder: (_) => PropertySettingsScreen(
                             propertyId: widget.propertyId,
                             api: _api,
-                      ),
+                          ),
                         ),
                       );
-                    if (mounted) await _refresh();
-                  },
-                  child: const Text('Property settings'),
-                ),
-              ],
-              if (timeline.events.isEmpty) ...[
-                const SizedBox(height: 24),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Text(
-                      'Nothing has been settled here yet. Signed reports and '
-                      'repairs will appear as they happen.',
-                      textAlign: TextAlign.center,
-                      style: text.bodyMedium,
+                      if (mounted) await _refresh();
+                    },
+                    child: Text(t.propertySettings),
+                  ),
+                ],
+                if (timeline.events.isEmpty) ...[
+                  const SizedBox(height: 24),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(
+                        t.timelineEmpty,
+                        textAlign: TextAlign.center,
+                        style: text.bodyMedium,
+                      ),
                     ),
                   ),
-                ),
-              ],
-              for (final MapEntry(key: month, value: events)
-                  in months.entries) ...[
-                const SizedBox(height: 24),
-                Text(month, style: text.titleMedium),
-                const SizedBox(height: 10),
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      for (var index = 0; index < events.length; index++) ...[
-                        if (index > 0) const Divider(height: 1, indent: 60),
-                        _EventRow(
-                          event: events[index],
-                          onTap:
-                              events[index].linkId == null &&
-                                  events[index].reportId == null
-                              ? null
-                              : () => _open(events[index]),
-                        ),
+                ],
+                for (final MapEntry(key: month, value: events)
+                    in months.entries) ...[
+                  const SizedBox(height: 24),
+                  Text(month, style: text.titleMedium),
+                  const SizedBox(height: 10),
+                  Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
+                      children: [
+                        for (var index = 0; index < events.length; index++) ...[
+                          if (index > 0) const Divider(height: 1, indent: 60),
+                          _EventRow(
+                            event: events[index],
+                            onTap:
+                                events[index].linkId == null &&
+                                    events[index].reportId == null
+                                ? null
+                                : () => _open(events[index]),
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ],
-            ],
-          ),
-        );
-      },
+            ),
+          );
+        },
       ),
     ),
   );

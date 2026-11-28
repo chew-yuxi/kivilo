@@ -1,4 +1,5 @@
 import '../ui/kivilo_format.dart';
+import '../l10n/l10n.dart';
 import 'report.dart' show ReportPhoto;
 import 'tenancy_access.dart';
 
@@ -38,7 +39,7 @@ class InspectionSummary {
         rooms: json['rooms'] as int,
       );
 
-  String get kindLabel => kind == 'CHECK_IN' ? 'Check-in' : 'Check-out';
+  String get kindLabel => kind == 'CHECK_IN' ? t.checkIn : t.checkOut;
 }
 
 class InspectionDetail {
@@ -221,20 +222,20 @@ class RoomSummary {
   }
 
   String get statusLabel => switch (status) {
-    'PENDING' => 'Not started',
-    'REVIEW' => 'Needs review',
-    'REVIEWED' => 'Reviewed',
+    'PENDING' => t.roomNotStarted,
+    'REVIEW' => t.roomNeedsReview,
+    'REVIEWED' => t.roomReviewed,
     // PROCESSING and FAILED are left over from AI drafting; Done moves them on.
-    _ => 'Capturing',
+    _ => t.roomCapturing,
   };
 
   String get countsLabel {
     final parts = <String>[
-      if (videos > 0) '$videos video${videos == 1 ? '' : 's'}',
-      if (photos > 0) '$photos photo${photos == 1 ? '' : 's'}',
+      if (videos > 0) t.videoCount(videos),
+      if (photos > 0) t.photoCount(photos),
     ];
-    final base = parts.isEmpty ? 'Nothing captured yet' : parts.join(', ');
-    return items > 0 ? '$base · $items items' : base;
+    final base = parts.isEmpty ? t.roomNothingCaptured : parts.join(t.listSeparator);
+    return items > 0 ? t.roomSummaryWithItems(base, items) : base;
   }
 }
 
@@ -323,6 +324,26 @@ class CheckInReference {
             .toList(),
       );
 }
+
+/// An inventory line's `category`, as a person reads it.
+Map<String, String> get itemCategoryLabels => {
+  'FIXTURE': t.assetFixture,
+  'APPLIANCE': t.assetAppliance,
+  'FURNITURE': t.assetFurniture,
+  'SURFACE': t.assetSurface,
+  'METER': t.categoryMeter,
+  'SYSTEM': t.assetSystem,
+  'OTHER': t.basisOther,
+};
+
+/// An inventory line's `condition`, as a person reads it.
+Map<String, String> get itemConditionLabels => {
+  'NEW': t.conditionNew,
+  'GOOD': t.conditionGood,
+  'FAIR': t.conditionFair,
+  'POOR': t.conditionPoor,
+  'DAMAGED': t.conditionDamaged,
+};
 
 class CheckInLine {
   const CheckInLine({
@@ -516,6 +537,23 @@ class SigningParty {
     );
   }
 }
+
+/// What changed between check-in and check-out, by `Finding.changeType`.
+Map<String, String> get findingChangeLabels => {
+  'DAMAGE': t.changeDamage,
+  'WEAR': t.changeWear,
+  'MISSING': t.changeMissing,
+  'IMPROVED': t.changeImproved,
+  'UNCHANGED': t.changeUnchanged,
+};
+
+/// Who is responsible, by `Finding.verdict`.
+Map<String, String> get findingVerdictLabels => {
+  'UNDECIDED': t.verdictUndecided,
+  'TENANT_LIABLE': t.verdictTenantLiable,
+  'FAIR_WEAR': t.verdictFairWear,
+  'DISPUTED': t.verdictDisputed,
+};
 
 class Finding {
   const Finding({

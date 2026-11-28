@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/models/agency.dart';
+import 'package:kivilo/l10n/l10n.dart';
 import 'package:kivilo/models/cdd.dart';
 import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/models/property_work.dart';
@@ -423,6 +424,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  for (final (locale, archived, due) in [
+    ('zh', '已归档', '退租检查将至'),
+    ('th', 'เก็บถาวรแล้ว', 'ถึงกำหนดตรวจคืนที่พัก'),
+  ]) {
+    testWidgets('property stages and archive open in $locale', (tester) async {
+      AppLanguage.resolve([Locale(locale)]);
+      addTearDown(() => AppLanguage.resolve(const [Locale('en')]));
+      final api = _LibraryApi();
+      await _open(tester, api);
+      expect(find.text('$due · 1'), findsOneWidget);
+      await _chip(tester, archived);
+      expect(api.states.last, 'archived');
+      expect(find.text('1 Archive Walk'), findsOneWidget);
+    });
+  }
+
   testWidgets('combines search and filters and recovers from no results', (
     tester,
   ) async {
@@ -663,11 +680,14 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('an empty list explains the first check-in', (tester) async {
+  testWidgets('an empty list offers the first check-in and keeps archived properties reachable', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
-    expect(find.text('Start check-in'), findsOneWidget);
+    expect(find.text('New check-in'), findsOneWidget);
+    expect(find.text('Start check-out'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
+    await _chip(tester, 'Archived');
+    expect(find.text('1 Archive Walk'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

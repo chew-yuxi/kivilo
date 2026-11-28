@@ -5,6 +5,7 @@ class KiviloColors {
   KiviloColors._();
 
   static const pink = Color(0xFFEC4899);
+  static const actionPink = Color(0xFFDB2777);
   static const pinkDark = Color(0xFFBE185D);
   static const pinkSoft = Color(0xFFFDF2F8);
   static const ink = Color(0xFF111827);
@@ -24,6 +25,7 @@ class KiviloColors {
   static const redBorder = Color(0xFFFECACA);
   static const pinkBorder = Color(0xFFFBCFE8);
   static const field = Color(0xFFD1D5DB);
+  static const choiceTrack = Color(0xFFF0F1F3);
   static const disabled = Color(0xFFF3F4F6);
 }
 
@@ -55,7 +57,7 @@ final kiviloDangerFilled = FilledButton.styleFrom(
 ThemeData buildKiviloTheme() {
   final colors = ColorScheme.fromSeed(
     seedColor: KiviloColors.pink,
-    primary: KiviloColors.pink,
+    primary: KiviloColors.actionPink,
     onPrimary: Colors.white,
     surface: Colors.white,
     onSurface: KiviloColors.ink,
@@ -165,8 +167,11 @@ ThemeData buildKiviloTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: KiviloColors.pinkDark,
+        backgroundColor: KiviloColors.actionPink,
         foregroundColor: Colors.white,
+        overlayColor: Colors.black,
+        disabledBackgroundColor: KiviloColors.disabled,
+        disabledForegroundColor: KiviloColors.muted,
         minimumSize: const Size(0, 50),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: _buttonShape,
@@ -194,6 +199,20 @@ ThemeData buildKiviloTheme() {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: _buttonShape,
         textStyle: _buttonText,
+      ),
+    ),
+    chipTheme: const ChipThemeData(
+      backgroundColor: Colors.white,
+      secondarySelectedColor: KiviloColors.border,
+      showCheckmark: true,
+      checkmarkColor: KiviloColors.ink,
+      side: BorderSide(color: KiviloColors.field),
+      shape: StadiumBorder(),
+      labelStyle: TextStyle(fontSize: 14, color: KiviloColors.body),
+      secondaryLabelStyle: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: KiviloColors.ink,
       ),
     ),
     dividerTheme: const DividerThemeData(color: KiviloColors.border),

@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../config.dart';
 import '../models/addenda.dart';
 import '../models/agency.dart';
@@ -43,8 +44,8 @@ class Api {
               DioException(
                 requestOptions: options,
                 response: Response(requestOptions: options, statusCode: 401),
-                error: const ApiFailure(
-                  'Account changed. Open this page again.',
+                error: ApiFailure(
+                  t.accountChangedPage,
                   401,
                 ),
               ),
@@ -67,8 +68,8 @@ class Api {
                   requestOptions: response.requestOptions,
                   statusCode: 401,
                 ),
-                error: const ApiFailure(
-                  'Account changed. Open this page again.',
+                error: ApiFailure(
+                  t.accountChangedPage,
                   401,
                 ),
               ),
@@ -160,9 +161,8 @@ class Api {
             const Duration(seconds: 8),
             onTimeout: () {
               cancel.cancel('Read deadline exceeded');
-              throw const ApiFailure(
-                'Kivilo did not respond. Check your signal and try again. '
-                'Anything you took is saved on this phone.',
+              throw ApiFailure(
+                t.noResponse,
                 null,
               );
             },
@@ -172,7 +172,7 @@ class Api {
 
   void _checkOwner(String? owner) {
     if (_cache.ownerId != owner) {
-      throw const ApiFailure('Account changed. Open this page again.', 401);
+      throw ApiFailure(t.accountChangedPage, 401);
     }
   }
 
@@ -590,6 +590,15 @@ class Api {
         );
         return AgentBranding.fromResponse(response.data!);
       });
+
+  /// The language the app is showing. The server writes this person's notifications
+  /// and emails in it.
+  Future<void> saveLanguage(String locale) => _call(() async {
+    await _dio.put<Map<String, dynamic>>(
+      '/api/v1/me/language',
+      data: {'locale': locale},
+    );
+  });
 
   /// The raw image is the body. The server decides what it is from its bytes.
   Future<AgentBranding?> uploadBrandingLogo(Uint8List bytes) => _call(() async {
@@ -1499,6 +1508,18 @@ class Api {
 
   Future<void> revokeShare(String inspectionId) => _call(() async {
     await _dio.delete('/api/v1/inspections/$inspectionId/share');
+  });
+
+  Future<List<Map<String,dynamic>>> moveOutTargets(String? agencyId) => _call(() async {
+    final result = await _dio.get<List<dynamic>>('/api/v1/move-out',
+      queryParameters: {'agencyId': ?agencyId});
+    return result.data!.cast<Map<String,dynamic>>();
+  });
+
+  Future<String> saveTenancyMoveOut(String tenancyId, String clientId, Map<String,dynamic> visit) => _call(() async {
+    final result = await _dio.post<Map<String,dynamic>>('/api/v1/move-out',
+      data: {'tenancyId': tenancyId, 'clientId': clientId, 'moveOut': visit});
+    return result.data!['id'] as String;
   });
 
   Future<String> startCheckOut(String inspectionId) => _call(() async {

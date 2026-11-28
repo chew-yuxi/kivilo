@@ -458,8 +458,13 @@ void main() {
       }
 
       Future<void> tap(String text) async {
+        final label = find.text(text);
+        for (var i = 0; i < 30 && label.evaluate().isEmpty; i++) {
+          await settle();
+        }
+        expect(label, findsWidgets);
         final labelledButtons = find.ancestor(
-          of: find.text(text),
+          of: label,
           matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
         );
         final target = labelledButtons.evaluate().isEmpty
@@ -604,6 +609,8 @@ void main() {
       );
       expect(find.byType(FindingEditorScreen), findsNothing);
       expect(find.text('Assessment home'), findsOneWidget);
+      // Let the disposed editor's database stream finish cancelling.
+      await tester.pump(Duration.zero);
       expect(tester.takeException(), isNull);
     },
   );

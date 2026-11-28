@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/capture_backend.dart';
@@ -141,13 +142,13 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
         ? Image.network(existingLogo, fit: BoxFit.contain)
         : null;
     return KiviloDrawer(
-      title: const Text('Report branding'),
+      title: Text(t.settingsBranding),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
             widget.teamId == null
-                ? 'Used with your name on reports for personal properties. Team properties use that team’s branding.'
+                ? t.usedWithYourNameOnReportsFor
                 : 'Used on reports prepared in ${widget.teamName}. The responsible agent’s own ${registrationName(widget.country)} registration appears beside it.',
             style: text.bodyMedium,
           ),
@@ -172,21 +173,18 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Logo', style: text.titleMedium),
-                    Text(
-                      'PNG or JPEG, shown at the top left',
-                      style: text.bodySmall,
-                    ),
+                    Text(t.logo, style: text.titleMedium),
+                    Text(t.logoDetail, style: text.bodySmall),
                   ],
                 ),
               ),
               TextButton(
                 onPressed: _saving ? null : _pickLogo,
-                child: Text(preview == null ? 'Choose' : 'Replace'),
+                child: Text(preview == null ? t.choose : t.replace),
               ),
               if (preview != null)
                 IconButton(
-                  tooltip: 'Remove logo',
+                  tooltip: t.removeLogo,
                   onPressed: _saving
                       ? null
                       : () => setState(() {
@@ -202,13 +200,13 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
             TextField(
               controller: _agentName,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Your name'),
+              decoration: InputDecoration(labelText: t.yourName),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: 'Agency name'),
+              decoration: InputDecoration(labelText: t.agencyName),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 12),
@@ -216,8 +214,8 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
           TextField(
             controller: _licence,
             textCapitalization: TextCapitalization.characters,
-            decoration: const InputDecoration(
-              labelText: 'Agency licence (optional)',
+            decoration: InputDecoration(
+              labelText: t.agencyLicenceOptional,
               hintText: 'e.g. L3010000A',
             ),
           ),
@@ -241,8 +239,8 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               labelText: widget.teamId == null
-                  ? 'Phone (optional)'
-                  : 'Office phone (optional)',
+                  ? t.phoneOptional
+                  : t.officePhoneOptional,
             ),
           ),
           if (_error != null) ...[
@@ -254,14 +252,14 @@ class _BrandingDrawerState extends State<BrandingDrawer> {
       actions: [
         TextButton(
           onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed:
               _saving || (widget.teamId == null && _name.text.trim().isEmpty)
               ? null
               : _save,
-          child: Text(_saving ? 'Saving…' : 'Save'),
+          child: Text(_saving ? t.saving : t.save),
         ),
       ],
     );

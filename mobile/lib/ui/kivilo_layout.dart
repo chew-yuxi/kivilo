@@ -15,11 +15,7 @@ const kiviloHeadingGap = 12.0;
 
 /// Keeps reading and editing comfortable without constraining the app's chrome.
 class KiviloContent extends StatelessWidget {
-  const KiviloContent({
-    super.key,
-    required this.child,
-    this.maxWidth = 840,
-  });
+  const KiviloContent({super.key, required this.child, this.maxWidth = 840});
 
   final Widget child;
   final double maxWidth;
@@ -34,6 +30,33 @@ class KiviloContent extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: child,
+      ),
+    ),
+  );
+}
+
+/// Align the page action with the form gutters, including on a wide screen.
+class KiviloActionFooter extends StatelessWidget {
+  const KiviloActionFooter({
+    super.key,
+    required this.child,
+    this.maxWidth = 720,
+  });
+
+  final Widget child;
+  final double maxWidth;
+
+  @override
+  Widget build(BuildContext context) => KiviloContent(
+    maxWidth: maxWidth,
+    child: SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: kiviloButtonGap,
+        ),
+        child: SizedBox(width: double.infinity, child: child),
       ),
     ),
   );

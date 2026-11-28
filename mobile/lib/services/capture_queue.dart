@@ -290,6 +290,19 @@ class CaptureQueue extends _$CaptureQueue {
   /// The next row to work on, leased so a second uploader in another isolate cannot pick
   /// the same one. Ordered by attempts first, so a capture that keeps failing goes to the
   /// back of the line and cannot hold up the ones taken after it.
+  Future<void> attachMoveOutPhotos(String owner, String stage, String reportId) async {
+    await transaction(() async {
+      final rows = await (select(pendingCaptures)..where((row) =>
+        row.ownerId.equals(owner) & row.inspectionId.equals(stage))).get();
+      final room = 'walk-$reportId';
+      for (final row in rows) {
+        await (update(pendingCaptures)..where((it) => it.id.equals(row.id))).write(
+          PendingCapturesCompanion(inspectionId: Value(reportId), roomId: Value(room),
+            itemId: Value('$room-${row.itemId!}')));
+      }
+    });
+  }
+
   Future<PendingCapture?> claimNext(
     DateTime now, {
     String? ownerId,
@@ -306,6 +319,7 @@ class CaptureQueue extends _$CaptureQueue {
                       (ownerId == null
                           ? const Constant(true)
                           : row.ownerId.equals(ownerId)) &
+                      row.inspectionId.like('move-out-draft:%').not() &
                       row.awaitingMarkup.equals(false) &
                       row.id.isNotIn(exclude),
                 )

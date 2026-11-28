@@ -1,15 +1,37 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
 import 'error_reporter.dart';
+
+/// The server explains a team refusal in an English sentence and no code, so the
+/// sentence is the key. One the app does not know yet is shown as the server wrote it.
+Map<String, String> get _agencyMessages => {
+  'A landlord or tenant cannot be assigned as an agent on their own tenancy.': t.agencyErrPartyAsAgent,
+  'A tenancy already assigned to a team cannot be moved to another team.': t.agencyErrAlreadyInTeam,
+  'An invitation is already pending. Use Resend invitation if needed.': t.agencyErrInvitationPending,
+  'Choose a responsible lead agent.': t.agencyErrChooseLead,
+  'Choose a team before assigning team members.': t.agencyErrChooseTeam,
+  'Choose active members of this team.': t.agencyErrChooseActive,
+  'Choose an active team member to take over this person’s properties.': t.agencyErrChooseSuccessor,
+  'Make another active member an owner before removing the last owner.': t.agencyErrLastOwner,
+  'Make another member an owner of each team you own before requesting account deletion.': t.agencyErrOwnerDeletion,
+  'Only a team owner can change ownership.': t.agencyErrOwnerOnly,
+  'The new lead cannot be a landlord or tenant on one of these tenancies.': t.agencyErrLeadIsParty,
+  'This invitation has expired. Ask a team manager to send it again.': t.agencyErrInvitationExpired,
+  'This person has already joined the team.': t.agencyErrAlreadyJoined,
+  'This person has team-wide access as an owner or manager. Change their team role to remove that access.': t.agencyErrTeamWideAccess,
+  'This person is already a team member.': t.agencyErrAlreadyMember,
+  'This team member must accept an invitation before being assigned work.': t.agencyErrMustAccept,
+  'This tenancy’s team changed. Refresh and try again.': t.agencyErrTeamChanged,
+  'Use Remove member to remove an active team member.': t.agencyErrUseRemove,
+  'Wait for the invitation to be accepted before changing this role.': t.agencyErrWaitAccept,
+};
 
 class ApiFailure implements Exception {
   const ApiFailure(this.message, this.statusCode);
 
-  static const noConnection = ApiFailure(
-    'No connection. Anything you took is saved on this phone, so try again when you have signal.',
-    null,
-  );
+  static ApiFailure get noConnection => ApiFailure(t.errorNoConnection, null);
 
   factory ApiFailure.fromDio(DioException error) {
     final status = error.response?.statusCode;
@@ -17,31 +39,31 @@ class ApiFailure implements Exception {
         ? (error.response!.data as Map)['error']
         : null;
     final message = switch (code) {
-      'unauthorized' => 'You have been signed out. Please sign in again.',
-      'not_found' => 'This could not be found, or your account cannot open it.',
+      'unauthorized' => t.errorSignedOut,
+      'not_found' => t.errorNotFound,
       'report_frozen' =>
-        'This report has been sent for signature and cannot be changed.',
-      'invalid_request' => 'Please check the details and try again.',
+        t.errorReportFrozen,
+      'invalid_request' => t.errorInvalidRequest,
       'review_incomplete' =>
-        'Each room needs at least one item and a review first.',
+        t.errorReviewIncomplete,
       'assessment_review_incomplete' =>
-        'Open and confirm every finding before publishing the assessment.',
+        t.errorAssessmentReviewIncomplete,
       'deposit_required' => 'Enter the deposit, or 0 if none was paid, before publishing.',
       'deposit_changed' => 'Refresh and review the deposit before publishing.',
       'no_damage_unconfirmed' =>
-        'Add a finding, or confirm that no damage was found, before publishing.',
+        t.errorNoDamageUnconfirmed,
       // Due diligence explains itself: show the server's message when there is one.
-      'invalid_input' || 'invalid_state'
+      'invalid_input' || 'invalid_state' || 'review_required'
           when error.response?.data is Map &&
               (error.response!.data as Map)['message'] is String =>
         (error.response!.data as Map)['message'] as String,
-      'invalid_state' => 'This cannot be done at this stage of the report.',
+      'invalid_state' => t.errorInvalidState,
       'capture_conflict' =>
-        'This photo or video clashes with one already in the report. Refresh the room and check it.',
+        t.errorCaptureConflict,
       'capture_missing' =>
-        'The upload did not finish. The file is still on this phone, so try again.',
+        t.errorCaptureMissing,
       'evidence_missing' =>
-        'The upload did not finish. The photo is still on this phone, so try again.',
+        t.errorEvidenceMissing,
       'document_missing' =>
         'The document upload did not finish. Your photo is still on this phone. Retry the upload.',
       'document_conflict' =>
@@ -54,20 +76,21 @@ class ApiFailure implements Exception {
       // Says what happened and nothing about buying: store rules forbid pointing an
       // app user at a purchase made outside the store.
       'plan_limit' =>
-        'Your plan\'s active properties are all in use. A property stops counting when its check-out is signed or its tenancy ends.',
+        t.errorPlanLimit,
       // Like plan_limit: what happened, and nothing about buying.
       'check_limit' =>
         'The Free plan includes 3 client checks per agent, and all 3 are used.',
       'maintenance_conflict' =>
-        'Someone already updated this repair. Refresh and check the timeline.',
+        t.errorMaintenanceConflict,
       'move_in_defect_stale_target' =>
-        'This item has since been replaced or removed. The notice cannot be agreed, but you can still dispute it.',
+        t.errorMoveInDefectStale,
       'agency_conflict' =>
-        error.response?.data is Map &&
-                (error.response!.data as Map)['message'] is String
-            ? (error.response!.data as Map)['message'] as String
-            : 'Team access has changed. Refresh and try again.',
-      'billing_conflict' || 'billing_unavailable' || 'invalid_purchase' =>
+        switch ((error.response!.data as Map)['message'] ) {
+        final String
+            message => _agencyMessages[message] ?? message,
+        _ => t.errorAgencyConflict,
+      },
+'billing_conflict' || 'billing_unavailable' || 'invalid_purchase' =>
         error.response?.data is Map &&
                 (error.response!.data as Map)['message'] is String
             ? (error.response!.data as Map)['message'] as String
@@ -75,19 +98,19 @@ class ApiFailure implements Exception {
       'purchase_not_found' =>
         'This purchase belongs to another Kivilo account. Sign in to the account that bought it to restore access.',
       'property_history' =>
-        'This property has report history and cannot be deleted. Archive it to preserve its records.',
+        t.errorPropertyHistory,
       'property_restore_expired' =>
-        'The recovery period has ended. This property can no longer be restored.',
+        t.errorPropertyRestoreExpired,
       'property_trashed' =>
         'This property was deleted. Restore it from Properties → Recently deleted before continuing.',
       'restore_room_first' =>
         'Its room was deleted too. Restore the room first, then this.',
       'finding_save_conflict' =>
-        'This finding was already saved. Reopen it to save your latest changes. Your draft is kept on this phone.',
+        t.errorFindingSaveConflict,
       _ =>
         status == null
             ? noConnection.message
-            : 'Kivilo could not do that just now. Please try again. (Error $status)',
+            : t.errorServer(status),
     };
     return ApiFailure(message, status);
   }
@@ -114,5 +137,5 @@ String plainError(Object error) {
     (error is Error ? error.stackTrace : null) ?? StackTrace.current,
     'caught',
   );
-  return 'Something went wrong. Please try again.';
+  return t.errorUnexpected;
 }

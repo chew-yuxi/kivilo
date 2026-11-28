@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/property_work.dart';
@@ -38,7 +39,7 @@ class _PropertyPickerScreenState extends State<PropertyPickerScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Choose a property')),
+    appBar: AppBar(title: Text(t.chooseAProperty)),
     body: KiviloContent(
       maxWidth: 720,
       child: StreamBuilder<List<StartableProperty>>(
@@ -47,7 +48,7 @@ class _PropertyPickerScreenState extends State<PropertyPickerScreen> {
           if (snapshot.hasError) {
             return KiviloMessage(
               icon: Icons.cloud_off_outlined,
-              title: 'Could not load your properties',
+              title: t.couldNotLoadYourProperties,
               body: plainError(snapshot.error!),
               actionLabel: 'Try again',
               onAction: _retry,
@@ -58,9 +59,9 @@ class _PropertyPickerScreenState extends State<PropertyPickerScreen> {
           }
           final all = snapshot.data!;
           if (all.isEmpty) {
-            return const KiviloMessage(
+            return KiviloMessage(
               icon: Icons.apartment_rounded,
-              title: 'No properties yet',
+              title: t.homeNoProperties,
               body:
                   'Properties you manage appear here once they have a tenancy.',
             );
@@ -80,15 +81,15 @@ class _PropertyPickerScreenState extends State<PropertyPickerScreen> {
             children: [
               TextField(
                 controller: _search,
-                decoration: const InputDecoration(
-                  labelText: 'Search',
-                  hintText: 'Address, postal code or last tenant',
+                decoration: InputDecoration(
+                  labelText: t.search,
+                  hintText: t.addressPostalCodeOrLastTenant,
                 ),
                 onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               if (shown.isEmpty)
-                Text('No property matches.', style: text.bodyMedium)
+                Text(t.noPropertyMatches, style: text.bodyMedium)
               else
                 Card(
                   clipBehavior: Clip.antiAlias,
@@ -104,7 +105,7 @@ class _PropertyPickerScreenState extends State<PropertyPickerScreen> {
                           title: Text(property.address),
                           subtitle: Text(
                             [
-                              'Last tenant: ${property.lastTenant}',
+                              t.previousTenantName(property.lastTenant),
                               'until ${calendarDate(property.lastEndDate)}',
                               property.agencyName ?? 'Personal',
                             ].join(' · '),

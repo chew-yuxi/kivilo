@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:background_downloader/background_downloader.dart';
 import 'package:dio/dio.dart';
 
+import '../l10n/l10n.dart';
 import 'api_failure.dart';
 
 const _metadataDeadline = Duration(seconds: 20);
@@ -52,9 +53,8 @@ Future<Response<T>> _metadata<T>(
     deadline,
     onTimeout: () {
       cancel.cancel('Evidence metadata request deadline exceeded');
-      throw const ApiFailure(
-        'Kivilo did not respond. Check your signal and try again. '
-        'Anything you took is saved on this phone.',
+      throw ApiFailure(
+        t.noResponse,
         null,
       );
     },
@@ -214,13 +214,13 @@ class HttpCaptureBackend implements CaptureBackend {
         TransferHint.largeFile,
       },
       notificationConfig: TaskNotificationConfig(
-        running: const TaskNotification(
-          'Uploading Kivilo media',
+        running: TaskNotification(
+          t.uploadingMedia,
           '{displayName} · {progress}',
         ),
         progressBar: true,
       ),
-      displayName: 'Kivilo media',
+      displayName: t.kiviloMedia,
       updates: Updates.statusAndProgress,
     );
     final transfer = await downloader.transfers.getOrStart(task);
@@ -870,7 +870,7 @@ class HttpFindingPhotoBackend implements CaptureBackend {
     if (_ownerId != null &&
         current is String? Function() &&
         current() != _ownerId) {
-      throw const ApiFailure('Account changed. Open this page again.', 401);
+      throw ApiFailure(t.accountChangedPage, 401);
     }
   }
 

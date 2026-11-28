@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../models/handover.dart';
 import '../services/api.dart';
 import 'kivilo_format.dart';
@@ -46,10 +47,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Your tenancy in Kivilo',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text(t.handoverTitle, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         FutureBuilder<TenantHandover?>(
           future: _future,
@@ -63,9 +61,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
             if (snapshot.hasError) {
               return Column(
                 children: [
-                  Text(
-                    'Could not load the handover. ${plainError(snapshot.error!)}',
-                  ),
+                  Text(t.handoverLoadFailed(plainError(snapshot.error!))),
                   const SizedBox(height: kiviloButtonGap),
                   SizedBox(
                     width: double.infinity,
@@ -73,7 +69,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                       onPressed: () => setState(() {
                         _future = widget.api.handover(widget.inspectionId);
                       }),
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                   ),
                 ],
@@ -81,22 +77,18 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
             }
             final handover = snapshot.data;
             if (handover == null) {
-              return const Text(
-                'The tenant handover is available after the tenant signs the check-in.',
-              );
+              return Text(t.handoverAfterSigning);
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Scan with your phone and sign in as yourself to see your tenancy and report a problem.',
-                ),
+                Text(t.handoverScan),
                 const SizedBox(height: 20),
                 Center(
                   child: SizedBox.square(
                     dimension: 240,
                     child: Semantics(
-                      label: 'QR code for the tenant sign-in link',
+                      label: t.handoverQrLabel,
                       image: true,
                       child: CustomPaint(painter: _QrPainter(handover.modules)),
                     ),
@@ -105,7 +97,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                 const SizedBox(height: 16),
                 Text(
                   handover.deadline == null
-                      ? 'A move-in defect period has not been enabled for this tenancy. You can still report repairs.'
+                      ? t.handoverNoDefectPeriod
                       : 'Flag anything that was already present when you moved in by ${calendarDate(handover.deadline!)} (${countryName(handover.country)} time).',
                 ),
                 const SizedBox(height: 12),
@@ -114,13 +106,11 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
                     await Clipboard.setData(ClipboardData(text: handover.url));
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Tenant sign-in link copied'),
-                        ),
+                        SnackBar(content: Text(t.handoverLinkCopied)),
                       );
                     }
                   },
-                  child: const Text('Copy sign-in link'),
+                  child: Text(t.handoverCopyLink),
                 ),
               ],
             );
@@ -129,7 +119,7 @@ class _TenantHandoverViewState extends State<TenantHandoverView> {
         const SizedBox(height: 12),
         FilledButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Done'),
+          child: Text(t.done),
         ),
       ],
     ),

@@ -251,15 +251,17 @@ void main() {
     (tester) async {
       final api = _WorkspaceApi();
       await _open(tester, HomeScreen(api: api));
+      expect(find.text('Teams'), findsOneWidget);
       expect(find.text('All my work'), findsOneWidget);
       expect(api.scopes, [(null, false)]);
       await tester.tap(find.text('New check-in').first);
       await tester.pumpAndSettle();
-      expect(find.text('Workspace: Jac and Nimin'), findsOneWidget);
+      expect(find.text('Team: Jac and Nimin'), findsOneWidget);
       await tester.pageBack();
       await tester.pumpAndSettle();
       await tester.tap(find.byType(KiviloSelectField<String>));
       await tester.pumpAndSettle();
+      expect(find.text('Choose a team'), findsOneWidget);
       await tester.tap(find.text('Personal').last);
       await tester.pumpAndSettle();
       expect(api.scopes.last, (null, true));
@@ -269,7 +271,7 @@ void main() {
       expect(api.scopes.last, (null, true));
       await tester.tap(find.text('New check-in'));
       await tester.pumpAndSettle();
-      expect(find.text('Workspace: Personal'), findsOneWidget);
+      expect(find.text('Team: Personal'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -292,7 +294,7 @@ void main() {
         const AgencyIndex(agencies: [_team], invitations: []),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Workspace: Jac and Nimin'), findsOneWidget);
+      expect(find.text('Team: Jac and Nimin'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -366,7 +368,7 @@ void main() {
           '42 Sample Road',
         );
         if (personal) {
-          await tester.tap(find.text('Workspace: Jac and Nimin'));
+          await tester.tap(find.text('Team: Jac and Nimin'));
           await tester.pumpAndSettle();
           await tester.tap(find.text('Personal').last);
           await tester.pumpAndSettle();

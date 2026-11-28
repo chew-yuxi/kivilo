@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/addenda.dart';
+import '../models/inspection.dart' show itemCategoryLabels, itemConditionLabels;
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/kivilo_layout.dart';
 
-const _categories = [
-  KiviloSelectOption(value: 'FIXTURE', label: 'Fixture'),
-  KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-  KiviloSelectOption(value: 'FURNITURE', label: 'Furniture'),
-  KiviloSelectOption(value: 'SURFACE', label: 'Surface'),
-  KiviloSelectOption(value: 'METER', label: 'Meter'),
+List<KiviloSelectOption<String>> get _categories => [
+  for (final value in ['FIXTURE', 'APPLIANCE', 'FURNITURE', 'SURFACE', 'METER'])
+    KiviloSelectOption(value: value, label: itemCategoryLabels[value]!),
 ];
 
-const _conditions = [
-  KiviloSelectOption(value: 'NEW', label: 'New'),
-  KiviloSelectOption(value: 'GOOD', label: 'Good'),
-  KiviloSelectOption(value: 'FAIR', label: 'Fair'),
-  KiviloSelectOption(value: 'POOR', label: 'Poor'),
-  KiviloSelectOption(value: 'DAMAGED', label: 'Damaged'),
+List<KiviloSelectOption<String>> get _conditions => [
+  for (final value in ['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED'])
+    KiviloSelectOption(value: value, label: itemConditionLabels[value]!),
 ];
 
 /// One change on a draft update, new or saved: a line added, a line replaced, or a line
@@ -78,11 +74,11 @@ class _AddendumEntryScreenState extends State<AddendumEntryScreen> {
     final added = _change == 'ADDED';
     final removed = _change == 'REMOVED';
     final problem = added && _text(_room) == null
-        ? 'Choose the room.'
+        ? t.chooseRoom
         : !added && _target.isEmpty
-        ? 'Choose the item this replaces or removes.'
+        ? t.chooseItemReplaced
         : !removed && _text(_name) == null
-        ? 'Name the new item.'
+        ? t.nameNewItem
         : null;
     if (problem != null) {
       setState(() => _error = problem);
@@ -106,106 +102,109 @@ class _AddendumEntryScreenState extends State<AddendumEntryScreen> {
     final added = _change == 'ADDED';
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.entry == null ? 'Add a change' : 'Edit change'),
+        title: Text(widget.entry == null ? t.addChange : t.editChange),
       ),
-      body: KiviloContent(maxWidth: 720, child: ListView(
-        padding: kiviloScreenPadding,
-        children: [
-          KiviloSelectField<String>(
-            label: 'Change',
-            value: _change,
-            options: const [
-              KiviloSelectOption(value: 'ADDED', label: 'Added'),
-              KiviloSelectOption(value: 'REPLACED', label: 'Replaced'),
-              KiviloSelectOption(value: 'REMOVED', label: 'Removed'),
-            ],
-            onChanged: (value) => setState(() => _change = value),
-          ),
-          const SizedBox(height: 12),
-          if (added) ...[
-            TextField(
-              controller: _room,
-              decoration: const InputDecoration(labelText: 'Room'),
-            ),
-            if (widget.rooms.isNotEmpty) ...[
-              const SizedBox(height: 6),
-              Wrap(
-                spacing: 6,
-                children: [
-                  for (final room in widget.rooms)
-                    ActionChip(
-                      label: Text(room),
-                      onPressed: () => setState(() => _room.text = room),
-                    ),
-                ],
-              ),
-            ],
-          ] else
+      body: KiviloContent(
+        maxWidth: 720,
+        child: ListView(
+          padding: kiviloScreenPadding,
+          children: [
             KiviloSelectField<String>(
-              label: 'Item it changes',
-              value: _target,
+              label: t.change,
+              value: _change,
               options: [
-                const KiviloSelectOption(value: '', label: 'Which item?'),
-                for (final target in widget.targets)
-                  KiviloSelectOption(value: target.key, label: target.label),
+                KiviloSelectOption(value: 'ADDED', label: t.changeAdded),
+                KiviloSelectOption(value: 'REPLACED', label: t.changeReplaced),
+                KiviloSelectOption(value: 'REMOVED', label: t.changeRemoved),
               ],
-              onChanged: (value) => setState(() => _target = value),
+              onChanged: (value) => setState(() => _change = value),
             ),
-          if (_change != 'REMOVED') ...[
+            const SizedBox(height: 12),
+            if (added) ...[
+              TextField(
+                controller: _room,
+                decoration: InputDecoration(labelText: t.room),
+              ),
+              if (widget.rooms.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  children: [
+                    for (final room in widget.rooms)
+                      ActionChip(
+                        label: Text(room),
+                        onPressed: () => setState(() => _room.text = room),
+                      ),
+                  ],
+                ),
+              ],
+            ] else
+              KiviloSelectField<String>(
+                label: t.itemItChanges,
+                value: _target,
+                options: [
+                  KiviloSelectOption(value: '', label: t.whichItem),
+                  for (final target in widget.targets)
+                    KiviloSelectOption(value: target.key, label: target.label),
+                ],
+                onChanged: (value) => setState(() => _target = value),
+              ),
+            if (_change != 'REMOVED') ...[
+              const SizedBox(height: 12),
+              TextField(
+                controller: _name,
+                decoration: InputDecoration(
+                  labelText: t.newItem,
+                  hintText: t.newItemHint,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _identifier,
+                decoration: InputDecoration(labelText: t.makeModelAndSerial),
+              ),
+              const SizedBox(height: 12),
+              KiviloSelectField<String>(
+                label: t.assetCategory,
+                value: _category,
+                options: _categories,
+                onChanged: (value) => setState(() => _category = value),
+              ),
+              const SizedBox(height: 12),
+              KiviloSelectField<String>(
+                label: t.condition,
+                value: _condition,
+                options: _conditions,
+                onChanged: (value) => setState(() => _condition = value),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _quantity,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: t.quantity),
+              ),
+            ],
             const SizedBox(height: 12),
             TextField(
-              controller: _name,
-              decoration: const InputDecoration(
-                labelText: 'New item',
-                hintText: 'e.g. Dishwasher',
+              controller: _notes,
+              minLines: 2,
+              maxLines: 5,
+              decoration: InputDecoration(labelText: t.notes),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 12),
+              Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+            ],
+            const SizedBox(height: 20),
+            FilledButton(
+              onPressed: _save,
+              child: Text(
+                widget.entry == null ? t.addChangeShort : t.saveChange,
               ),
             ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _identifier,
-              decoration: const InputDecoration(
-                labelText: 'Make, model and serial',
-              ),
-            ),
-            const SizedBox(height: 12),
-            KiviloSelectField<String>(
-              label: 'Category',
-              value: _category,
-              options: _categories,
-              onChanged: (value) => setState(() => _category = value),
-            ),
-            const SizedBox(height: 12),
-            KiviloSelectField<String>(
-              label: 'Condition',
-              value: _condition,
-              options: _conditions,
-              onChanged: (value) => setState(() => _condition = value),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _quantity,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Quantity'),
-            ),
           ],
-          const SizedBox(height: 12),
-          TextField(
-            controller: _notes,
-            minLines: 2,
-            maxLines: 5,
-            decoration: const InputDecoration(labelText: 'Notes'),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 12),
-            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
-          ],
-          const SizedBox(height: 20),
-          FilledButton(
-            onPressed: _save,
-            child: Text(widget.entry == null ? 'Add change' : 'Save change'),
-          ),
-        ],
-      )),
+        ),
+      ),
     );
   }
 }

@@ -5,7 +5,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/cdd.dart';
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
+import '../models/maintenance.dart' show describeProposal;
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../services/capture_queue.dart';
@@ -81,21 +83,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
     final name = await showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Add a room'),
+        title: Text(t.roomAddTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
           maxLength: 80,
-          decoration: const InputDecoration(labelText: 'Room name'),
+          decoration: InputDecoration(labelText: t.roomName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Add'),
+            child: Text(t.add),
           ),
         ],
       ),
@@ -145,15 +147,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
         await showKiviloDrawer<void>(
           context: context,
           builder: (context) => KiviloDrawer(
-            title: const Text('Still uploading'),
-            content: Text(
-              'Some photos or changes have not uploaded yet. '
-              'Open the rooms and tap Retry uploads before sending for signature.',
-            ),
+            title: Text(t.stillUploading),
+            content: Text(t.somePhotosOrChangesHaveNotUploaded),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: Text(t.ok),
               ),
             ],
           ),
@@ -173,17 +172,22 @@ class _InspectionScreenState extends State<InspectionScreen> {
         if (checks != null && !checks.bothVerified) {
           final choice = await showKiviloDrawer<String>(
             context: context,
-            builder: (context) => _UnverifiedPartiesDrawer(checks: checks, inspection: inspection),
+            builder: (context) => _UnverifiedPartiesDrawer(
+              checks: checks,
+              inspection: inspection,
+            ),
           );
           if (!mounted || choice == null) return;
           if (choice == 'remind') {
             await _api.verifyTenancy(tenancyId);
             for (final check in [checks.landlord, checks.tenant]) {
-              if (check != null && check.status == 'WAITING_FOR_CLIENT') await _api.requestParticulars(check.caseId);
+              if (check != null && check.status == 'WAITING_FOR_CLIENT') {
+                await _api.requestParticulars(check.caseId);
+              }
             }
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Reminders sent to the parties with an email address')),
+                SnackBar(content: Text(t.remindersSentToThePartiesWithAn)),
               );
             }
             return;
@@ -194,20 +198,16 @@ class _InspectionScreenState extends State<InspectionScreen> {
       final agreed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: const Text('Send for signature?'),
-          content: Text(
-            'All ${inspection.rooms.length} rooms have been reviewed. '
-            'Sending freezes the inventory, captions and photo marks. '
-            'Review the report with both parties before they sign.',
-          ),
+          title: Text(t.sendForSignatureTitle),
+          content: Text(t.sendForSignatureBody(inspection.rooms.length)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Send'),
+              child: Text(t.send),
             ),
           ],
         ),
@@ -250,9 +250,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
       _run(() async {
         await _api.emailSigningLink(widget.id, stakeholderId);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Signing link on its way to $name')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(t.signingLinkSent(name))));
         }
       });
 
@@ -283,8 +283,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
       if (result.type != ResultType.done) {
         throw ApiFailure(
           result.type == ResultType.noAppToOpen
-              ? 'Install a PDF viewer to open this report, or use Share PDF to send it.'
-              : 'Could not open this PDF. Please try again, or use Share PDF.',
+              ? t.pdfNoViewer
+              : t.pdfOpenFailed,
           null,
         );
       }
@@ -403,10 +403,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
       try {
         if (await FindingPhotos.hasUnfinishedPhotos(widget.id, owner)) {
           if (mounted) {
-            setState(
-              () => _error =
-                  'Finish marking and uploading your finding photos before publishing. Reopen Add finding or Review finding to resume them.',
-            );
+            setState(() => _error = t.findingPhotosUnfinished);
           }
           return;
         }
@@ -421,50 +418,64 @@ class _InspectionScreenState extends State<InspectionScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text(noFindings ? 'Confirm no changes?' : 'Publish assessment?'),
+        title: Text(noFindings ? t.confirmNoChanges : t.publishAssessmentTitle),
         content: Form(
           key: depositForm,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-          Text(noFindings
-              ? 'You are confirming that the check-out matches the agreed '
-                    'check-in, with no damage, missing items or other changes '
-                    'to record. Both parties will see this in the report.'
-              : 'The reviewed findings will be visible as a dated '
-                    'assessment separate from the signed inventory. Future '
-                    'edits require publishing a new version.'),
-          if (inspection.needsDeposit) ...[
-            const SizedBox(height: 16),
-            TextFormField(
-              decoration: InputDecoration(labelText: 'Deposit (${inspection.currency})',
-                helperText: 'Enter 0 if no deposit was paid.'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              onChanged: (value) => confirmedDeposit = value.trim(),
-              validator: (value) => RegExp(r'^\d{1,8}(?:\.\d{1,2})?$').hasMatch(value?.trim() ?? '')
-                  ? null : 'Enter the amount paid, or 0.',
-            ),
-          ],
+              Text(
+                noFindings
+                    ? t.youAreConfirmingThatTheCheckOut
+                    : t.publishAssessmentBody,
+              ),
+              if (inspection.needsDeposit) ...[
+                const SizedBox(height: 16),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: t.newDeposit(inspection.currency),
+                    helperText: 'Enter 0 if no deposit was paid.',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  onChanged: (value) => confirmedDeposit = value.trim(),
+                  validator: (value) =>
+                      RegExp(
+                        r'^\d{1,8}(?:\.\d{1,2})?$',
+                      ).hasMatch(value?.trim() ?? '')
+                      ? null
+                      : 'Enter the amount paid, or 0.',
+                ),
+              ],
             ],
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () {
-              if (depositForm.currentState!.validate()) Navigator.pop(context, true);
+              if (depositForm.currentState!.validate()) {
+                Navigator.pop(context, true);
+              }
             },
-            child: Text(noFindings ? 'Confirm no changes' : 'Publish'),
+            child: Text(noFindings ? t.confirmNoChangesLabel : t.publish),
           ),
         ],
       ),
     );
     if (confirmed == true) {
-      await _run(() => _api.publishFindings(widget.id, noFindings: noFindings, confirmedDeposit: confirmedDeposit));
+      await _run(
+        () => _api.publishFindings(
+          widget.id,
+          noFindings: noFindings,
+          confirmedDeposit: confirmedDeposit,
+        ),
+      );
     }
   }
 
@@ -479,11 +490,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
           stream: _loading.stream,
           builder: (context, snapshot) => PageContextTitle(
             title: snapshot.data == null
-                ? 'Inspection'
+                ? t.inspection
                 : snapshot.data!.kind == 'CHECK_IN'
-                ? 'Check-in'
-                : 'Check-out',
-            contextLabel: snapshot.data?.property ?? 'Inspections',
+                ? t.checkIn
+                : t.checkOut,
+            contextLabel: snapshot.data?.property ?? t.homeInspections,
           ),
         ),
       ),
@@ -500,7 +511,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               if (snapshot.hasError) {
                 return KiviloMessage(
                   icon: Icons.cloud_off_outlined,
-                  title: 'Could not open this inspection',
+                  title: t.couldNotOpenThisInspection,
                   body: plainError(snapshot.error!),
                   actionLabel: 'Try again',
                   onAction: _refresh,
@@ -531,6 +542,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   : recording
                   ? 0
                   : 1;
+              final steps = [t.stepRooms, t.stepReview, t.stepSign];
               return ListView(
                 padding: kiviloScreenPadding,
                 children: [
@@ -546,7 +558,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Offline copy. Open a saved room to keep capturing. Review and signatures need a connection.',
+                              t.inspectionOffline,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),
@@ -578,9 +590,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             KiviloEyebrow(
-                              isCheckIn
-                                  ? 'Check-in report'
-                                  : 'Check-out report',
+                              isCheckIn ? t.checkInReport : t.checkOutReport,
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -599,7 +609,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '${inspection.rooms.length} ${inspection.rooms.length == 1 ? 'room' : 'rooms'}',
+                          t.roomCount(inspection.rooms.length),
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
@@ -630,14 +640,14 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 Expanded(
                                   child: Semantics(
                                     selected: !signed && stage == index,
-                                    label:
-                                        'Step ${index + 1} of 3: '
-                                        '${['Rooms', 'Review', 'Sign'][index]}'
-                                        '${signed || index < stage
-                                            ? ', complete'
-                                            : stage == index
-                                            ? ', current'
-                                            : ''}',
+                                    label: signed || index < stage
+                                        ? t.stepComplete(
+                                            index + 1,
+                                            steps[index],
+                                          )
+                                        : stage == index
+                                        ? t.stepCurrent(index + 1, steps[index])
+                                        : t.step(index + 1, steps[index]),
                                     excludeSemantics: true,
                                     child: Column(
                                       children: [
@@ -672,7 +682,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                         ),
                                         const SizedBox(height: 6),
                                         Text(
-                                          ['Rooms', 'Review', 'Sign'][index],
+                                          steps[index],
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -691,27 +701,27 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           const SizedBox(height: 20),
                           Text(
                             signed
-                                ? 'Signed and safely recorded.'
+                                ? t.inspectionSigned
                                 : sent
-                                ? 'Waiting for signatures.'
+                                ? t.waitingForSignatures
                                 : inspection.allRoomsReviewed
-                                ? 'Ready to send for signature.'
+                                ? t.readyToSendForSignature
                                 : recording
-                                ? 'Build the record, room by room.'
-                                : 'Check each room before you send.',
+                                ? t.inspectionBuildRecord
+                                : t.inspectionCheckEachRoom,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 6),
                           Text(
                             signed
-                                ? 'Both parties have signed. The agreed report is ready to view and share.'
+                                ? t.inspectionSignedBody
                                 : sent
-                                ? 'The report is fixed. Collect signatures below, in person or by email.'
+                                ? t.inspectionSentBody
                                 : inspection.allRoomsReviewed
-                                ? 'Sending fixes the inventory, captions and photo marks for both parties to sign.'
+                                ? t.inspectionRoomsReadyBody
                                 : recording
-                                ? 'Start with the room inventory. Open each item to record its condition, take photos and mark details.'
-                                : 'Check the inventory against your photos, then mark each room reviewed.',
+                                ? t.inspectionRecordingBody
+                                : t.checkTheInventoryAgainstYourPhotosThen,
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           if (inspection.isOpen) ...[
@@ -726,8 +736,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             const SizedBox(height: 8),
                             NumberFlow(
                               value: reviewed,
-                              suffix:
-                                  '/${inspection.rooms.length} rooms reviewed',
+                              suffix: t.roomsReviewedSuffix(
+                                inspection.rooms.length,
+                              ),
                               style: Theme.of(context).textTheme.bodySmall,
                               tabularNums: true,
                             ),
@@ -759,10 +770,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                   : IconAlignment.end,
                               label: Text(
                                 inspection.rooms.isEmpty
-                                    ? 'Add your first room'
+                                    ? t.homeAddFirstRoom
                                     : inspection.allRoomsReviewed
-                                    ? 'Send for signature'
-                                    : 'Open room',
+                                    ? t.sendForSignature
+                                    : t.openRoom,
                               ),
                             ),
                           ],
@@ -779,19 +790,19 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'People on this report',
+                            t.inspectionPeople,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 12),
                           _personRow(
                             Icons.person_outline,
-                            'Landlord',
+                            t.landlord,
                             inspection.landlord,
                           ),
                           const SizedBox(height: 10),
                           _personRow(
                             Icons.person_outline,
-                            'Tenant',
+                            t.tenant,
                             inspection.tenant,
                           ),
                         ],
@@ -810,7 +821,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         inspectionId: widget.id,
                         api: _api,
                       ),
-                      child: const Text('Tenant handover'),
+                      child: Text(t.tenantHandover),
                     ),
                   ],
                   if (inspection.baselineId != null) ...[
@@ -825,7 +836,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                         ),
                       ),
                       icon: const Icon(Icons.compare_arrows_outlined),
-                      label: const Text('View check-in baseline'),
+                      label: Text(t.viewCheckInBaseline),
                     ),
                   ],
                   if (inspection.summary != null) ...[
@@ -837,7 +848,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Report summary',
+                              t.reportSummary,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 6),
@@ -862,15 +873,15 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   ],
                   const SizedBox(height: kiviloSectionGap),
                   KiviloSectionHeading(
-                    title: 'Rooms',
+                    title: t.stepRooms,
                     subtitle: inspection.rooms.isEmpty
-                        ? 'Start with your first room'
-                        : 'Inventory and media, room by room',
+                        ? t.roomsStartFirst
+                        : t.roomsDetail,
                     action: inspection.isOpen && inspection.rooms.isNotEmpty
                         ? TextButton.icon(
                             onPressed: _busy ? null : _addRoom,
                             icon: const Icon(Icons.add),
-                            label: const Text('Add'),
+                            label: Text(t.add),
                           )
                         : null,
                   ),
@@ -891,12 +902,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              'No rooms yet',
+                              t.roomsEmpty,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Add a room to start the inventory.',
+                              t.roomsEmptyDetail,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
@@ -926,10 +937,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   if (inspection.status == 'AWAITING_SIGNATURE' ||
                       inspection.status == 'COMPLETED') ...[
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'Signatures',
-                      subtitle:
-                          'The agreed inventory is now fixed for signing.',
+                    KiviloSectionHeading(
+                      title: t.signatures,
+                      subtitle: t.signaturesDetail,
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     _signatureTile(
@@ -947,10 +957,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   ],
                   if (inspection.status == 'COMPLETED') ...[
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'Share report',
-                      subtitle:
-                          'A private link, or a PDF headed with your agency.',
+                    KiviloSectionHeading(
+                      title: t.shareReport,
+                      subtitle: t.shareReportDetail,
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     Card(
@@ -968,7 +977,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: Text(
-                                    'View or send the signed report',
+                                    t.shareReportSigned,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium,
@@ -980,7 +989,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                             FilledButton.icon(
                               onPressed: _busy ? null : () => _pdf(inspection),
                               icon: const Icon(Icons.description_outlined),
-                              label: const Text('View PDF'),
+                              label: Text(t.viewPdf),
                             ),
                             const SizedBox(height: kiviloButtonGap),
                             Builder(
@@ -999,7 +1008,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                         );
                                       },
                                 icon: const Icon(Icons.share_outlined),
-                                label: const Text('Share PDF'),
+                                label: Text(t.sharePdf),
                               ),
                             ),
                             const SizedBox(height: kiviloButtonGap),
@@ -1018,13 +1027,11 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                         );
                                       },
                                 icon: const Icon(Icons.link_outlined),
-                                label: const Text('Share link'),
+                                label: Text(t.shareLink),
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'Anyone with the link can read this report.',
-                            ),
+                            Text(t.shareLinkWarning),
                             // The report as the parties read it, with every update since
                             // signing and who has acknowledged it.
                             if (inspection.kind == 'CHECK_IN') ...[
@@ -1037,7 +1044,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                   ),
                                 ),
                                 icon: const Icon(Icons.fact_check_outlined),
-                                label: const Text('Signed report and updates'),
+                                label: Text(t.signedReportAndUpdates),
                               ),
                               const SizedBox(height: kiviloButtonGap),
                               OutlinedButton.icon(
@@ -1050,7 +1057,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                                   ),
                                 ),
                                 icon: const Icon(Icons.edit_outlined),
-                                label: const Text('Write an update'),
+                                label: Text(t.writeUpdate),
                               ),
                             ],
                           ],
@@ -1071,12 +1078,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Text(
-                              'End of tenancy',
+                              t.endOfTenancy,
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 5),
                             Text(
-                              'Use this signed check-in as the baseline for a check-out.',
+                              t.endOfTenancyDetail,
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             const SizedBox(height: kiviloHeadingGap),
@@ -1087,8 +1094,8 @@ class _InspectionScreenState extends State<InspectionScreen> {
                               icon: const Icon(Icons.compare_arrows_outlined),
                               label: Text(
                                 inspection.checkOutId == null
-                                    ? 'Start check-out'
-                                    : 'Open check-out',
+                                    ? t.startCheckOut
+                                    : t.homeOpenCheckOut,
                               ),
                             ),
                           ],
@@ -1102,10 +1109,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     _findings(inspection),
                   if (inspection.maintenanceHistory.isNotEmpty) ...[
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'Maintenance history',
-                      subtitle:
-                          'Context for review. A person decides whether it affects a finding.',
+                    KiviloSectionHeading(
+                      title: t.maintenanceHistory,
+                      subtitle: t.maintenanceHistoryDetail,
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     if (inspection.kind == 'CHECK_OUT')
@@ -1126,9 +1132,9 @@ class _InspectionScreenState extends State<InspectionScreen> {
                           title: Text(record['title'] as String),
                           subtitle: Text(
                             '${maintenanceStatusLabels[record['status']]} · '
-                            '${record['repairAttempts']} ${record['repairAttempts'] == 1 ? 'repair' : 'repairs'} · '
-                            '${record['evidence']} media ${record['evidence'] == 1 ? 'file' : 'files'}'
-                            '${_costLine(record)}',
+                            '${t.repairCount(record['repairAttempts'] as int)} · '
+                            '${t.mediaFileCount(record['evidence'] as int)}'
+                            '${_costLine(record, inspection.currency)}',
                           ),
                           trailing: const Icon(
                             Icons.chevron_right,
@@ -1163,14 +1169,21 @@ class _InspectionScreenState extends State<InspectionScreen> {
     'NOT_PROPOSED',
   ].contains(record['costStanding']);
 
-  String _costLine(Map<String, dynamic> record) =>
-      switch (record['costStanding']) {
-        'AGREED' => '\nCost agreed: ${record['costAgreement']}',
-        'PENDING' => '\nCost proposal waiting for an answer',
-        'DISPUTED' => '\nCost disputed',
-        'NOT_PROPOSED' => '\nNobody has proposed who pays',
-        _ => '',
-      };
+  String _costLine(
+    Map<String, dynamic> record,
+    String currency,
+  ) => switch (record['costStanding']) {
+    'AGREED' =>
+      '\n${t.costAgreed(switch (record['costAgreementTerms']) {
+        // A server from before the terms were added sends only its English sentence.
+        final Map<String, dynamic> terms => describeProposal(arrangedBy: terms['arrangedBy'] as String, payer: terms['payer'] as String, tenantCap: terms['tenantCap'] as String?, currency: currency),
+        _ => '${record['costAgreement']}',
+      })}',
+    'PENDING' => '\n${t.costPending}',
+    'DISPUTED' => '\n${t.costDisputed}',
+    'NOT_PROPOSED' => '\n${t.costNotProposed}',
+    _ => '',
+  };
 
   /// At check-out the deposit is decided, so a repair whose cost nobody agreed is
   /// the argument about to happen. Shown, never resolved, here.
@@ -1195,15 +1208,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  open == 1
-                      ? '1 repair has no agreed cost'
-                      : '$open repairs have no agreed cost',
+                  t.costsOpen(open),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Settle who pays on each one before the deposit is decided, '
-                  'or link it to a finding so the decision is made there.',
+                  t.costsOpenBody,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ],
@@ -1277,7 +1287,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                       child: MarkedNetworkPhoto(
                         url: room.previews[index].url,
                         annotations: room.previews[index].annotations,
-                        semanticLabel: '${room.name} preview ${index + 1}',
+                        semanticLabel: t.roomPreview(room.name, index + 1),
                       ),
                     ),
                   ),
@@ -1326,7 +1336,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               ),
               title: Text(name, style: Theme.of(context).textTheme.titleMedium),
               subtitle: Text(
-                '$role · ${signed ? 'Signed' : 'Awaiting signature'}',
+                '${t.partyRole(role)} · ${signed ? t.signed : t.filterAwaitingSignature}',
               ),
               trailing: signed
                   ? null
@@ -1347,12 +1357,12 @@ class _InspectionScreenState extends State<InspectionScreen> {
   /// own phone, and a button to send it (again).
   Widget _signingEmailRow(SigningParty party, String name) {
     final status = party.email == null
-        ? 'No email on file'
+        ? t.noEmailOnFile
         : switch (party.emailState) {
-            'SENT' => 'Signing link emailed ${shortDate(party.emailedAt!)}',
-            'QUEUED' => 'Emailing the signing link',
-            'FAILED' => 'Could not email the signing link',
-            _ => 'Signing link not emailed',
+            'SENT' => t.signingLinkEmailed(shortDate(party.emailedAt!)),
+            'QUEUED' => t.signingLinkQueued,
+            'FAILED' => t.signingLinkFailed,
+            _ => t.signingLinkNotEmailed,
           };
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 8, 8),
@@ -1368,7 +1378,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   : () => _emailSigningLink(party.stakeholderId, name),
               icon: const Icon(Icons.mail_outline, size: 18),
               label: Text(
-                party.emailState == null ? 'Email signing link' : 'Resend',
+                party.emailState == null ? t.emailSigningLink : t.resend,
               ),
             ),
         ],
@@ -1381,10 +1391,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
     children: [
       const SizedBox(height: kiviloSectionGap),
       KiviloSectionHeading(
-        title: 'Changes at check-out',
+        title: t.changesAtCheckOut,
         subtitle: inspection.findings.isEmpty
-            ? 'Record anything that differs from the agreed check-in.'
-            : '${inspection.findings.length} ${inspection.findings.length == 1 ? 'change' : 'changes'} recorded',
+            ? t.recordAnythingThatDiffersFromTheAgreed
+            : '${inspection.findings.length} ${inspection.findings.length == 1 ? t.changeLabel : t.changes} recorded',
       ),
       if (inspection.latestAssessment != null) ...[
         const SizedBox(height: 12),
@@ -1396,7 +1406,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
               vertical: 4,
             ),
             title: Text(
-              'Published version ${inspection.latestAssessment!.version}',
+              t.publishedVersion(inspection.latestAssessment!.version),
               style: Theme.of(context).textTheme.titleMedium,
             ),
             subtitle: Text(inspection.latestAssessment!.publishedAt),
@@ -1422,7 +1432,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Nothing recorded yet',
+                        t.nothingRecordedYet,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
@@ -1430,7 +1440,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Add damage, wear, missing items or improvements. If there are no changes, confirm that below.',
+                  t.addDamageWearMissingItemsOrImprovements,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 if (inspection.status == 'COMPLETED') ...[
@@ -1438,7 +1448,7 @@ class _InspectionScreenState extends State<InspectionScreen> {
                   OutlinedButton.icon(
                     onPressed: _busy ? null : () => _addFinding(inspection),
                     icon: const Icon(Icons.add),
-                    label: const Text('Add a change'),
+                    label: Text(t.addChange),
                   ),
                 ],
               ],
@@ -1478,12 +1488,18 @@ class _InspectionScreenState extends State<InspectionScreen> {
                     spacing: 8,
                     runSpacing: 6,
                     children: [
-                      _findingTag(finding.changeType.replaceAll('_', ' ')),
-                      _findingTag(finding.verdict.replaceAll('_', ' ')),
+                      _findingTag(
+                        findingChangeLabels[finding.changeType] ??
+                            finding.changeType,
+                      ),
+                      _findingTag(
+                        findingVerdictLabels[finding.verdict] ??
+                            finding.verdict,
+                      ),
                       // Drafted by the old AI comparison, not yet confirmed.
                       if (!finding.editedByHuman)
                         _findingTag(
-                          'Unconfirmed',
+                          t.findingUnconfirmed,
                           tint: KiviloColors.pinkSoft,
                           color: KiviloColors.pinkDark,
                         ),
@@ -1514,13 +1530,13 @@ class _InspectionScreenState extends State<InspectionScreen> {
         OutlinedButton.icon(
           onPressed: _busy ? null : () => _addFinding(inspection),
           icon: const Icon(Icons.add),
-          label: const Text('Add another change'),
+          label: Text(t.addAnotherChange),
         ),
       ],
       if (inspection.findings.any((finding) => !finding.editedByHuman)) ...[
         const SizedBox(height: 4),
         Text(
-          'Open and confirm each unconfirmed finding before publishing.',
+          t.findingsConfirmFirst,
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
@@ -1536,10 +1552,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
           icon: const Icon(Icons.publish_outlined),
           label: Text(
             inspection.findings.isEmpty
-                ? 'Confirm no changes'
+                ? t.confirmNoChangesLabel
                 : inspection.latestAssessment == null
-                ? 'Publish assessment'
-                : 'Publish new version',
+                ? t.publishAssessment
+                : t.publishNewVersion,
           ),
         ),
       ],
@@ -1566,7 +1582,10 @@ class _InspectionScreenState extends State<InspectionScreen> {
 /// Before a check-in goes for signature: which parties are not verified yet, and the
 /// choice to remind them or send anyway.
 class _UnverifiedPartiesDrawer extends StatelessWidget {
-  const _UnverifiedPartiesDrawer({required this.checks, required this.inspection});
+  const _UnverifiedPartiesDrawer({
+    required this.checks,
+    required this.inspection,
+  });
 
   final TenancyVerification checks;
   final InspectionDetail inspection;
@@ -1583,27 +1602,36 @@ class _UnverifiedPartiesDrawer extends StatelessWidget {
       _ => 'Waiting for their details',
     };
     return KiviloDrawer(
-      title: const Text('Parties not verified yet'),
+      title: Text(t.partiesNotVerifiedYet),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'CEA requires due diligence on the landlord and tenant before the tenancy is signed.',
-            style: text.bodyMedium,
-          ),
+          Text(t.ceaRequiresDueDiligenceOnTheLandlord, style: text.bodyMedium),
           const SizedBox(height: 12),
-          for (final (who, check) in [('Landlord', checks.landlord), ('Tenant', checks.tenant)])
+          for (final (who, check) in [
+            ('Landlord', checks.landlord),
+            ('Tenant', checks.tenant),
+          ])
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
                   Icon(
-                    check?.verified ?? false ? Icons.check_circle : Icons.schedule_rounded,
+                    check?.verified ?? false
+                        ? Icons.check_circle
+                        : Icons.schedule_rounded,
                     size: 20,
-                    color: check?.verified ?? false ? KiviloColors.green : KiviloColors.muted,
+                    color: check?.verified ?? false
+                        ? KiviloColors.green
+                        : KiviloColors.muted,
                   ),
                   const SizedBox(width: 10),
-                  Expanded(child: Text('$who · ${state(check)}', style: text.bodyMedium)),
+                  Expanded(
+                    child: Text(
+                      '$who · ${state(check)}',
+                      style: text.bodyMedium,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1611,13 +1639,19 @@ class _UnverifiedPartiesDrawer extends StatelessWidget {
           TextButton(
             style: kiviloTertiary,
             onPressed: () => Navigator.of(context).pop('send'),
-            child: const Text('Send for signature anyway'),
+            child: Text(t.sendForSignatureAnyway),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
-        FilledButton(onPressed: () => Navigator.of(context).pop('remind'), child: const Text('Send reminders')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop('remind'),
+          child: Text(t.sendReminders),
+        ),
       ],
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/notification_route.dart';
@@ -36,59 +37,61 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final screen = await notificationScreen(item.href, _api);
     if (!mounted || screen == null) return;
     final destination = screen;
-    await Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (_) => destination));
+    await Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => destination));
     if (!mounted) return;
     await _refresh();
   }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Notifications')),
+    appBar: AppBar(title: Text(t.notifications)),
     body: KiviloContent(
       maxWidth: 840,
       child: StreamBuilder<List<NotificationModel>>(
         stream: _loading.stream,
-      builder: (context, snapshot) {
+        builder: (context, snapshot) {
           if (!snapshot.hasData && !snapshot.hasError) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return KiviloMessage(
-            icon: Icons.cloud_off_outlined,
-            title: 'Could not load notifications',
-            body: plainError(snapshot.error!),
-            actionLabel: 'Try again',
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return KiviloMessage(
+              icon: Icons.cloud_off_outlined,
+              title: t.couldNotLoadNotifications,
+              body: plainError(snapshot.error!),
+              actionLabel: 'Try again',
               onAction: _refresh,
-          );
-        }
-        final items = snapshot.data!;
-        if (items.isEmpty) {
-          return const KiviloMessage(
-            icon: Icons.notifications_none_outlined,
-            title: 'No notifications yet',
-            body: 'Updates about your properties, repairs and reports will appear here.',
-          );
-        }
-        return ListView.separated(
-          itemCount: items.length,
-          separatorBuilder: (_, _) => const Divider(height: 1),
-          itemBuilder: (context, index) {
-            final item = items[index];
-            return ListTile(
+            );
+          }
+          final items = snapshot.data!;
+          if (items.isEmpty) {
+            return KiviloMessage(
+              icon: Icons.notifications_none_outlined,
+              title: t.noNotificationsYet,
+              body:
+                  'Updates about your properties, repairs and reports will appear here.',
+            );
+          }
+          return ListView.separated(
+            itemCount: items.length,
+            separatorBuilder: (_, _) => const Divider(height: 1),
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return ListTile(
                 leading: Icon(
                   item.readAt == null
-                  ? Icons.notifications_active_outlined
+                      ? Icons.notifications_active_outlined
                       : Icons.notifications_none,
                 ),
-              title: Text(item.title),
-              subtitle: Text(item.body),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _open(item),
-            );
-          },
-        );
-      },
+                title: Text(item.title),
+                subtitle: Text(item.body),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _open(item),
+              );
+            },
+          );
+        },
       ),
     ),
   );

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../l10n/l10n.dart';
 import '../models/addenda.dart';
 import '../services/addendum_photos.dart';
 import '../services/api.dart';
@@ -134,7 +135,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
@@ -181,40 +182,35 @@ class _AddendaScreenState extends State<AddendaScreen> {
       );
     });
     if (uploaded == false && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Photo saved on this phone. Kivilo will upload it when it can.',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(t.photoSavedWillUpload)));
     }
   }
 
   Future<void> _publish(AddendumDraft draft) async {
     if (_pendingFor != draft.id) {
-      setState(() => _error = 'Wait while Kivilo checks for photos on this phone.');
-      return;
-    }
-    if (_title.text.trim().isEmpty) {
-      setState(() => _error = 'Give the update a title before publishing.');
-      return;
-    }
-    if (draft.entries.isEmpty) {
-      setState(() => _error = 'Add at least one change before publishing.');
-      return;
-    }
-    if ((_pending.values.fold<int>(0, (sum, count) => sum + count)) > 0) {
       setState(
-        () => _error =
-            'Some photos are still on this phone. Wait for them to upload before publishing.',
+        () => _error = 'Wait while Kivilo checks for photos on this phone.',
       );
       return;
     }
+    if (_title.text.trim().isEmpty) {
+      setState(() => _error = t.updateNeedsTitle);
+      return;
+    }
+    if (draft.entries.isEmpty) {
+      setState(() => _error = t.updateNeedsChange);
+      return;
+    }
+    if ((_pending.values.fold<int>(0, (sum, count) => sum + count)) > 0) {
+      setState(() => _error = t.updatePhotosWaiting);
+      return;
+    }
     final confirmed = await _confirm(
-      'Publish this update?',
-      'It cannot be changed afterwards, and the landlord and tenant are asked to acknowledge it.',
-      'Publish',
+      t.publishUpdateTitle,
+      t.publishUpdateBody,
+      t.publish,
     );
     if (!confirmed) return;
     await _run(() async {
@@ -225,9 +221,9 @@ class _AddendaScreenState extends State<AddendaScreen> {
 
   Future<void> _discard(AddendumDraft draft) async {
     final confirmed = await _confirm(
-      'Discard this draft?',
-      'Its changes and the photos uploaded to it are deleted. Published updates are not affected.',
-      'Discard',
+      t.discardUpdateTitle,
+      t.discardUpdateBody,
+      t.discard,
     );
     if (!confirmed) return;
     await _run(() => _api.discardAddendum(draft.id));
@@ -237,38 +233,44 @@ class _AddendaScreenState extends State<AddendaScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.addenda,
     child: Scaffold(
-    appBar: AppBar(title: const Text('Updates since signing')),
-    body: KiviloContent(maxWidth: 840, child: StreamBuilder<AddendaWorkspace>(
-      stream: _loading.stream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(
-                plainError(snapshot.error!),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          );
-        }
-        final workspace = snapshot.data;
-        if (workspace == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        // Retained workspaces can render before _load runs. Bind the form to the
-        // draft being displayed, without replacing edits on a same-draft refresh.
-        final draft = workspace.draft;
-        if (draft?.id != _detailsFor) {
-          _detailsFor = draft?.id;
-          _title.text = draft?.title ?? '';
-          _reason.text = draft?.reason ?? '';
-          _date = draft?.effectiveDate ?? '';
-        }
-        return RefreshIndicator(onRefresh: _refresh, child: _body(workspace));
-      },
-    )),
-  ),
+      appBar: AppBar(title: Text(t.updatesSinceSigning)),
+      body: KiviloContent(
+        maxWidth: 840,
+        child: StreamBuilder<AddendaWorkspace>(
+          stream: _loading.stream,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Text(
+                    plainError(snapshot.error!),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            }
+            final workspace = snapshot.data;
+            if (workspace == null) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            // Retained workspaces can render before _load runs. Bind the form to the
+            // draft being displayed, without replacing edits on a same-draft refresh.
+            final draft = workspace.draft;
+            if (draft?.id != _detailsFor) {
+              _detailsFor = draft?.id;
+              _title.text = draft?.title ?? '';
+              _reason.text = draft?.reason ?? '';
+              _date = draft?.effectiveDate ?? '';
+            }
+            return RefreshIndicator(
+              onRefresh: _refresh,
+              child: _body(workspace),
+            );
+          },
+        ),
+      ),
+    ),
   );
 
   Widget _body(AddendaWorkspace workspace) {
@@ -277,24 +279,17 @@ class _AddendaScreenState extends State<AddendaScreen> {
     return ListView(
       padding: kiviloScreenPadding,
       children: [
-        Text(
-          'Record a change after signing, such as a replaced appliance, as a dated '
-          'update. The signed report stays as it was; the update counts once the '
-          'landlord and tenant have both acknowledged it.',
-          style: text.bodyMedium,
-        ),
+        Text(t.updatesIntro, style: text.bodyMedium),
         if (workspace.published.isNotEmpty) ...[
           const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'Published',
-            subtitle:
-                'Open the report to show it, or to take an acknowledgement in person.',
-          ),
+          KiviloSectionHeading(title: t.published, subtitle: t.publishedDetail),
           const SizedBox(height: kiviloHeadingGap),
           for (final published in workspace.published)
             Card(
               child: ListTile(
-                title: Text('Update ${published.number}: ${published.title}'),
+                title: Text(
+                  t.updateNumberTitle(published.number, published.title),
+                ),
                 subtitle: Text(
                   published.acknowledgements
                       .map((ack) => ack.status)
@@ -320,16 +315,15 @@ class _AddendaScreenState extends State<AddendaScreen> {
                 ? null
                 : () => _run(() => _api.startAddendum(widget.inspectionId)),
             icon: const Icon(Icons.add),
-            label: const Text('Start an update'),
+            label: Text(t.startUpdate),
           )
         else
           ..._draft(workspace, draft),
         if (workspace.resolvedCases.isNotEmpty) ...[
           const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'Resolved repairs',
-            subtitle:
-                'Each can start a change, with its before and after photos.',
+          KiviloSectionHeading(
+            title: t.resolvedRepairs,
+            subtitle: t.resolvedRepairsDetail,
           ),
           const SizedBox(height: kiviloHeadingGap),
           for (final repair in workspace.resolvedCases)
@@ -347,7 +341,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                           : () => _run(
                               () => _api.addendumFromMaintenanceCase(repair.id),
                             ),
-                      child: const Text('Add to the report as an update'),
+                      child: Text(t.addToReportAsUpdate),
                     ),
                   ],
                 ),
@@ -365,21 +359,18 @@ class _AddendaScreenState extends State<AddendaScreen> {
   List<Widget> _draft(AddendaWorkspace workspace, AddendumDraft draft) {
     final text = Theme.of(context).textTheme;
     return [
-      const KiviloSectionHeading(
-        title: 'Draft update',
-        subtitle: 'Nobody else sees it until you publish it.',
-      ),
+      KiviloSectionHeading(title: t.draftUpdate, subtitle: t.draftUpdateDetail),
       const SizedBox(height: kiviloHeadingGap),
       TextField(
         controller: _title,
-        decoration: const InputDecoration(labelText: 'Title'),
+        decoration: InputDecoration(labelText: t.title),
       ),
       const SizedBox(height: 12),
       TextField(
         controller: _reason,
         minLines: 1,
         maxLines: 4,
-        decoration: const InputDecoration(labelText: 'Reason'),
+        decoration: InputDecoration(labelText: t.reason),
       ),
       const SizedBox(height: kiviloButtonGap),
       OutlinedButton.icon(
@@ -390,7 +381,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
       const SizedBox(height: kiviloButtonGap),
       TextButton(
         onPressed: _busy ? null : () => _run(() => _saveDetails(draft)),
-        child: const Text('Save details'),
+        child: Text(t.saveDetails),
       ),
       for (final entry in draft.entries) ...[
         const SizedBox(height: 12),
@@ -400,11 +391,11 @@ class _AddendaScreenState extends State<AddendaScreen> {
       OutlinedButton.icon(
         onPressed: _busy ? null : () => _editEntry(workspace, draft, null),
         icon: const Icon(Icons.add),
-        label: const Text('Add a change'),
+        label: Text(t.addChange),
       ),
       const SizedBox(height: kiviloButtonGap),
       if (_pendingFor != draft.id) ...[
-        Text('Checking for photos on this phone…', style: text.bodySmall),
+        Text(t.checkingForPhotosOnThisPhone, style: text.bodySmall),
         const SizedBox(height: kiviloHeadingGap),
       ],
       FilledButton.icon(
@@ -412,17 +403,17 @@ class _AddendaScreenState extends State<AddendaScreen> {
             ? null
             : () => _publish(draft),
         icon: const Icon(Icons.publish_outlined),
-        label: Text(_busy ? 'Working…' : 'Publish update'),
+        label: Text(_busy ? t.workingEllipsis : t.publishUpdate),
       ),
       const SizedBox(height: kiviloButtonGap),
       OutlinedButton(
         onPressed: _busy ? null : () => _discard(draft),
         style: kiviloDangerOutlined,
-        child: const Text('Discard draft'),
+        child: Text(t.discardDraft),
       ),
       const SizedBox(height: kiviloHeadingGap),
       Text(
-        'Publishing freezes the update and asks the landlord and tenant to acknowledge it.',
+        t.publishFreezes,
         style: text.bodySmall?.copyWith(color: KiviloColors.muted),
         textAlign: TextAlign.center,
       ),
@@ -435,9 +426,12 @@ class _AddendaScreenState extends State<AddendaScreen> {
         .map((t) => t.label)
         .firstOrNull;
     return switch (entry.change) {
-      'ADDED' => 'Added: ${entry.name ?? 'item'}',
-      'REMOVED' => 'Removed: ${target ?? 'item'}',
-      _ => 'Replaced: ${target ?? 'item'} with ${entry.name ?? 'item'}',
+      'ADDED' => t.addendumAdded(entry.name ?? t.addendumItem),
+      'REMOVED' => t.addendumRemoved(target ?? t.addendumItem),
+      _ => t.addendumReplaced(
+        target ?? t.addendumItem,
+        entry.name ?? t.addendumItem,
+      ),
     };
   }
 
@@ -470,7 +464,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
             ],
             if (entry.maintenanceCaseTitle != null)
               Text(
-                'From the repair: ${entry.maintenanceCaseTitle}',
+                t.fromRepair(entry.maintenanceCaseTitle!),
                 style: text.bodySmall,
               ),
             if (entry.photos.isNotEmpty) ...[
@@ -499,7 +493,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                           top: 0,
                           child: IconButton.filledTonal(
                             visualDensity: VisualDensity.compact,
-                            tooltip: 'Delete photo',
+                            tooltip: t.deletePhoto,
                             onPressed: _busy
                                 ? null
                                 : () => _run(
@@ -524,9 +518,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      waiting == 1
-                          ? '1 photo saved on this phone, waiting to upload'
-                          : '$waiting photos saved on this phone, waiting to upload',
+                      t.photosWaitingUpload(waiting),
                       style: text.bodySmall,
                     ),
                   ),
@@ -536,7 +528,8 @@ class _AddendaScreenState extends State<AddendaScreen> {
             const SizedBox(height: kiviloHeadingGap),
             LayoutBuilder(
               builder: (context, constraints) {
-                final twoColumns = constraints.maxWidth >= 320 &&
+                final twoColumns =
+                    constraints.maxWidth >= 320 &&
                     MediaQuery.textScalerOf(context).scale(15) <= 20;
                 final width = twoColumns
                     ? (constraints.maxWidth - kiviloButtonGap) / 2
@@ -547,21 +540,21 @@ class _AddendaScreenState extends State<AddendaScreen> {
                         ? null
                         : () => _addPhoto(draft, entry, ImageSource.camera),
                     icon: const Icon(Icons.photo_camera_outlined),
-                    label: const Text('Take photo'),
+                    label: Text(t.takePhotoShort),
                   ),
                   TextButton.icon(
                     onPressed: _busy
                         ? null
                         : () => _addPhoto(draft, entry, ImageSource.gallery),
                     icon: const Icon(Icons.add_photo_alternate_outlined),
-                    label: const Text('Choose photo'),
+                    label: Text(t.choosePhoto),
                   ),
                   TextButton.icon(
                     onPressed: _busy
                         ? null
                         : () => _editEntry(workspace, draft, entry),
                     icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit change'),
+                    label: Text(t.editChange),
                   ),
                   OutlinedButton.icon(
                     onPressed: _busy
@@ -571,7 +564,7 @@ class _AddendaScreenState extends State<AddendaScreen> {
                           ),
                     style: kiviloDangerOutlined,
                     icon: const Icon(Icons.delete_outline),
-                    label: const Text('Delete change'),
+                    label: Text(t.deleteChange),
                   ),
                 ];
                 return Wrap(

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
+import '../ui/tenancy_period.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
@@ -42,7 +44,8 @@ class _RenewalScreenState extends State<RenewalScreen> {
       previousEnd.day + 1,
     );
     _start = _earliestStart;
-    _end = DateTime(_start!.year + 2, _start!.month, _start!.day - 1);
+    _termYears = 2;
+    _end = tenancyEndDate(_start!, _termYears);
     _rent.text = data['monthlyRent'] as String;
     _deposit.text = data['deposit'] as String;
     _rooms
@@ -61,15 +64,24 @@ class _RenewalScreenState extends State<RenewalScreen> {
   String _iso(DateTime date) =>
       '${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
 
+  int _termYears = 2;
+
   Future<void> _date(bool start) async {
-    final selected = await showDatePicker(
-      context: context,
-      initialDate: start ? _start! : _end!,
-      firstDate: _earliestStart!,
-      lastDate: DateTime(2100),
+    final selected = await pickTenancyDate(
+      context,
+      start ? _start! : _end!,
+      earliest: _earliestStart,
     );
     if (selected != null && mounted) {
-      setState(() => start ? _start = selected : _end = selected);
+      setState(() {
+        if (start) {
+          _start = selected;
+          if (_termYears > 0) _end = tenancyEndDate(selected, _termYears);
+        } else {
+          _termYears = 0;
+          _end = selected;
+        }
+      });
     }
   }
 
@@ -77,7 +89,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
     if (_busy) return;
     if (!_form.currentState!.validate()) return;
     if (!_end!.isAfter(_start!)) {
-      setState(() => _error = 'The tenancy must end after it starts.');
+      setState(() => _error = t.newEndAfterStart);
       return;
     }
     setState(() {
@@ -121,7 +133,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
   Widget build(BuildContext context) => ProductScreen(
     screen: ProductScreenName.renewal,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Renew tenancy')),
+      appBar: AppBar(title: Text(t.renewTenancy)),
       body: KiviloContent(
         maxWidth: 720,
         child: FutureBuilder<Map<String, dynamic>>(
@@ -130,7 +142,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
             if (snapshot.hasError) {
               return KiviloMessage(
                 icon: Icons.cloud_off_outlined,
-                title: 'Could not open this renewal',
+                title: t.couldNotOpenThisRenewal,
                 body: plainError(snapshot.error!),
                 actionLabel: 'Try again',
                 onAction: () => setState(() {
@@ -155,27 +167,33 @@ class _RenewalScreenState extends State<RenewalScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    'Same landlord and tenant · ${snapshot.data!['tenant']}',
-                  ),
+                  Text(t.sameParties('${snapshot.data!['tenant']}')),
                   const SizedBox(height: 24),
-                  OutlinedButton(
-                    onPressed: _busy ? null : () => _date(true),
-                    child: Text('Starts ${_iso(_start!)}'),
+                  TenancyLengthPicker(
+                    years: _termYears,
+                    onChanged: _busy ? null : (years) => setState(() {
+                      _termYears = years;
+                      if (years > 0) _end = tenancyEndDate(_start!, years);
+                    }),
                   ),
                   const SizedBox(height: 12),
-                  OutlinedButton(
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.calendar_today_outlined),
+                    onPressed: _busy ? null : () => _date(true),
+                    label: Text(t.startsOn(_iso(_start!))),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.calendar_today_outlined),
                     onPressed: _busy ? null : () => _date(false),
-                    child: Text('Ends ${_iso(_end!)}'),
+                    label: Text(t.endsOn(_iso(_end!))),
                   ),
                   const SizedBox(height: 16),
-                  _amount(_rent, 'Monthly rent ($currency)', currency),
+                  _amount(_rent, t.newMonthlyRent(currency), currency),
                   const SizedBox(height: 16),
-                  _amount(_deposit, 'Deposit ($currency)', currency),
+                  _amount(_deposit, t.newDeposit(currency), currency),
                   const SizedBox(height: 20),
-                  const Text(
-                    'Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property.',
-                  ),
+                  Text(t.renewalConfirm),
                   if (_rooms.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     CheckboxListTile(
@@ -185,12 +203,8 @@ class _RenewalScreenState extends State<RenewalScreen> {
                           ? null
                           : (value) => setState(() => _useRooms = value!),
                       controlAffinity: ListTileControlAffinity.leading,
-                      title: const Text(
-                        'Start with the rooms from the last check-in',
-                      ),
-                      subtitle: const Text(
-                        'Names only; the new check-in records its own condition.',
-                      ),
+                      title: Text(t.startWithTheRoomsFromTheLast),
+                      subtitle: Text(t.namesOnlyTheNewCheckInRecords),
                     ),
                     if (_useRooms)
                       Wrap(
@@ -203,7 +217,8 @@ class _RenewalScreenState extends State<RenewalScreen> {
                               deleteIcon: const Icon(Icons.close, size: 18),
                               onDeleted: _busy
                                   ? null
-                                  : () => setState(() => _rooms.removeAt(index)),
+                                  : () =>
+                                        setState(() => _rooms.removeAt(index)),
                             ),
                         ],
                       ),
@@ -219,11 +234,13 @@ class _RenewalScreenState extends State<RenewalScreen> {
                                 setState(() => _keepCollaborators = value!),
                       controlAffinity: ListTileControlAffinity.leading,
                       title: Text(
-                        'Keep sharing this renewal with ${collaborators.map((person) => person['name'] as String).join(', ')}',
+                        t.keepSharingRenewal(
+                          collaborators
+                              .map((person) => person['name'] as String)
+                              .join(t.listSeparator),
+                        ),
                       ),
-                      subtitle: const Text(
-                        'Leave unchecked to keep the new tenancy private.',
-                      ),
+                      subtitle: Text(t.renewalPrivate),
                     ),
                   ],
                   if (_error != null) ...[
@@ -238,9 +255,7 @@ class _RenewalScreenState extends State<RenewalScreen> {
                   const SizedBox(height: 24),
                   FilledButton(
                     onPressed: _busy ? null : _create,
-                    child: Text(
-                      _busy ? 'Creating…' : 'Create renewal check-in',
-                    ),
+                    child: Text(_busy ? t.creating : t.createRenewal),
                   ),
                 ],
               ),

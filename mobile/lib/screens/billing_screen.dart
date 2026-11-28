@@ -158,7 +158,7 @@ class _BillingScreenState extends State<BillingScreen>
                 padding: kiviloScreenPadding,
                 children: [
                   KiviloSelectField<String>(
-                    label: 'Workspace',
+                    label: 'Team',
                     sheetTitle: 'Choose billing workspace',
                     value: _workspace,
                     enabled: !busy,
