@@ -5214,6 +5214,21 @@ class AppLocalizationsTh extends AppLocalizations {
   String get nothingNeedsYourActionRightNow => 'ขณะนี้ยังไม่มีงานที่คุณต้องทำ';
 
   @override
+  String homeDismissReminder(String property) {
+    return 'ปิดการแจ้งเตือนสำหรับ $property';
+  }
+
+  @override
+  String get homeReminderDismissed => 'ปิดการแจ้งเตือนแล้ว';
+
+  @override
+  String get homeReminderSaveFailed => 'บันทึกการเปลี่ยนแปลงไม่ได้';
+
+  @override
+  String get homeDismissedRemindersHint =>
+      'คุณสามารถทำการตรวจต่อได้ในแท็บที่พัก';
+
+  @override
   String get continueWhereYouLeftOff => 'ทำต่อจากที่ค้างไว้';
 
   @override

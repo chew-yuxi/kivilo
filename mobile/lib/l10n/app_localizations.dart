@@ -9139,6 +9139,30 @@ abstract class AppLocalizations {
   /// **'Nothing needs your action right now.'**
   String get nothingNeedsYourActionRightNow;
 
+  /// No description provided for @homeDismissReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss reminder for {property}'**
+  String homeDismissReminder(String property);
+
+  /// No description provided for @homeReminderDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder dismissed'**
+  String get homeReminderDismissed;
+
+  /// No description provided for @homeReminderSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t save this reminder change.'**
+  String get homeReminderSaveFailed;
+
+  /// No description provided for @homeDismissedRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can continue your inspections in Properties.'**
+  String get homeDismissedRemindersHint;
+
   /// No description provided for @continueWhereYouLeftOff.
   ///
   /// In en, this message translates to:
