@@ -34,6 +34,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = Workspace(_api);
+  Set<String> _dismissed = {};
+  late final _reminderOwner = _api.currentOwnerId;
+  late final _remindersReady = _api.dismissedInspectionReminders(_reminderOwner).then((ids) {
+    if (mounted) _dismissed = ids;
+  });
+  Future<void> _reminderWrites = Future.value();
   late Loading<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _loading = _api.load(_load);
 
@@ -53,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _load() async {
+    await _remindersReady;
     final profile = await _api.me();
     _workspace.country = profile.country;
     final allInspections = profile.roles.contains('AGENT')
@@ -92,6 +99,49 @@ class _HomeScreenState extends State<HomeScreen> {
       work[0] as List<TenancySummary>,
       work[1] as List<InspectionSummary>,
     );
+  }
+
+  void _setDismissed(String reminderId, bool hidden) {
+    _reminderWrites = _reminderWrites.then((_) async {
+      if (!mounted || _dismissed.contains(reminderId) == hidden) return;
+      final ids = {..._dismissed};
+      if (hidden) {
+        ids.add(reminderId);
+      } else {
+        ids.remove(reminderId);
+      }
+      try {
+        await _api.saveDismissedInspectionReminders(_reminderOwner, ids);
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+            ..removeCurrentSnackBar()
+            ..showSnackBar(SnackBar(
+              content: Text(plainError(error)),
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: () => _setDismissed(reminderId, hidden),
+              ),
+            ));
+        }
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _dismissed = ids);
+      if (hidden) {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text('Reminder dismissed'),
+            duration: const Duration(seconds: 6),
+            persist: MediaQuery.accessibleNavigationOf(context),
+            action: SnackBarAction(
+              label: 'Undo',
+              onPressed: () => _setDismissed(reminderId, false),
+            ),
+          ));
+      }
+    });
   }
 
   Future<void> _selectWorkspace(String value) async {
@@ -374,7 +424,9 @@ class _HomeScreenState extends State<HomeScreen> {
               final awaiting = inspections.where(
                 (item) => item.status == 'AWAITING_SIGNATURE',
               );
-              final current = inProgress.firstOrNull ?? awaiting.firstOrNull;
+              final current = inProgress.where(
+                (item) => !_dismissed.contains('inspection:${item.id}'),
+              ).firstOrNull ?? awaiting.firstOrNull;
               final firstName = profile.name.trim().split(RegExp(r'\s+')).first;
               final hour = DateTime.now().hour;
               final greeting = hour < 12
@@ -391,7 +443,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   final nextStep = Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _workCard(current),
+                      if (current == null && inProgress.isNotEmpty) ...[
+                        OutlinedButton.icon(
+                          onPressed: _create,
+                          icon: const Icon(Icons.add, size: 18),
+                          label: const Text('New check-in'),
+                        ),
+                        const SizedBox(height: kiviloButtonGap),
+                        OutlinedButton(
+                          onPressed: () => _create(moveOut: true),
+                          child: const Text('Start check-out'),
+                        ),
+                      ] else
+                        _workCard(current),
                       const SizedBox(height: 16),
                       Text(
                         '${inProgress.length} in progress · ${awaiting.length} awaiting signatures',
@@ -521,6 +585,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ? 'WAITING FOR SIGNATURES'
           : 'YOUR NEXT STEP',
     );
+    final dismiss = current != null && !awaiting
+        ? IconButton(
+            tooltip: 'Dismiss reminder for ${current.property}',
+            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+            icon: const Icon(Icons.close, size: 20, color: KiviloColors.muted),
+            onPressed: () => _setDismissed('inspection:${current.id}', true),
+          )
+        : null;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -533,10 +605,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(child: eyebrow),
                   const SizedBox(width: 12),
                   KiviloIllustration(scene: scene, width: 96, height: 64),
+                  ?dismiss,
                 ],
               )
             else ...[
-              eyebrow,
+              Row(children: [Expanded(child: eyebrow), ?dismiss]),
               const SizedBox(height: 8),
               KiviloIllustration(scene: scene, height: 124),
             ],

@@ -6,11 +6,29 @@ import 'package:kivilo/models/maintenance.dart';
 import 'package:kivilo/screens/home_screen.dart';
 import 'package:kivilo/screens/property_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/handover_guide.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
 
+class _ReminderCache extends ReadCache {
+  @override
+  String ownerId = 'first-account';
+  final files = <(String, String), Object?>{};
+  bool failWrites = false;
+
+  @override
+  Future<Object?> readForOwner(String owner, String key) async => files[(owner, key)];
+
+  @override
+  Future<bool> writeForOwner(String owner, String key, Object? value) async {
+    if (failWrites) return false;
+    files[(owner, key)] = value;
+    return true;
+  }
+}
+
 class _HomeApi extends Api {
-  _HomeApi({this.statuses = const [], this.partyOnly = false})
+  _HomeApi({this.statuses = const [], this.partyOnly = false, super.cache})
     : super(attachAuth: false);
 
   final List<String> statuses;
@@ -126,6 +144,33 @@ Future<void> _reveal(WidgetTester tester, Finder target) async {
 }
 
 void main() {
+  testWidgets('editable inspection reminders can be dismissed and undone per account', (tester) async {
+    final cache = _ReminderCache();
+    final api = _HomeApi(statuses: ['DRAFT', 'AWAITING_SIGNATURE'], cache: cache);
+    final close = find.byTooltip('Dismiss reminder for Property 0');
+    await _pumpHome(tester, api);
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+    expect(find.text('Check signatures'), findsOneWidget);
+    expect(find.byTooltip('Dismiss reminder for Property 1'), findsNothing);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(close, findsOneWidget);
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+
+    await tester.pumpWidget(const SizedBox());
+    await _pumpHome(tester, _HomeApi(statuses: ['DRAFT'], cache: cache));
+    expect(close, findsNothing);
+    expect(find.text('New check-in'), findsOneWidget);
+    expect(find.text('Start check-out'), findsOneWidget);
+    expect(find.text('1 in progress · 0 awaiting signatures'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+    cache.ownerId = 'other';
+    await _pumpHome(tester, api);
+    expect(close, findsOneWidget);
+  });
+
   testWidgets('guide steps expand independently and expose their state', (
     tester,
   ) async {

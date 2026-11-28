@@ -108,6 +108,26 @@ class Api {
   Dio get dio => _dio;
   String? get currentOwnerId => _cache.ownerId;
 
+  static const _reminderCacheKey = 'dismissed-inspection-reminders';
+
+  Future<Set<String>> dismissedInspectionReminders(String? owner) async {
+    _checkOwner(owner);
+    if (owner == null) return {};
+    final saved = await _cache.readForOwner(owner, _reminderCacheKey);
+    _checkOwner(owner);
+    return saved is List ? saved.whereType<String>().toSet() : <String>{};
+  }
+
+  Future<void> saveDismissedInspectionReminders(String? owner, Set<String> ids) async {
+    _checkOwner(owner);
+    if (owner == null ||
+        !await _cache.writeForOwner(owner, _reminderCacheKey, ids.toList())) {
+      throw ApiFailure('Couldn’t save this reminder change.', null);
+    }
+    _checkOwner(owner);
+  }
+
+
   /// The last typed value shown by this [Api] instance. Disk copies cover restarts;
   /// this covers recreating a route or tab during the current signed-in session.
   T? retainedView<T>(String key) {
