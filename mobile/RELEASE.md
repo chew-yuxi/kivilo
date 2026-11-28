@@ -15,10 +15,12 @@ Backend revision `daca52c` is live. All 58 database migration checksums matched,
 | --- | --- |
 | iPhone App Store 1.0.0 (26) | Stable patch 9, ID 852437. The phone update endpoint offered the patch and its download succeeded. Its 117 glyphs were present in the installed font. Shorebird reported 54.3% code sharing and warned that execution may be slower. |
 | Android 1.0.1 (30) | Stable patch 1, ID 852430. All three architecture downloads succeeded and the update service returned the expected installed-code hashes. The Singapore Play listing and associated disclosures still await managed publication. |
-| Public Android 1.0.0 (25) | Compatibility source `e3e44bb` preserves the installed camera and billing dependencies. Its 398 Flutter tests and emulator walkthrough passed. Publishing requires Shorebird sign-in. |
-| Android internal 1.0.0 (29) and iOS TestFlight 1.0.0 (25) | Compatibility source `f8e5ab5` passed 567 Flutter tests. Android patch 32 was staged. Stable promotion and TestFlight publication require Shorebird sign-in. |
+| Public Android 1.0.0 (25) | Stable patch 60, ID 852919. Compatibility source `e3e44bb` preserves the installed camera and billing dependencies. All 398 Flutter tests and the emulator walkthrough passed. The device update endpoint delivered every architecture and the code hashes matched the signed build. |
+| Android internal 1.0.0 (29) | Stable patch 32, ID 852438. The device endpoint delivered all three architectures. Compatibility source `f8e5ab5` passed 567 Flutter tests. |
+| iOS TestFlight 1.0.0 (25) | Stable patch 61, ID 852932, from the same compatibility source. The downloaded patch was offered with the expected code hash. Shorebird reported 41.0% code sharing and a possible performance cost. |
+| Prepared iOS 1.0.1 (30) | Stable patch 2, ID 852929. The download and code hash were verified for this build. Shorebird reported 57.2% code sharing and a possible performance cost. |
 
-The older public Android build remains eligible for the independently prepared build-25 patch. Existing phones display the in-app update prompt on launch. The CLI publisher session expired after the first two stable publications. No physical handset was attached.
+Public iPhone and Android installations receive standalone check-out through the in-app update prompt. On both platforms the device endpoint offered the expected stable patch, its download succeeded, and its code hash matched the release build. The app was exercised on an iPhone simulator and Android emulator. Physical handset installation was not observed.
 
 ## Google Play production submission · 27 November 2026
 
