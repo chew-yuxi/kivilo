@@ -33,66 +33,68 @@ class KiviloSegmentedControl<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final selectedIndex = options.indexWhere((option) => option.value == value);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: KiviloColors.choiceTrack,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(3),
-        child: Stack(
-          children: [
-            if (selectedIndex >= 0)
-              Positioned.fill(
-                child: AnimatedAlign(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : const Duration(milliseconds: 180),
-                  curve: Curves.easeOut,
-                  alignment: AlignmentDirectional(
-                    options.length == 1
-                        ? 0
-                        : 2 * selectedIndex / (options.length - 1) - 1,
-                    0,
-                  ),
-                  child: FractionallySizedBox(
-                    widthFactor: 1 / options.length,
-                    heightFactor: 1,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(11),
-                        boxShadow: [
-                          BoxShadow(
-                            color: KiviloColors.ink.withValues(alpha: 0.12),
-                            blurRadius: 3,
-                            offset: const Offset(0, 1),
-                          ),
-                        ],
+    return KiviloTapFeedback(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: KiviloColors.choiceTrack,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(3),
+          child: Stack(
+            children: [
+              if (selectedIndex >= 0)
+                Positioned.fill(
+                  child: AnimatedAlign(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    alignment: AlignmentDirectional(
+                      options.length == 1
+                          ? 0
+                          : 2 * selectedIndex / (options.length - 1) - 1,
+                      0,
+                    ),
+                    child: FractionallySizedBox(
+                      widthFactor: 1 / options.length,
+                      heightFactor: 1,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(11),
+                          boxShadow: [
+                            BoxShadow(
+                              color: KiviloColors.ink.withValues(alpha: 0.12),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            Row(
-              children: [
-                for (final option in options)
-                  Expanded(
-                    child: _KiviloSegment<T>(
-                      option: option,
-                      selected: option.value == value,
-                      onTap: onChanged == null
-                          ? null
-                          : () => onChanged!(
-                              allowEmptySelection && option.value == value
-                                  ? null
-                                  : option.value,
-                            ),
+              Row(
+                children: [
+                  for (final option in options)
+                    Expanded(
+                      child: _KiviloSegment<T>(
+                        option: option,
+                        selected: option.value == value,
+                        onTap: onChanged == null
+                            ? null
+                            : () => onChanged!(
+                                allowEmptySelection && option.value == value
+                                    ? null
+                                    : option.value,
+                              ),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
