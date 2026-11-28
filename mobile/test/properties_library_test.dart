@@ -686,20 +686,30 @@ void main() {
     await _open(tester, _LibraryApi());
     tester.view.physicalSize = const Size(390, 844);
     await tester.pumpAndSettle();
-    final checkIn = find.widgetWithText(FilledButton, 'New check-in');
-    final checkOut = find.widgetWithText(FilledButton, 'Start check-out');
+    final checkIn = find.widgetWithText(OutlinedButton, 'New check-in');
+    final checkOut = find.widgetWithText(OutlinedButton, 'Start check-out');
     final first = tester.getRect(checkIn);
     final second = tester.getRect(checkOut);
     expect(first.center.dy, second.center.dy);
     expect(first.height, greaterThanOrEqualTo(48));
     expect(second.height, greaterThanOrEqualTo(48));
-    expect(second.bottom, lessThan(tester.getTopLeft(find.text('Teams')).dy));
+    final footer = tester.widget<Scaffold>(find.byType(Scaffold)).bottomNavigationBar!;
+    final footerRect = tester.getRect(find.byWidget(footer));
+    expect(footerRect.width, 390);
+    expect(footerRect.bottom, 844);
+    expect(footerRect.top, greaterThan(tester.getBottomLeft(find.text('Teams')).dy));
+    expect(first.top, greaterThan(footerRect.top));
+    final decoration = (footer as DecoratedBox).decoration as BoxDecoration;
+    final top = (decoration.border! as Border).top;
+    expect(top.color, KiviloColors.subtle);
+    expect(top.width, greaterThanOrEqualTo(1));
 
-    await tester.drag(find.byType(CustomScrollView), const Offset(0, -480));
+    await tester.drag(find.byType(ListView), const Offset(0, -480));
     await tester.pumpAndSettle();
     expect(checkIn.hitTestable(), findsOneWidget);
     expect(checkOut.hitTestable(), findsOneWidget);
-    expect(tester.getRect(checkIn).top, lessThan(first.top));
+    expect(tester.getRect(checkIn), first);
+    expect(tester.getRect(checkOut), second);
   });
 
   testWidgets('narrow phones with large text show both starts at full width', (
@@ -720,8 +730,8 @@ void main() {
     final first = tester.getRect(find.text('New check-in').hitTestable());
     final second = tester.getRect(find.text('Start check-out').hitTestable());
     expect(first.bottom, lessThan(second.top));
-    expect(tester.getSize(find.widgetWithText(FilledButton, 'New check-in')).width, 288);
-    expect(tester.getSize(find.widgetWithText(FilledButton, 'Start check-out')).width, 288);
+    expect(tester.getSize(find.widgetWithText(OutlinedButton, 'New check-in')).width, 288);
+    expect(tester.getSize(find.widgetWithText(OutlinedButton, 'Start check-out')).width, 288);
     expect(tester.takeException(), isNull);
   });
 
