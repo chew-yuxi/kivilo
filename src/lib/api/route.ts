@@ -96,6 +96,9 @@ export function authed<P>(
       if (/rooms? still need review|Add and review at least one room|Review every room with new captures|Finish capturing this room|Add at least one item/i.test(message)) {
         return Response.json({ error: 'review_incomplete' }, { status: 409 })
       }
+      if (/^The tenancy now has|^Review liability and enter|^Walkthrough save conflict|^Walkthrough photos are still/.test(message)) {
+        return Response.json({ error: 'review_required', message }, { status: 409 })
+      }
       if (/Review every finding before publishing/i.test(message)) {
         return Response.json({ error: 'assessment_review_incomplete' }, { status: 409 })
       }

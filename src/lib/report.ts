@@ -64,6 +64,7 @@ export async function signedReport(inspectionId: string, stakeholderId: string) 
   return {
     id: inspection.id,
     kind: inspection.kind,
+    standaloneMoveOut: inspection.standaloneMoveOut,
     status: inspection.status,
     // The role this viewer signs as, while the report still waits for their signature.
     signAs: inspection.status === 'AWAITING_SIGNATURE' && !signed ? party : null,

@@ -1,5 +1,7 @@
 'use server'
 
+import { markRoomReviewedInTransaction } from '@/lib/room-review'
+import { prepareMoveOutFindings, moveOutHash, moveOutVisit, createMoveOutRoom, type MoveOutVisit } from '@/lib/move-out'
 import { amountEntered, optionalTenancyAmount } from '@/lib/tenancy-amounts'
 import { randomBytes } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
@@ -167,15 +169,26 @@ export async function createInspection(input: {
   preservesBlankAmounts?: boolean
   /// Rooms to start with, in order, each with its standard editable lines.
   rooms?: string[]
+  moveOut?: MoveOutVisit
 }) {
   const agent = await requireAgent()
+  const visit = input.moveOut === undefined ? null : moveOutVisit.parse(input.moveOut)
+  if (visit) {
+    z.uuid().parse(input.clientId)
+    if (input.propertyId) throw new Error('Select the tenancy for this check-out')
+  }
+  const requestHash = visit && moveOutHash(visit, [input.agencyId, input.country, input.line1, input.unit,
+    input.postalCode, input.propertyType, input.landlordName, input.landlordEmail, input.tenantName, input.tenantEmail,
+    input.startDate, input.endDate, input.monthlyRent, input.deposit])
   if (input.clientId) {
     const existing = await db.inspection.findUnique({
       where: { clientId: input.clientId },
-      select: { id: true, conductedById: true },
+      select: { id: true, conductedById: true, kind: true, moveOutRequestHash: true, tenancy: { select: { property: { select: { trashedAt: true } } } } },
     })
     if (existing) {
-      if (existing.conductedById !== agent.id) throw new Error('Inspection not found')
+      if (existing.conductedById !== agent.id || existing.tenancy.property.trashedAt || existing.kind !== (visit ? 'CHECK_OUT' : 'CHECK_IN')) throw new Error('Inspection not found')
+      await authorizeInspection(existing.id, agent.id)
+      if (visit && existing.moveOutRequestHash !== requestHash) throw new Error('Walkthrough save conflict: open the original check-out from Properties')
       return existing.id
     }
   }
@@ -218,6 +231,16 @@ export async function createInspection(input: {
     ?? (input.fullyFurnished === false ? 'UNFURNISHED' : 'FULLY_FURNISHED')
 
   const inspection = await db.$transaction(async (tx) => {
+    if (visit && input.clientId) {
+      // Two devices or a lost response can submit the same walkthrough concurrently.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${input.clientId}, 0))`
+      const saved = await tx.inspection.findFirst({ where: { clientId: input.clientId, ...inspectionScope(agent.id) } })
+      if (saved) {
+        if (saved.kind !== 'CHECK_OUT' || saved.conductedById !== agent.id) throw new Error('Inspection not found')
+        if (saved.moveOutRequestHash !== requestHash) throw new Error('Walkthrough save conflict: open the original check-out from Properties')
+        return saved
+      }
+    }
     let landlordId: string | null = null
     if (input.agencyId) {
       await lockAgency(input.agencyId, tx)
@@ -247,7 +270,10 @@ export async function createInspection(input: {
     const created = await tx.inspection.create({
     data: {
       clientId: input.clientId || null,
-      kind: 'CHECK_IN',
+      kind: visit ? 'CHECK_OUT' : 'CHECK_IN',
+      standaloneMoveOut: !!visit,
+      moveOutRequestHash: requestHash,
+      ...(visit && { status: 'REVIEW', conductedAt: visit.visitedAt ? new Date(visit.visitedAt) : new Date() }),
       furnishingLevel,
       // Kept in sync for app builds released before the three-way field existed.
       fullyFurnished: furnishingLevel === 'FULLY_FURNISHED',
@@ -282,7 +308,8 @@ export async function createInspection(input: {
       },
     },
     })
-    await createStarterRooms(tx, created.id, input.rooms ?? [], furnishingLevel, agent.id)
+    if (visit) await createMoveOutRoom(tx, created.id, agent.id, visit)
+    else await createStarterRooms(tx, created.id, input.rooms ?? [], furnishingLevel, agent.id)
     return created
   })
 
@@ -373,6 +400,16 @@ export async function deleteRoom(roomId: string, inspectionId: string) {
 
 /// A reviewed room with no items tells both parties there was nothing in it to record,
 /// so reviewing one has to be asked for in so many words, as a no-damage assessment is.
+export async function withdrawWalkthroughPhoto(roomId: string, inspectionId: string, clientId: string) {
+  const agent = await requireAgent()
+  const room = await authorizeRoom(roomId, agent.id)
+  if (room.inspectionId !== inspectionId || roomId !== `walk-${inspectionId}`) throw new Error('Room not found')
+  await editOpenInspection(inspectionId, agent.id, async tx => {
+    const changed = await tx.$executeRaw`UPDATE "Room" SET "expectedWalkthroughPhotos" = array_remove("expectedWalkthroughPhotos", ${clientId}) WHERE id = ${roomId} AND ${clientId} = ANY("expectedWalkthroughPhotos")`
+    if (changed) await recordEvent(tx, { ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'CAPTURE_DELETED', summary: 'removed a pending walkthrough photo' })
+  })
+}
+
 /// Released app builds cannot ask, and keep the refusal they have always had.
 export async function markRoomReviewed(
   roomId: string,
@@ -384,26 +421,8 @@ export async function markRoomReviewed(
   if (room.inspectionId !== inspectionId) throw new Error('Room not found')
   assertOpen(room.inspection)
 
-  await editOpenInspection(inspectionId, agent.id, async (tx) => {
-    const current = await tx.room.findUniqueOrThrow({
-      where: { id: roomId },
-      select: { status: true, _count: { select: { items: true } } },
-    })
-    if (current.status !== 'REVIEW' && current.status !== 'REVIEWED') {
-      throw new Error('Finish capturing this room before reviewing it')
-    }
-    if (current._count.items === 0 && !nothingToRecord) {
-      throw new Error('Add at least one item, or confirm there is nothing to record, before reviewing this room')
-    }
-    // processedAt marks a capture a person has reviewed the room with. The report only
-    // shows those, so a photo that lands after Send never joins what was agreed.
-    await tx.capture.updateMany({ where: { roomId, processedAt: null }, data: { processedAt: new Date() } })
-    const reviewed = await tx.room.update({ where: { id: roomId }, data: { status: 'REVIEWED' } })
-    await recordEvent(tx, {
-      ...await inspectionPlace(tx, inspectionId), actorId: agent.id, kind: 'ROOM_REVIEWED',
-      summary: nothingToRecord && current._count.items === 0 ? `reviewed ${reviewed.name}: nothing to record` : `reviewed ${reviewed.name}`,
-    })
-  })
+  await editOpenInspection(inspectionId, agent.id, tx =>
+    markRoomReviewedInTransaction(tx, inspectionId, roomId, agent.id, nothingToRecord))
   revalidate(inspectionId)
 }
 
@@ -444,7 +463,7 @@ export async function requestUploadUrl(
   assertNotCountersigned(room.inspection)
 
   const extension = filename.split('.').pop()?.toLowerCase() || 'mp4'
-  if (!/^(jpe?g|png|heic|heif|mp4|mov|webm)$/.test(extension)) {
+  if (!/^(jpe?g|png|webp|heic|heif|mp4|mov|webm)$/.test(extension)) {
     throw new Error('Unsupported capture file type')
   }
   if (clientId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientId)) {
@@ -504,7 +523,7 @@ export async function registerCapture(input: {
     const extension = input.storagePath.startsWith(prefix)
       ? input.storagePath.slice(prefix.length)
       : ''
-    if (!/^(jpe?g|png|heic|heif|mp4|mov|webm)$/.test(extension)) {
+    if (!/^(jpe?g|png|webp|heic|heif|mp4|mov|webm)$/.test(extension)) {
       throw new Error('Capture path does not match client id')
     }
   }
@@ -578,6 +597,9 @@ export async function registerCapture(input: {
             : undefined,
         },
       })
+      if (input.clientId && input.roomId === `walk-${input.inspectionId}`) {
+        await tx.$executeRaw`UPDATE "Room" SET "expectedWalkthroughPhotos" = array_remove("expectedWalkthroughPhotos", ${input.clientId}) WHERE id = ${input.roomId}`
+      }
       // A late upload cannot move a finished room back to CAPTURING.
       await tx.room.updateMany({
         where: { id: input.roomId, status: { in: ['PENDING', 'FAILED'] } },
@@ -944,7 +966,8 @@ export async function completeReview(inspectionId: string) {
       throw new Error('Review every room with new captures before sending for signature')
     }
 
-    const source = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { tenancy: { select: { agentId: true, agencyId: true } } } })
+    const source = await tx.inspection.findUniqueOrThrow({ where: { id: inspectionId }, select: { standaloneMoveOut: true, tenancy: { select: { agentId: true, agencyId: true } } } })
+    if (source.standaloneMoveOut) await prepareMoveOutFindings(tx, inspectionId, agent.id)
     const { tenancy } = await tx.inspection.update({
       where: { id: inspectionId },
       data: {
@@ -1389,7 +1412,7 @@ export async function startCheckOut(baselineId: string) {
     const checkOutId = await db.$transaction(async (tx) => {
       // Creating a sibling report needs full tenancy access. Serialize with access
       // removal, then recheck before copying any baseline into the new inspection.
-      await tx.$queryRaw`SELECT "id" FROM "Tenancy" WHERE "id" = ${authorized.tenancyId} FOR UPDATE`
+      await lockAgencyTenancy(authorized.tenancyId, tx)
       await authorizeInspection(baselineId, agent.id, { fullTenancyOnly: true, client: tx })
       // Answering a move-in notice takes this same lock, so the copy contains every
       // agreement made before this snapshot, with its lines and photos together.
@@ -1399,7 +1422,7 @@ export async function startCheckOut(baselineId: string) {
         where: { id: baselineId },
         select: { tenancyId: true, fullyFurnished: true, furnishingLevel: true },
       })
-      const existing = await tx.inspection.findUnique({ where: { baselineId }, select: { id: true } })
+      const existing = await tx.inspection.findFirst({ where: { tenancyId: authorized.tenancyId, kind: 'CHECK_OUT' }, select: { id: true } })
       if (existing) return existing.id
       const rooms = await currentState(baselineId, { acknowledgedOnly: true }, tx)
       const baselines = await roomBaselines(rooms, tx)

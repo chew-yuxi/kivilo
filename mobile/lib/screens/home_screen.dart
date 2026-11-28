@@ -19,6 +19,7 @@ import 'home_tasks.dart';
 import 'party_homes_screen.dart';
 import 'properties_screen.dart';
 import 'new_inspection_screen.dart';
+import 'move_out_screen.dart';
 import 'notifications_screen.dart';
 import 'service_directory_screen.dart';
 import 'settings_screen.dart';
@@ -179,10 +180,10 @@ class _HomeScreenState extends State<HomeScreen> {
   /// Client checks left on the Free plan; null on Pro.
   int? _freeChecksLeft;
 
-  Future<void> _create() async {
+  Future<void> _create({bool moveOut = false}) async {
     final id = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => NewInspectionScreen(
+        builder: (_) => moveOut ? MoveOutScreen(api: _api, agency: (_workspace.all ? _workspace.index.agencies.firstOrNull : _workspace.agency), country: _workspace.profile?.country ?? 'SG') : NewInspectionScreen(
           api: _api,
           // Verifying both parties takes two checks.
           offerVerification:
@@ -571,11 +572,13 @@ class _HomeScreenState extends State<HomeScreen> {
             label: Text(t.newCheckIn),
           ),
         ] else
-          FilledButton.icon(
+          OutlinedButton.icon(
             onPressed: _create,
             icon: const Icon(Icons.add, size: 20),
             label: Text(t.newCheckIn),
           ),
+        const SizedBox(height: kiviloButtonGap),
+        OutlinedButton(onPressed: () => _create(moveOut: true), child: Text(t.startCheckOut)),
         if (dueDiligence) ...[
           const SizedBox(height: kiviloButtonGap),
           // A card while clients need the agent or the agent is waiting on them; a quiet
@@ -670,12 +673,14 @@ class _HomeScreenState extends State<HomeScreen> {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 16),
-          FilledButton.icon(
+          OutlinedButton.icon(
             onPressed: _create,
             icon: const Icon(Icons.chevron_right, size: 20),
             iconAlignment: IconAlignment.end,
             label: Text(t.homeStartCheckIn),
           ),
+          const SizedBox(height: kiviloButtonGap),
+          OutlinedButton(onPressed: () => _create(moveOut: true), child: Text(t.startCheckOut)),
         ],
       ),
     ),

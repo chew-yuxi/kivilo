@@ -9,7 +9,9 @@ import { usePwa } from '@/components/locale'
 export function CheckOutButton({
   baselineId,
   existingCheckOutId,
+  compact = false,
 }: {
+  compact?: boolean
   baselineId: string
   existingCheckOutId: string | null
 }) {
@@ -29,9 +31,11 @@ export function CheckOutButton({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="text-sm font-medium">{w.endOfTenancy}</h2>
-      <p className="mt-1 text-sm text-gray-500">{w.thisReportBecomesTheBaselineTheCheck}</p>
+    <div className={compact ? undefined : "rounded-lg border border-gray-200 bg-white p-5"}>
+      {!compact && <>
+        <h2 className="text-sm font-medium">{w.endOfTenancy}</h2>
+        <p className="mt-1 text-sm text-gray-500">{w.thisReportBecomesTheBaselineTheCheck}</p>
+      </>}
       <button
         type="button"
         disabled={pending}

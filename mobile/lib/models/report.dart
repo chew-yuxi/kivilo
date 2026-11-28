@@ -8,6 +8,7 @@ class SignedReport {
   const SignedReport({
     required this.id,
     required this.kind,
+    this.standaloneMoveOut = false,
     required this.status,
     this.signAs,
     required this.property,
@@ -28,6 +29,7 @@ class SignedReport {
 
   final String id;
   final String kind;
+  final bool standaloneMoveOut;
 
   /// `AWAITING_SIGNATURE` until both parties have signed, then `COMPLETED`.
   final String status;
@@ -63,6 +65,7 @@ class SignedReport {
   factory SignedReport.fromJson(Map<String, dynamic> json) => SignedReport(
     id: json['id'] as String,
     kind: json['kind'] as String,
+    standaloneMoveOut: json['standaloneMoveOut'] == true,
     status: json['status'] as String,
     signAs: json['signAs'] as String?,
     property: json['property'] as String,

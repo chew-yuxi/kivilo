@@ -21,7 +21,8 @@ AppLocalizations t = lookupAppLocalizations(const Locale('en'));
 class AppLanguage {
   AppLanguage._();
 
-  static const codes = ['en', 'zh', 'th'];
+  static const _pilot = bool.fromEnvironment('KIVILO_LANGUAGE_PILOT', defaultValue: kDebugMode);
+  static const codes = _pilot ? ['en', 'zh', 'th'] : ['en'];
 
   /// A code from [codes], or null to follow the phone.
   static final choice = ValueNotifier<String?>(null);
@@ -67,7 +68,7 @@ class AppLanguage {
   /// The chosen language, or the first of the phone's languages the app speaks.
   static Locale resolve(List<Locale> phone) {
     final code =
-        choice.value ??
+        (codes.contains(choice.value) ? choice.value : null) ??
         phone
             .map((locale) => locale.languageCode)
             .firstWhere(codes.contains, orElse: () => 'en');

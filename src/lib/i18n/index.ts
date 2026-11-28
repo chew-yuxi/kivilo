@@ -8,10 +8,17 @@ export type { Messages }
 export const locales = ['en', 'zh', 'th'] as const
 export type Locale = (typeof locales)[number]
 
+/// Release builds stay in English until the signing and deposit wording is approved.
+export function languagePilotEnabled() {
+  const setting = process.env.NEXT_PUBLIC_KIVILO_LANGUAGE_PILOT
+  return setting === 'true' || (setting === undefined && process.env.NODE_ENV !== 'production')
+}
+
 const catalogs: Record<Locale, Messages> = { en, zh, th }
 
 /// A stored or requested language, or null for anything Kivilo does not speak.
 export function parseLocale(value: unknown): Locale | null {
+  if (!languagePilotEnabled() && value !== 'en') return null
   return locales.find((locale) => locale === value) ?? null
 }
 

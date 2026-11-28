@@ -1552,6 +1552,18 @@ class Api {
     await _dio.delete('/api/v1/inspections/$inspectionId/share');
   });
 
+  Future<List<Map<String,dynamic>>> moveOutTargets(String? agencyId) => _call(() async {
+    final result = await _dio.get<List<dynamic>>('/api/v1/move-out',
+      queryParameters: {'agencyId': ?agencyId});
+    return result.data!.cast<Map<String,dynamic>>();
+  });
+
+  Future<String> saveTenancyMoveOut(String tenancyId, String clientId, Map<String,dynamic> visit) => _call(() async {
+    final result = await _dio.post<Map<String,dynamic>>('/api/v1/move-out',
+      data: {'tenancyId': tenancyId, 'clientId': clientId, 'moveOut': visit});
+    return result.data!['id'] as String;
+  });
+
   Future<String> startCheckOut(String inspectionId) => _call(() async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/inspections/$inspectionId/checkout',

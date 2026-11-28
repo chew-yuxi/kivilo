@@ -1,8 +1,18 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { acceptedLocale, messages, parseLocale } from '@/lib/i18n'
 import { signatureRequestEmail, signedCopyEmail } from '@/lib/email'
 
 describe('choosing a language', () => {
+  it('serves English for stored preferences and browser languages while the pilot is closed', () => {
+    vi.stubEnv('NEXT_PUBLIC_KIVILO_LANGUAGE_PILOT', 'false')
+    try {
+      expect(parseLocale('zh')).toBeNull()
+      expect(acceptedLocale('th-TH,en;q=0.8')).toBe('en')
+      expect(messages('th').party.LANDLORD).toBe('Landlord')
+    } finally {
+      vi.unstubAllEnvs()
+    }
+  })
   it('reads the first language Kivilo speaks from Accept-Language', () => {
     expect(acceptedLocale('ja-JP,zh-Hans-SG;q=0.9,en;q=0.8')).toBe('zh')
     expect(acceptedLocale('th-TH')).toBe('th')

@@ -851,7 +851,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get inspectionsEmptyDetail =>
-      'Start a check-in for your next handover. Your inventory, photos and signed report will live here.';
+      'Choose check-in at move-in or check-out at move-out.';
 
   @override
   String get workspaceChoose => 'Choose a team';
@@ -2064,6 +2064,15 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get endOfTenancyDetail =>
       'Use this signed check-in as the baseline for a check-out.';
+
+  @override
+  String get moveOutOther => 'Other';
+
+  @override
+  String get moveOutMissing => 'Missing';
+
+  @override
+  String get moveOutWorn => 'Worn';
 
   @override
   String get startCheckOut => 'Start check-out';
@@ -5470,7 +5479,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addThePropertyAndTenancyWellGuide =>
-      'Add the property and tenancy. We’ll guide you from the first photo to the signed report. You can accept team invitations in Account.';
+      'Check in at move-in, or check out at move-out. You can start with either visit.';
 
   @override
   String get youreAllCaughtUp => 'You’re all caught up';

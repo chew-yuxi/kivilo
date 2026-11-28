@@ -17,6 +17,7 @@ import 'inspection_screen.dart';
 import 'property_card.dart';
 import 'property_screen.dart';
 import 'new_inspection_screen.dart';
+import 'move_out_screen.dart';
 import 'party_homes_screen.dart';
 import 'renewal_reminders.dart';
 import 'team_screen.dart';
@@ -190,7 +191,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     }
   }
 
-  Future<void> _create() async {
+  Future<void> _create({bool moveOut = false}) async {
     if (_creating) return;
     setState(() => _creating = true);
     try {
@@ -201,7 +202,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           : _agency;
       final id = await Navigator.of(context).push<String>(
         MaterialPageRoute(
-          builder: (_) => NewInspectionScreen(
+          builder: (_) => moveOut ? MoveOutScreen(api: _api, agency: agency, country: _workspace.profile?.country ?? 'SG') : NewInspectionScreen(
             api: _api,
             initialAgency: agency,
             country: _workspace.profile?.country ?? 'SG',
@@ -259,10 +260,12 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     child: Scaffold(
       appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
       bottomNavigationBar: KiviloActionFooter(
-        child: FilledButton.icon(
-          onPressed: _creating ? null : _create,
-          icon: const Icon(Icons.add),
-          label: Text(t.newCheckIn),
+        child: Row(
+          children: [
+            Expanded(child: OutlinedButton(onPressed: _creating ? null : _create, child: Text(t.newCheckIn))),
+            const SizedBox(width: kiviloButtonGap),
+            Expanded(child: OutlinedButton(onPressed: _creating ? null : () => _create(moveOut: true), child: Text(t.startCheckOut))),
+          ],
         ),
       ),
       body: SafeArea(

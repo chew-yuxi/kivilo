@@ -143,6 +143,8 @@ prompts (`InfoPlist.strings`, after the store freeze).
 
 The candidate integrates both language drafts with the current English app. Signed inventories, report PDFs, names and inspectors’ own descriptions retain the agreed wording. Language selection changes the surrounding interface and the instructions sent to each recipient. The new language preference on an account is optional for existing installations.
 
+Release web and app builds default to English while review is pending. To enable the reviewed languages, set `NEXT_PUBLIC_KIVILO_LANGUAGE_PILOT=true` for the web build and `--dart-define=KIVILO_LANGUAGE_PILOT=true` for Flutter. Local development and debug builds enable the pilot by default.
+
 ### Native-speaker review
 
 **Pending for Simplified Chinese and Thai.** A reader of each language should review the wording below in the Singapore rental context. Check what each party agrees to at signing, who bears a deduction, how ordinary wear differs from damage, and what happens when the agent revises a statement. Record the reviewer, date and any replacement wording against the candidate commit before releasing translations.

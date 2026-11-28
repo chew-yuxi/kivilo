@@ -763,7 +763,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get inspectionsEmptyOffline => '连接网络后才能创建新的入住检查。';
 
   @override
-  String get inspectionsEmptyDetail => '为下一次交接开始入住检查。您的物品清单、照片和已签署的报告都会保存在这里。';
+  String get inspectionsEmptyDetail => '入住时选择入住检查，退租时选择退租检查。';
 
   @override
   String get workspaceChoose => '选择团队';
@@ -1835,6 +1835,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get endOfTenancyDetail => '以这份已签署的入住检查作为退租检查的基准。';
+
+  @override
+  String get moveOutOther => '其他';
+
+  @override
+  String get moveOutMissing => '缺失';
+
+  @override
+  String get moveOutWorn => '有磨损';
 
   @override
   String get startCheckOut => '开始退租检查';
@@ -4988,7 +4997,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get addThePropertyAndTenancyWellGuide =>
-      '添加房产和租约。我们将从第一张照片引导您完成签署报告。您可以在“账户”中接受团队邀请。';
+      '入住时办理入住检查，退租时办理退租检查。两种检查都可以单独开始。';
 
   @override
   String get youreAllCaughtUp => '所有待办已完成';

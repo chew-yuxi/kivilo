@@ -48,12 +48,10 @@ export default async function InspectionsPage({ searchParams }: PageProps<'/insp
           <h1 className="text-2xl font-semibold tracking-tight">{w.inspections}</h1>
           <p className="mt-1 text-sm text-gray-500">{w.photographEachRoomAndWriteTheInventory}</p>
         </div>
-        <Link
-          href={newHref}
-          className="action-primary shrink-0 sm:w-auto"
-        >
-          {w.newCheckIn}
-        </Link>
+        <div className="flex flex-wrap w-full gap-2 sm:w-auto">
+          <Link href={newHref} className="action-secondary flex-1 sm:flex-none">{w.newCheckIn}</Link>
+          <Link href={chosen.moveOutHref} className="action-secondary flex-1 sm:flex-none">{w.startCheckOut}</Link>
+        </div>
       </div>
 
 

@@ -505,6 +505,7 @@ export type RoomStatus = (typeof RoomStatus)[keyof typeof RoomStatus]
 
 
 export const ItemCategory: {
+  OTHER: 'OTHER',
   FIXTURE: 'FIXTURE',
   APPLIANCE: 'APPLIANCE',
   FURNITURE: 'FURNITURE',
@@ -516,6 +517,8 @@ export type ItemCategory = (typeof ItemCategory)[keyof typeof ItemCategory]
 
 
 export const ItemCondition: {
+  MISSING: 'MISSING',
+  WORN: 'WORN',
   NEW: 'NEW',
   GOOD: 'GOOD',
   FAIR: 'FAIR',
@@ -31417,6 +31420,8 @@ export namespace Prisma {
   }
 
   export type InspectionMinAggregateOutputType = {
+    standaloneMoveOut: boolean | null
+    moveOutRequestHash: string | null
     id: string | null
     clientId: string | null
     tenancyId: string | null
@@ -31441,6 +31446,8 @@ export namespace Prisma {
   }
 
   export type InspectionMaxAggregateOutputType = {
+    standaloneMoveOut: boolean | null
+    moveOutRequestHash: string | null
     id: string | null
     clientId: string | null
     tenancyId: string | null
@@ -31465,6 +31472,8 @@ export namespace Prisma {
   }
 
   export type InspectionCountAggregateOutputType = {
+    standaloneMoveOut: number
+    moveOutRequestHash: number
     id: number
     clientId: number
     tenancyId: number
@@ -31491,6 +31500,8 @@ export namespace Prisma {
 
 
   export type InspectionMinAggregateInputType = {
+    standaloneMoveOut?: true
+    moveOutRequestHash?: true
     id?: true
     clientId?: true
     tenancyId?: true
@@ -31515,6 +31526,8 @@ export namespace Prisma {
   }
 
   export type InspectionMaxAggregateInputType = {
+    standaloneMoveOut?: true
+    moveOutRequestHash?: true
     id?: true
     clientId?: true
     tenancyId?: true
@@ -31539,6 +31552,8 @@ export namespace Prisma {
   }
 
   export type InspectionCountAggregateInputType = {
+    standaloneMoveOut?: true
+    moveOutRequestHash?: true
     id?: true
     clientId?: true
     tenancyId?: true
@@ -31636,6 +31651,8 @@ export namespace Prisma {
   }
 
   export type InspectionGroupByOutputType = {
+    standaloneMoveOut: boolean
+    moveOutRequestHash: string | null
     id: string
     clientId: string | null
     tenancyId: string
@@ -31677,6 +31694,8 @@ export namespace Prisma {
 
 
   export type InspectionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: boolean
     id?: boolean
     clientId?: boolean
     tenancyId?: boolean
@@ -31718,6 +31737,8 @@ export namespace Prisma {
   }, ExtArgs["result"]["inspection"]>
 
   export type InspectionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: boolean
     id?: boolean
     clientId?: boolean
     tenancyId?: boolean
@@ -31747,6 +31768,8 @@ export namespace Prisma {
   }, ExtArgs["result"]["inspection"]>
 
   export type InspectionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: boolean
     id?: boolean
     clientId?: boolean
     tenancyId?: boolean
@@ -31776,6 +31799,8 @@ export namespace Prisma {
   }, ExtArgs["result"]["inspection"]>
 
   export type InspectionSelectScalar = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: boolean
     id?: boolean
     clientId?: boolean
     tenancyId?: boolean
@@ -31799,7 +31824,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "clientId" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "furnishingLevel" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
+  export type InspectionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"standaloneMoveOut" | "moveOutRequestHash" | "id" | "clientId" | "tenancyId" | "kind" | "status" | "fullyFurnished" | "furnishingLevel" | "conductedById" | "reportAgentId" | "reportAgencyId" | "reportAgentFrozen" | "conductedAt" | "baselineId" | "summary" | "processingError" | "shareToken" | "sharedAt" | "aiConsentAt" | "aiConsentById" | "createdAt" | "updatedAt", ExtArgs["result"]["inspection"]>
   export type InspectionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     tenancy?: boolean | TenancyDefaultArgs<ExtArgs>
     conductedBy?: boolean | Inspection$conductedByArgs<ExtArgs>
@@ -31855,6 +31880,14 @@ export namespace Prisma {
       moveInDefectCases: Prisma.$MaintenanceCasePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
+      /**
+       * A walkthrough started without a signed Kivilo check-in.
+       */
+      standaloneMoveOut: boolean
+      /**
+       * Pins the original submission across retries even after work on the report resumes.
+       */
+      moveOutRequestHash: string | null
       id: string
       /**
        * The phone's id for a new check-in, so a retried create returns the same one.
@@ -31985,8 +32018,8 @@ export namespace Prisma {
      * // Get first 10 Inspections
      * const inspections = await prisma.inspection.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const inspectionWithIdOnly = await prisma.inspection.findMany({ select: { id: true } })
+     * // Only select the `standaloneMoveOut`
+     * const inspectionWithStandaloneMoveOutOnly = await prisma.inspection.findMany({ select: { standaloneMoveOut: true } })
      * 
      */
     findMany<T extends InspectionFindManyArgs>(args?: SelectSubset<T, InspectionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$InspectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -32030,9 +32063,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Inspections and only return the `id`
-     * const inspectionWithIdOnly = await prisma.inspection.createManyAndReturn({
-     *   select: { id: true },
+     * // Create many Inspections and only return the `standaloneMoveOut`
+     * const inspectionWithStandaloneMoveOutOnly = await prisma.inspection.createManyAndReturn({
+     *   select: { standaloneMoveOut: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -32121,9 +32154,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Inspections and only return the `id`
-     * const inspectionWithIdOnly = await prisma.inspection.updateManyAndReturn({
-     *   select: { id: true },
+     * // Update zero or more Inspections and only return the `standaloneMoveOut`
+     * const inspectionWithStandaloneMoveOutOnly = await prisma.inspection.updateManyAndReturn({
+     *   select: { standaloneMoveOut: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -32341,6 +32374,8 @@ export namespace Prisma {
    * Fields of the Inspection model
    */
   interface InspectionFieldRefs {
+    readonly standaloneMoveOut: FieldRef<"Inspection", 'Boolean'>
+    readonly moveOutRequestHash: FieldRef<"Inspection", 'String'>
     readonly id: FieldRef<"Inspection", 'String'>
     readonly clientId: FieldRef<"Inspection", 'String'>
     readonly tenancyId: FieldRef<"Inspection", 'String'>
@@ -36559,6 +36594,7 @@ export namespace Prisma {
   }
 
   export type RoomCountAggregateOutputType = {
+    expectedWalkthroughPhotos: number
     id: number
     inspectionId: number
     name: number
@@ -36609,6 +36645,7 @@ export namespace Prisma {
   }
 
   export type RoomCountAggregateInputType = {
+    expectedWalkthroughPhotos?: true
     id?: true
     inspectionId?: true
     name?: true
@@ -36710,6 +36747,7 @@ export namespace Prisma {
   }
 
   export type RoomGroupByOutputType = {
+    expectedWalkthroughPhotos: string[]
     id: string
     inspectionId: string
     name: string
@@ -36743,6 +36781,7 @@ export namespace Prisma {
 
 
   export type RoomSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    expectedWalkthroughPhotos?: boolean
     id?: boolean
     inspectionId?: boolean
     name?: boolean
@@ -36761,6 +36800,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    expectedWalkthroughPhotos?: boolean
     id?: boolean
     inspectionId?: boolean
     name?: boolean
@@ -36776,6 +36816,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    expectedWalkthroughPhotos?: boolean
     id?: boolean
     inspectionId?: boolean
     name?: boolean
@@ -36791,6 +36832,7 @@ export namespace Prisma {
   }, ExtArgs["result"]["room"]>
 
   export type RoomSelectScalar = {
+    expectedWalkthroughPhotos?: boolean
     id?: boolean
     inspectionId?: boolean
     name?: boolean
@@ -36804,7 +36846,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "processingAttemptId" | "processingStartedAt" | "baseline" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
+  export type RoomOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"expectedWalkthroughPhotos" | "id" | "inspectionId" | "name" | "order" | "status" | "processingError" | "processingAttemptId" | "processingStartedAt" | "baseline" | "createdAt" | "updatedAt", ExtArgs["result"]["room"]>
   export type RoomInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     inspection?: boolean | InspectionDefaultArgs<ExtArgs>
     captures?: boolean | Room$capturesArgs<ExtArgs>
@@ -36826,6 +36868,11 @@ export namespace Prisma {
       items: Prisma.$InspectionItemPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
+      /**
+       * The on-device visit named these photos before the report existed. Review waits
+       * for their registration or the inspector's explicit removal.
+       */
+      expectedWalkthroughPhotos: string[]
       id: string
       inspectionId: string
       name: string
@@ -36926,8 +36973,8 @@ export namespace Prisma {
      * // Get first 10 Rooms
      * const rooms = await prisma.room.findMany({ take: 10 })
      * 
-     * // Only select the `id`
-     * const roomWithIdOnly = await prisma.room.findMany({ select: { id: true } })
+     * // Only select the `expectedWalkthroughPhotos`
+     * const roomWithExpectedWalkthroughPhotosOnly = await prisma.room.findMany({ select: { expectedWalkthroughPhotos: true } })
      * 
      */
     findMany<T extends RoomFindManyArgs>(args?: SelectSubset<T, RoomFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RoomPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -36971,9 +37018,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Create many Rooms and only return the `id`
-     * const roomWithIdOnly = await prisma.room.createManyAndReturn({
-     *   select: { id: true },
+     * // Create many Rooms and only return the `expectedWalkthroughPhotos`
+     * const roomWithExpectedWalkthroughPhotosOnly = await prisma.room.createManyAndReturn({
+     *   select: { expectedWalkthroughPhotos: true },
      *   data: [
      *     // ... provide data here
      *   ]
@@ -37062,9 +37109,9 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Rooms and only return the `id`
-     * const roomWithIdOnly = await prisma.room.updateManyAndReturn({
-     *   select: { id: true },
+     * // Update zero or more Rooms and only return the `expectedWalkthroughPhotos`
+     * const roomWithExpectedWalkthroughPhotosOnly = await prisma.room.updateManyAndReturn({
+     *   select: { expectedWalkthroughPhotos: true },
      *   where: {
      *     // ... provide filter here
      *   },
@@ -37269,6 +37316,7 @@ export namespace Prisma {
    * Fields of the Room model
    */
   interface RoomFieldRefs {
+    readonly expectedWalkthroughPhotos: FieldRef<"Room", 'String[]'>
     readonly id: FieldRef<"Room", 'String'>
     readonly inspectionId: FieldRef<"Room", 'String'>
     readonly name: FieldRef<"Room", 'String'>
@@ -85591,6 +85639,8 @@ export namespace Prisma {
 
 
   export const InspectionScalarFieldEnum: {
+    standaloneMoveOut: 'standaloneMoveOut',
+    moveOutRequestHash: 'moveOutRequestHash',
     id: 'id',
     clientId: 'clientId',
     tenancyId: 'tenancyId',
@@ -85659,6 +85709,7 @@ export namespace Prisma {
 
 
   export const RoomScalarFieldEnum: {
+    expectedWalkthroughPhotos: 'expectedWalkthroughPhotos',
     id: 'id',
     inspectionId: 'inspectionId',
     name: 'name',
@@ -88784,6 +88835,8 @@ export namespace Prisma {
     AND?: InspectionWhereInput | InspectionWhereInput[]
     OR?: InspectionWhereInput[]
     NOT?: InspectionWhereInput | InspectionWhereInput[]
+    standaloneMoveOut?: BoolFilter<"Inspection"> | boolean
+    moveOutRequestHash?: StringNullableFilter<"Inspection"> | string | null
     id?: StringFilter<"Inspection"> | string
     clientId?: StringNullableFilter<"Inspection"> | string | null
     tenancyId?: StringFilter<"Inspection"> | string
@@ -88824,6 +88877,8 @@ export namespace Prisma {
   }
 
   export type InspectionOrderByWithRelationInput = {
+    standaloneMoveOut?: SortOrder
+    moveOutRequestHash?: SortOrderInput | SortOrder
     id?: SortOrder
     clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
@@ -88871,6 +88926,8 @@ export namespace Prisma {
     AND?: InspectionWhereInput | InspectionWhereInput[]
     OR?: InspectionWhereInput[]
     NOT?: InspectionWhereInput | InspectionWhereInput[]
+    standaloneMoveOut?: BoolFilter<"Inspection"> | boolean
+    moveOutRequestHash?: StringNullableFilter<"Inspection"> | string | null
     tenancyId?: StringFilter<"Inspection"> | string
     kind?: EnumInspectionKindFilter<"Inspection"> | $Enums.InspectionKind
     status?: EnumInspectionStatusFilter<"Inspection"> | $Enums.InspectionStatus
@@ -88907,6 +88964,8 @@ export namespace Prisma {
   }, "id" | "clientId" | "baselineId" | "shareToken">
 
   export type InspectionOrderByWithAggregationInput = {
+    standaloneMoveOut?: SortOrder
+    moveOutRequestHash?: SortOrderInput | SortOrder
     id?: SortOrder
     clientId?: SortOrderInput | SortOrder
     tenancyId?: SortOrder
@@ -88937,6 +88996,8 @@ export namespace Prisma {
     AND?: InspectionScalarWhereWithAggregatesInput | InspectionScalarWhereWithAggregatesInput[]
     OR?: InspectionScalarWhereWithAggregatesInput[]
     NOT?: InspectionScalarWhereWithAggregatesInput | InspectionScalarWhereWithAggregatesInput[]
+    standaloneMoveOut?: BoolWithAggregatesFilter<"Inspection"> | boolean
+    moveOutRequestHash?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     id?: StringWithAggregatesFilter<"Inspection"> | string
     clientId?: StringNullableWithAggregatesFilter<"Inspection"> | string | null
     tenancyId?: StringWithAggregatesFilter<"Inspection"> | string
@@ -89180,6 +89241,7 @@ export namespace Prisma {
     AND?: RoomWhereInput | RoomWhereInput[]
     OR?: RoomWhereInput[]
     NOT?: RoomWhereInput | RoomWhereInput[]
+    expectedWalkthroughPhotos?: StringNullableListFilter<"Room">
     id?: StringFilter<"Room"> | string
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
@@ -89197,6 +89259,7 @@ export namespace Prisma {
   }
 
   export type RoomOrderByWithRelationInput = {
+    expectedWalkthroughPhotos?: SortOrder
     id?: SortOrder
     inspectionId?: SortOrder
     name?: SortOrder
@@ -89218,6 +89281,7 @@ export namespace Prisma {
     AND?: RoomWhereInput | RoomWhereInput[]
     OR?: RoomWhereInput[]
     NOT?: RoomWhereInput | RoomWhereInput[]
+    expectedWalkthroughPhotos?: StringNullableListFilter<"Room">
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
     order?: IntFilter<"Room"> | number
@@ -89234,6 +89298,7 @@ export namespace Prisma {
   }, "id">
 
   export type RoomOrderByWithAggregationInput = {
+    expectedWalkthroughPhotos?: SortOrder
     id?: SortOrder
     inspectionId?: SortOrder
     name?: SortOrder
@@ -89256,6 +89321,7 @@ export namespace Prisma {
     AND?: RoomScalarWhereWithAggregatesInput | RoomScalarWhereWithAggregatesInput[]
     OR?: RoomScalarWhereWithAggregatesInput[]
     NOT?: RoomScalarWhereWithAggregatesInput | RoomScalarWhereWithAggregatesInput[]
+    expectedWalkthroughPhotos?: StringNullableListFilter<"Room">
     id?: StringWithAggregatesFilter<"Room"> | string
     inspectionId?: StringWithAggregatesFilter<"Room"> | string
     name?: StringWithAggregatesFilter<"Room"> | string
@@ -94650,6 +94716,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -94685,6 +94753,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -94720,6 +94790,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -94755,6 +94827,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -94790,6 +94864,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateManyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -94814,6 +94890,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateManyMutationInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -94833,6 +94911,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateManyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -95086,6 +95166,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -95102,6 +95183,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedCreateInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     inspectionId: string
     name: string
@@ -95118,6 +95200,7 @@ export namespace Prisma {
   }
 
   export type RoomUpdateInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -95134,6 +95217,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -95150,6 +95234,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateManyInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     inspectionId: string
     name: string
@@ -95164,6 +95249,7 @@ export namespace Prisma {
   }
 
   export type RoomUpdateManyMutationInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -95177,6 +95263,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateManyInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -100659,6 +100746,8 @@ export namespace Prisma {
   }
 
   export type InspectionCountOrderByAggregateInput = {
+    standaloneMoveOut?: SortOrder
+    moveOutRequestHash?: SortOrder
     id?: SortOrder
     clientId?: SortOrder
     tenancyId?: SortOrder
@@ -100683,6 +100772,8 @@ export namespace Prisma {
   }
 
   export type InspectionMaxOrderByAggregateInput = {
+    standaloneMoveOut?: SortOrder
+    moveOutRequestHash?: SortOrder
     id?: SortOrder
     clientId?: SortOrder
     tenancyId?: SortOrder
@@ -100707,6 +100798,8 @@ export namespace Prisma {
   }
 
   export type InspectionMinOrderByAggregateInput = {
+    standaloneMoveOut?: SortOrder
+    moveOutRequestHash?: SortOrder
     id?: SortOrder
     clientId?: SortOrder
     tenancyId?: SortOrder
@@ -100926,6 +101019,14 @@ export namespace Prisma {
     attempts?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type EnumRoomStatusFilter<$PrismaModel = never> = {
     equals?: $Enums.RoomStatus | EnumRoomStatusFieldRefInput<$PrismaModel>
     in?: $Enums.RoomStatus[] | ListEnumRoomStatusFieldRefInput<$PrismaModel>
@@ -100944,6 +101045,7 @@ export namespace Prisma {
   }
 
   export type RoomCountOrderByAggregateInput = {
+    expectedWalkthroughPhotos?: SortOrder
     id?: SortOrder
     inspectionId?: SortOrder
     name?: SortOrder
@@ -101727,14 +101829,6 @@ export namespace Prisma {
     in?: $Enums.ServiceProviderCategory[] | ListEnumServiceProviderCategoryFieldRefInput<$PrismaModel>
     notIn?: $Enums.ServiceProviderCategory[] | ListEnumServiceProviderCategoryFieldRefInput<$PrismaModel>
     not?: NestedEnumServiceProviderCategoryFilter<$PrismaModel> | $Enums.ServiceProviderCategory
-  }
-
-  export type StringNullableListFilter<$PrismaModel = never> = {
-    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
-    has?: string | StringFieldRefInput<$PrismaModel> | null
-    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
-    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
-    isEmpty?: boolean
   }
 
   export type ServiceProviderCategoryPhoneCompoundUniqueInput = {
@@ -107504,6 +107598,10 @@ export namespace Prisma {
     deleteMany?: ItemEvidenceScalarWhereInput | ItemEvidenceScalarWhereInput[]
   }
 
+  export type RoomCreateexpectedWalkthroughPhotosInput = {
+    set: string[]
+  }
+
   export type InspectionCreateNestedOneWithoutRoomsInput = {
     create?: XOR<InspectionCreateWithoutRoomsInput, InspectionUncheckedCreateWithoutRoomsInput>
     connectOrCreate?: InspectionCreateOrConnectWithoutRoomsInput
@@ -107536,6 +107634,11 @@ export namespace Prisma {
     connectOrCreate?: InspectionItemCreateOrConnectWithoutRoomInput | InspectionItemCreateOrConnectWithoutRoomInput[]
     createMany?: InspectionItemCreateManyRoomInputEnvelope
     connect?: InspectionItemWhereUniqueInput | InspectionItemWhereUniqueInput[]
+  }
+
+  export type RoomUpdateexpectedWalkthroughPhotosInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type EnumRoomStatusFieldUpdateOperationsInput = {
@@ -111783,6 +111886,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutConductedByInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -111817,6 +111922,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutConductedByInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -111861,6 +111968,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutReportAgentInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -111895,6 +112004,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutReportAgentInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -113277,6 +113388,8 @@ export namespace Prisma {
     AND?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
     OR?: InspectionScalarWhereInput[]
     NOT?: InspectionScalarWhereInput | InspectionScalarWhereInput[]
+    standaloneMoveOut?: BoolFilter<"Inspection"> | boolean
+    moveOutRequestHash?: StringNullableFilter<"Inspection"> | string | null
     id?: StringFilter<"Inspection"> | string
     clientId?: StringNullableFilter<"Inspection"> | string | null
     tenancyId?: StringFilter<"Inspection"> | string
@@ -114900,6 +115013,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutReportAgencyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -114934,6 +115049,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutReportAgencyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -118631,6 +118748,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutTenancyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -118665,6 +118784,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutTenancyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -120626,6 +120747,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutCheckOutInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -120660,6 +120783,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutCheckOutInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -120699,6 +120824,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutBaselineInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -120733,6 +120860,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutBaselineInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -120772,6 +120901,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateWithoutInspectionInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -120787,6 +120917,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedCreateWithoutInspectionInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -121495,6 +121626,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutCheckOutInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -121529,6 +121662,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutCheckOutInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -121574,6 +121709,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutBaselineInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -121608,6 +121745,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutBaselineInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -121661,6 +121800,7 @@ export namespace Prisma {
     AND?: RoomScalarWhereInput | RoomScalarWhereInput[]
     OR?: RoomScalarWhereInput[]
     NOT?: RoomScalarWhereInput | RoomScalarWhereInput[]
+    expectedWalkthroughPhotos?: StringNullableListFilter<"Room">
     id?: StringFilter<"Room"> | string
     inspectionId?: StringFilter<"Room"> | string
     name?: StringFilter<"Room"> | string
@@ -121862,6 +122002,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutAccessGrantsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -121896,6 +122038,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutAccessGrantsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -122055,6 +122199,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutAccessGrantsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -122089,6 +122235,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutAccessGrantsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -122238,6 +122386,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateWithoutCapturesInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -122253,6 +122402,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedCreateWithoutCapturesInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     inspectionId: string
     name: string
@@ -122358,6 +122508,7 @@ export namespace Prisma {
   }
 
   export type RoomUpdateWithoutCapturesInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -122373,6 +122524,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateWithoutCapturesInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -122452,6 +122604,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutRoomsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -122486,6 +122640,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutRoomsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -122638,6 +122794,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutRoomsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -122672,6 +122830,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutRoomsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -122759,6 +122919,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateWithoutItemsInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -122774,6 +122935,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedCreateWithoutItemsInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     inspectionId: string
     name: string
@@ -122993,6 +123155,7 @@ export namespace Prisma {
   }
 
   export type RoomUpdateWithoutItemsInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -123008,6 +123171,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateWithoutItemsInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     inspectionId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -124123,6 +124287,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutMoveInDefectCasesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -124157,6 +124323,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutMoveInDefectCasesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -124592,6 +124760,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutMoveInDefectCasesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -124626,6 +124796,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutMoveInDefectCasesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -128302,6 +128474,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutFindingsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -128336,6 +128510,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutFindingsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -128615,6 +128791,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutFindingsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -128649,6 +128827,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutFindingsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -128909,6 +129089,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutFindingPhotoDraftsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -128943,6 +129125,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutFindingPhotoDraftsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -129183,6 +129367,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutFindingPhotoDraftsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -129217,6 +129403,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutFindingPhotoDraftsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -129577,6 +129765,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutSignaturesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -129611,6 +129801,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutSignaturesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -129770,6 +129962,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutSignaturesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -129804,6 +129998,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutSignaturesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -129953,6 +130149,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutReportEmailsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -129987,6 +130185,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutReportEmailsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -130146,6 +130346,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutReportEmailsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -130180,6 +130382,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutReportEmailsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -130329,6 +130533,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutAssessmentsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -130363,6 +130569,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutAssessmentsInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -130445,6 +130653,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutAssessmentsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -130479,6 +130689,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutAssessmentsInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -130529,6 +130741,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutAddendaInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -130563,6 +130777,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutAddendaInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -131073,6 +131289,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutAddendaInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -131107,6 +131325,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutAddendaInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -133156,6 +133376,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateWithoutIssuedReportFilesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -133190,6 +133412,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedCreateWithoutIssuedReportFilesInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -133240,6 +133464,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutIssuedReportFilesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -133274,6 +133500,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutIssuedReportFilesInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -135528,6 +135756,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateManyConductedByInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -135551,6 +135781,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateManyReportAgentInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -136261,6 +136493,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutConductedByInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -136295,6 +136529,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutConductedByInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -136329,6 +136565,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateManyWithoutConductedByInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -136352,6 +136590,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutReportAgentInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -136386,6 +136626,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutReportAgentInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -136420,6 +136662,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateManyWithoutReportAgentInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -137746,6 +137990,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateManyReportAgencyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     tenancyId: string
@@ -137940,6 +138186,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutReportAgencyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -137974,6 +138222,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutReportAgencyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -138008,6 +138258,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateManyWithoutReportAgencyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     tenancyId?: StringFieldUpdateOperationsInput | string
@@ -138718,6 +138970,8 @@ export namespace Prisma {
   }
 
   export type InspectionCreateManyTenancyInput = {
+    standaloneMoveOut?: boolean
+    moveOutRequestHash?: string | null
     id?: string
     clientId?: string | null
     kind: $Enums.InspectionKind
@@ -138812,6 +139066,8 @@ export namespace Prisma {
   }
 
   export type InspectionUpdateWithoutTenancyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -138846,6 +139102,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateWithoutTenancyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -138880,6 +139138,8 @@ export namespace Prisma {
   }
 
   export type InspectionUncheckedUpdateManyWithoutTenancyInput = {
+    standaloneMoveOut?: BoolFieldUpdateOperationsInput | boolean
+    moveOutRequestHash?: NullableStringFieldUpdateOperationsInput | string | null
     id?: StringFieldUpdateOperationsInput | string
     clientId?: NullableStringFieldUpdateOperationsInput | string | null
     kind?: EnumInspectionKindFieldUpdateOperationsInput | $Enums.InspectionKind
@@ -139144,6 +139404,7 @@ export namespace Prisma {
   }
 
   export type RoomCreateManyInspectionInput = {
+    expectedWalkthroughPhotos?: RoomCreateexpectedWalkthroughPhotosInput | string[]
     id?: string
     name: string
     order: number
@@ -139266,6 +139527,7 @@ export namespace Prisma {
   }
 
   export type RoomUpdateWithoutInspectionInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -139281,6 +139543,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateWithoutInspectionInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
@@ -139296,6 +139559,7 @@ export namespace Prisma {
   }
 
   export type RoomUncheckedUpdateManyWithoutInspectionInput = {
+    expectedWalkthroughPhotos?: RoomUpdateexpectedWalkthroughPhotosInput | string[]
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number

@@ -43,6 +43,8 @@ const CONDITION: Record<ItemCondition, { label: string; color: string }> = {
   GOOD: { label: 'Good', color: '#047857' },
   FAIR: { label: 'Fair', color: '#b45309' },
   POOR: { label: 'Poor', color: '#c2410c' },
+  MISSING: { label: 'Missing', color: DEFECT },
+  WORN: { label: 'Worn', color: DEFECT },
   DAMAGED: { label: 'Damaged', color: DEFECT },
 }
 
@@ -198,6 +200,7 @@ function Cover({ model, assets, kind }: { model: ReportModel; assets: ReportAsse
       <View style={{ marginTop: 64 }}>
         <Text style={s.eyebrow}>{kind}</Text>
         <Text style={s.h1}>Condition report</Text>
+        {model.standaloneMoveOut && <Text style={s.small}>Move-out observations. No Kivilo check-in was used for this tenancy.</Text>}
         <Text style={{ fontSize: 15, marginTop: 10 }}>{model.address}</Text>
       </View>
 

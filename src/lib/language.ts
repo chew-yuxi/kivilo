@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { locales } from '@/lib/i18n'
+import { locales, parseLocale } from '@/lib/i18n'
 
-const languageInput = z.object({ locale: z.enum(locales) })
+const languageInput = z.object({ locale: z.enum(locales).refine((code) => parseLocale(code) !== null) })
 
 /// Records the language a person reads Kivilo in, which their notifications and emails
 /// are then written in. It is their own preference, so it needs no tenancy access.

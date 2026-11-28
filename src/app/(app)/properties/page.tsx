@@ -57,7 +57,10 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
           <h1 className="text-2xl font-semibold tracking-tight">{w.properties}</h1>
           <p className="mt-1 text-sm text-gray-500">{w.everyAddressYouWorkAtTheStage}</p>
         </div>
-        <Link href={chosen.newHref} className="action-primary sm:w-auto sm:shrink-0">{w.newCheckIn}</Link>
+        <div className="flex flex-wrap w-full gap-2 sm:w-auto">
+          <Link href={chosen.newHref} className="action-secondary flex-1 sm:flex-none">{w.newCheckIn}</Link>
+          <Link href={chosen.moveOutHref} className="action-secondary flex-1 sm:flex-none">{w.startCheckOut}</Link>
+        </div>
       </div>
 
 

@@ -1469,7 +1469,7 @@ abstract class AppLocalizations {
   /// No description provided for @inspectionsEmptyDetail.
   ///
   /// In en, this message translates to:
-  /// **'Start a check-in for your next handover. Your inventory, photos and signed report will live here.'**
+  /// **'Choose check-in at move-in or check-out at move-out.'**
   String get inspectionsEmptyDetail;
 
   /// No description provided for @workspaceChoose.
@@ -3397,6 +3397,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use this signed check-in as the baseline for a check-out.'**
   String get endOfTenancyDetail;
+
+  /// No description provided for @moveOutOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get moveOutOther;
+
+  /// No description provided for @moveOutMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing'**
+  String get moveOutMissing;
+
+  /// No description provided for @moveOutWorn.
+  ///
+  /// In en, this message translates to:
+  /// **'Worn'**
+  String get moveOutWorn;
 
   /// No description provided for @startCheckOut.
   ///
@@ -9154,7 +9172,7 @@ abstract class AppLocalizations {
   /// No description provided for @addThePropertyAndTenancyWellGuide.
   ///
   /// In en, this message translates to:
-  /// **'Add the property and tenancy. We’ll guide you from the first photo to the signed report. You can accept team invitations in Account.'**
+  /// **'Check in at move-in, or check out at move-out. You can start with either visit.'**
   String get addThePropertyAndTenancyWellGuide;
 
   /// No description provided for @youreAllCaughtUp.

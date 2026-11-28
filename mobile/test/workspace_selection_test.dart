@@ -251,6 +251,7 @@ void main() {
     (tester) async {
       final api = _WorkspaceApi();
       await _open(tester, HomeScreen(api: api));
+      expect(find.text('Teams'), findsOneWidget);
       expect(find.text('All my work'), findsOneWidget);
       expect(api.scopes, [(null, false)]);
       await tester.tap(find.text('New check-in').first);
@@ -260,6 +261,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byType(KiviloSelectField<String>));
       await tester.pumpAndSettle();
+      expect(find.text('Choose a team'), findsOneWidget);
       await tester.tap(find.text('Personal').last);
       await tester.pumpAndSettle();
       expect(api.scopes.last, (null, true));

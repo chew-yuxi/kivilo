@@ -20,6 +20,7 @@ export async function chosenWorkspace(agentId: string, requested: string | strin
     workspace,
     asked,
     filters,
+    moveOutHref: `/inspections/move-out?workspace=${encodeURIComponent(newWorkspace)}`,
     newHref: `/inspections/new?workspace=${encodeURIComponent(newWorkspace)}`,
   }
 }

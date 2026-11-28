@@ -456,6 +456,8 @@ class _RoomScreenState extends State<RoomScreen> {
     'FAIR': 'Fair',
     'POOR': 'Poor',
     'DAMAGED': 'Damaged',
+    'MISSING': 'Missing',
+    'WORN': 'Worn',
   };
 
   /// One condition for the selected lines, after the inspector confirms exactly which.
@@ -1787,6 +1789,7 @@ class _ItemEditorState extends State<ItemEditor> {
                   ),
                   KiviloSelectOption(value: 'SURFACE', label: t.assetSurface),
                   KiviloSelectOption(value: 'METER', label: t.categoryMeter),
+                  KiviloSelectOption(value: 'OTHER', label: t.moveOutOther),
                 ],
                 onChanged: (value) => setState(() => _category = value),
               ),
@@ -1803,6 +1806,8 @@ class _ItemEditorState extends State<ItemEditor> {
                     value: 'DAMAGED',
                     label: t.conditionDamaged,
                   ),
+                  KiviloSelectOption(value: 'MISSING', label: t.moveOutMissing),
+                  KiviloSelectOption(value: 'WORN', label: t.moveOutWorn),
                 ],
                 onChanged: (value) => setState(() => _condition = value),
               ),

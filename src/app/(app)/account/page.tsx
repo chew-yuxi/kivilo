@@ -7,6 +7,7 @@ import { openBillingPortal, startCheckout } from '@/lib/billing-actions'
 import { PRO_ACTIVE_PROPERTIES_PER_SEAT, subscriptionCanResume, workspacePlan } from '@/lib/plan'
 import { checkoutOpen } from '@/lib/stripe'
 import { SignOut } from '@/components/sign-out'
+import { languagePilotEnabled } from '@/lib/i18n'
 import { LanguageSelect } from '@/components/language-select'
 import { formatDate, messages } from '@/lib/i18n'
 import { requestLocale } from '@/lib/i18n/request'
@@ -77,9 +78,11 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
         </ViewTabs>
       )}
 
-      <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
-        <LanguageSelect />
-      </section>
+      {languagePilotEnabled() && (
+        <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">
+          <LanguageSelect />
+        </section>
+      )}
 
       <section className="mt-6 rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex items-baseline justify-between gap-4">

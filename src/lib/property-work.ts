@@ -417,6 +417,10 @@ export async function propertyOverview(propertyId: string, actorId: string, now 
         (inspection.status === 'AWAITING_SIGNATURE' || inspection.status === 'COMPLETED'))
       return {
         tenancyId: term.id,
+        startCheckOutFrom: fullAccess && !property.archivedAt && !property.trashedAt &&
+          !inspections.some(row => row.tenancy.id === term.id && row.kind === 'CHECK_OUT')
+          ? inspections.find(row => row.tenancy.id === term.id && row.kind === 'CHECK_IN' && row.status === 'COMPLETED')?.id ?? null
+          : null,
         startDate: term.startDate.toISOString(),
         endDate: term.endDate.toISOString(),
         tenant: term.tenant.name,

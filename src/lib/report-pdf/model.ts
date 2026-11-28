@@ -63,7 +63,7 @@ export function loadReportRow(inspectionId: string) {
 }
 
 /// Item conditions worth a second look at check-out. NEW and GOOD are the baseline.
-export const NOTED_CONDITIONS: ItemCondition[] = ['FAIR', 'POOR', 'DAMAGED']
+export const NOTED_CONDITIONS: ItemCondition[] = ['FAIR', 'POOR', 'DAMAGED', 'WORN', 'MISSING']
 
 export type ReportPhoto = {
   /// "3.12": room 3, twelfth photo. What a person quotes in an email about the report.
@@ -169,6 +169,7 @@ export function buildReportModel(row: ReportRow) {
     /// Short enough to read out on the phone; unique enough within one agent's reports.
     reference: row.id.slice(-8).toUpperCase(),
     kind: row.kind,
+    ...(row.standaloneMoveOut && { standaloneMoveOut: true }),
     address: propertyLabel(tenancy.property),
     /// Absent for Singapore, so a Singapore model, and with it the key of every copy
     /// stored before countries existed, is exactly what it was.

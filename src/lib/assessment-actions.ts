@@ -56,6 +56,10 @@ export async function publishAssessment(
     if (inspection.status !== 'COMPLETED' || inspection.kind !== 'CHECK_OUT') {
       throw new Error('Complete the check-out inventory before publishing its assessment')
     }
+    if (inspection.standaloneMoveOut && inspection.findings.some(finding =>
+      finding.verdict === 'UNDECIDED' || (finding.verdict === 'TENANT_LIABLE' && finding.estimatedCost === null))) {
+      throw new Error('Review liability and enter each proposed deduction before publishing')
+    }
     if (inspection.findings.some((finding) => !finding.editedByHuman)) {
       throw new Error('Review every finding before publishing the assessment')
     }

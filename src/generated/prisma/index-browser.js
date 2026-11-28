@@ -359,6 +359,8 @@ exports.Prisma.TenancyCollaboratorScalarFieldEnum = {
 };
 
 exports.Prisma.InspectionScalarFieldEnum = {
+  standaloneMoveOut: 'standaloneMoveOut',
+  moveOutRequestHash: 'moveOutRequestHash',
   id: 'id',
   clientId: 'clientId',
   tenancyId: 'tenancyId',
@@ -415,6 +417,7 @@ exports.Prisma.PhotoPosterScalarFieldEnum = {
 };
 
 exports.Prisma.RoomScalarFieldEnum = {
+  expectedWalkthroughPhotos: 'expectedWalkthroughPhotos',
   id: 'id',
   inspectionId: 'inspectionId',
   name: 'name',
@@ -1056,6 +1059,7 @@ exports.RoomStatus = exports.$Enums.RoomStatus = {
 };
 
 exports.ItemCategory = exports.$Enums.ItemCategory = {
+  OTHER: 'OTHER',
   FIXTURE: 'FIXTURE',
   APPLIANCE: 'APPLIANCE',
   FURNITURE: 'FURNITURE',
@@ -1064,6 +1068,8 @@ exports.ItemCategory = exports.$Enums.ItemCategory = {
 };
 
 exports.ItemCondition = exports.$Enums.ItemCondition = {
+  MISSING: 'MISSING',
+  WORN: 'WORN',
   NEW: 'NEW',
   GOOD: 'GOOD',
   FAIR: 'FAIR',

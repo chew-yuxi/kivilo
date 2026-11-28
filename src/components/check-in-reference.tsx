@@ -14,6 +14,8 @@ export const CONDITION_TONE: Record<ItemCondition, string> = {
   GOOD: 'text-emerald-700 bg-emerald-50',
   FAIR: 'text-amber-800 bg-amber-50',
   POOR: 'text-orange-800 bg-orange-50',
+  MISSING: 'text-red-700 bg-red-50',
+  WORN: 'text-amber-800 bg-amber-50',
   DAMAGED: 'text-red-700 bg-red-50',
 }
 

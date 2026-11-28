@@ -684,6 +684,7 @@ void main() {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
     expect(find.text('New check-in'), findsOneWidget);
+    expect(find.text('Start check-out'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
     await _chip(tester, 'Archived');
     expect(find.text('1 Archive Walk'), findsOneWidget);

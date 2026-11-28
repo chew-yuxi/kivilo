@@ -799,7 +799,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get inspectionsEmptyDetail =>
-      'เริ่มเช็กอินสำหรับการส่งมอบครั้งถัดไป รายการทรัพย์สิน รูปภาพ และรายงานที่ลงนามแล้วจะอยู่ที่นี่';
+      'เลือกตรวจรับเข้าเมื่อย้ายเข้า หรือตรวจคืนเมื่อย้ายออก';
 
   @override
   String get workspaceChoose => 'เลือกทีม';
@@ -1913,6 +1913,15 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get endOfTenancyDetail =>
       'ใช้เช็กอินที่ลงนามแล้วนี้เป็นข้อมูลอ้างอิงสำหรับเช็กเอาต์';
+
+  @override
+  String get moveOutOther => 'อื่น ๆ';
+
+  @override
+  String get moveOutMissing => 'สูญหาย';
+
+  @override
+  String get moveOutWorn => 'สึกหรอ';
 
   @override
   String get startCheckOut => 'เริ่มเช็กเอาต์';
@@ -5222,7 +5231,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get addThePropertyAndTenancyWellGuide =>
-      'เพิ่มทรัพย์สินและสัญญาเช่า แล้วทำตามขั้นตอนตั้งแต่ถ่ายรูปแรกจนถึงลงนามรายงาน คุณรับคำเชิญเข้าทีมได้ที่บัญชี';
+      'เริ่มตรวจรับเข้าเมื่อย้ายเข้า หรือตรวจคืนเมื่อย้ายออก โดยเริ่มจากขั้นตอนไหนก็ได้';
 
   @override
   String get youreAllCaughtUp => 'คุณจัดการงานครบแล้ว';
