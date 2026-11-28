@@ -101,15 +101,18 @@ class _MarkPainter extends BoxPainter {
   @override
   void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
     final size = configuration.size!;
+    const width = 22.0;
+    const height = 5.0;
+    const bottomGap = 2.0;
     final rect = Rect.fromLTWH(
-      offset.dx + (size.width - 18) / 2,
-      offset.dy + size.height - 3,
-      18,
-      3,
+      offset.dx + (size.width - width) / 2,
+      offset.dy + size.height - height - bottomGap,
+      width,
+      height,
     );
     canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(1.5)),
-      Paint()..color = KiviloColors.ink,
+      RRect.fromRectAndRadius(rect, const Radius.circular(height / 2)),
+      Paint()..color = KiviloColors.actionPink,
     );
   }
 }
