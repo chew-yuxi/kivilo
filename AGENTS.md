@@ -105,6 +105,9 @@ the lead and active agency managers; `actsAsAgent` adds collaborators.
 Membership changes and handover are serialized in `agency-actions.ts`, remove full
 and historical agency grants on departure, and preserve personal work elsewhere.
 An agency must retain an active owner. Historical `conductedById` never changes.
+The app's New check-in shows a team's access: the responsible agent, owners and managers
+as fixed, each active agent as an unticked choice. `createInspection` assigns the chosen
+`memberIds` in its own transaction, so a check-in never exists without them.
 
 Home and the inspection portfolio default to an active team workspace when there is
 one, with Personal available alongside it. New check-ins inherit that selection;

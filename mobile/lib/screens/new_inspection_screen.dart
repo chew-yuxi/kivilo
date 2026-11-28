@@ -86,6 +86,22 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
   /// that same person by the server.
   bool _sameLandlord = true;
 
+  /// The team this check-in will belong to: the existing property's, or the one chosen.
+  String? get _teamId => _existing != null ? _existing!.agencyId : _agency?.id;
+  AgencyDetail? _team;
+  String? _myId;
+  String? _teamError;
+  int _teamRun = 0;
+
+  /// Team agents get no access through membership alone, so each is assigned here.
+  final _assigned = <String>{};
+
+  List<AgencyMember> get _teamAgents => [
+    for (final member in _team?.members ?? const <AgencyMember>[])
+      if (member.active && member.role == 'AGENT' && member.stakeholderId != _myId)
+        member,
+  ];
+
   bool get _keepsLandlord =>
       _existing?.lastLandlordName != null && _sameLandlord;
 
@@ -138,6 +154,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       _furnishingLevel ??= chosen.furnishingLevel;
       _error = null;
     });
+    unawaited(_loadTeam());
   }
 
   final _fields = <String, TextEditingController>{
@@ -170,7 +187,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     for (final controller in _fields.values) {
       controller.addListener(_saveDraft);
     }
-    unawaited(_restoreDraft());
+    unawaited(_restoreDraft().then((_) => _loadTeam()));
   }
 
   @override
@@ -234,7 +251,36 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         );
       _usePreviousRooms = draft['usePreviousRooms'] as bool? ?? true;
       _sameLandlord = draft['sameLandlord'] as bool? ?? true;
+      _assigned
+        ..clear()
+        ..addAll(((draft['assigned'] as List?) ?? const []).cast<String>());
     });
+  }
+
+  /// A later answer replaces an earlier one, never the reverse. Failing to load leaves
+  /// the form usable, because access can still be set on the property afterwards.
+  Future<void> _loadTeam() async {
+    if (!mounted) return;
+    final id = _teamId;
+    final run = ++_teamRun;
+    setState(() {
+      _team = null;
+      _teamError = null;
+    });
+    if (id == null) return;
+    try {
+      final me = await _api.me();
+      final team = await _api.agency(id);
+      if (!mounted || run != _teamRun) return;
+      setState(() {
+        _myId = me.id;
+        _team = team;
+      });
+    } catch (error) {
+      if (mounted && run == _teamRun) {
+        setState(() => _teamError = plainError(error));
+      }
+    }
   }
 
   void _saveDraft() {
@@ -258,6 +304,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       'previousRooms': [..._previousRooms],
       'usePreviousRooms': _usePreviousRooms,
       'sameLandlord': _sameLandlord,
+      'assigned': [..._assigned],
     };
     // Each write waits for the one before, so an older copy never replaces a newer one.
     _pendingDraftWrite = _pendingDraftWrite.then((_) async {
@@ -417,6 +464,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
               ? null
               : index.agencies.firstWhere((agency) => agency.id == selection),
         );
+        unawaited(_loadTeam());
       }
     } catch (error) {
       if (mounted) setState(() => _error = plainError(error));
@@ -469,6 +517,10 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
     });
     try {
       String value(String key) => _fields[key]!.text.trim();
+      final memberIds = [
+        for (final member in _teamAgents)
+          if (_assigned.contains(member.stakeholderId)) member.stakeholderId,
+      ];
       final id = await _api.createInspection({
         if (_existing case final property?) ...{
           // The property keeps its own address, type and workspace.
@@ -503,6 +555,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
         'clientId': _clientId,
         'rooms': _rooms,
         if (_offersVerification) 'verifyParties': _verifyParties,
+        if (memberIds.isNotEmpty) 'memberIds': memberIds,
       });
       await _pendingDraftWrite;
       try {
@@ -600,6 +653,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                       ? t.newPrivate
                       : t.newTeamResponsible,
                 ),
+                if (_teamId != null) ..._accessSection(),
                 const SizedBox(height: kiviloSectionGap),
                 KiviloSectionHeading(
                   title: t.newProperty,
@@ -622,6 +676,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
                             _choosingExisting = value!;
                             if (!value) _existing = null;
                           });
+                          if (value == false) unawaited(_loadTeam());
                           if (value! && _existing == null) {
                             unawaited(_chooseExisting());
                           }
@@ -967,6 +1022,71 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
       ),
     ),
   );
+
+  List<Widget> _accessSection() {
+    final team = _team;
+    Widget fixed(String name, String role) => CheckboxListTile(
+      value: true,
+      title: Text(name),
+      subtitle: Text(role),
+      contentPadding: EdgeInsets.zero,
+      onChanged: null,
+    );
+    return [
+      const SizedBox(height: kiviloSectionGap),
+      const KiviloSectionHeading(
+        title: 'Property access',
+        subtitle: 'Team agents can open it only if you tick them here',
+      ),
+      const SizedBox(height: kiviloHeadingGap),
+      if (_teamError != null) ...[
+        KiviloNotice(
+          tone: KiviloTone.warning,
+          child: Text(
+            'Could not load the team (${_teamError!}) '
+            'You can still create this and share it from the property.',
+          ),
+        ),
+        const SizedBox(height: kiviloButtonGap),
+        OutlinedButton(
+          onPressed: _busy ? null : _loadTeam,
+          child: const Text('Try again'),
+        ),
+      ] else if (team == null)
+        const LinearProgressIndicator()
+      else ...[
+        for (final member in team.members)
+          if (member.active && member.stakeholderId == _myId)
+            fixed('${member.name} (you)', 'Responsible agent'),
+        for (final member in team.members)
+          if (member.active &&
+              member.role != 'AGENT' &&
+              member.stakeholderId != _myId)
+            fixed(
+              member.name,
+              'Team ${agencyRoleLabel(member.role).toLowerCase()}, sees all team properties',
+            ),
+        for (final member in _teamAgents)
+          CheckboxListTile(
+            value: _assigned.contains(member.stakeholderId),
+            title: Text(member.name),
+            subtitle: Text(member.email ?? 'Team agent'),
+            contentPadding: EdgeInsets.zero,
+            onChanged: _busy
+                ? null
+                : (selected) => _change(() {
+                    if (selected == true) {
+                      _assigned.add(member.stakeholderId);
+                    } else {
+                      _assigned.remove(member.stakeholderId);
+                    }
+                  }),
+          ),
+        if (_teamAgents.isEmpty)
+          const Text('No other agents in this team yet.'),
+      ],
+    ];
+  }
 
   List<Widget> _roomsSection() {
     final text = Theme.of(context).textTheme;

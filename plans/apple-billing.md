@@ -93,7 +93,16 @@ though only Singapore is available for sale. A Singapore-only price record displ
 correctly but failed Add for Review with `IAP_SUBMISSION_NOT_ALLOWED_MISSING_PRICING_DATA`.
 The missing records were filled using Apple's equalizations of each approved SGD
 price, preserving the existing Singapore price points and Singapore-only availability.
-All 21 subscriptions reached **READY_TO_SUBMIT** before submission. The setup script creates the
+All 21 subscriptions reached **READY_TO_SUBMIT** before submission.
+
+On 31 October review paused under 3.0.0 asking to confirm the USD prices: the
+equalizations had collapsed neighbouring tiers (7 and 8 seats both $199.99, 17 to 20
+all $499.99). The owner approved making US prices US$29.99 × seats ($29.99 to $599.99);
+every value is an exact Apple price point. They were replaced in place with `POST
+/v1/subscriptionPrices` (`startDate: null`), which works on never-approved products,
+and read back with Singapore unchanged. The other 173 storefronts keep their SGD
+equalizations, because re-equalizing from USD still produced shared prices in 95 of
+them and none is for sale. The setup script creates the
 complete starting-price table for a new product and audits storefront coverage, so
 a valid Singapore price alone is not mistaken for a complete catalog.
 

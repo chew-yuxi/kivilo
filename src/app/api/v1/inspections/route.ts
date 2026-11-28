@@ -89,6 +89,7 @@ const newInspection = z.object({
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
   /// Start CEA due diligence on both parties as the check-in is made. Singapore only.
   verifyParties: z.boolean().optional(),
+  memberIds: z.array(z.string().min(1)).max(100).optional(),
 }).refine((input) => input.propertyId || (input.line1 && input.postalCode), {
   message: 'Address and postal code are required',
 }).refine((input) => input.sameLandlord || input.landlordName, {

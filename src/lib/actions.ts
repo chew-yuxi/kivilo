@@ -26,7 +26,11 @@ import { lockAgency, lockAgencyTenancy, requireAgencyMembership } from '@/lib/ag
 import { binCapture, binFinding, binItem, binRoom, reinsert } from '@/lib/bin'
 import { restoreAllowed } from '@/lib/bin-rules'
 import { allowsPropertyType, countryName } from '@/lib/country'
-import { fieldChanges, inspectionPlace, recordBurst, recordEvent } from '@/lib/property-history'
+import { fieldChanges, inspectionPlace, recordBurst, recordEvent, tenancyPlace } from '@/lib/property-history'
+import { AgencyActionError } from '@/lib/agency-errors'
+import { activeNotificationRecipients } from '@/lib/notification-recipients'
+import { propertyLabel } from '@/lib/format'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 import type {
   ChangeType,
   Country,
@@ -170,6 +174,9 @@ export async function createInspection(input: {
   /// Rooms to start with, in order, each with its standard editable lines.
   rooms?: string[]
   moveOut?: MoveOutVisit
+  /// Active agents of `agencyId` to assign from the start, in the same transaction, so
+  /// a check-in never exists without the access its creator chose.
+  memberIds?: string[]
 }) {
   const agent = await requireAgent()
   const visit = input.moveOut === undefined ? null : moveOutVisit.parse(input.moveOut)
@@ -310,6 +317,36 @@ export async function createInspection(input: {
     })
     if (visit) await createMoveOutRoom(tx, created.id, agent.id, visit)
     else await createStarterRooms(tx, created.id, input.rooms ?? [], furnishingLevel, agent.id)
+    const memberIds = [...new Set(input.memberIds ?? [])].filter((id) => id !== agent.id)
+    if (memberIds.length) {
+      if (!input.agencyId) throw new AgencyActionError('Choose a team before assigning team members.')
+      const tenancy = await tx.tenancy.findUniqueOrThrow({ where: { id: created.tenancyId }, include: { property: true } })
+      const members = await tx.agencyMembership.findMany({
+        where: { agencyId: input.agencyId, stakeholderId: { in: memberIds }, status: 'ACTIVE', role: 'AGENT' },
+        select: { stakeholder: { select: { id: true, name: true } } },
+      })
+      if (members.length !== memberIds.length) throw new AgencyActionError('Choose active members of this team.')
+      if (memberIds.includes(tenancy.landlordId) || memberIds.includes(tenancy.tenantId)) {
+        throw new AgencyActionError('A landlord or tenant cannot be assigned as an agent on their own tenancy.')
+      }
+      await tx.tenancyCollaborator.createMany({
+        data: memberIds.map((stakeholderId) => ({ tenancyId: tenancy.id, stakeholderId, grantedById: agent.id })),
+      })
+      await tx.agencyActivity.create({ data: {
+        agencyId: input.agencyId, actorId: agent.id, actorName: agent.name,
+        subjectId: tenancy.id, subjectName: tenancy.property.line1, action: 'Changed property assignments',
+      } })
+      const place = await tenancyPlace(tx, tenancy.id)
+      for (const { stakeholder } of members) {
+        await recordEvent(tx, { ...place, actorId: agent.id, kind: 'ACCESS_ADDED', summary: `gave ${stakeholder.name} access` })
+      }
+      const recipients = await activeNotificationRecipients(tx, memberIds)
+      await tx.notification.createMany({ data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
+        recipientId, tenancyId: tenancy.id, kind: 'PROPERTY_SHARED' as const,
+        words: (m: Messages) => ({ title: m.notification.propertySharedTitle(agent.name), body: m.notification.propertySharedBody(agent.name, propertyLabel(tenancy.property)) }),
+        href: `/inspections/${created.id}`,
+      }))) })
+    }
     return created
   })
 

@@ -136,6 +136,33 @@ describe('persistent agency membership and assignment', () => {
     expect(await notificationCanBeDelivered(db, notification)).toBe(false)
   })
 
+  it('assigns chosen active agents when a team check-in is created, all or nothing', async () => {
+    const { owner, agency } = await team()
+    const { actor: chosen } = await member(agency.id)
+    const { actor: left } = await member(agency.id)
+    const stranger = await person('Stranger')
+    const input = {
+      agencyId: agency.id, line1: `Created with access ${tag}`, unit: null, postalCode: '998873', propertyType: 'HDB' as const,
+      landlordName: 'Landlord', landlordEmail: null, tenantName: 'Tenant', tenantEmail: null,
+      startDate: '2026-01-01', endDate: '2099-01-01', monthlyRent: '3000', deposit: '6000',
+    }
+    as(owner)
+
+    await expect(createInspection({ ...input, memberIds: [stranger.id] })).rejects.toThrow('Choose active members')
+    expect(await db.property.count({ where: { line1: input.line1 } })).toBe(0)
+
+    const id = await createInspection({ ...input, memberIds: [chosen.id, chosen.id, owner.id] })
+    const { tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, include: { tenancy: { include: { collaborators: true } } } })
+    properties.push(tenancy.propertyId)
+    expect(tenancy.collaborators.map((row) => [row.stakeholderId, row.grantedById])).toEqual([[chosen.id, owner.id]])
+    await expect(authorizeInspection(id, chosen.id)).resolves.toBeTruthy()
+    await expect(authorizeInspection(id, left.id)).rejects.toThrow()
+    expect(await db.notification.count({ where: { tenancyId: tenancy.id, recipientId: chosen.id, kind: 'PROPERTY_SHARED' } })).toBe(1)
+    expect(await db.propertyEvent.count({ where: { tenancyId: tenancy.id, kind: 'ACCESS_ADDED' } })).toBe(1)
+
+    await expect(createInspection({ ...input, agencyId: undefined, memberIds: [chosen.id] })).rejects.toThrow('Choose a team')
+  })
+
   it('moves a private tenancy only at its lead’s explicit choice and validates every named assignee', async () => {
     const { owner, agency } = await team()
     const { actor: agent } = await member(agency.id)
