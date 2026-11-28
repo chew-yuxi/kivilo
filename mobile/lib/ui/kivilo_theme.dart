@@ -29,6 +29,29 @@ class KiviloColors {
   static const disabled = Color(0xFFF3F4F6);
 }
 
+/// Shared press feedback for tabs and segmented choices.
+class KiviloTapFeedback extends StatelessWidget {
+  const KiviloTapFeedback({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final ink = KiviloColors.ink.withValues(alpha: 0.14);
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashFactory: reduceMotion
+            ? NoSplash.splashFactory
+            : InkSplash.splashFactory,
+        splashColor: ink,
+        highlightColor: reduceMotion ? ink : Colors.transparent,
+      ),
+      child: child,
+    );
+  }
+}
+
 /// The app has four kinds of button and no others:
 /// - primary: `FilledButton`, pink, the one main action on a screen;
 /// - secondary: `OutlinedButton` or `TextButton`, soft pink fill (the theme below);

@@ -45,6 +45,8 @@ White on action pink measures **4.60:1**. Hover and press deepen the fill so the
 
 Use 48-unit tab targets with 14-unit labels. Keep the row horizontally scrollable on narrow screens. Round the mobile marker’s top corners to a 5-unit radius. Its flat bottom meets the top edge of the one-unit divider. The mark slides for 220 ms and changes immediately with reduced motion. Links retain keyboard focus, direct URLs and Back navigation. Within an inventory, choosing a room narrows the items below the tabs. Show its check even when colour is hard to distinguish. [Mobile tab and switch comparison](design-system/native-tab-and-toggle.png) · [Browser comparison](design-system/tabs-web.png)
 
+On mobile tabs and segmented choices, a neutral ink circle expands from the touch point and fades on release. Clip it to the tapped control. With Reduce Motion enabled, use a stationary neutral press. [Compare the same tap before and after](design-system/native-tap-feedback.png).
+
 ## Behaviour at a handover
 
 | Situation | What an agent should see |
