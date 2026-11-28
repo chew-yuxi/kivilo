@@ -754,6 +754,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterInProgress => 'In progress';
 
   @override
+  String get filterCheckOutDue => 'Check-out due';
+
+  @override
+  String get filterRunning => 'Running';
+
+  @override
+  String get filterEnded => 'Ended';
+
+  @override
   String get filterAwaitingSignature => 'Awaiting signature';
 
   @override

@@ -720,6 +720,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get filterInProgress => 'กำลังดำเนินการ';
 
   @override
+  String get filterCheckOutDue => 'ถึงกำหนดตรวจคืนที่พัก';
+
+  @override
+  String get filterRunning => 'อยู่ระหว่างการเช่า';
+
+  @override
+  String get filterEnded => 'สิ้นสุดแล้ว';
+
+  @override
   String get filterAwaitingSignature => 'รอลายเซ็น';
 
   @override

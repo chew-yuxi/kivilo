@@ -1334,6 +1334,24 @@ abstract class AppLocalizations {
   /// **'In progress'**
   String get filterInProgress;
 
+  /// No description provided for @filterCheckOutDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Check-out due'**
+  String get filterCheckOutDue;
+
+  /// No description provided for @filterRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Running'**
+  String get filterRunning;
+
+  /// No description provided for @filterEnded.
+  ///
+  /// In en, this message translates to:
+  /// **'Ended'**
+  String get filterEnded;
+
   /// No description provided for @filterAwaitingSignature.
   ///
   /// In en, this message translates to:

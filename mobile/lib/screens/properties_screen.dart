@@ -23,18 +23,28 @@ import 'team_screen.dart';
 /// Filters on a property's current stage. Archived and Recently deleted are separate
 /// lists the server returns on their own, so choosing one fetches it.
 enum _PropertyFilter {
-  all('All'),
-  inProgress('In progress'),
-  awaiting('Awaiting signatures'),
-  checkOutDue('Check-out due'),
-  running('Running'),
-  ended('Ended'),
-  archived('Archived', state: 'archived'),
-  trash('Recently deleted', state: 'trash');
+  all,
+  inProgress,
+  awaiting,
+  checkOutDue,
+  running,
+  ended,
+  archived(state: 'archived'),
+  trash(state: 'trash');
 
-  const _PropertyFilter(this.label, {this.state = 'active'});
-  final String label;
+  const _PropertyFilter({this.state = 'active'});
   final String state;
+
+  String get label => switch (this) {
+    all => t.filterAll,
+    inProgress => t.filterInProgress,
+    awaiting => t.statusAwaitingSignatures,
+    checkOutDue => t.filterCheckOutDue,
+    running => t.filterRunning,
+    ended => t.filterEnded,
+    archived => t.propertyArchived,
+    trash => t.recentlyDeleted,
+  };
 
   bool includes(PropertyWorkItem property) => switch (this) {
     all || archived || trash => true,

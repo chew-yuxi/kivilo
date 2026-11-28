@@ -689,6 +689,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get filterInProgress => '进行中';
 
   @override
+  String get filterCheckOutDue => '退租检查将至';
+
+  @override
+  String get filterRunning => '租约生效中';
+
+  @override
+  String get filterEnded => '已结束';
+
+  @override
   String get filterAwaitingSignature => '等待签署';
 
   @override
