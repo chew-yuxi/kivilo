@@ -22,7 +22,7 @@ class WorkspacePicker extends StatelessWidget {
     final invitations = workspace.index.invitations.length;
     return KiviloSelectField<String>(
       label: 'Teams',
-      sheetTitle: 'Choose workspace',
+      sheetTitle: 'Choose a team',
       value: workspace.value,
       options: [
         const KiviloSelectOption(value: 'all', label: 'All properties'),
