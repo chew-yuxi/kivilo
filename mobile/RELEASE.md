@@ -5,6 +5,21 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Home reminder close-button alignment · 28 November 2026 Singapore time
+
+The × now lines up with the reminder heading, including at double text size, with a 48 × 48 tap target. On both Home layouts its center sits 24 points from the top and trailing edges. [Matched mobile screenshots](../docs/ux/reminder-close-alignment.png) · [PR 9](https://github.com/chew-yuxi/kivilo/pull/9)
+
+| Distribution | Release | Stable patch | Shorebird ID | Compiled source |
+| --- | --- | --- | --- | --- |
+| Public iPhone App Store | 1.0.0+26 | 11 | 853162 | [55bd9cc](https://github.com/chew-yuxi/kivilo/commit/55bd9cc) |
+| Public Google Play | 1.0.0+25 | 64 | 853148 | [e95a213](https://github.com/chew-yuxi/kivilo/commit/e95a213) |
+| TestFlight | 1.0.0+25 | 65 | 853163 | [5ad7265](https://github.com/chew-yuxi/kivilo/commit/5ad7265) |
+| Android internal | 1.0.0+29 | 34 | 853149 | [5ad7265](https://github.com/chew-yuxi/kivilo/commit/5ad7265) |
+| Android 30 | 1.0.1+30 | 5 | 853146 | [a33f4bc](https://github.com/chew-yuxi/kivilo/commit/a33f4bc) |
+| Prepared iPhone 30 | 1.0.1+30 | 6 | 853161 | [55bd9cc](https://github.com/chew-yuxi/kivilo/commit/55bd9cc) |
+
+All 12 stable update requests from the preceding patch returned the expected compiled-code hash and downloaded successfully. Flutter checks passed on the main app (584), test clients (572) and public Android (401). Physical handset installation remains unverified.
+
 ## Dismissible Home reminders · 28 November 2026 Singapore time
 
 Agents can tap × on a check-in or check-out reminder and use Undo to restore it. Dismissals are saved per account on that phone, including offline. The inspection stays in Properties. The older public Android Home screen offers the same control on its Continue inspection card. [Matched Home screens](../docs/ux/dismiss-home-reminder.png) · [Public Android comparison](../docs/ux/dismiss-home-reminder-android25.png)
