@@ -47,12 +47,15 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
   return (
     <div>
       <WorkspaceSection agentId={agent.id} chosen={chosen} path="/properties" />
-      <div className="mb-6 flex items-start justify-between gap-6">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Properties</h1>
           <p className="mt-1 text-sm text-gray-500">Every address you work, at the stage of its current tenancy.</p>
         </div>
-        <Link href={chosen.newHref} className="action-primary shrink-0">New check-in</Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href={chosen.newHref} className="action-secondary shrink-0">New check-in</Link>
+          <Link href={chosen.moveOutHref} className="action-secondary shrink-0">Start check-out</Link>
+        </div>
       </div>
 
       <RenewalCards renewals={renewals} />
@@ -90,9 +93,8 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
           {filter.key === 'all' && !search && (
             <>
               <p className="mx-auto mt-1 max-w-sm text-sm text-gray-500">
-                Start a check-in when you next hand over a unit. The property appears here.
+                Choose check-in at move-in or check-out at move-out.
               </p>
-              <Link href={chosen.newHref} className="action-primary mt-6 inline-flex">New check-in</Link>
             </>
           )}
         </div>

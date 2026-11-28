@@ -31,7 +31,7 @@ class ApiFailure implements Exception {
       'no_damage_unconfirmed' =>
         'Add a finding, or confirm that no damage was found, before publishing.',
       // Due diligence explains itself: show the server's message when there is one.
-      'invalid_input' || 'invalid_state'
+      'invalid_input' || 'invalid_state' || 'review_required'
           when error.response?.data is Map &&
               (error.response!.data as Map)['message'] is String =>
         (error.response!.data as Map)['message'] as String,

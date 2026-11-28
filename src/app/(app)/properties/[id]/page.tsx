@@ -1,3 +1,4 @@
+import { CheckOutButton } from '@/components/check-out-button'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { requireAgent } from '@/lib/auth'
@@ -62,6 +63,7 @@ export default async function PropertyPage({ params }: PageProps<'/properties/[i
               </li>
             ))}
           </ul>
+          {term.startCheckOutFrom && <CheckOutButton compact baselineId={term.startCheckOutFrom} existingCheckOutId={null} />}
           {term.canOpenDocuments && (
             <Link href={`/tenancies/${term.tenancyId}/documents`} className="action-secondary mt-3 flex w-full sm:inline-flex sm:w-auto">
               Documents

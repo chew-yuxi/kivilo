@@ -127,6 +127,7 @@ class PropertyTerm {
     this.monthlyRent,
     this.deposit,
     this.canEditDetails = false,
+    this.startCheckOutFrom,
     this.detailsLockedReason,
     this.agencyName,
     this.leadAgentName,
@@ -147,6 +148,7 @@ class PropertyTerm {
   final String? monthlyRent;
   final String? deposit;
   final bool canEditDetails;
+  final String? startCheckOutFrom;
   final String? detailsLockedReason;
   final List<PropertyReport> reports;
   final String? agencyName;
@@ -156,6 +158,7 @@ class PropertyTerm {
 
   factory PropertyTerm.fromJson(Map<String, dynamic> json) => PropertyTerm(
     tenancyId: json['tenancyId'] as String,
+    startCheckOutFrom: json['startCheckOutFrom'] as String?,
     canOpenDocuments: json['canOpenDocuments'] as bool? ?? false,
     verification: switch (json['verification']) {
       {'enabled': true} && final Map checks => TenancyVerification.fromJson(checks.cast<String, dynamic>()),

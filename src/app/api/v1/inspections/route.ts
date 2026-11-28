@@ -1,3 +1,4 @@
+import { moveOutVisit } from '@/lib/move-out'
 import { optionalTenancyAmount } from '@/lib/tenancy-amounts'
 import { clientChecksEnabled } from '@/lib/cdd/availability'
 import { z } from 'zod'
@@ -84,6 +85,7 @@ const newInspection = z.object({
   monthlyRent: optionalTenancyAmount.default(''),
   deposit: optionalTenancyAmount.default(''),
   preservesBlankAmounts: z.boolean().optional(),
+  moveOut: moveOutVisit.optional(),
   rooms: z.array(z.string().trim().min(1).max(80)).max(40).optional(),
   /// Start CEA due diligence on both parties as the check-in is made. Singapore only.
   verifyParties: z.boolean().optional(),
@@ -103,7 +105,7 @@ export const POST = authed(async (agent, _params, request) => {
   const id = await createInspection(input)
   // The app offers this only while two free checks remain (or on Pro). A check-in made
   // when the allowance ran out meanwhile is still made; its parties can be verified later.
-  if (!verifyParties || !clientChecksEnabled()) return { id }
+  if (input.moveOut || !verifyParties || !clientChecksEnabled()) return { id }
   // CEA due diligence is Singapore law, so a Malaysian property's parties are never
   // checked; the new app does not offer it there.
   const { tenancyId, tenancy } = await db.inspection.findUniqueOrThrow({ where: { id }, select: { tenancyId: true, tenancy: { select: { agencyId: true, property: { select: { country: true } } } } } })
@@ -111,4 +113,4 @@ export const POST = authed(async (agent, _params, request) => {
   const left = await clientChecksLeft(agent, tenancy.agencyId)
   if (left === null || left >= 2) await verifyTenancyParties(agent.id, tenancyId)
   return { id }
-})
+}, { pinOwner: true })

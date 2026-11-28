@@ -12,6 +12,7 @@ import type { CheckInReference } from '@/lib/check-in-reference'
 import { MarkEditor, type Tool } from '@/components/mark-editor'
 import { MAX_MARKS, type AnnotationInput, type Mark, type StoredAnnotations } from '@/lib/annotations'
 import {
+  withdrawWalkthroughPhoto,
   renameRoom,
   deleteRoom,
   deleteCapture,
@@ -249,6 +250,9 @@ function Viewer({
         return
       }
       const id = tile.capture.id!
+      if (tile.capture.clientId && tile.capture.roomId === `walk-${inspectionId}`) {
+        await withdrawWalkthroughPhoto(tile.capture.roomId, inspectionId, tile.capture.clientId)
+      }
       if (await take(id)) return
       const serverId = uploadedIdFor(id)
       if (serverId) await deleteCapture(serverId, inspectionId)

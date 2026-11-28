@@ -15,6 +15,8 @@ const VERSION = 1
 export type PendingCapture = {
   id?: number
   roomId: string
+  clientId?: string
+  itemId?: string
   inspectionId: string
   kind: 'VIDEO' | 'PHOTO'
   blob: Blob
@@ -53,9 +55,9 @@ function transact<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => I
       new Promise<T>((resolve, reject) => {
         const tx = database.transaction(STORE, mode)
         const request = run(tx.objectStore(STORE))
-        request.onsuccess = () => resolve(request.result)
         request.onerror = () => reject(request.error)
-        tx.oncomplete = () => database.close()
+        tx.oncomplete = () => { resolve(request.result); database.close() }
+        tx.onabort = () => { reject(tx.error); database.close() }
       }),
   )
 }
@@ -159,4 +161,32 @@ export async function take(id: number) {
   const record = await withRecord(id, (store) => void store.delete(id))
   await refreshSnapshot()
   return record
+}
+
+/// Hand an offline walkthrough's photos to the normal uploader together. Its staged
+/// records are never attempted until the server has committed the room and item ids.
+export async function attachMoveOutPhotos(stage: string, inspectionId: string) {
+  const database = await open()
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const tx = database.transaction(STORE, 'readwrite')
+      const cursor = tx.objectStore(STORE).openCursor()
+      cursor.onsuccess = () => {
+        const row = cursor.result
+        if (!row) return
+        const photo = row.value as PendingCapture
+        if (photo.inspectionId === stage) {
+          const roomId = `walk-${inspectionId}`
+          row.update({ ...photo, roomId, inspectionId, itemId: `${roomId}-${photo.itemId}` })
+        }
+        row.continue()
+      }
+      tx.oncomplete = () => resolve()
+      tx.onabort = () => reject(tx.error)
+      tx.onerror = () => reject(tx.error)
+    })
+  } finally {
+    database.close()
+  }
+  await refreshSnapshot()
 }

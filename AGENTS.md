@@ -371,6 +371,20 @@ old confirmed terms for review; it does not rewrite them or existing repairs. Ed
 the amount manually clears its source linkage. Sole-party document erasure also clears
 the saved clause; shared tenancy records retain it.
 
+## Starting at move-out
+
+Home and Properties offer check-out as a first visit. Both clients save the address,
+observation text and evidence on the creating device before tenancy details are needed.
+A selected tenancy with a signed check-in uses its existing baseline flow. Standalone
+check-outs create one walkthrough room. Each issue is an inspector-written line with
+its own photos. At Send, the surviving observations become undecided findings for the
+deposit assessment. A clean walkthrough requires explicit confirmation.
+
+Keep staged photo bytes in the capture queue. Upload starts after report creation,
+and room review waits for the expected photo IDs to register or be explicitly withdrawn.
+The immutable submission hash and client ID make retries safe. The signed report and
+PDF identify visits conducted without a Kivilo check-in.
+
 ## Choosing a check-out finding
 
 The native Add finding flow is a full-page item chooser followed by its form

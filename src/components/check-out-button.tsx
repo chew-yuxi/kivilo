@@ -8,7 +8,9 @@ import { startCheckOut } from '@/lib/actions'
 export function CheckOutButton({
   baselineId,
   existingCheckOutId,
+  compact = false,
 }: {
+  compact?: boolean
   baselineId: string
   existingCheckOutId: string | null
 }) {
@@ -27,12 +29,13 @@ export function CheckOutButton({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5">
+    <div className={compact ? undefined : "rounded-lg border border-gray-200 bg-white p-5"}>
+      {!compact && <>
       <h2 className="text-sm font-medium">End of tenancy</h2>
       <p className="mt-1 text-sm text-gray-500">
         This report becomes the baseline. The check-out is compared against it item by
         item.
-      </p>
+      </p></>}
       <button
         type="button"
         disabled={pending}

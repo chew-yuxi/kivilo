@@ -46,6 +46,7 @@ export async function reportFingerprint(client: Prisma.TransactionClient, inspec
     inspection: {
       id: inspection.id,
       kind: inspection.kind,
+      ...(inspection.standaloneMoveOut && { standaloneMoveOut: true }),
       conductedAt: inspection.conductedAt?.toISOString() ?? null,
       conductedBy: party(inspection.conductedBy),
       baselineId: inspection.baselineId,

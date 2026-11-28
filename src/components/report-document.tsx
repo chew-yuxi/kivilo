@@ -138,6 +138,7 @@ export async function ReportDocument({
               {isCheckOut ? 'Check-out' : 'Check-in'} inventory and schedule of condition
             </h1>
             <p className="mt-1 text-sm text-gray-600">{propertyLabel(tenancy.property)}</p>
+            {inspection.standaloneMoveOut && <p className="mt-2 text-sm">Move-out observations. No Kivilo check-in was used for this tenancy.</p>}
           </div>
           {/* The PDF is drawn on the server: a browser print would page the report badly and
               stamp this page's address, which is the share token, into its footer. */}

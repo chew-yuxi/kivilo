@@ -102,6 +102,7 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
           (a, b) => a.attempts - b.attempts || a.createdAt - b.createdAt,
         )
         for (const capture of queue) {
+          if (capture.inspectionId.startsWith('move-out-draft:')) continue
           const id = capture.id!
           try {
             // A record that already carries a server id had its bytes accepted on an
@@ -111,20 +112,21 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
             const resumed = captureId !== null
 
             if (!captureId) {
-              const { storagePath, token } = await requestUploadUrl(
-                capture.roomId,
-                capture.inspectionId,
-                capture.filename,
+              const { storagePath, token, alreadyUploaded } = await requestUploadUrl(
+                capture.roomId, capture.inspectionId, capture.filename, capture.clientId,
               )
-
-              const { error } = await browserClient()
-                .storage.from(CAPTURE_BUCKET)
-                .uploadToSignedUrl(storagePath, token, capture.blob)
-              if (error) throw error
+              if (!alreadyUploaded) {
+                if (!token) throw new Error('Could not prepare photo upload')
+                const { error } = await browserClient().storage.from(CAPTURE_BUCKET)
+                  .uploadToSignedUrl(storagePath, token, capture.blob)
+                if (error) throw error
+              }
 
               captureId = await registerCapture({
                 roomId: capture.roomId,
                 inspectionId: capture.inspectionId,
+                itemId: capture.itemId,
+                clientId: capture.clientId,
                 kind: capture.kind,
                 storagePath,
                 mimeType: capture.mimeType,
@@ -220,7 +222,8 @@ export function UploadQueueProvider({ children }: { children: React.ReactNode })
 /// One line in the header. Per-capture state lives on the capture itself, on the room
 /// screen; this only says that something is still leaving the phone.
 export function QueueStatus() {
-  const { pending, online } = useUploadQueue()
+  const { pending: all, online } = useUploadQueue()
+  const pending = all.filter(row => !row.inspectionId.startsWith('move-out-draft:'))
   if (online && pending.length === 0) return null
 
   return (

@@ -519,6 +519,10 @@ enum FurnishingLevel {
 }
 
 model Inspection {
+  /// A walkthrough started without a signed Kivilo check-in.
+  standaloneMoveOut Boolean @default(false)
+  /// Pins the original submission across retries even after work on the report resumes.
+  moveOutRequestHash String?
   id            String           @id @default(cuid())
   /// The phone's id for a new check-in, so a retried create returns the same one.
   clientId      String?          @unique
@@ -661,6 +665,9 @@ enum RoomStatus {
 }
 
 model Room {
+  /// The on-device visit named these photos before the report existed. Review waits
+  /// for their registration or the inspector's explicit removal.
+  expectedWalkthroughPhotos String[] @default([])
   id              String     @id @default(cuid())
   inspectionId    String
   name            String
@@ -685,6 +692,7 @@ model Room {
 }
 
 enum ItemCategory {
+  OTHER
   FIXTURE
   APPLIANCE
   FURNITURE
@@ -693,6 +701,8 @@ enum ItemCategory {
 }
 
 enum ItemCondition {
+  MISSING
+  WORN
   NEW
   GOOD
   FAIR
