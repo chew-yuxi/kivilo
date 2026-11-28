@@ -29,108 +29,129 @@ class KiviloSegmentedControl<T> extends StatelessWidget {
   final bool allowEmptySelection;
 
   @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: KiviloColors.canvas,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: KiviloColors.border),
-    ),
-    child: Row(
-      children: [
-        for (final option in options)
-          Expanded(
-            child: _KiviloSegment<T>(
-              option: option,
-              selected: option.value == value,
-              enabled: onChanged != null,
-              onTap: () {
-                if (onChanged == null) return;
-                if (allowEmptySelection && option.value == value) {
-                  onChanged!(null);
-                } else {
-                  onChanged!(option.value);
-                }
-              },
-            ),
+  Widget build(BuildContext context) {
+    final selectedIndex = options.indexWhere((option) => option.value == value);
+    return KiviloTapFeedback(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: KiviloColors.choiceTrack,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(3),
+          child: Stack(
+            children: [
+              if (selectedIndex >= 0)
+                Positioned.fill(
+                  child: AnimatedAlign(
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 180),
+                    curve: Curves.easeOut,
+                    alignment: AlignmentDirectional(
+                      options.length == 1
+                          ? 0
+                          : 2 * selectedIndex / (options.length - 1) - 1,
+                      0,
+                    ),
+                    child: FractionallySizedBox(
+                      widthFactor: 1 / options.length,
+                      heightFactor: 1,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(11),
+                          boxShadow: [
+                            BoxShadow(
+                              color: KiviloColors.ink.withValues(alpha: 0.12),
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              Row(
+                children: [
+                  for (final option in options)
+                    Expanded(
+                      child: _KiviloSegment<T>(
+                        option: option,
+                        selected: option.value == value,
+                        onTap: onChanged == null
+                            ? null
+                            : () => onChanged!(
+                                allowEmptySelection && option.value == value
+                                    ? null
+                                    : option.value,
+                              ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ),
-      ],
-    ),
-  );
+        ),
+      ),
+    );
+  }
 }
 
 class _KiviloSegment<T> extends StatelessWidget {
   const _KiviloSegment({
     required this.option,
     required this.selected,
-    required this.enabled,
     required this.onTap,
   });
 
   final KiviloSegmentOption<T> option;
   final bool selected;
-  final bool enabled;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    // The chosen option is filled with the primary colour, as a FilledButton is.
-    final foreground = selected && enabled
-        ? Colors.white
-        : enabled
+    final foreground = onTap == null
         ? KiviloColors.muted
-        : KiviloColors.subtle;
+        : selected
+        ? KiviloColors.pinkDark
+        : KiviloColors.body;
     return Semantics(
       button: true,
       selected: selected,
-      enabled: enabled,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        curve: Curves.easeOut,
-        margin: const EdgeInsets.all(1),
-        decoration: BoxDecoration(
-          color: !selected
-              ? Colors.transparent
-              : enabled
-              ? KiviloColors.pink
-              : KiviloColors.border,
+      enabled: onTap != null,
+      inMutuallyExclusiveGroup: true,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(11),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: enabled ? onTap : null,
-            borderRadius: BorderRadius.circular(11),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (option.icon != null) ...[
-                      Icon(option.icon, size: 19, color: foreground),
-                      const SizedBox(width: 7),
-                    ],
-                    Flexible(
-                      child: Text(
-                        option.label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: foreground,
-                          fontSize: 14,
-                          fontWeight: selected
-                              ? FontWeight.w700
-                              : FontWeight.w600,
-                        ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (option.icon != null) ...[
+                    Icon(option.icon, size: 18, color: foreground),
+                    const SizedBox(width: 6),
+                  ],
+                  Flexible(
+                    child: Text(
+                      option.label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: foreground,
+                        fontSize: 14,
+                        fontWeight: selected
+                            ? FontWeight.w600
+                            : FontWeight.w500,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),

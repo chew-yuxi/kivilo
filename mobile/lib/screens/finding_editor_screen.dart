@@ -10,6 +10,7 @@ import '../services/api.dart';
 import '../services/finding_photos.dart';
 import 'photo_mark_screen.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_view_tabs.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
 import '../ui/marked_network_photo.dart';
@@ -716,20 +717,11 @@ class _FindingEditorScreenState extends State<FindingEditorScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      KiviloSegmentedControl<bool>(
-                        value: _fromCheckIn,
-                        options: const [
-                          KiviloSegmentOption(
-                            value: false,
-                            label: 'At check-out',
-                          ),
-                          KiviloSegmentOption(
-                            value: true,
-                            label: 'At check-in',
-                          ),
-                        ],
-                        onChanged: (value) => setState(() {
-                          _fromCheckIn = value!;
+                      KiviloViewTabs(
+                        selected: _fromCheckIn ? 1 : 0,
+                        labels: const ['At check-out', 'At check-in'],
+                        onChanged: (index) => setState(() {
+                          _fromCheckIn = index == 1;
                           _roomId = null;
                           _chooserOffset = 0;
                         }),

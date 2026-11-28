@@ -5,6 +5,8 @@ class KiviloColors {
   KiviloColors._();
 
   static const pink = Color(0xFFEC4899);
+  static const actionPink = Color(0xFFDB2777);
+  static const choiceTrack = Color(0xFFF0F1F3);
   static const pinkDark = Color(0xFFBE185D);
   static const pinkSoft = Color(0xFFFDF2F8);
   static const ink = Color(0xFF111827);
@@ -25,6 +27,29 @@ class KiviloColors {
   static const pinkBorder = Color(0xFFFBCFE8);
   static const field = Color(0xFFD1D5DB);
   static const disabled = Color(0xFFF3F4F6);
+}
+
+/// Shared press feedback for tabs and segmented choices.
+class KiviloTapFeedback extends StatelessWidget {
+  const KiviloTapFeedback({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
+    final ink = KiviloColors.ink.withValues(alpha: 0.14);
+    return Theme(
+      data: Theme.of(context).copyWith(
+        splashFactory: reduceMotion
+            ? NoSplash.splashFactory
+            : InkSplash.splashFactory,
+        splashColor: ink,
+        highlightColor: reduceMotion ? ink : Colors.transparent,
+      ),
+      child: child,
+    );
+  }
 }
 
 /// The app has four kinds of button and no others:

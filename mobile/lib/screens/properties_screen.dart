@@ -6,6 +6,7 @@ import '../ui/workspace_picker.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
 import '../ui/kivilo_components.dart';
+import '../ui/kivilo_view_tabs.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_illustration.dart';
 import '../ui/kivilo_theme.dart';
@@ -389,41 +390,15 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // One scrolling row, so the filters never take a second line.
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                        spacing: 8,
-                        children: [
+                      KiviloViewTabs(
+                        selected: _filter.index,
+                        labels: [
                           for (final filter in _PropertyFilter.values)
-                            ChoiceChip(
-                              label: Text(
-                                // Counts describe the list on screen; Archived and
-                                // Recently deleted are fetched when chosen.
-                                      filter.state != 'active' ||
-                                              _filter.state != 'active'
-                                    ? filter.label
-                                    : '${filter.label} · ${properties.where(filter.includes).length}',
-                              ),
-                              selected: _filter == filter,
-                              onSelected: (_) => _selectFilter(filter),
-                              selectedColor: KiviloColors.ink,
-                              backgroundColor: Colors.white,
-                              checkmarkColor: Colors.white,
-                              labelStyle: TextStyle(
-                                color: _filter == filter
-                                    ? Colors.white
-                                    : KiviloColors.body,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              side: BorderSide(
-                                color: _filter == filter
-                                    ? KiviloColors.ink
-                                    : KiviloColors.border,
-                              ),
-                            ),
+                            filter.state != 'active' || _filter.state != 'active'
+                                ? filter.label
+                                : '${filter.label} · ${properties.where(filter.includes).length}',
                         ],
-                      ),
+                        onChanged: (index) => _selectFilter(_PropertyFilter.values[index]),
                       ),
                       const SizedBox(height: 16),
                       Text(
