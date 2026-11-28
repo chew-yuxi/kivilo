@@ -8,13 +8,13 @@ Use this standard for the agent app, the browser app and forms opened by landlor
 
 | Job | Appearance | Implementation |
 | --- | --- | --- |
-| Advance the current task | Bright pink fill, dark ink, semibold label. One primary in the current decision. | Flutter `FilledButton`. Web `action-primary`. |
+| Advance the current task | Action pink fill with a white semibold label. One primary in the current decision. | Flutter `FilledButton`. Web `action-primary`. |
 | Offer another action, including Cancel | Soft pink surface, deep pink text. | Flutter `OutlinedButton` or `TextButton`. Web `action-secondary`. |
 | Open optional detail | A short text link with a clear destination. Keep it visually quieter than the task. | Flutter `kiviloTertiary`. Web `text-link` with underline. |
 | Delete content or remove access | Red outline to open the decision. A filled red confirmation names the thing being removed. | Flutter `kiviloDangerOutlined` and `kiviloDangerFilled`. Web `action-danger` and `action-danger-confirm`. |
 | Choose between valid answers | Give both answers the same weight. Selecting Dispute can open a reason field. Its submit button then records the chosen answer. | Use peer secondary buttons for Agree and Dispute. |
-| Filter a list or choose a value | Soft selected surface with a visible outline or check. Keep a selection in view and expose its selected state. | Flutter `KiviloSegmentedControl`, `ChoiceChip` or `KiviloSelectField`. Web `action-filter` and `aria-current` for filter links. |
-| Move between main sections | Use a navigation label. Show the current section even on a detail page. | Flutter's main tabs. Web `MainNavigation` with an active underline. |
+| Switch between lists or sections | Teasa’s view tabs use plain labels, muted when idle and semibold ink when selected. Centre an 18 × 3 ink mark beneath the current label. Keep the selected view visible when labels scroll. | Flutter `KiviloViewTabs`. Web `ViewTabs` with real links and `aria-current` for the current page or section. |
+| Narrow the current list or choose a field value | Room filters use an ink check and a light grey selected surface. Form choices use the labelled segmented control or selection field. | Flutter `ChoiceChip`, `KiviloSegmentedControl` and `KiviloSelectField`. |
 
 A page with separate forms can have an action for each form. Never repeat the same primary at the top, in an empty card and over the content. A full-width label and a compact icon are different controls. Compact controls belong beside their field, in a toolbar, or in a clearly related row.
 
@@ -22,15 +22,16 @@ A page with separate forms can have an action for each form. Never repeat the sa
 
 | Token | Value | Use |
 | --- | --- | --- |
-| Brand pink | `#EC4899` | Primary fill and brand marks |
-| Ink | `#111827` | Primary labels, icons and headings |
+| Action pink | `#DB2777` | Primary fill, with white text and icons |
+| Brand pink | `#EC4899` | Brand marks |
+| Ink | `#111827` | Selected tab text and indicator, icons and headings |
 | Deep pink | `#BE185D` | Text, selected outlines and navigation accents |
 | Soft pink | `#FDF2F8` | Secondary and selected surfaces |
 | Body / muted | `#374151` / `#6B7280` | Main text and supporting labels |
 | White / divider | `#FFFFFF` / `#E5E7EB` | Reading surfaces and group boundaries |
 | Danger | `#B91C1C` on native | Deletion, errors and their explicit confirmation. Use the shared red role on web. |
 
-Ink on brand pink measures **5.03:1**. White on that pink measures **3.53:1**. Use ink for ordinary primary labels. Hover and press lighten the primary surface. Keyboard focus gets a visible outline. Disabled actions use a neutral surface. When the next step is blocked, say what the agent needs to do near the control. Ordinary enabled text needs at least 4.5:1 contrast. [W3C contrast minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+White on action pink measures **4.60:1**. Hover and press deepen the fill so the white label remains legible. Keyboard focus gets a visible outline. Disabled actions use a neutral surface. When the next step is blocked, say what the agent needs to do near the control. Ordinary enabled text needs at least 4.5:1 contrast. [W3C contrast minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
 
 ## Width, type and spacing
 
@@ -39,6 +40,10 @@ Ink on brand pink measures **5.03:1**. White on that pink measures **3.53:1**. U
 - Leave 12 units between stacked actions. On web use `action-group` for a decision with multiple buttons. Wide screens may put them side by side. Keep field controls such as Clear alongside their field.
 - Use system type. Start with 24–25 units for the page title, 20 for section titles, 16 for input or reading text, 14 for supporting copy and 12 for metadata. Use a persistent label above every field. An example in a placeholder is optional.
 - Keep 16-unit page gutters on phones, 12 between a heading and its controls, and 28 before the next section. Put the title and next action before management filters. Put a card around content that belongs together, with one quiet border. Use colour and an explicit label together for errors, completed work and pending uploads.
+
+## Tabs and filters
+
+Use 48-unit tab targets with 14-unit labels. Keep the row horizontally scrollable on narrow screens. Give the selected tab a short rounded mark above a one-unit neutral divider. The mark slides for 220 ms and changes immediately with reduced motion. Links retain keyboard focus, direct URLs and Back navigation. Within an inventory, choosing a room narrows the items below the tabs. Show its check even when colour is hard to distinguish. [Mobile comparison](design-system/tabs-mobile.png) · [Browser comparison](design-system/tabs-web.png)
 
 ## Behaviour at a handover
 
