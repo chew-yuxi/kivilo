@@ -202,11 +202,17 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           : _agency;
       final id = await Navigator.of(context).push<String>(
         MaterialPageRoute(
-          builder: (_) => moveOut ? MoveOutScreen(api: _api, agency: agency, country: _workspace.profile?.country ?? 'SG') : NewInspectionScreen(
-            api: _api,
-            initialAgency: agency,
-            country: _workspace.profile?.country ?? 'SG',
-          ),
+          builder: (_) => moveOut
+              ? MoveOutScreen(
+                  api: _api,
+                  agency: agency,
+                  country: _workspace.profile?.country ?? 'SG',
+                )
+              : NewInspectionScreen(
+                  api: _api,
+                  initialAgency: agency,
+                  country: _workspace.profile?.country ?? 'SG',
+                ),
         ),
       );
       if (!mounted || id == null) return;
@@ -259,17 +265,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     active: widget.trackView,
     child: Scaffold(
       appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-      bottomNavigationBar: KiviloActionFooter(
-        child: Row(
-          children: [
-            Expanded(child: OutlinedButton(onPressed: _creating ? null : _create, child: Text(t.newCheckIn))),
-            const SizedBox(width: kiviloButtonGap),
-            Expanded(child: OutlinedButton(onPressed: _creating ? null : () => _create(moveOut: true), child: Text(t.startCheckOut))),
-          ],
-        ),
-      ),
       body: SafeArea(
-        bottom: false,
         child: KiviloContent(
           maxWidth: 1200,
           child: RefreshIndicator(
@@ -279,29 +275,38 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
               stream: _loading.stream,
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
-                  return KiviloMessage(
-                    icon: Icons.cloud_off_outlined,
-                    title: t.couldNotLoadProperties,
-                    body: plainError(snapshot.error!),
-                    actionLabel: t.tryAgain,
-                    onAction: _refresh,
-                    extra: _workspace.all
-                        ? null
-                        : Padding(
-                            padding: const EdgeInsets.only(
-                              top: kiviloButtonGap,
-                            ),
-                            child: OutlinedButton(
-                              onPressed: () => _selectWorkspace('all'),
-                              child: Text(t.showAllMyWork),
-                            ),
-                          ),
+                  return _portfolioView(
+                    SliverFillRemaining(
+                      child: KiviloMessage(
+                        icon: Icons.cloud_off_outlined,
+                        title: t.couldNotLoadProperties,
+                        body: plainError(snapshot.error!),
+                        actionLabel: t.tryAgain,
+                        onAction: _refresh,
+                        extra: _workspace.all
+                            ? null
+                            : Padding(
+                                padding: const EdgeInsets.only(
+                                  top: kiviloButtonGap,
+                                ),
+                                child: OutlinedButton(
+                                  onPressed: () => _selectWorkspace('all'),
+                                  child: Text(t.showAllMyWork),
+                                ),
+                              ),
+                      ),
+                    ),
                   );
                 }
 
                 // A spinner only when there is nothing to show yet.
                 if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
+                  return _portfolioView(
+                    const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  );
                 }
                 final properties = snapshot.data!;
                 final query = _search.text.trim().toLowerCase().replaceAll(
@@ -321,191 +326,191 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                     final columns = available >= 680 ? 2 : 1;
                     final cardWidth =
                         (available - (columns - 1) * 16) / columns;
-                    return ListView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: kiviloScreenPadding,
-                      children: [
-                        Text(
-                          t.settingsProperties,
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          t.yourPropertiesAndTheirCurrentStatus,
-                          style: Theme.of(context).textTheme.bodyLarge,
-                        ),
-                        const SizedBox(height: 16),
-                        WorkspacePicker(
-                          workspace: _workspace,
-                          onChanged: _selectWorkspace,
-                          onTeams: _teams,
-                        ),
-                        if (_teamDetail?.canManage == true) ...[
-                          const SizedBox(height: 12),
-                          KiviloSelectField<String?>(
-                            label: t.inspectionsResponsibleAgent,
-                            value: _assigneeId,
-                            options: [
-                              KiviloSelectOption<String?>(
-                                value: null,
-                                label: t.inspectionsAllAgents,
-                              ),
-                              for (final member in _teamDetail!.members.where(
-                                (member) => member.active,
-                              ))
-                                KiviloSelectOption<String?>(
-                                  value: member.stakeholderId,
-                                  label: member.name,
-                                ),
-                            ],
-                            onChanged: (value) {
-                              setState(() => _assigneeId = value);
-                              _refresh(newScope: true);
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          Text(t.inspectionsTeamNote),
-                        ],
-                        if (_workError != null) ...[
-                          const SizedBox(height: 12),
-                          Text(
-                            _workError!,
-                            style: const TextStyle(color: KiviloColors.red),
-                          ),
-                        ],
-                        RenewalReminders(
-                          key: ValueKey(_renewalsVersion),
-                          api: _api,
-                          onRenewed: _refresh,
-                          agencyId: _agency?.id,
-                          personal: _workspace.personal,
-                        ),
-                        if (_api.offlineCopy) ...[
-                          const SizedBox(height: 18),
-                          KiviloNotice(
-                            tone: KiviloTone.warning,
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.cloud_off_outlined,
-                                  color: KiviloColors.amber,
-                                ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: Text(
-                                    t.inspectionsOffline,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodyMedium,
+                    return _portfolioView(
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 32),
+                        sliver: SliverList.list(
+                          children: [
+                            WorkspacePicker(
+                              workspace: _workspace,
+                              onChanged: _selectWorkspace,
+                              onTeams: _teams,
+                            ),
+                            if (_teamDetail?.canManage == true) ...[
+                              const SizedBox(height: 12),
+                              KiviloSelectField<String?>(
+                                label: t.inspectionsResponsibleAgent,
+                                value: _assigneeId,
+                                options: [
+                                  KiviloSelectOption<String?>(
+                                    value: null,
+                                    label: t.inspectionsAllAgents,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        if (properties.isNotEmpty ||
-                            _filter.state != 'active') ...[
-                          TextField(
-                            controller: _search,
-                            onChanged: (_) => setState(() {}),
-                            textInputAction: TextInputAction.search,
-                            onSubmitted: (_) =>
-                                FocusScope.of(context).unfocus(),
-                            decoration: InputDecoration(
-                              labelText: t.searchProperties,
-                              hintText: t.addressTenantOrStage,
-                              suffixIcon: _search.text.isEmpty
-                                  ? null
-                                  : IconButton(
-                                      tooltip: t.inspectionsClearSearch,
-                                      onPressed: () => setState(_search.clear),
-                                      icon: const Icon(Icons.close),
+                                  for (final member
+                                      in _teamDetail!.members.where(
+                                        (member) => member.active,
+                                      ))
+                                    KiviloSelectOption<String?>(
+                                      value: member.stakeholderId,
+                                      label: member.name,
                                     ),
+                                ],
+                                onChanged: (value) {
+                                  setState(() => _assigneeId = value);
+                                  _refresh(newScope: true);
+                                },
+                              ),
+                              const SizedBox(height: 8),
+                              Text(t.inspectionsTeamNote),
+                            ],
+                            if (_workError != null) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                _workError!,
+                                style: const TextStyle(color: KiviloColors.red),
+                              ),
+                            ],
+                            RenewalReminders(
+                              key: ValueKey(_renewalsVersion),
+                              api: _api,
+                              onRenewed: _refresh,
+                              agencyId: _agency?.id,
+                              personal: _workspace.personal,
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        KiviloViewTabs(
-                          labels: [
-                            for (final filter in _PropertyFilter.values)
-                              filter.state != 'active' ||
-                                      _filter.state != 'active'
-                                  ? filter.label
-                                  : '${filter.label} · ${properties.where(filter.includes).length}',
-                          ],
-                          selected: _filter.index,
-                          onChanged: (index) =>
-                              _selectFilter(_PropertyFilter.values[index]),
-                        ),
-                        const SizedBox(height: 16),
-                        if (properties.isEmpty &&
-                            _filter == _PropertyFilter.all)
-                          _messageCard()
-                        else ...[
-                          Text(
-                            '${visible.length} ${visible.length == 1 ? t.property : t.properties}'
-                            '${query.isNotEmpty || _filter != _PropertyFilter.all ? t.found : ''}',
-                            style: Theme.of(context).textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 8),
-                          if (visible.isEmpty)
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Column(
+                            if (_api.offlineCopy) ...[
+                              const SizedBox(height: 18),
+                              KiviloNotice(
+                                tone: KiviloTone.warning,
+                                child: Row(
                                   children: [
                                     const Icon(
-                                      Icons.inventory_2_outlined,
-                                      size: 32,
-                                      color: KiviloColors.muted,
+                                      Icons.cloud_off_outlined,
+                                      color: KiviloColors.amber,
                                     ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      _filter == _PropertyFilter.trash
-                                          ? t.nothingInRecentlyDeleted
-                                          : _filter == _PropertyFilter.archived
-                                          ? t.noArchivedProperties
-                                          : t.noMatchingProperties,
-                                      textAlign: TextAlign.center,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(
-                                      t.tryAnotherAddressOrTenantOrChange,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: TextButton(
-                                        onPressed: () {
-                                          _search.clear();
-                                          _selectFilter(_PropertyFilter.all);
-                                        },
-                                        child: Text(t.homeShowAllProperties),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        t.inspectionsOffline,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodyMedium,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          if (visible.isNotEmpty)
-                            Wrap(
-                              spacing: 16,
-                              runSpacing: 16,
-                              children: [
-                                for (final property in visible)
-                                  SizedBox(
-                                    width: cardWidth,
-                                    child: _propertyCard(property),
-                                  ),
+                            ],
+                            const SizedBox(height: 16),
+                            if (properties.isNotEmpty ||
+                                _filter.state != 'active') ...[
+                              TextField(
+                                controller: _search,
+                                onChanged: (_) => setState(() {}),
+                                textInputAction: TextInputAction.search,
+                                onSubmitted: (_) =>
+                                    FocusScope.of(context).unfocus(),
+                                decoration: InputDecoration(
+                                  labelText: t.searchProperties,
+                                  hintText: t.addressTenantOrStage,
+                                  suffixIcon: _search.text.isEmpty
+                                      ? null
+                                      : IconButton(
+                                          tooltip: t.inspectionsClearSearch,
+                                          onPressed: () =>
+                                              setState(_search.clear),
+                                          icon: const Icon(Icons.close),
+                                        ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                            ],
+                            KiviloViewTabs(
+                              labels: [
+                                for (final filter in _PropertyFilter.values)
+                                  filter.state != 'active' ||
+                                          _filter.state != 'active'
+                                      ? filter.label
+                                      : '${filter.label} · ${properties.where(filter.includes).length}',
                               ],
+                              selected: _filter.index,
+                              onChanged: (index) =>
+                                  _selectFilter(_PropertyFilter.values[index]),
                             ),
-                        ],
-                      ],
+                            const SizedBox(height: 16),
+                            if (properties.isEmpty &&
+                                _filter == _PropertyFilter.all)
+                              _messageCard()
+                            else ...[
+                              Text(
+                                '${visible.length} ${visible.length == 1 ? t.property : t.properties}'
+                                '${query.isNotEmpty || _filter != _PropertyFilter.all ? t.found : ''}',
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                              const SizedBox(height: 8),
+                              if (visible.isEmpty)
+                                Card(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(24),
+                                    child: Column(
+                                      children: [
+                                        const Icon(
+                                          Icons.inventory_2_outlined,
+                                          size: 32,
+                                          color: KiviloColors.muted,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          _filter == _PropertyFilter.trash
+                                              ? t.nothingInRecentlyDeleted
+                                              : _filter ==
+                                                    _PropertyFilter.archived
+                                              ? t.noArchivedProperties
+                                              : t.noMatchingProperties,
+                                          textAlign: TextAlign.center,
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
+                                        ),
+                                        const SizedBox(height: 6),
+                                        Text(
+                                          t.tryAnotherAddressOrTenantOrChange,
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        const SizedBox(height: 12),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: TextButton(
+                                            onPressed: () {
+                                              _search.clear();
+                                              _selectFilter(
+                                                _PropertyFilter.all,
+                                              );
+                                            },
+                                            child: Text(
+                                              t.homeShowAllProperties,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              if (visible.isNotEmpty)
+                                Wrap(
+                                  spacing: 16,
+                                  runSpacing: 16,
+                                  children: [
+                                    for (final property in visible)
+                                      SizedBox(
+                                        width: cardWidth,
+                                        child: _propertyCard(property),
+                                      ),
+                                  ],
+                                ),
+                            ],
+                          ],
+                        ),
+                      ),
                     );
                   },
                 );
@@ -515,6 +520,63 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
         ),
       ),
     ),
+  );
+
+  Widget _portfolioView(Widget body) => CustomScrollView(
+    physics: const AlwaysScrollableScrollPhysics(),
+    slivers: [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+        sliver: SliverToBoxAdapter(
+          child: Text(
+            t.settingsProperties,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ),
+      ),
+      PinnedHeaderSliver(
+        child: Material(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final checkIn = FilledButton.icon(
+                  onPressed: _creating ? null : _create,
+                  icon: const Icon(Icons.login_outlined),
+                  label: Text(t.newCheckIn, textAlign: TextAlign.center),
+                );
+                final checkOut = FilledButton.icon(
+                  onPressed: _creating ? null : () => _create(moveOut: true),
+                  icon: const Icon(Icons.logout_outlined),
+                  label: Text(t.startCheckOut, textAlign: TextAlign.center),
+                );
+                final textScale =
+                    MediaQuery.textScalerOf(context).scale(15) / 15;
+                if (constraints.maxWidth < 336 * textScale) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      checkIn,
+                      const SizedBox(height: kiviloButtonGap),
+                      checkOut,
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: checkIn),
+                    const SizedBox(width: kiviloButtonGap),
+                    Expanded(child: checkOut),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+      body,
+    ],
   );
 
   Widget _propertyCard(PropertyWorkItem property) =>
