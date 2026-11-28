@@ -6,6 +6,7 @@ import { useUploadQueue } from '@/components/upload-queue'
 import { addRoom } from '@/lib/actions'
 import { roomHref } from '@/lib/routes'
 import type { RoomStatus } from '@/generated/prisma'
+import { usePwa } from '@/components/locale'
 
 export type RoomRow = {
   id: string
@@ -16,14 +17,14 @@ export type RoomRow = {
   photos: number
 }
 
-export const ROOM_STATUS: Record<RoomStatus, { text: string; className: string }> = {
-  PENDING: { text: 'Not started', className: 'bg-gray-100 text-gray-600' },
-  CAPTURING: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
+const ROOM_STATUS: Record<RoomStatus, string> = {
+  PENDING: 'bg-gray-100 text-gray-600',
+  CAPTURING: 'bg-blue-50 text-blue-700',
   // PROCESSING and FAILED are left over from AI drafting; nothing sets them now.
-  PROCESSING: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
-  REVIEW: { text: 'Needs review', className: 'bg-amber-50 text-amber-800' },
-  REVIEWED: { text: 'Reviewed', className: 'bg-emerald-50 text-emerald-700' },
-  FAILED: { text: 'Capturing', className: 'bg-blue-50 text-blue-700' },
+  PROCESSING: 'bg-blue-50 text-blue-700',
+  REVIEW: 'bg-amber-50 text-amber-800',
+  REVIEWED: 'bg-emerald-50 text-emerald-700',
+  FAILED: 'bg-blue-50 text-blue-700',
 }
 
 /// Common Singapore residential rooms, offered as one-tap adds so the inspector is
@@ -50,11 +51,11 @@ function RoomListRow({
   inspectionId: string
   queued: number
 }) {
-  const badge = ROOM_STATUS[room.status]
+  const w = usePwa()
   const counts = [
-    room.videos > 0 && `${room.videos} video${room.videos === 1 ? '' : 's'}`,
-    room.photos > 0 && `${room.photos} photo${room.photos === 1 ? '' : 's'}`,
-    queued > 0 && `${queued} still on this phone`,
+    room.videos > 0 && w.videoCount(room.videos),
+    room.photos > 0 && w.photoCount(room.photos),
+    queued > 0 && w.stillOnPhone(queued),
   ].filter(Boolean)
 
   return (
@@ -66,14 +67,14 @@ function RoomListRow({
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{room.name}</p>
           <p className="mt-0.5 text-xs text-gray-600">
-            {counts.length > 0 ? counts.join(', ') : 'Nothing captured yet'}
-            {room.itemCount > 0 && ` · ${room.itemCount} items`}
+            {counts.length > 0 ? counts.join(w.listSeparator) : w.nothingCaptured}
+            {room.itemCount > 0 && ` · ${w.itemCount(room.itemCount)}`}
           </p>
         </div>
         <span
-          className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
+          className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-medium ${ROOM_STATUS[room.status]}`}
         >
-          {badge.text}
+          {w.roomStatus(room.status)}
         </span>
         <span aria-hidden className="text-gray-400">
           ›
@@ -90,6 +91,7 @@ export function RoomCapture({
   inspectionId: string
   rooms: RoomRow[]
 }) {
+  const w = usePwa()
   const { pending } = useUploadQueue()
   const [customName, setCustomName] = useState('')
   const [busy, startTransition] = useTransition()
@@ -107,7 +109,7 @@ export function RoomCapture({
           href={roomHref(inspectionId, upNext)}
           className="action-primary"
         >
-          {upNext.status === 'PENDING' ? 'Start' : 'Continue'} with {upNext.name}
+          {upNext.status === 'PENDING' ? w.startWith(upNext.name) : w.continueWith(upNext.name)}
         </Link>
       )}
 
@@ -125,7 +127,7 @@ export function RoomCapture({
       )}
 
       <div className="rounded-lg border border-dashed border-gray-300 bg-white p-4">
-        <h2 className="text-sm font-medium">Add a room</h2>
+        <h2 className="text-sm font-medium">{w.addARoom}</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {suggestions.map((name) => (
             <button
@@ -143,7 +145,7 @@ export function RoomCapture({
           <input
             value={customName}
             onChange={(e) => setCustomName(e.target.value)}
-            placeholder="Or type a room name"
+            placeholder={w.typeRoomName}
             className="min-w-0 flex-1 rounded border border-gray-200 px-3 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
           />
           <button
@@ -157,7 +159,7 @@ export function RoomCapture({
             }
             className="action-secondary"
           >
-            Add
+            {w.add}
           </button>
         </div>
       </div>

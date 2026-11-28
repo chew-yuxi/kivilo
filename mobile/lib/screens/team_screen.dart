@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/agency.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
@@ -62,7 +63,7 @@ class _TeamScreenState extends State<TeamScreen> {
   Future<void> _create() async {
     final name = await _nameDrawer(
       context,
-      title: 'Create a team',
+      title: t.teamCreateTitle,
       initial: '',
     );
     if (!mounted || name == null || _busy) return;
@@ -92,7 +93,7 @@ class _TeamScreenState extends State<TeamScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Team')),
+    appBar: AppBar(title: Text(t.settingsTeam)),
     body: KiviloContent(
       child: RefreshIndicator(
         onRefresh: _refresh,
@@ -107,13 +108,11 @@ class _TeamScreenState extends State<TeamScreen> {
               padding: kiviloScreenPadding,
               children: [
                 Text(
-                  'Work together',
+                  t.teamWorkTogether,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.',
-                ),
+                Text(t.teamIntro),
                 if (_error != null || snapshot.hasError) ...[
                   const SizedBox(height: 16),
                   Text(
@@ -123,7 +122,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   const SizedBox(height: kiviloButtonGap),
                   OutlinedButton(
                     onPressed: _busy ? null : _refresh,
-                    child: const Text('Try again'),
+                    child: Text(t.tryAgain),
                   ),
                 ],
                 for (final invitation
@@ -136,29 +135,30 @@ class _TeamScreenState extends State<TeamScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Text(
-                            'Invitation to ${invitation.agencyName}',
+                            t.teamInvitationTo(invitation.agencyName),
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           Text(
-                            '${agencyRoleLabel(invitation.role)} · Expires ${shortDate(invitation.expiresAt)}',
+                            t.teamInvitationRole(
+                              agencyRoleLabel(invitation.role),
+                              shortDate(invitation.expiresAt),
+                            ),
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'Joining gives you a place in this team. Agents work on assigned tenancies; managers oversee team work.',
-                          ),
+                          Text(t.teamJoinDetail),
                           const SizedBox(height: 12),
                           FilledButton(
                             onPressed: _busy
                                 ? null
                                 : () => _answer(invitation, true),
-                            child: const Text('Join team'),
+                            child: Text(t.teamJoin),
                           ),
                           const SizedBox(height: kiviloButtonGap),
                           OutlinedButton(
                             onPressed: _busy
                                 ? null
                                 : () => _answer(invitation, false),
-                            child: const Text('Decline invitation'),
+                            child: Text(t.teamDecline),
                           ),
                         ],
                       ),
@@ -174,7 +174,7 @@ class _TeamScreenState extends State<TeamScreen> {
                       leading: const Icon(Icons.person_outline),
                       title: Text(agency.name),
                       subtitle: Text(
-                        '${agencyRoleLabel(agency.role)} · ${agency.memberCount} ${agency.memberCount == 1 ? 'member' : 'members'}',
+                        '${agencyRoleLabel(agency.role)} · ${agency.memberCount} ${agency.memberCount == 1 ? t.member : t.members}',
                       ),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: _busy
@@ -189,7 +189,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 FilledButton.icon(
                   onPressed: _busy ? null : _create,
                   icon: const Icon(Icons.add),
-                  label: const Text('Create team'),
+                  label: Text(t.teamCreate),
                 ),
                 if (_busy) ...[
                   const SizedBox(height: 16),
@@ -263,7 +263,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
 
   Future<void> _editBranding(AgencyDetail agency) async {
     if (!agency.canManage) {
-      _locked(agency, 'Edit report branding');
+      _locked(agency, t.editReportBranding);
       return;
     }
     // Names the register the responsible agent's number is on.
@@ -284,12 +284,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
 
   Future<void> _rename(AgencyDetail agency) async {
     if (!agency.canManage) {
-      _locked(agency, 'Rename team');
+      _locked(agency, t.teamRename);
       return;
     }
     final name = await _nameDrawer(
       context,
-      title: 'Rename team',
+      title: t.teamRename,
       initial: agency.name,
     );
     if (name != null && mounted && name != agency.name) {
@@ -302,7 +302,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
       showLockedAction(
         context,
         action: action,
-        who: ownersOnly ? 'a team owner' : 'a team owner or manager',
+        who: ownersOnly ? t.aTeamOwner : t.aTeamOwnerOrManager,
         askNames: [
           for (final member in agency.members)
             if (member.active &&
@@ -336,7 +336,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
   Widget build(BuildContext context) => PopScope<void>(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Team')),
+      appBar: AppBar(title: Text(t.settingsTeam)),
       body: KiviloContent(
         child: RefreshIndicator(
           onRefresh: _refresh,
@@ -357,9 +357,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      '${agencyRoleLabel(agency.role)} · Agents see assigned tenancies. Owners and managers oversee the team portfolio.',
-                    ),
+                    Text(t.teamRoleSummary(agencyRoleLabel(agency.role))),
                   ],
                   if (_error != null || snapshot.hasError) ...[
                     const SizedBox(height: 16),
@@ -370,12 +368,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                     const SizedBox(height: kiviloButtonGap),
                     OutlinedButton(
                       onPressed: _busy ? null : _refresh,
-                      child: const Text('Try again'),
+                      child: Text(t.tryAgain),
                     ),
                   ],
                   if (agency != null) ...[
                     const SizedBox(height: 20),
-                    const KiviloSectionHeading(title: 'Team details'),
+                    KiviloSectionHeading(title: t.teamDetails),
                     const SizedBox(height: kiviloHeadingGap),
                     Card(
                       child: ListTile(
@@ -383,20 +381,20 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                           horizontal: 16,
                           vertical: 6,
                         ),
-                        title: const Text('Team name'),
+                        title: Text(t.teamName),
                         subtitle: Text(agency.name),
                         trailing: TextButton(
                           key: const Key('edit-team-name'),
                           onPressed: _busy ? null : () => _rename(agency),
-                          child: const Text('Edit'),
+                          child: Text(t.edit),
                         ),
                         onTap: _busy ? null : () => _rename(agency),
                       ),
                     ),
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'Report branding',
-                      subtitle: 'The team identity shown on its reports.',
+                    KiviloSectionHeading(
+                      title: t.settingsBranding,
+                      subtitle: t.theTeamIdentityShownOnItsReports,
                     ),
                     const SizedBox(height: kiviloHeadingGap),
                     Card(
@@ -417,7 +415,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                         title: Text(agency.name),
                         subtitle: Text(
                           agency.branding.agencyLicence == null
-                              ? 'Add agency licence and logo'
+                              ? t.addAgencyLicenceAndLogo
                               : 'Licence ${agency.branding.agencyLicence}',
                         ),
                         trailing: const Icon(Icons.chevron_right),
@@ -430,14 +428,12 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                           ? null
                           : agency.canManage
                           ? _invite
-                          : () => _locked(agency, 'Invite member'),
+                          : () => _locked(agency, t.teamInviteMember),
                       icon: const Icon(Icons.add),
-                      label: const Text('Invite member'),
+                      label: Text(t.teamInviteMember),
                     ),
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(
-                      title: 'Members and invitations',
-                    ),
+                    KiviloSectionHeading(title: t.teamMembersAndInvitations),
                     const SizedBox(height: kiviloHeadingGap),
                     for (final member in agency.members) ...[
                       Card(
@@ -448,14 +444,14 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                             [
                               if (member.email != null) member.email!,
                               '${agencyRoleLabel(member.role)} · ${member.active
-                                  ? 'Active'
+                                  ? t.teamMemberActive
                                   : member.status == 'INVITED'
-                                  ? 'Invitation pending'
-                                  : member.status.toLowerCase()}',
+                                  ? t.teamInvitationPending
+                                  : t.teamMemberRemoved}',
                               if (member.active)
-                                '${member.assignedTenancies} assigned ${member.assignedTenancies == 1 ? 'tenancy' : 'tenancies'}',
+                                '${member.assignedTenancies} assigned ${member.assignedTenancies == 1 ? t.tenancy : t.tenancies}',
                               if (!member.active && member.expiresAt != null)
-                                'Expires ${shortDate(member.expiresAt!)}',
+                                t.teamExpires(shortDate(member.expiresAt!)),
                             ].join('\n'),
                           ),
                           trailing: member.status != 'REMOVED'
@@ -475,12 +471,9 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                       const SizedBox(height: 10),
                     ],
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(title: 'Property assignments'),
+                    KiviloSectionHeading(title: t.propertyAssignments),
                     const SizedBox(height: kiviloHeadingGap),
-                    if (agency.tenancies.isEmpty)
-                      const Text(
-                        'No team properties yet. Choose this team when you start a check-in. You can also move an existing personal tenancy from Property access.',
-                      ),
+                    if (agency.tenancies.isEmpty) Text(t.teamNoProperties),
                     for (final tenancy in agency.tenancies) ...[
                       Card(
                         child: ListTile(
@@ -509,7 +502,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                     ],
                     if (agency.activity.isNotEmpty) ...[
                       const SizedBox(height: kiviloSectionGap),
-                      const KiviloSectionHeading(title: 'Recent activity'),
+                      KiviloSectionHeading(title: t.teamRecentActivity),
                       const SizedBox(height: kiviloHeadingGap),
                       for (final event in agency.activity)
                         ListTile(
@@ -541,8 +534,30 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
   );
 }
 
-String _activityLabel(String action) =>
-    action.toLowerCase().replaceAll('_', ' ');
+/// The server stores each event as an English phrase, or a code for property changes.
+String _activityLabel(String action) => switch (action) {
+  'Created team' => t.activityCreatedTeam,
+  'Invited member' => t.activityInvitedMember,
+  'Resent invitation' => t.activityResentInvitation,
+  'Revoked invitation' => t.activityRevokedInvitation,
+  'Removed member' => t.activityRemovedMember,
+  'Renamed team' => t.activityRenamedTeam,
+  'Joined team' => t.activityJoinedTeam,
+  'Declined invitation' => t.activityDeclinedInvitation,
+  'Reassigned departing member’s properties' => t.activityReassigned,
+  'Changed property assignments' => t.activityChangedAssignments,
+  'Added property to team' => t.activityAddedProperty,
+  'Added property collaborator' => t.activityAddedCollaborator,
+  'Removed property collaborator' => t.activityRemovedCollaborator,
+  'PROPERTY_ARCHIVE' => t.activityPropertyArchive,
+  'PROPERTY_UNARCHIVE' => t.activityPropertyUnarchive,
+  'PROPERTY_TRASH' => t.activityPropertyTrash,
+  'PROPERTY_RESTORE' => t.activityPropertyRestore,
+  _ when action.startsWith('Changed role to ') => t.activityChangedRole(
+    agencyRoleLabel(action.substring('Changed role to '.length).toUpperCase()),
+  ),
+  _ => action.toLowerCase().replaceAll('_', ' '),
+};
 
 Future<String?> _nameDrawer(
   BuildContext context, {
@@ -578,18 +593,18 @@ class _TeamNameDrawerState extends State<_TeamNameDrawer> {
       maxLength: 100,
       textCapitalization: TextCapitalization.words,
       onChanged: (_) => setState(() {}),
-      decoration: const InputDecoration(labelText: 'Team name'),
+      decoration: InputDecoration(labelText: t.teamName),
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _name.text.trim().isEmpty
             ? null
             : () => Navigator.pop(context, _name.text.trim()),
-        child: const Text('Save'),
+        child: Text(t.save),
       ),
     ],
   );
@@ -612,7 +627,7 @@ class _InviteDrawerState extends State<_InviteDrawer> {
 
   @override
   Widget build(BuildContext context) => KiviloDrawer(
-    title: const Text('Invite a colleague'),
+    title: Text(t.teamInviteColleague),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -623,29 +638,25 @@ class _InviteDrawerState extends State<_InviteDrawer> {
           textCapitalization: TextCapitalization.none,
           autocorrect: false,
           onChanged: (_) => setState(() {}),
-          decoration: const InputDecoration(labelText: 'Email address'),
+          decoration: InputDecoration(labelText: t.teamEmailAddress),
         ),
         const SizedBox(height: 16),
         KiviloSegmentedControl<String>(
           value: _role,
-          options: const [
-            KiviloSegmentOption(value: 'AGENT', label: 'Agent'),
-            KiviloSegmentOption(value: 'MANAGER', label: 'Manager'),
+          options: [
+            KiviloSegmentOption(value: 'AGENT', label: t.agent),
+            KiviloSegmentOption(value: 'MANAGER', label: t.roleManager),
           ],
           onChanged: (value) => setState(() => _role = value!),
         ),
         const SizedBox(height: 12),
-        Text(
-          _role == 'MANAGER'
-              ? 'Managers can see team tenancies, assign work and manage members.'
-              : 'Agents work on tenancies assigned to them. Other team records stay private.',
-        ),
+        Text(_role == 'MANAGER' ? t.teamManagerDetail : t.teamAgentDetail),
       ],
     ),
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _email.text.trim().isEmpty
@@ -654,7 +665,7 @@ class _InviteDrawerState extends State<_InviteDrawer> {
                 _email.text.trim().toLowerCase(),
                 _role,
               )),
-        child: const Text('Send invitation'),
+        child: Text(t.teamSendInvitation),
       ),
     ],
   );
@@ -685,9 +696,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
           if (member.email != null) Text(member.email!),
           const SizedBox(height: 16),
           if (!member.active) ...[
-            const Text(
-              'This invitation has not been accepted. It gives no access to team work.',
-            ),
+            Text(t.teamInvitationNotAccepted),
             const SizedBox(height: 12),
             OutlinedButton(
               onPressed: canChange
@@ -695,7 +704,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                       'action': 'resend',
                     })
                   : null,
-              child: const Text('Resend invitation'),
+              child: Text(t.teamResendInvitation),
             ),
             const SizedBox(height: kiviloButtonGap),
             OutlinedButton(
@@ -705,25 +714,23 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                     })
                   : null,
               style: kiviloDangerOutlined,
-              child: const Text('Revoke invitation'),
+              child: Text(t.teamRevokeInvitation),
             ),
           ] else if (_removing) ...[
-            Text(
-              'Remove ${member.name} from ${widget.agency.name}? Their agency access will stop. Saved work and authorship stay intact; personal properties are unaffected.',
-            ),
+            Text(t.teamRemoveConfirm(member.name, widget.agency.name)),
             if (member.assignedTenancies > 0) ...[
               const SizedBox(height: 16),
               Text(
-                'Reassign ${member.assignedTenancies} ${member.assignedTenancies == 1 ? 'tenancy' : 'tenancies'} before removing this member.',
+                'Reassign ${member.assignedTenancies} ${member.assignedTenancies == 1 ? t.tenancy : t.tenancies} before removing this member.',
               ),
               const SizedBox(height: 12),
               KiviloSelectField<String?>(
-                label: 'New responsible agent',
+                label: t.teamNewResponsibleAgent,
                 value: _replacement,
                 options: [
-                  const KiviloSelectOption<String?>(
+                  KiviloSelectOption<String?>(
                     value: null,
-                    label: 'Choose a member',
+                    label: t.teamChooseMember,
                   ),
                   for (final person in widget.agency.members.where(
                     (person) => person.active && person.id != member.id,
@@ -756,16 +763,14 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                   : null,
             ),
             const SizedBox(height: 12),
-            const Text(
-              'Owners manage the team. Managers oversee its portfolio. Agents work on assigned tenancies.',
-            ),
+            Text(t.teamRolesExplained),
             const SizedBox(height: 20),
             OutlinedButton(
               onPressed: canChange
                   ? () => setState(() => _removing = true)
                   : null,
               style: kiviloDangerOutlined,
-              child: const Text('Remove member'),
+              child: Text(t.teamRemoveMember),
             ),
           ],
         ],
@@ -773,7 +778,7 @@ class _MemberDrawerState extends State<_MemberDrawer> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         if (member.active && _removing)
           FilledButton(
@@ -784,14 +789,14 @@ class _MemberDrawerState extends State<_MemberDrawer> {
                     'reassignToId': ?_replacement,
                   }),
             style: kiviloDangerFilled,
-            child: const Text('Remove member'),
+            child: Text(t.teamRemoveMember),
           ),
         if (member.active && !_removing)
           FilledButton(
             onPressed: canChange && _role != member.role
                 ? () => Navigator.pop(context, <String, dynamic>{'role': _role})
                 : null,
-            child: const Text('Save role'),
+            child: Text(t.teamSaveRole),
           ),
       ],
     );

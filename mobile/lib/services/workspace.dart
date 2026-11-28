@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../l10n/l10n.dart';
 import '../models/agency.dart';
 import '../models/maintenance.dart';
 import 'api.dart';
@@ -91,7 +92,7 @@ class Workspace extends ChangeNotifier {
       throw ApiFailure(
         value == 'landlord' || value == 'tenant'
             ? 'Access changed. Refresh and try again.'
-            : 'Team access changed. Refresh and try again.',
+            : t.teamAccessChanged,
         404,
       );
     }

@@ -7,15 +7,17 @@ import { propertyLabel } from '@/lib/format'
 import { AddendumSection } from '@/components/addendum-section'
 import { AcknowledgeButton } from '@/components/acknowledge-button'
 import { MoveInDefectResponse } from '@/components/move-in-defect-response'
+import { formatDate, messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
-export const metadata: Metadata = {
-  title: 'Update to your condition report',
-  robots: { index: false, follow: false, nocache: true },
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: messages(await requestLocale(await currentStakeholder())).web.updates.pageTitle,
+    robots: { index: false, follow: false, nocache: true },
+  }
 }
-
-const dateFormat = new Intl.DateTimeFormat('en-SG', { dateStyle: 'long', timeZone: 'Asia/Singapore' })
 
 /// Where the "report was updated" email lands. Outside `(app)`, so it reads as a clean
 /// document like the shared report, but unlike it there is no bearer token: the reader
@@ -42,27 +44,32 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
     },
   })
   if (!row) notFound()
+  const locale = await requestLocale(viewer)
+  const m = messages(locale)
+  const w = m.pwa
+  const words = m.web.updates
   const { tenancy, conductedAt } = row.inspection
   const addendum = addendumView(row, tenancy)
-  const role = viewer.id === tenancy.landlordId ? 'Landlord' : viewer.id === tenancy.tenantId ? 'Tenant' : null
+  const role = viewer.id === tenancy.landlordId ? w.landlord : viewer.id === tenancy.tenantId ? w.tenant : null
   const mine = addendum.acknowledgements.find((ack) => ack.role === role)
   const isMoveInDefect = addendum.source === 'MOVE_IN_DEFECT'
   const checkOutComplete = row.inspection.checkOut?.status === 'COMPLETED'
 
   return (
     <article className="mx-auto max-w-3xl bg-white p-5 sm:p-10">
-      <header className="border-b border-gray-300 pb-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">Kivilo condition report</p>
+      <header lang={locale} className="border-b border-gray-300 pb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-brand-600">{words.eyebrow}</p>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">
-          {isMoveInDefect ? 'Move-in condition reported' : 'Update to the check-in report'}
+          {isMoveInDefect ? words.moveInTitle : words.updateTitle}
         </h1>
         <p className="mt-1 text-sm text-gray-600">{propertyLabel(tenancy.property)}</p>
         <p className="mt-3 text-sm text-gray-700">
-          The check-in report{conductedAt && ` of ${dateFormat.format(conductedAt)}`} was signed by{' '}
-          {tenancy.landlord.name} and {tenancy.tenant.name}.{' '}
-          {isMoveInDefect
-            ? 'The tenant has reported the condition below as present at move-in. It joins the agreed check-in once the landlord agrees; a dispute stays recorded separately.'
-            : 'Since then the agent has recorded the change below. It counts as part of the report once both of you have acknowledged it.'}
+          {words.signedBy(
+            conductedAt && formatDate(m, conductedAt, { dateStyle: 'long' }),
+            tenancy.landlord.name,
+            tenancy.tenant.name,
+          )}{' '}
+          {isMoveInDefect ? words.moveInBody : words.updateBody}
         </p>
       </header>
 
@@ -73,28 +80,29 @@ export default async function UpdatePage({ params }: PageProps<'/updates/[addend
       {/* Anyone else the read scope admits is the deal's agent or a teammate, on whose
           device a party who is present acknowledges in person. */}
       {!role && !isMoveInDefect && addendum.acknowledgements.filter((ack) => !ack.acknowledgedAt).map((ack) => (
-        <div key={ack.role} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
+        <div key={ack.role} lang={locale} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           <AcknowledgeButton
             addendumId={addendumId}
-            inPerson={{ stakeholderId: ack.stakeholderId, name: ack.name, role: ack.role }}
+            inPerson={{ stakeholderId: ack.stakeholderId, name: ack.name, role: m.party[ack.role === 'Landlord' ? 'LANDLORD' : 'TENANT'] }}
+            locale={locale}
           />
         </div>
       ))}
 
       {mine && !isMoveInDefect && (
-        <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
+        <div lang={locale} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           {mine.acknowledgedAt ? (
-            <p className="text-sm text-emerald-800">You have acknowledged this update.</p>
+            <p className="text-sm text-emerald-800">{words.acknowledged}</p>
           ) : (
-            <AcknowledgeButton addendumId={addendumId} />
+            <AcknowledgeButton addendumId={addendumId} locale={locale} />
           )}
         </div>
       )}
       {isMoveInDefect && role === 'Landlord' && !addendum.acknowledgedAt && !addendum.dispute && (
-        <div className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
+        <div lang={locale} className="mt-8 rounded-lg border border-gray-200 bg-gray-50 p-5 print:hidden">
           {checkOutComplete
-            ? <p className="text-sm text-gray-700">The check-out is already signed. This notice remains recorded with the check-in.</p>
-            : <MoveInDefectResponse addendumId={addendumId} />}
+            ? <p className="text-sm text-gray-700">{words.checkOutSigned}</p>
+            : <MoveInDefectResponse addendumId={addendumId} locale={locale} />}
         </div>
       )}
     </article>

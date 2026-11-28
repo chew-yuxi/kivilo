@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
+import '../models/inspection.dart' show itemConditionLabels;
 import '../models/report.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -57,8 +59,9 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -71,28 +74,28 @@ class _ReportScreenState extends State<ReportScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDrawerState) => KiviloDrawer(
-          title: const Text('Dispute move-in condition'),
+          title: Text(t.disputeMoveIn),
           content: TextField(
             autofocus: true,
             minLines: 3,
             maxLines: 6,
             maxLength: 2000,
-            decoration: const InputDecoration(
-              labelText: 'What do you disagree with?',
-              helperText: 'Your reason stays on the dated notice.',
+            decoration: InputDecoration(
+              labelText: t.disputeMoveInLabel,
+              helperText: t.disputeMoveInHelper,
             ),
             onChanged: (value) => setDrawerState(() => reason = value),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: reason.trim().isEmpty
                   ? null
                   : () => Navigator.pop(context, reason.trim()),
-              child: const Text('Record dispute'),
+              child: Text(t.recordDispute),
             ),
           ],
         ),
@@ -105,8 +108,9 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -123,21 +127,23 @@ class _ReportScreenState extends State<ReportScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text('Hand the phone to ${party.name}'),
+        title: Text(t.handPhoneTo(party.name)),
         content: Text(
-          '${party.name}, the ${party.role.toLowerCase()}, has read Update '
-          '${addendum.number}: ${addendum.title}. Tapping below records that they '
-          'acknowledged it in person, with the time and the exact content shown. It '
-          'is not a new signature on the report.',
+          t.acknowledgeInPersonBody(
+            party.name,
+            t.partyRole(party.role).toLowerCase(),
+            addendum.number,
+            addendum.title,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('I acknowledge this update'),
+            child: Text(t.acknowledgeUpdate),
           ),
         ],
       ),
@@ -149,8 +155,9 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _acknowledging = null);
@@ -178,30 +185,30 @@ class _ReportScreenState extends State<ReportScreen> {
           builder: (context, setDrawerState) => KiviloDrawer(
             title: Text(
               party == null
-                  ? 'Dispute the deductions'
-                  : '${party.name} disputes the deductions',
+                  ? t.disputeDeductions
+                  : t.partyDisputesDeductions(party.name),
             ),
             content: TextField(
               autofocus: true,
               minLines: 3,
               maxLines: 6,
               maxLength: 2000,
-              decoration: const InputDecoration(
-                labelText: 'What is disputed, and why?',
-                helperText: 'The reason is recorded beside the statement.',
+              decoration: InputDecoration(
+                labelText: t.disputeDeductionsLabel,
+                helperText: t.disputeDeductionsHelper,
               ),
               onChanged: (value) => setDrawerState(() => draft = value),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(t.cancel),
               ),
               FilledButton(
                 onPressed: draft.trim().isEmpty
                     ? null
                     : () => Navigator.pop(context, draft.trim()),
-                child: const Text('Record dispute'),
+                child: Text(t.recordDispute),
               ),
             ],
           ),
@@ -212,20 +219,21 @@ class _ReportScreenState extends State<ReportScreen> {
       final confirmed = await showKiviloDrawer<bool>(
         context: context,
         builder: (context) => KiviloDrawer(
-          title: Text('Hand the phone to ${party.name}'),
+          title: Text(t.handPhoneTo(party.name)),
           content: Text(
-            '${party.name}, the ${party.role.toLowerCase()}, has read the deposit '
-            'statement. Tapping below records that they agreed to the deductions in '
-            'person, with the time and the exact statement shown.',
+            t.agreeInPersonBody(
+              party.name,
+              t.partyRole(party.role).toLowerCase(),
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel'),
+              child: Text(t.cancel),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Agree to the deductions'),
+              child: Text(t.agreeDeductions),
             ),
           ],
         ),
@@ -245,8 +253,9 @@ class _ReportScreenState extends State<ReportScreen> {
       if (mounted) await _refresh();
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(plainError(error))));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(plainError(error))));
       }
     } finally {
       if (mounted) setState(() => _answering = false);
@@ -280,19 +289,16 @@ class _ReportScreenState extends State<ReportScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Deposit statement', style: text.titleSmall),
+            Text(t.depositStatement, style: text.titleSmall),
             const SizedBox(height: 8),
-            line('Deposit', amount(statement.deposit)),
+            line(t.deposit, amount(statement.deposit)),
             line(
-              'Deductions (${statement.deductedCount} of $findingCount '
-                  'findings, tenant liable)',
+              t.deductionsLine(statement.deductedCount, findingCount),
               '-${amount(statement.deductions)}',
             ),
             const Divider(),
             line(
-              statement.toReturn >= 0
-                  ? 'To return to the tenant'
-                  : 'Deductions exceed the deposit by',
+              statement.toReturn >= 0 ? t.toReturnToTenant : t.deductionsExceed,
               amount(statement.toReturn.abs()),
               bold: true,
             ),
@@ -302,13 +308,13 @@ class _ReportScreenState extends State<ReportScreen> {
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
                   [
-                    '${response.name} (${response.role.toLowerCase()}): ',
+                    '${response.name} (${t.partyRole(response.role).toLowerCase()}): ',
                     switch (response.answer) {
-                      'AGREED' => 'agreed',
-                      'DISPUTED' => 'disputed',
-                      _ => 'not answered yet',
+                      'AGREED' => t.answerAgreed,
+                      'DISPUTED' => t.answerDisputed,
+                      _ => t.answerNotYet,
                     },
-                    if (response.inPerson) ' in person',
+                    if (response.inPerson) t.inPersonSuffix,
                     if (response.respondedAt != null)
                       ', ${shortDate(response.respondedAt!)}',
                     if (response.reason != null) '. "${response.reason}"',
@@ -318,7 +324,7 @@ class _ReportScreenState extends State<ReportScreen> {
               ),
             const SizedBox(height: 6),
             Text(
-              'Kivilo records each answer. It does not hold or move the deposit.',
+              t.depositRecordsOnly,
               style: text.bodySmall?.copyWith(color: KiviloColors.muted),
             ),
             if (statement.answerAs != null) ...[
@@ -327,22 +333,23 @@ class _ReportScreenState extends State<ReportScreen> {
                 onPressed: _answering
                     ? null
                     : () => _answerStatement(report, assessment, agreed: true),
-                child: Text(
-                  _answering ? 'Recording…' : 'I agree to the deductions',
-                ),
+                child: Text(_answering ? t.recording : t.iAgreeDeductions),
               ),
               const SizedBox(height: kiviloButtonGap),
               OutlinedButton(
                 onPressed: _answering
                     ? null
                     : () => _answerStatement(report, assessment, agreed: false),
-                child: const Text('Dispute'),
+                child: Text(t.dispute),
               ),
             ],
             for (final party in statement.answerInPerson) ...[
               const SizedBox(height: 12),
               Text(
-                'In person: ${party.role.toLowerCase()} ${party.name}',
+                t.inPersonParty(
+                  t.partyRole(party.role).toLowerCase(),
+                  party.name,
+                ),
                 style: text.labelLarge,
               ),
               const SizedBox(height: 6),
@@ -359,7 +366,7 @@ class _ReportScreenState extends State<ReportScreen> {
                               party: party,
                             ),
                       icon: const Icon(Icons.handshake_outlined),
-                      label: const Text('Agrees'),
+                      label: Text(t.agrees),
                     ),
                   ),
                   const SizedBox(width: kiviloButtonGap),
@@ -373,7 +380,7 @@ class _ReportScreenState extends State<ReportScreen> {
                               agreed: false,
                               party: party,
                             ),
-                      child: const Text('Disputes'),
+                      child: Text(t.disputes),
                     ),
                   ),
                 ],
@@ -418,11 +425,11 @@ class _ReportScreenState extends State<ReportScreen> {
             toolbarHeight: 72,
             title: PageContextTitle(
               title: report == null
-                  ? 'Report'
+                  ? t.report
                   : report.isCheckOut
-                  ? 'Check-out report'
-                  : 'Check-in report',
-              contextLabel: report?.property ?? 'Property report',
+                  ? t.checkOutReport
+                  : t.checkInReport,
+              contextLabel: report?.property ?? t.propertyReport,
             ),
           ),
           body: KiviloContent(
@@ -448,8 +455,8 @@ class _ReportScreenState extends State<ReportScreen> {
                       onPressed: () => _sign(report),
                       child: Text(
                         report.signAs == 'LANDLORD'
-                            ? 'Sign as landlord'
-                            : 'Sign as tenant',
+                            ? t.signAsLandlord
+                            : t.signAsTenant,
                       ),
                     ),
                   ),
@@ -481,7 +488,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     borderRadius: BorderRadius.circular(99),
                   ),
                   child: Text(
-                    'Signed by both parties · ${shortDate(agreedAt)}',
+                    t.signedByBoth(shortDate(agreedAt)),
                     style: const TextStyle(
                       color: KiviloColors.green,
                       fontSize: 12,
@@ -499,7 +506,7 @@ class _ReportScreenState extends State<ReportScreen> {
           OutlinedButton(
             onPressed: () =>
                 showTenantHandover(context, inspectionId: report.id, api: _api),
-            child: const Text('Tenant handover'),
+            child: Text(t.tenantHandover),
           ),
           const SizedBox(height: 16),
         ],
@@ -509,21 +516,25 @@ class _ReportScreenState extends State<ReportScreen> {
             child: Wrap(
               runSpacing: 14,
               children: [
-                _fact('Landlord', report.landlord),
-                _fact('Tenant', report.tenant),
-                if (report.agent != null) _fact('Agent', report.agent!),
+                _fact(t.landlord, report.landlord),
+                _fact(t.tenant, report.tenant),
+                if (report.agent != null) _fact(t.agent, report.agent!),
                 _fact(
-                  'Tenancy Period',
-                  '${shortDate(report.startDate)} to ${shortDate(report.endDate)}',
+                  t.reportTenancyPeriod,
+                  t.dateRange(
+                    shortDate(report.startDate),
+                    shortDate(report.endDate),
+                  ),
                 ),
                 _fact(
-                  'Inspected',
+                  t.inspected,
                   [
                     if (report.conductedAt != null)
                       shortDate(report.conductedAt!)
                     else
-                      'Not recorded',
-                    if (report.conductedBy != null) 'by ${report.conductedBy}',
+                      t.notRecorded,
+                    if (report.conductedBy != null)
+                      t.byName(report.conductedBy!),
                   ].join(' '),
                 ),
               ],
@@ -534,7 +545,7 @@ class _ReportScreenState extends State<ReportScreen> {
           const SizedBox(height: kiviloSectionGap),
           KiviloSectionHeading(
             title: room.name,
-            subtitle: _count(room.items.length, 'item'),
+            subtitle: t.itemCount(room.items.length),
           ),
           const SizedBox(height: kiviloHeadingGap),
           _items(room),
@@ -544,7 +555,7 @@ class _ReportScreenState extends State<ReportScreen> {
           ],
         ],
         const SizedBox(height: kiviloSectionGap),
-        const KiviloSectionHeading(title: 'Agreed and signed'),
+        KiviloSectionHeading(title: t.agreedAndSigned),
         const SizedBox(height: kiviloHeadingGap),
         Card(
           child: Padding(
@@ -561,18 +572,16 @@ class _ReportScreenState extends State<ReportScreen> {
                   _signature(report.signatures[index]),
                 ],
                 if (report.signatures.isEmpty)
-                  Text('Not yet countersigned.', style: text.bodyMedium),
+                  Text(t.notCountersigned, style: text.bodyMedium),
               ],
             ),
           ),
         ),
         if (report.addenda.isNotEmpty) ...[
           const SizedBox(height: kiviloSectionGap),
-          const KiviloSectionHeading(
-            title: 'Updates since signing',
-            subtitle:
-                'Recorded beside the signed report, which they do not change. '
-                'Updates count once acknowledged. A move-in condition notice counts once the landlord accepts it.',
+          KiviloSectionHeading(
+            title: t.updatesSinceSigning,
+            subtitle: t.updatesSinceSigningDetail,
           ),
           for (final addendum in report.addenda) ...[
             const SizedBox(height: 10),
@@ -620,7 +629,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Widget _items(ReportRoom room) {
     final text = Theme.of(context).textTheme;
     if (room.items.isEmpty) {
-      return Text('Nothing recorded in this room.', style: text.bodyMedium);
+      return Text(t.nothingRecordedInRoom, style: text.bodyMedium);
     }
     return Card(
       child: Column(
@@ -654,7 +663,7 @@ class _ReportScreenState extends State<ReportScreen> {
                         if (room.items[index].meterReading != null) ...[
                           const SizedBox(height: 4),
                           Text(
-                            'Reading: ${room.items[index].meterReading}',
+                            t.readingValue(room.items[index].meterReading!),
                             style: text.bodySmall?.copyWith(
                               fontFamily: 'monospace',
                             ),
@@ -672,7 +681,8 @@ class _ReportScreenState extends State<ReportScreen> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    _titleCase(room.items[index].condition),
+                    itemConditionLabels[room.items[index].condition] ??
+                        _titleCase(room.items[index].condition),
                     style: text.labelMedium?.copyWith(
                       color: KiviloColors.muted,
                     ),
@@ -724,7 +734,7 @@ class _ReportScreenState extends State<ReportScreen> {
                     child: Image(
                       image: StoredNetworkImage(photo.posterUrl ?? photo.url),
                       fit: BoxFit.contain,
-                      semanticLabel: photo.note ?? '${room.name} photo',
+                      semanticLabel: photo.note ?? t.roomPhoto(room.name),
                       errorBuilder: (_, _, _) =>
                           const ColoredBox(color: KiviloColors.canvas),
                     ),
@@ -738,7 +748,7 @@ class _ReportScreenState extends State<ReportScreen> {
 
   Widget _caption(ReportPhoto photo) {
     final lines = [
-      [?photo.note, '${_count(photo.marks.length, 'area')} marked'].join(' · '),
+      [?photo.note, t.areasMarked(photo.marks.length)].join(' · '),
       for (var index = 0; index < photo.marks.length; index++)
         if (photo.marks[index]['note'] is String)
           '${index + 1}. ${photo.marks[index]['note']}',
@@ -755,7 +765,7 @@ class _ReportScreenState extends State<ReportScreen> {
   Future<void> _view(ReportPhoto photo) => Navigator.of(context).push<void>(
     MaterialPageRoute(
       builder: (_) => Scaffold(
-        appBar: AppBar(title: Text(photo.note ?? 'Photo')),
+        appBar: AppBar(title: Text(photo.note ?? t.photo)),
         backgroundColor: Colors.black,
         body: Center(
           child: InteractiveViewer(
@@ -784,13 +794,13 @@ class _ReportScreenState extends State<ReportScreen> {
             child: Image.memory(
               bytes,
               alignment: Alignment.centerLeft,
-              semanticLabel: 'Signature of ${signature.name}',
+              semanticLabel: t.signatureOf(signature.name),
             ),
           ),
         const SizedBox(height: 6),
         Text(signature.name, style: Theme.of(context).textTheme.titleSmall),
         Text(
-          'Signed ${shortDate(signature.signedAt)}',
+          t.signedOn(shortDate(signature.signedAt)),
           style: Theme.of(context).textTheme.bodySmall,
         ),
       ],
@@ -813,12 +823,16 @@ class _ReportScreenState extends State<ReportScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
-                'Updated ${shortDate(addendum.effectiveDate)} · Update ${addendum.number}'
-                '${addendum.dispute != null
-                    ? ' · Disputed'
-                    : pending
-                    ? ' · Pending acknowledgement'
-                    : ''}',
+                [
+                  t.updatedOn(
+                    shortDate(addendum.effectiveDate),
+                    addendum.number,
+                  ),
+                  if (addendum.dispute != null)
+                    t.verdictDisputed
+                  else if (pending)
+                    t.pendingAcknowledgement,
+                ].join(' · '),
                 style: const TextStyle(
                   color: KiviloColors.amber,
                   fontSize: 12,
@@ -831,20 +845,24 @@ class _ReportScreenState extends State<ReportScreen> {
             if (addendum.moveInDefect case final claim?) ...[
               const SizedBox(height: 6),
               Text(
-                'Tenant move-in condition · Reported ${shortDate(claim.reportedAt)} · Deadline ${calendarDate(claim.deadline)}',
+                t.moveInConditionLine(
+                  shortDate(claim.reportedAt),
+                  calendarDate(claim.deadline),
+                ),
                 style: text.bodySmall,
               ),
             ],
             if (addendum.dispute case final dispute?) ...[
               const SizedBox(height: 8),
               Text(
-                'Disputed by ${dispute.disputedBy} on ${shortDate(dispute.disputedAt)}',
+                t.disputedByOn(
+                  dispute.disputedBy,
+                  shortDate(dispute.disputedAt),
+                ),
                 style: text.titleSmall,
               ),
               Text(dispute.reason),
-              const Text(
-                'This notice is kept on the report and excluded from the agreed condition for check-out.',
-              ),
+              Text(t.disputedNoticeKept),
             ],
             if (addendum.reason != null) ...[
               const SizedBox(height: 4),
@@ -852,14 +870,19 @@ class _ReportScreenState extends State<ReportScreen> {
             ],
             const SizedBox(height: 4),
             Text(
-              'Published by ${addendum.publishedBy}, ${shortDate(addendum.publishedAt)}',
+              t.publishedByOn(
+                addendum.publishedBy,
+                shortDate(addendum.publishedAt),
+              ),
               style: text.bodySmall?.copyWith(color: KiviloColors.muted),
             ),
             for (final entry in addendum.entries) ...[
               const Divider(height: 24),
               Text(
                 addendum.isMoveInDefect
-                    ? 'Condition reported: ${entry.name ?? entry.targetName ?? 'Item'}'
+                    ? t.conditionReported(
+                        entry.name ?? entry.targetName ?? t.itemFallback,
+                      )
                     : entry.heading,
                 style: text.titleSmall,
               ),
@@ -871,7 +894,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   entry.change == 'REPLACED' &&
                   entry.targetIdentifier != null)
                 Text(
-                  'Was: ${entry.targetIdentifier}',
+                  t.wasValue(entry.targetIdentifier!),
                   style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
                 ),
               if (entry.identifier != null)
@@ -880,14 +903,18 @@ class _ReportScreenState extends State<ReportScreen> {
                   style: text.bodySmall?.copyWith(fontFamily: 'monospace'),
                 ),
               if (entry.condition != null)
-                Text(_titleCase(entry.condition!), style: text.labelMedium),
+                Text(
+                  itemConditionLabels[entry.condition!] ??
+                      _titleCase(entry.condition!),
+                  style: text.labelMedium,
+                ),
               if (entry.notes != null) ...[
                 const SizedBox(height: 4),
                 Text(entry.notes!, style: text.bodyMedium),
               ],
               if (entry.maintenanceTitle != null)
                 Text(
-                  'From the repair record: ${entry.maintenanceTitle}',
+                  t.fromRepairRecord(entry.maintenanceTitle!),
                   style: text.bodySmall,
                 ),
               if (entry.photos.isNotEmpty) ...[
@@ -950,7 +977,9 @@ class _ReportScreenState extends State<ReportScreen> {
                           ? () => _acknowledgeInPerson(addendum, ack)
                           : null,
                       icon: const Icon(Icons.handshake_outlined),
-                      label: Text('In person: ${ack.role} ${ack.name}'),
+                      label: Text(
+                        t.inPersonParty(t.partyRole(ack.role), ack.name),
+                      ),
                     ),
                   ),
             if (addendum.acknowledgeAs != null) ...[
@@ -961,10 +990,10 @@ class _ReportScreenState extends State<ReportScreen> {
                     : null,
                 child: Text(
                   _acknowledging == addendum.id
-                      ? 'Recording…'
+                      ? t.recording
                       : addendum.isMoveInDefect
-                      ? 'I agree this was present at move-in'
-                      : 'I acknowledge this update',
+                      ? t.agreePresentAtMoveIn
+                      : t.acknowledgeUpdate,
                 ),
               ),
             ],
@@ -974,7 +1003,7 @@ class _ReportScreenState extends State<ReportScreen> {
                 onPressed: _acknowledging == null
                     ? () => _dispute(addendum)
                     : null,
-                child: const Text('Dispute move-in condition'),
+                child: Text(t.disputeMoveIn),
               ),
             ],
           ],
@@ -996,11 +1025,11 @@ class _ReportScreenState extends State<ReportScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         KiviloSectionHeading(
-          title: 'Check-out assessment',
-          subtitle:
-              'Version ${assessment.version}, published '
-              '${shortDate(assessment.publishedAt)}. Separate from the signed '
-              'inventory above.',
+          title: t.checkOutAssessment,
+          subtitle: t.assessmentVersionLine(
+            assessment.version,
+            shortDate(assessment.publishedAt),
+          ),
         ),
         const SizedBox(height: kiviloHeadingGap),
         if (assessment.summary != null) ...[
@@ -1052,7 +1081,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   Text(finding.rationale, style: text.bodyMedium),
                   if (finding.photos.isNotEmpty) ...[
                     const SizedBox(height: 10),
-                    Text('Finding photos', style: text.labelMedium),
+                    Text(t.findingPhotos, style: text.labelMedium),
                     const SizedBox(height: 6),
                     Wrap(
                       spacing: 8,
@@ -1066,8 +1095,9 @@ class _ReportScreenState extends State<ReportScreen> {
                               children: [
                                 Semantics(
                                   button: true,
-                                  label:
-                                      'Open finding photo: ${photo.note ?? 'Photo'}',
+                                  label: t.openFindingPhoto(
+                                    photo.note ?? t.photo,
+                                  ),
                                   child: InkWell(
                                     onTap: () => _viewFindingPhoto(photo),
                                     child: SizedBox(
@@ -1097,7 +1127,7 @@ class _ReportScreenState extends State<ReportScreen> {
                   if (finding.maintenanceTitle != null) ...[
                     const SizedBox(height: 10),
                     Text(
-                      'Maintenance record: ${finding.maintenanceTitle}',
+                      t.maintenanceRecord(finding.maintenanceTitle!),
                       style: text.labelMedium,
                     ),
                     const SizedBox(height: 6),
@@ -1132,7 +1162,7 @@ class _ReportScreenState extends State<ReportScreen> {
       Navigator.of(context).push<void>(
         MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(title: Text(photo.note ?? 'Finding photo')),
+            appBar: AppBar(title: Text(photo.note ?? t.findingPhoto)),
             body: SafeArea(
               child: Center(
                 child: InteractiveViewer(
@@ -1152,14 +1182,12 @@ class _ReportScreenState extends State<ReportScreen> {
       );
 }
 
-String _count(int n, String noun) => '$n $noun${n == 1 ? '' : 's'}';
-
 String _titleCase(String value) =>
     value[0] + value.substring(1).toLowerCase().replaceAll('_', ' ');
 
 String _verdict(String verdict) => switch (verdict) {
-  'TENANT_LIABLE' => 'Tenant liable',
-  'FAIR_WEAR' => 'Fair wear and tear',
-  'DISPUTED' => 'Disputed',
-  _ => 'Undecided',
+  'TENANT_LIABLE' => t.verdictTenantLiable,
+  'FAIR_WEAR' => t.basisFairWear,
+  'DISPUTED' => t.verdictDisputed,
+  _ => t.verdictUndecided,
 };

@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -168,12 +169,12 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
   Widget build(BuildContext context) => PopScope(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Repair terms')),
+      appBar: AppBar(title: Text(t.repairTerms)),
       body: KiviloContent(
         child: _accessLost
             ? KiviloMessage(
                 icon: Icons.error_outline,
-                title: 'Could not open this agreement',
+                title: t.couldNotOpenThisAgreement,
                 body: _error!,
                 actionLabel: 'Try again',
                 onAction: _busy ? null : _analyze,
@@ -186,21 +187,19 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                     const SizedBox(height: 16),
                   ],
                   if (!_accessLost) ...[
-                    const Text(
-                      'Check the clause against the agreement before confirming the repair terms.',
-                    ),
+                    Text(t.checkTheClauseAgainstTheAgreementBefore),
                     const SizedBox(height: 12),
                     OutlinedButton(
                       onPressed: _busy ? null : _openFile,
-                      child: const Text('Open agreement'),
+                      child: Text(t.openAgreement),
                     ),
                     const SizedBox(height: 16),
                     if (_loading) const LinearProgressIndicator(),
                     if (_analysis case final analysis?) ...[
                       if (analysis.candidates.isNotEmpty) ...[
-                        const KiviloSectionHeading(
-                          title: 'Clauses to review',
-                          subtitle: 'Select a clause to fill in the details below',
+                        KiviloSectionHeading(
+                          title: t.clausesToReview,
+                          subtitle: t.selectAClauseToFillInThe,
                         ),
                         const SizedBox(height: kiviloHeadingGap),
                         for (final clause in analysis.candidates)
@@ -210,7 +209,8 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                             ),
                             child: Card(
                               child: ListTile(
-                                selected: _page.text == '${clause.page}' &&
+                                selected:
+                                    _page.text == '${clause.page}' &&
                                     _quote.text == clause.text,
                                 title: Text('Page ${clause.page}'),
                                 subtitle: Text(
@@ -225,7 +225,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                                       : Icons.circle_outlined,
                                   semanticLabel:
                                       _page.text == '${clause.page}' &&
-                                        _quote.text == clause.text
+                                          _quote.text == clause.text
                                       ? 'Selected clause'
                                       : 'Use clause',
                                 ),
@@ -242,9 +242,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                           ),
                         const SizedBox(height: 16),
                       ] else ...[
-                        const Text(
-                          'No clause was found in the readable text. Open the agreement and enter the source clause below.',
-                        ),
+                        Text(t.noClauseWasFoundInTheReadable),
                         const SizedBox(height: 16),
                       ],
                     ],
@@ -253,9 +251,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                       enabled: !_busy,
                       onChanged: (_) => setState(() {}),
                       keyboardType: TextInputType.number,
-                      decoration: const InputDecoration(
-                        labelText: 'Source page',
-                      ),
+                      decoration: InputDecoration(labelText: t.sourcePage),
                     ),
                     const SizedBox(height: 12),
                     TextField(
@@ -265,23 +261,21 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                       minLines: 4,
                       maxLines: 10,
                       maxLength: 12000,
-                      decoration: const InputDecoration(
-                        labelText: 'Clause text',
-                      ),
+                      decoration: InputDecoration(labelText: t.clauseText),
                     ),
                     const SizedBox(height: kiviloSectionGap),
-                    const KiviloSectionHeading(title: 'Repair rule'),
+                    KiviloSectionHeading(title: t.repairRule),
                     const SizedBox(height: kiviloHeadingGap),
                     KiviloSegmentedControl<String>(
                       value: _rule,
-                      options: const [
+                      options: [
                         KiviloSegmentOption(
                           value: 'FIRST_AMOUNT',
-                          label: 'First amount',
+                          label: t.firstAmount,
                         ),
                         KiviloSegmentOption(
                           value: 'OTHER',
-                          label: 'Another rule',
+                          label: t.anotherRule,
                         ),
                       ],
                       onChanged: _busy
@@ -297,7 +291,7 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                           decimal: true,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Tenant pays the first',
+                          labelText: t.tenantPaysTheFirst,
                           prefixText: '${currencySymbol(widget.currency)} ',
                           helperText: 'Per repair; landlord pays the rest',
                         ),
@@ -312,14 +306,14 @@ class _AgreementTermsScreenState extends State<AgreementTermsScreen> {
                       maxLength: 2000,
                       decoration: InputDecoration(
                         labelText: _rule == 'OTHER'
-                            ? 'Explain the repair rule'
-                            : 'Notes and exceptions (optional)',
+                            ? t.explainTheRepairRule
+                            : t.notesAndExceptionsOptional,
                       ),
                     ),
                     const SizedBox(height: 20),
                     FilledButton(
                       onPressed: _busy ? null : _confirm,
-                      child: Text(_busy ? 'Saving…' : 'Confirm repair terms'),
+                      child: Text(_busy ? t.saving : t.confirmRepairTerms),
                     ),
                   ],
                 ],

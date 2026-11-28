@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect } from 'react'
 import { reportError } from '@/lib/error-reporter'
+import { usePwa } from '@/components/locale'
 
 /// Server actions throw plain errors for the authorization failures in src/lib/auth.ts,
 /// and Next serialises those to a generic message in production rather than leaking the
@@ -15,6 +16,7 @@ export default function AppError({
   error: Error & { digest?: string }
   reset: () => void
 }) {
+  const w = usePwa()
   useEffect(() => {
     console.error('Unhandled error in app route:', error)
     reportError(error, 'boundary')
@@ -22,13 +24,12 @@ export default function AppError({
 
   return (
     <div className="mx-auto max-w-md py-16 text-center">
-      <h1 className="text-lg font-semibold">Something went wrong</h1>
+      <h1 className="text-lg font-semibold">{w.somethingWrong}</h1>
       <p className="mt-2 text-sm text-gray-600">
-        Nothing you captured is lost. Anything still waiting to upload is saved on this
-        device and will go up once this page is working again.
+        {w.nothingLost}
       </p>
       {error.digest && (
-        <p className="mt-3 font-mono text-xs text-gray-400">Reference {error.digest}</p>
+        <p className="mt-3 font-mono text-xs text-gray-400">{w.reference(error.digest)}</p>
       )}
       <div className="action-group mt-6 justify-center">
         <button
@@ -36,13 +37,13 @@ export default function AppError({
           onClick={reset}
           className="action-primary"
         >
-          Try again
+          {w.tryAgain}
         </button>
         <Link
           href="/inspections"
           className="action-secondary"
         >
-          All inspections
+          {w.allInspectionsLink}
         </Link>
       </div>
     </div>

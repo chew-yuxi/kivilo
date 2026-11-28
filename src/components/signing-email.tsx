@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react'
 import { emailSigningLink } from '@/lib/actions'
 import type { SigningEmailState } from '@/lib/report-email'
+import { useLocale, usePwa } from '@/components/locale'
+import { formatDate, messages } from '@/lib/i18n'
 
 /// Beside each party's signature: whether they have been emailed the signing link, and
 /// a button to send it again. Send emails it to both automatically.
@@ -19,18 +21,20 @@ export function SigningEmail({
   signingEmail: { state: SigningEmailState; at: Date } | null
   canSend: boolean
 }) {
+  const w = usePwa()
+  const m = messages(useLocale())
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
   const status = !email
-    ? 'No email on file'
+    ? w.noEmailOnFile
     : !signingEmail
-      ? `Not emailed (${email})`
+      ? w.notEmailed(email)
       : signingEmail.state === 'SENT'
-        ? `Signing link emailed to ${email}, ${signingEmail.at.toLocaleString('en-SG')}`
+        ? w.signingLinkEmailed(email, formatDate(m, signingEmail.at, { dateStyle: 'medium', timeStyle: 'short' }))
         : signingEmail.state === 'QUEUED'
-          ? `Emailing the signing link to ${email}…`
-          : `Could not email ${email}`
+          ? w.emailingSigningLink(email)
+          : w.couldNotEmail(email)
 
   return (
     <div className="mt-1.5 flex items-center justify-between gap-3 px-1 text-xs text-gray-500">
@@ -51,7 +55,7 @@ export function SigningEmail({
           }}
           className="action-secondary shrink-0 px-3 text-xs"
         >
-          {signingEmail ? 'Resend link' : 'Email signing link'}
+          {signingEmail ? w.resendLink : w.emailSigningLink}
         </button>
       )}
     </div>

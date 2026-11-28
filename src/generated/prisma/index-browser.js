@@ -130,6 +130,7 @@ exports.Prisma.StakeholderScalarFieldEnum = {
   authUserId: 'authUserId',
   country: 'country',
   teamId: 'teamId',
+  locale: 'locale',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

@@ -1,5 +1,7 @@
 import { Resend } from 'resend'
 import type { Country, ErrorEvent } from '@/generated/prisma'
+import { formatDate, type Messages } from '@/lib/i18n'
+import { en } from '@/lib/i18n/en'
 import { countryName } from '@/lib/country'
 
 /// Sign-in email, sent by us rather than by Supabase's dashboard templates.
@@ -28,32 +30,32 @@ function sender() {
 /// Deliberately contains no link. Sign-in is a code precisely because a link opens the
 /// phone's default browser and strands an installed PWA in Safari with no session, so a
 /// clickable shortcut here would quietly undo that decision.
-export function signInEmail(code: string) {
+export function signInEmail(code: string, m: Messages = en) {
+  const words = m.email.signIn
   return {
     /// The code leads the subject so it shows in a phone's notification preview and the
     /// agent does not have to leave the app to read it.
-    subject: `${code} is your Kivilo sign-in code`,
+    subject: words.subject(code),
     text: [
-      `Your Kivilo sign-in code is ${code}.`,
+      words.line(code),
       '',
-      'Enter it in the app to finish signing in. It expires in an hour and can only be used once.',
+      words.enterText,
       '',
-      'If you did not ask to sign in, you can ignore this email.',
+      words.ignore,
     ].join('\n'),
     html: `<!doctype html>
 <html>
   <body style="margin:0;padding:24px;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827">
     <div style="max-width:420px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:32px">
-      <h1 style="margin:0 0 8px;font-size:18px;font-weight:600">Your Kivilo sign-in code</h1>
+      <h1 style="margin:0 0 8px;font-size:18px;font-weight:600">${escapeHtml(words.heading)}</h1>
       <p style="margin:0 0 24px;font-size:14px;line-height:20px;color:#6b7280">
-        Enter this code in the app to finish signing in.
+        ${escapeHtml(words.enter)}
       </p>
       <div style="background:#fdf2f8;border:1px solid #fbcfe8;border-radius:10px;padding:20px;text-align:center">
         <span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:32px;font-weight:700;letter-spacing:8px;color:#be185d">${code}</span>
       </div>
       <p style="margin:24px 0 0;font-size:13px;line-height:19px;color:#6b7280">
-        It expires in an hour and can only be used once. If you did not ask to sign in,
-        you can ignore this email.
+        ${escapeHtml(words.expires)}
       </p>
     </div>
   </body>
@@ -61,21 +63,21 @@ export function signInEmail(code: string) {
   }
 }
 
-export async function sendSignInCode(to: string, code: string) {
-  const { subject, text, html } = signInEmail(code)
+export async function sendSignInCode(to: string, code: string, m: Messages = en) {
+  const { subject, text, html } = signInEmail(code, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text, html })
   if (error) throw new Error(`Resend refused the sign-in email: ${error.message}`)
 }
 
-export async function sendAccountDeletionComplete(to: string, requestId: string) {
+export async function sendAccountDeletionComplete(to: string, requestId: string, m: Messages = en) {
   const { error } = await resend().emails.send({
     from: sender(),
     to,
-    subject: 'Your Kivilo account deletion is complete',
+    subject: m.email.accountDeleted.subject,
     text: [
-      'Your Kivilo account has been deleted.',
+      m.email.accountDeleted.body,
       '',
-      'Data retained for other parties or a legal obligation remains subject to our published retention policy.',
+      m.email.accountDeleted.retained,
     ].join('\n'),
   }, { idempotencyKey: `account-deletion-${requestId}` })
   if (error) throw new Error(`Resend refused the account deletion email: ${error.message}`)
@@ -84,28 +86,30 @@ export async function sendAccountDeletionComplete(to: string, requestId: string)
 export async function sendMaintenanceNotification(
   to: string,
   notification: { id: string; title: string; body: string },
+  m: Messages = en,
 ) {
   const { error } = await resend().emails.send({
     from: sender(),
     to,
     subject: notification.title,
-    text: [notification.body, '', 'Open Kivilo to view the maintenance timeline and respond.'].join('\n'),
+    text: [notification.body, '', m.email.maintenanceFooter].join('\n'),
   }, { idempotencyKey: `maintenance-notification-${notification.id}` })
   if (error) throw new Error(`Resend refused the maintenance notification: ${error.message}`)
 }
 
-export function renewalReminderEmail(notification: { title: string; body: string }) {
+export function renewalReminderEmail(notification: { title: string; body: string }, m: Messages = en) {
   return {
     subject: notification.title,
-    text: [notification.body, '', 'Open Inspections in Kivilo to start the renewal, mark it as not renewing, or dismiss the reminder.'].join('\n'),
+    text: [notification.body, '', m.email.renewalFooter].join('\n'),
   }
 }
 
 export async function sendRenewalReminder(
   to: string,
   notification: { id: string; title: string; body: string },
+  m: Messages = en,
 ) {
-  const { subject, text } = renewalReminderEmail(notification)
+  const { subject, text } = renewalReminderEmail(notification, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
     idempotencyKey: `renewal-reminder-${notification.id}`,
   })
@@ -114,15 +118,15 @@ export async function sendRenewalReminder(
 
 /// Sharing names a verified mailbox; this link still requires the recipient's own
 /// sign-in and carries neither a session token nor a public report credential.
-export function propertySharedEmail(notification: { title: string; body: string; href: string }) {
+export function propertySharedEmail(notification: { title: string; body: string; href: string }, m: Messages = en) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')
   return {
     subject: notification.title,
     text: [notification.body, '',
-      `Open the property: ${new URL(notification.href, origin).href}`,
-      '', 'Sign in to Kivilo using the email address this message was sent to.',
-      'You can work on this tenancy together, including photos, inventories and repairs.',
+      m.email.propertyShared.open(new URL(notification.href, origin).href),
+      '', m.email.propertyShared.signIn,
+      m.email.propertyShared.together,
     ].join('\n'),
   }
 }
@@ -130,41 +134,42 @@ export function propertySharedEmail(notification: { title: string; body: string;
 export async function sendPropertySharedNotification(
   to: string,
   notification: { id: string; title: string; body: string; href: string },
+  m: Messages = en,
 ) {
-  const { subject, text } = propertySharedEmail(notification)
+  const { subject, text } = propertySharedEmail(notification, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
     idempotencyKey: `property-shared-${notification.id}`,
   })
   if (error) throw new Error(`Resend refused the property sharing email: ${error.message}`)
 }
 
-export function supportingDocumentEmail(notification: { title: string; body: string; href: string }) {
+export function supportingDocumentEmail(notification: { title: string; body: string; href: string }, m: Messages = en) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')
   return {
     subject: notification.title,
-    text: [notification.body, '', `Open supporting documents: ${new URL(notification.href, origin).href}`, '',
-      'Sign in using the email address this message was sent to.',
-      'Supporting documents are private tenancy paperwork and are separate from the condition report and signatures.',
+    text: [notification.body, '', `${m.documents.open}: ${new URL(notification.href, origin).href}`, '',
+      m.documents.signIn,
+      m.documents.privacy,
     ].join('\n'),
   }
 }
 
-export async function sendSupportingDocumentNotification(to: string, notification: { id: string; title: string; body: string; href: string }) {
-  const { subject, text } = supportingDocumentEmail(notification)
+export async function sendSupportingDocumentNotification(to: string, notification: { id: string; title: string; body: string; href: string }, m: Messages = en) {
+  const { subject, text } = supportingDocumentEmail(notification, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
     idempotencyKey: `supporting-document-${notification.id}`,
   })
   if (error) throw new Error(`Resend refused the supporting document email: ${error.message}`)
 }
 
-export function agencyInvitationEmail(notification: { title: string; body: string; href: string }) {
+export function agencyInvitationEmail(notification: { title: string; body: string; href: string }, m: Messages = en) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')
   return {
     subject: notification.title,
-    text: [notification.body, '', `Review invitation: ${new URL(notification.href, origin).href}`, '',
-      'Sign in using the email address this message was sent to. Joining does not share your personal properties.',
+    text: [notification.body, '', m.email.agencyInvitation.review(new URL(notification.href, origin).href), '',
+      m.email.agencyInvitation.signIn,
     ].join('\n'),
   }
 }
@@ -209,8 +214,8 @@ export async function sendCddRequest(to: string, notification: { id: string; tit
   if (error) throw new Error(`Resend refused the particulars request: ${error.message}`)
 }
 
-export async function sendAgencyInvitationNotification(to: string, notification: { id: string; title: string; body: string; href: string }) {
-  const { subject, text } = agencyInvitationEmail(notification)
+export async function sendAgencyInvitationNotification(to: string, notification: { id: string; title: string; body: string; href: string }, m: Messages = en) {
+  const { subject, text } = agencyInvitationEmail(notification, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
     idempotencyKey: `agency-invitation-${notification.id}`,
   })
@@ -219,19 +224,19 @@ export async function sendAgencyInvitationNotification(to: string, notification:
 
 /// To a landlord or tenant, when the agent publishes an update to their signed report.
 /// The link is the update page, which asks them to sign in, so it carries no credential.
-export function reportUpdateEmail(notification: { title: string; body: string; href: string }) {
+export function reportUpdateEmail(notification: { title: string; body: string; href: string }, m: Messages = en) {
   const origin = process.env.KIVILO_APP_URL
   if (!origin) throw new Error('KIVILO_APP_URL must be set')
   const link = new URL(notification.href, origin).href
   return {
-    subject: `${notification.title}, please review and acknowledge`,
+    subject: m.email.reportUpdate.subject(notification.title),
     text: [
       notification.body,
       '',
-      `Review and acknowledge it here: ${link}`,
+      m.email.reportUpdate.review(link),
       // A deposit statement links to the signing page and is answered on the web.
       ...(notification.href.startsWith('/updates/')
-        ? ['', 'You can also open the report in the Kivilo app and acknowledge it there.']
+        ? ['', m.email.reportUpdate.app]
         : []),
     ].join('\n'),
   }
@@ -240,8 +245,9 @@ export function reportUpdateEmail(notification: { title: string; body: string; h
 export async function sendReportUpdateNotification(
   to: string,
   notification: { id: string; title: string; body: string; href: string },
+  m: Messages = en,
 ) {
-  const { subject, text } = reportUpdateEmail(notification)
+  const { subject, text } = reportUpdateEmail(notification, m)
   const { error } = await resend().emails.send({ from: sender(), to, subject, text }, {
     idempotencyKey: `report-update-${notification.id}`,
   })
@@ -272,10 +278,11 @@ export type SignatureRequest = {
   id: string
   recipientName: string
   role: 'landlord' | 'tenant'
-  reportKind: 'Check-in' | 'Check-out'
+  reportKind: 'CHECK_IN' | 'CHECK_OUT'
   address: string
-  /// Who is asking: the agent, with their agency when they have set one.
-  from: string
+  /// Who is asking: the agent, and the agency when they have set one. Null when the
+  /// report names no agent.
+  from: { agent: string; agency: string | null } | null
   /// `/sign/[inspectionId]?email=...` on the app's origin. Not a credential: the page
   /// makes the reader sign in with a code sent to this same address before it shows
   /// anything.
@@ -285,22 +292,28 @@ export type SignatureRequest = {
 /// "Please review and sign". Unlike the sign-in email this one is a link, because its
 /// reader is a landlord or tenant who may have no app installed at all; the page it opens
 /// sits outside the installed PWA, so nobody is stranded in the wrong browser.
-export function signatureRequestEmail(request: SignatureRequest) {
-  const report = `${request.reportKind.toLowerCase()} report for ${request.address}`
+export function signatureRequestEmail(request: SignatureRequest, m: Messages = en) {
+  const words = m.email.signatureRequest
+  const report = m.email.reportName(request.reportKind, request.address)
+  const from = !request.from
+    ? m.email.yourAgent
+    : request.from.agency
+      ? m.email.agentOf(request.from.agent, request.from.agency)
+      : request.from.agent
   const lines = {
-    intro: `${request.from} has sent the ${report} for your signature, as ${request.role}.`,
-    signIn: 'You will be asked to sign in with a code emailed to this address, so only you can sign it. If you already use Kivilo, it is the same account.',
-    app: 'Prefer the app? Open the Kivilo app and sign in with this address. The report is there, awaiting your signature.',
-    after: 'Once both parties have signed, we will email you the signed report as a PDF.',
+    intro: words.intro(from, report, m.email.roleName[request.role]),
+    signIn: words.signIn,
+    app: words.app,
+    after: words.after,
   }
   return {
-    subject: `Please review and sign the ${report}`,
+    subject: words.subject(report),
     text: [
-      `Hello ${request.recipientName},`,
+      m.email.hello(request.recipientName),
       '',
       lines.intro,
       '',
-      'Review and sign it here:',
+      words.reviewHere,
       request.link,
       '',
       lines.signIn,
@@ -313,11 +326,11 @@ export function signatureRequestEmail(request: SignatureRequest) {
 <html>
   <body style="margin:0;padding:24px;background:#f9fafb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#111827">
     <div style="max-width:460px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:32px">
-      <h1 style="margin:0 0 8px;font-size:18px;font-weight:600">Please review and sign</h1>
+      <h1 style="margin:0 0 8px;font-size:18px;font-weight:600">${escapeHtml(words.heading)}</h1>
       <p style="margin:0 0 20px;font-size:14px;line-height:21px;color:#374151">
-        Hello ${escapeHtml(request.recipientName)}. ${escapeHtml(lines.intro)}
+        ${escapeHtml(m.email.hello(request.recipientName))} ${escapeHtml(lines.intro)}
       </p>
-      <a href="${escapeHtml(request.link)}" style="display:inline-block;background:#ec4899;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:8px">Review and sign</a>
+      <a href="${escapeHtml(request.link)}" style="display:inline-block;background:#ec4899;color:#ffffff;text-decoration:none;font-size:14px;font-weight:600;padding:10px 18px;border-radius:8px">${escapeHtml(words.button)}</a>
       <p style="margin:20px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.signIn)}</p>
       <p style="margin:12px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.app)}</p>
       <p style="margin:12px 0 0;font-size:13px;line-height:19px;color:#6b7280">${escapeHtml(lines.after)}</p>
@@ -327,8 +340,8 @@ export function signatureRequestEmail(request: SignatureRequest) {
   }
 }
 
-export async function sendSignatureRequest(to: string, request: SignatureRequest) {
-  const { subject, text, html } = signatureRequestEmail(request)
+export async function sendSignatureRequest(to: string, request: SignatureRequest, m: Messages = en) {
+  const { subject, text, html } = signatureRequestEmail(request, m)
   const { error } = await resend().emails.send(
     { from: sender(), to, subject, text, html },
     { idempotencyKey: `report-email-${request.id}` },
@@ -349,37 +362,32 @@ export type TenantHandover = {
   countersigned: boolean
 }
 
-export function tenantHandoverEmail(handover: TenantHandover) {
-  const deadline = handover.deadline && new Intl.DateTimeFormat('en-SG', {
-    dateStyle: 'long', timeZone: 'Asia/Singapore',
-  }).format(handover.deadline)
-  const period = deadline
-    ? `Your tenancy's ${handover.windowDays}-day move-in defect period ends on ${deadline}, at the end of the day in ${countryName(handover.country)}. If something was already wrong when you moved in, report it by that deadline.`
-    : 'An early move-in defect period is not enabled for this tenancy. You can still report repairs in the Kivilo app.'
-  const signed = handover.countersigned
-    ? 'Both parties have signed. Your signed report is sent separately as a PDF.'
-    : 'You have signed the check-in report. Once the landlord has also signed, we will email you the signed report as a PDF.'
+export function tenantHandoverEmail(handover: TenantHandover, m: Messages = en) {
+  const words = m.email.handover
+  const deadline = handover.deadline && formatDate(m, handover.deadline, { dateStyle: 'long' })
+  const period = deadline ? words.period(handover.windowDays, deadline, new Intl.DisplayNames([m.intl], { type: 'region' }).of(handover.country) ?? countryName(handover.country)) : words.noPeriod
+  const signed = handover.countersigned ? words.countersigned : words.tenantSigned
   return {
-    subject: `Your handover for ${handover.address}`,
+    subject: words.subject(handover.address),
     text: [
-      `Hello ${handover.recipientName},`,
+      m.email.hello(handover.recipientName),
       '',
       signed,
       '',
       period,
       '',
-      'Your report and handover details:',
+      words.details,
       handover.link,
       '',
-      'Sign in with a code emailed to this address. If you use the Kivilo app, sign in with the same address to find your tenancy and report a problem.',
+      words.signIn,
       '',
-      'A move-in defect report is your dated statement until the landlord acknowledges it. The signed check-in report stays unchanged.',
+      words.notice,
     ].join('\n'),
   }
 }
 
-export async function sendTenantHandover(to: string, handover: TenantHandover) {
-  const { subject, text } = tenantHandoverEmail(handover)
+export async function sendTenantHandover(to: string, handover: TenantHandover, m: Messages = en) {
+  const { subject, text } = tenantHandoverEmail(handover, m)
   const { error } = await resend().emails.send(
     { from: sender(), to, subject, text },
     { idempotencyKey: `report-email-${handover.id}` },
@@ -390,9 +398,9 @@ export async function sendTenantHandover(to: string, handover: TenantHandover) {
 export type SignedCopy = {
   id: string
   recipientName: string
-  reportKind: 'Check-in' | 'Check-out'
+  reportKind: 'CHECK_IN' | 'CHECK_OUT'
   address: string
-  signatures: { name: string; role: string; signedAt: Date }[]
+  signatures: { name: string; role: 'LANDLORD' | 'TENANT'; signedAt: Date }[]
 }
 
 /// The signed PDF itself, or, when it is too large to attach, the page the recipient
@@ -402,38 +410,32 @@ export type SignedCopy = {
 export type SignedCopyPdf = { filename: string; content: Buffer } | { link: string }
 
 /// "Both parties have signed", with the PDF attached, or linked when it is too large.
-export function signedCopyEmail(copy: SignedCopy, pdf: SignedCopyPdf) {
-  const report = `${copy.reportKind.toLowerCase()} report for ${copy.address}`
-  const when = new Intl.DateTimeFormat('en-SG', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-    timeZone: 'Asia/Singapore',
-  })
+export function signedCopyEmail(copy: SignedCopy, pdf: SignedCopyPdf, m: Messages = en) {
+  const words = m.email.signedCopy
+  const report = m.email.reportName(copy.reportKind, copy.address)
   const where = 'link' in pdf
-    ? [
-        `Both parties have signed the ${report}. The signed report is too large to attach, so download the PDF here and keep it with the tenancy documents:`,
-        pdf.link,
-        '',
-        'You will be asked to sign in with a code emailed to this address, so only you can open it.',
-      ]
-    : [`Both parties have signed the ${report}. The signed report is attached as a PDF; keep it with the tenancy documents.`]
+    ? [words.linked(report), pdf.link, '', words.linkSignIn]
+    : [words.attached(report)]
   return {
-    subject: `Signed: ${report}`,
+    subject: words.subject(report),
     text: [
-      `Hello ${copy.recipientName},`,
+      m.email.hello(copy.recipientName),
       '',
       ...where,
       '',
-      ...copy.signatures.map((signature) =>
-        `${signature.role}: ${signature.name}, signed ${when.format(signature.signedAt)}`),
+      ...copy.signatures.map((signature) => words.signature(
+        m.party[signature.role],
+        signature.name,
+        formatDate(m, signature.signedAt, { dateStyle: 'long', timeStyle: 'short' }),
+      )),
       '',
-      'Beside each signature the PDF prints a content fingerprint of the report that person signed, so any two copies can be compared.',
+      words.fingerprint,
     ].join('\n'),
   }
 }
 
-export async function sendSignedCopy(to: string, copy: SignedCopy, pdf: SignedCopyPdf) {
-  const { subject, text } = signedCopyEmail(copy, pdf)
+export async function sendSignedCopy(to: string, copy: SignedCopy, pdf: SignedCopyPdf, m: Messages = en) {
+  const { subject, text } = signedCopyEmail(copy, pdf, m)
   const { error } = await resend().emails.send(
     { from: sender(), to, subject, text, ...('content' in pdf && { attachments: [pdf] }) },
     // Its own key for the link, so a row whose attachment Resend refused as too large

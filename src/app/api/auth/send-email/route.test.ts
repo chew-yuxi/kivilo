@@ -3,12 +3,16 @@ import { Webhook } from 'standardwebhooks'
 
 const sendSignInCode = vi.fn()
 vi.mock('@/lib/email', () => ({ sendSignInCode: (...args: unknown[]) => sendSignInCode(...args) }))
+const findStakeholder = vi.fn()
+vi.mock('@/lib/db', () => ({ db: { stakeholder: { findUnique: (...args: unknown[]) => findStakeholder(...args) } } }))
 
 /// Any valid base64 works; Supabase stores it prefixed with `v1,whsec_`.
 const SECRET = 'c2VjcmV0LWtpdmlsby1zZW5kLWVtYWlsLWhvb2s='
 process.env.SEND_EMAIL_HOOK_SECRET = `v1,whsec_${SECRET}`
 
 const { POST } = await import('./route')
+const { en } = await import('@/lib/i18n/en')
+const { zh } = await import('@/lib/i18n/zh')
 
 function hookRequest(payload: unknown, { tamper = false } = {}) {
   const body = JSON.stringify(payload)
@@ -33,12 +37,15 @@ const signInPayload = {
 }
 
 describe('send-email hook', () => {
-  beforeEach(() => sendSignInCode.mockReset())
+  beforeEach(() => {
+    sendSignInCode.mockReset()
+    findStakeholder.mockReset().mockResolvedValue(null)
+  })
 
   it('sends the code for a signed sign-in request', async () => {
     const response = await POST(hookRequest(signInPayload))
     expect(response.status).toBe(200)
-    expect(sendSignInCode).toHaveBeenCalledWith('agent@kivilo.test', '418025')
+    expect(sendSignInCode).toHaveBeenCalledWith('agent@kivilo.test', '418025', en)
   })
 
   /// A first-time address arrives as `signup`, since the login form passes
@@ -47,7 +54,7 @@ describe('send-email hook', () => {
     const payload = { ...signInPayload, email_data: { token: '999111', email_action_type: 'signup' } }
     const response = await POST(hookRequest(payload))
     expect(response.status).toBe(200)
-    expect(sendSignInCode).toHaveBeenCalledWith('agent@kivilo.test', '999111')
+    expect(sendSignInCode).toHaveBeenCalledWith('agent@kivilo.test', '999111', en)
   })
 
   /// The shared secret is the only thing standing between Supabase and anyone who finds
@@ -64,5 +71,12 @@ describe('send-email hook', () => {
     const response = await POST(hookRequest(payload))
     expect(response.status).toBe(400)
     expect(sendSignInCode).not.toHaveBeenCalled()
+  })
+
+  it('writes the code in the language the person last used', async () => {
+    findStakeholder.mockResolvedValue({ locale: 'zh' })
+    await POST(hookRequest(signInPayload))
+    expect(findStakeholder).toHaveBeenCalledWith(expect.objectContaining({ where: { email: 'agent@kivilo.test' } }))
+    expect(sendSignInCode).toHaveBeenCalledWith('agent@kivilo.test', '418025', zh)
   })
 })

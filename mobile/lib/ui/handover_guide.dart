@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import 'kivilo_illustration.dart';
 import 'kivilo_theme.dart';
 
@@ -32,35 +33,27 @@ class _HandoverGuideState extends State<HandoverGuide> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'A handover, in three steps',
-                        style: text.titleMedium,
-                      ),
+                      Text(t.guideTitle, style: text.titleMedium),
                       const SizedBox(height: 4),
-                      Text(
-                        'Tap a step for a little guidance.',
-                        style: text.bodySmall,
-                      ),
+                      Text(t.guideDetail, style: text.bodySmall),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          for (final step in const [
+          for (final step in [
             (
               '01',
-              'Write what you see',
-              'Start with the room inventory.',
-              'Open a room and check its starter items. Add, edit or remove lines '
-                  'to match what you see, and record each item’s condition. On '
-                  'check-out, compare with the agreed check-in beside the inventory.',
+              t.guideStep1,
+              t.guideStep1Short,
+              t.guideStep1Body,
               KiviloScene.inventory,
             ),
             (
               '02',
-              'Capture the details',
-              'Open an item. Photograph its condition.',
+              t.guideStep2,
+              t.guideStep2Short,
               'Open an inventory item to take photos of wear, damage, meter readings '
                   'and serial labels. Each photo opens for marking and attaches to '
                   'that item when you save it. Use Room photos for room-wide photos. '
@@ -71,11 +64,9 @@ class _HandoverGuideState extends State<HandoverGuide> {
             ),
             (
               '03',
-              'Agree and sign',
-              'A shared record for both parties.',
-              'Let all captures finish uploading, then send for signature. Sending '
-                  'freezes the inventory. The landlord and tenant can sign on your '
-                  'phone or through their emailed link. Once both sign, the PDF is ready.',
+              t.guideStep3,
+              t.guideStep3Short,
+              t.guideStep3Body,
               KiviloScene.sign,
             ),
           ]) ...[

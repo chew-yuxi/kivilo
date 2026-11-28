@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import { db } from '@/lib/db'
 import { notificationCanBeDelivered } from '@/lib/notification-recipients'
 import { propertyHistory } from '@/lib/property-history'
+import { saveLocale } from '@/lib/language'
 import {
   addMaintenanceVisit,
   answerResponsibility,
@@ -52,6 +53,22 @@ afterAll(async () => {
 })
 
 describe('maintenance history', () => {
+  it('writes each notification in its recipient’s language', async () => {
+    const record = await fixture('languages')
+    await saveLocale(record.landlord.id, { locale: 'zh' })
+    await saveLocale(record.agent.id, { locale: 'th' })
+    await expect(saveLocale(record.agent.id, { locale: 'fr' })).rejects.toThrow()
+    await createMaintenanceCase(record.tenancy.id, record.tenant.id, {
+      category: 'PLUMBING', title: 'Leaking tap', description: 'The kitchen tap leaks.',
+    })
+    const rows = await db.notification.findMany({ where: { tenancyId: record.tenancy.id } })
+    const body = (id: string) => rows.find((row) => row.recipientId === id)?.body
+    expect(body(record.landlord.id)).toBe('M5 languages：有人报告了维修问题。')
+    expect(body(record.agent.id)).toBe('M5 languages: มีการแจ้งปัญหาการซ่อมบำรุง')
+    // What the reporter typed stays as they typed it.
+    expect(rows.every((row) => row.title === 'Leaking tap')).toBe(true)
+  })
+
   it('notifies current collaborators, excludes historical report-only access, and hides revoked messages', async () => {
     const record = await fixture('collaboration-notifications')
     const colleague = await db.stakeholder.create({ data: { name: 'M5 notification colleague' } })

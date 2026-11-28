@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../ui/kivilo_components.dart';
 import '../ui/kivilo_theme.dart';
@@ -28,8 +29,6 @@ class ResponsibilityCard extends StatelessWidget {
   final Future<void> Function(String proposalId, String decision, String? note)
   onAnswer;
 
-  String get _otherSide => role == 'TENANT' ? 'the landlord' : 'the tenant';
-
   Future<void> _propose(
     BuildContext context, {
     ResponsibilityProposal? from,
@@ -53,15 +52,14 @@ class ResponsibilityCard extends StatelessWidget {
     final accepted = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Accept this split?'),
+        title: Text(t.acceptSplitTitle),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _SummaryPanel(label: 'You are agreeing to', text: proposal.summary),
+            _SummaryPanel(label: t.youAreAgreeingTo, text: proposal.terms),
             const SizedBox(height: 12),
             Text(
-              'This becomes the agreement for this repair. Changing it later '
-              'takes a new proposal that both sides accept.',
+              t.acceptSplitBody,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],
@@ -69,11 +67,11 @@ class ResponsibilityCard extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Accept'),
+            child: Text(t.accept),
           ),
         ],
       ),
@@ -100,31 +98,36 @@ class ResponsibilityCard extends StatelessWidget {
     // The panels below say who is waiting on whom; the heading only says where
     // the case stands, so the two never repeat or contradict each other.
     final subtitle = agreement == null
-        ? 'Not agreed yet'
+        ? t.notAgreedYet
         : pending == null
-        ? 'Agreed by both sides'
-        : 'Agreed, change proposed';
+        ? t.agreedByBoth
+        : t.agreedChangeProposed;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            KiviloSectionHeading(title: 'Who pays', subtitle: subtitle),
+            KiviloSectionHeading(title: t.whoPays, subtitle: subtitle),
             const SizedBox(height: kiviloHeadingGap),
             if (responsibility.maintenanceTerms case final terms?) ...[
-              AgreementTermsView(terms: terms, currency: responsibility.currency),
+              AgreementTermsView(
+                terms: terms,
+                currency: responsibility.currency,
+              ),
               const SizedBox(height: kiviloHeadingGap),
             ],
             if (agreement != null) ...[
               _ProposalPanel(
                 tone: _Tone.agreed,
-                heading: 'Agreed',
+                heading: t.agreed,
                 proposal: agreement,
                 meta: agreement.respondedBy == null
-                    ? 'Proposed by ${agreement.proposedBy}'
-                    : 'Proposed by ${agreement.proposedBy}, '
-                          'accepted by ${agreement.respondedBy}',
+                    ? t.proposedBy(agreement.proposedBy)
+                    : t.proposedAcceptedBy(
+                        agreement.proposedBy,
+                        '${agreement.respondedBy}',
+                      ),
               ),
               if (responsibility.shares case final shares?
                   when shares.total != '0.00') ...[
@@ -137,20 +140,22 @@ class ResponsibilityCard extends StatelessWidget {
               _ProposalPanel(
                 tone: _Tone.pending,
                 heading: responsibility.canAnswer
-                    ? 'Your answer is needed'
+                    ? t.answerNeeded
                     : responsibility.canWithdraw
-                    ? 'Waiting for $_otherSide'
-                    : 'Waiting for an answer',
+                    ? (role == 'TENANT'
+                          ? t.waitingForLandlord
+                          : t.waitingForTenant)
+                    : t.waitingForAnswer,
                 proposal: pending,
                 meta: agreement == null
-                    ? '${partyLabels[pending.side]} proposes'
-                    : '${partyLabels[pending.side]} proposes a change',
+                    ? t.partyProposes('${partyLabels[pending.side]}')
+                    : t.partyProposesChange('${partyLabels[pending.side]}'),
               ),
               if (responsibility.canAnswer) ...[
                 const SizedBox(height: 12),
                 FilledButton(
                   onPressed: busy ? null : () => _accept(context, pending),
-                  child: const Text('Accept'),
+                  child: Text(t.accept),
                 ),
                 const SizedBox(height: kiviloButtonGap),
                 LayoutBuilder(
@@ -159,13 +164,11 @@ class ResponsibilityCard extends StatelessWidget {
                       onPressed: busy
                           ? null
                           : () => _propose(context, from: pending),
-                      child: const Text('Suggest a change'),
+                      child: Text(t.suggestAChange),
                     );
                     final reject = OutlinedButton(
-                      onPressed: busy
-                          ? null
-                          : () => _reject(context, pending),
-                      child: const Text('Reject'),
+                      onPressed: busy ? null : () => _reject(context, pending),
+                      child: Text(t.reject),
                     );
                     if (constraints.maxWidth < 280 ||
                         MediaQuery.textScalerOf(context).scale(15) > 20) {
@@ -196,7 +199,7 @@ class ResponsibilityCard extends StatelessWidget {
                     onPressed: busy
                         ? null
                         : () => onAnswer(pending.id, 'WITHDRAW', null),
-                    child: const Text('Withdraw proposal'),
+                    child: Text(t.withdrawProposal),
                   ),
                 ),
               ],
@@ -205,13 +208,12 @@ class ResponsibilityCard extends StatelessWidget {
               if (agreement != null) const SizedBox(height: 12),
               _ProposalPanel(
                 tone: _Tone.rejected,
-                heading: agreement == null
-                    ? 'Not agreed'
-                    : 'Proposed change not agreed',
+                heading: agreement == null ? t.notAgreed : t.changeNotAgreed,
                 proposal: rejection,
-                meta:
-                    '${rejection.respondedBy ?? 'The other side'} rejected '
-                    'what ${rejection.proposedBy} proposed',
+                meta: t.rejectedWhatProposed(
+                  rejection.respondedBy ?? t.theOtherSide,
+                  rejection.proposedBy,
+                ),
                 note: rejection.responseNote,
               ),
             ],
@@ -219,8 +221,7 @@ class ResponsibilityCard extends StatelessWidget {
               _Panel(
                 tone: _Tone.empty,
                 child: Text(
-                  'Agree who arranges this repair and who pays for it now, '
-                  'so it is not an argument at check-out.',
+                  t.agreeWhoPaysNow,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -233,10 +234,10 @@ class ResponsibilityCard extends StatelessWidget {
                 icon: const Icon(Icons.handshake_outlined),
                 label: Text(
                   agreement != null
-                      ? 'Propose a change'
+                      ? t.proposeChange
                       : rejection != null
-                      ? 'Make a new proposal'
-                      : 'Propose who pays',
+                      ? t.makeNewProposal
+                      : t.proposeWhoPays,
                 ),
               ),
             ],
@@ -322,7 +323,7 @@ class _ProposalPanel extends StatelessWidget {
           const SizedBox(height: 10),
           Text(meta, style: text.bodySmall),
           const SizedBox(height: 2),
-          Text(proposal.summary, style: text.titleMedium),
+          Text(proposal.terms, style: text.titleMedium),
           const SizedBox(height: 8),
           Text(
             why,
@@ -349,11 +350,11 @@ class _Shares extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     children: [
       for (final (label, amount) in [
-        ('Repair cost', shares.total),
-        ('Tenant', shares.tenant),
-        ('Landlord', shares.landlord),
+        (t.repairCost, shares.total),
+        (t.tenant, shares.tenant),
+        (t.landlord, shares.landlord),
       ]) ...[
-        if (label != 'Repair cost') const SizedBox(width: 8),
+        if (label != t.repairCost) const SizedBox(width: 8),
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -469,19 +470,17 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
   Widget build(BuildContext context) {
     final cap = _cap.text.trim();
     return KiviloDrawer(
-      title: Text(
-        widget.counter ? 'Suggest a different split' : 'Propose who pays',
-      ),
+      title: Text(widget.counter ? t.suggestDifferentSplit : t.proposeWhoPays),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const _FieldLabel('Who pays?'),
+          _FieldLabel(t.whoPaysQuestion),
           KiviloSegmentedControl<String>(
             value: _payer,
-            options: const [
-              KiviloSegmentOption(value: 'LANDLORD', label: 'Landlord'),
-              KiviloSegmentOption(value: 'TENANT', label: 'Tenant'),
-              KiviloSegmentOption(value: 'SHARED', label: 'Split'),
+            options: [
+              KiviloSegmentOption(value: 'LANDLORD', label: t.landlord),
+              KiviloSegmentOption(value: 'TENANT', label: t.tenant),
+              KiviloSegmentOption(value: 'SHARED', label: t.split),
             ],
             onChanged: (value) => setState(() => _payer = value!),
           ),
@@ -493,32 +492,32 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Tenant pays up to',
+                labelText: t.minorRepairCapLabel,
                 prefixText: '${currencySymbol(widget.currency)} ',
                 helperText:
                     widget.minorRepairCap != null &&
                         cap == widget.minorRepairCap
-                    ? "From this tenancy's minor repair cap"
-                    : 'Landlord pays anything above this',
+                    ? t.fromMinorRepairCap
+                    : t.landlordPaysAbove,
               ),
               onChanged: (_) => setState(() {}),
             ),
           ],
           const SizedBox(height: 20),
-          const _FieldLabel('Who arranges the repair?'),
+          _FieldLabel(t.whoArranges),
           KiviloSegmentedControl<String>(
             value: _arrangedBy,
-            options: const [
-              KiviloSegmentOption(value: 'LANDLORD', label: 'Landlord'),
-              KiviloSegmentOption(value: 'TENANT', label: 'Tenant'),
+            options: [
+              KiviloSegmentOption(value: 'LANDLORD', label: t.landlord),
+              KiviloSegmentOption(value: 'TENANT', label: t.tenant),
             ],
             onChanged: (value) => setState(() => _arrangedBy = value!),
           ),
           const SizedBox(height: 20),
-          const _FieldLabel('Why?'),
+          _FieldLabel(t.why),
           KiviloSelectField<String>(
-            label: 'Basis',
-            sheetTitle: 'Why this split?',
+            label: t.basis,
+            sheetTitle: t.whyThisSplit,
             value: _basis,
             options: [
               for (final entry in basisLabels.entries)
@@ -531,25 +530,23 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
             controller: _reason,
             minLines: 2,
             maxLines: 4,
-            decoration: const InputDecoration(
-              labelText: 'Explain in a sentence',
-              hintText: 'The other side sees this with your proposal',
+            decoration: InputDecoration(
+              labelText: t.explainSentence,
+              hintText: t.otherSideSees,
             ),
             onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _clause,
-            decoration: const InputDecoration(
-              labelText: 'Contract clause (optional)',
-              hintText: 'e.g. Clause 5(c)',
+            decoration: InputDecoration(
+              labelText: t.clauseOptional,
+              hintText: t.clauseHint,
             ),
           ),
           const SizedBox(height: 16),
           _SummaryPanel(
-            label: widget.counter
-                ? 'They will read your counter-offer as'
-                : 'They will read',
+            label: widget.counter ? t.theyReadCounter : t.theyRead,
             text: describeProposal(
               arrangedBy: _arrangedBy,
               payer: _payer,
@@ -562,7 +559,7 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(t.cancel),
         ),
         FilledButton(
           onPressed: _valid
@@ -577,7 +574,7 @@ class _ProposalDrawerState extends State<ProposalDrawer> {
                       : _clause.text.trim(),
                 })
               : null,
-          child: const Text('Send proposal'),
+          child: Text(t.sendProposal),
         ),
       ],
     );
@@ -603,23 +600,20 @@ class _RejectDrawerState extends State<_RejectDrawer> {
 
   @override
   Widget build(BuildContext context) => KiviloDrawer(
-    title: const Text('Reject this proposal'),
+    title: Text(t.rejectProposalTitle),
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SummaryPanel(
-          label: 'You are rejecting',
-          text: widget.proposal.summary,
-        ),
+        _SummaryPanel(label: t.youAreRejecting, text: widget.proposal.terms),
         const SizedBox(height: 12),
         TextField(
           controller: _note,
           autofocus: true,
           minLines: 2,
           maxLines: 4,
-          decoration: const InputDecoration(
-            labelText: 'Why not?',
-            hintText: 'Required. The other side sees this.',
+          decoration: InputDecoration(
+            labelText: t.whyNot,
+            hintText: t.whyNotHint,
           ),
           onChanged: (_) => setState(() {}),
         ),
@@ -628,13 +622,13 @@ class _RejectDrawerState extends State<_RejectDrawer> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _note.text.trim().isEmpty
             ? null
             : () => Navigator.pop(context, _note.text.trim()),
-        child: const Text('Reject'),
+        child: Text(t.reject),
       ),
     ],
   );

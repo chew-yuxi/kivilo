@@ -1,3 +1,4 @@
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 import { randomUUID } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
@@ -116,12 +117,11 @@ export async function requestSupportingDocument(tenancyId: string, actorId: stri
       propertyId: tenancy.propertyId, tenancyId, inspectionId: null, actorId,
       kind: 'SUPPORTING_DOCUMENT_REQUESTED', summary: 'requested a supporting document',
     })
-    if ((await activeNotificationRecipients(tx, [tenancy.tenantId])).length) await tx.notification.create({ data: {
-      recipientId: tenancy.tenantId, tenancyId, kind: 'SUPPORTING_DOCUMENT_REQUESTED',
-      title: 'Supporting document requested',
-      body: `${input.title} was requested for ${propertyLabel(tenancy.property)}. You can upload it in Kivilo. This does not hold up signing.`,
+    if ((await activeNotificationRecipients(tx, [tenancy.tenantId])).length) await tx.notification.createMany({ data: await inRecipientLanguage(tx, [{
+      recipientId: tenancy.tenantId, tenancyId, kind: 'SUPPORTING_DOCUMENT_REQUESTED' as const,
+      words: (m: Messages) => ({ title: m.documents.requestedTitle, body: m.documents.requested(input.title, propertyLabel(tenancy.property)) }),
       href: `/tenancies/${tenancyId}/documents?requestId=${request.id}`, dedupeKey: `supporting-document-request:${request.id}`,
-    } })
+    }]) })
   })
   revalidatePath(`/tenancies/${tenancyId}/documents`)
   return supportingDocumentsWorkspace(tenancyId, actorId)
@@ -204,12 +204,11 @@ export async function registerSupportingDocumentFile(tenancyId: string, requestI
     })
     // A requester may have left the tenancy since asking. Do not rebuild their inbox.
     if (request.kind === 'SUPPORTING' && await tx.tenancy.findFirst({ where: { id: tenancyId, AND: [actsAsAgent(request.requestedById)] }, select: { id: true } }) &&
-        (await activeNotificationRecipients(tx, [request.requestedById])).length) await tx.notification.create({ data: {
-      recipientId: request.requestedById, tenancyId, kind: 'SUPPORTING_DOCUMENT_UPLOADED',
-      title: 'Supporting document submitted',
-      body: `${request.title} was submitted for ${propertyLabel(tenancy.property)}.`,
+        (await activeNotificationRecipients(tx, [request.requestedById])).length) await tx.notification.createMany({ data: await inRecipientLanguage(tx, [{
+      recipientId: request.requestedById, tenancyId, kind: 'SUPPORTING_DOCUMENT_UPLOADED' as const,
+      words: (m: Messages) => ({ title: m.documents.submittedTitle, body: m.documents.submitted(request.title, propertyLabel(tenancy.property)) }),
       href: `/tenancies/${tenancyId}/documents?requestId=${request.id}`, dedupeKey: `supporting-document-file:${file.id}`,
-    } })
+    }]) })
     return file.id
   })
   revalidatePath(`/tenancies/${tenancyId}/documents`)

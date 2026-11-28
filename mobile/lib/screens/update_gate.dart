@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api_failure.dart';
 import '../services/patch_update.dart';
 import '../ui/kivilo_components.dart';
@@ -131,14 +132,14 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                   const Center(child: KiviloMark(size: 68)),
                   const SizedBox(height: 48),
                   Text(
-                    _ready ? 'Update ready' : 'Update Kivilo',
+                    _ready ? t.updateReady : t.updateKivilo,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _ready
-                        ? 'The update is downloaded and will take effect the next time Kivilo starts. You can keep working now.'
-                        : 'A Kivilo update is available. Download it now or keep working and update later.',
+                        ? t.theUpdateIsDownloadedAndWillTake
+                        : t.aKiviloUpdateIsAvailableDownloadIt,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   if (_error != null) ...[
@@ -153,21 +154,23 @@ class _PatchUpdateRequiredState extends State<_PatchUpdateRequired> {
                   ],
                   const SizedBox(height: 24),
                   FilledButton(
-                    onPressed: _installing ? null : _ready ? widget.onContinue : _install,
+                    onPressed: _installing
+                        ? null
+                        : _ready
+                        ? widget.onContinue
+                        : _install,
                     child: _installing
                         ? const SizedBox.square(
                             dimension: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : Text(
-                            _ready ? 'Continue' : 'Update',
-                          ),
+                        : Text(_ready ? t.labelContinue : t.update),
                   ),
                   if (!_ready) ...[
                     const SizedBox(height: 12),
                     OutlinedButton(
                       onPressed: _installing ? null : widget.onContinue,
-                      child: const Text('Not now'),
+                      child: Text(t.notNow),
                     ),
                   ],
                 ],
@@ -201,19 +204,16 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
     } catch (error) {
       debugPrint('store link error: $error');
       if (mounted) {
-        setState(
-          () => _error =
-              'Could not open the store. Search for Kivilo in it instead.',
-        );
+        setState(() => _error = t.updateStoreFailed);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final store = defaultTargetPlatform == TargetPlatform.iOS
-        ? 'the App Store'
-        : 'Google Play';
+    final openStore = defaultTargetPlatform == TargetPlatform.iOS
+        ? t.updateOpenAppStore
+        : t.updateOpenGooglePlay;
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -228,13 +228,12 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
                   const Center(child: KiviloMark(size: 68)),
                   const SizedBox(height: 48),
                   Text(
-                    'Update Kivilo',
+                    t.updateKivilo,
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'This version is no longer supported. Photos and videos already on '
-                    'this phone are kept and finish uploading after the update.',
+                    t.updateRequiredBody,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   if (_error != null) ...[
@@ -248,10 +247,7 @@ class _UpdateRequiredState extends State<_UpdateRequired> {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  FilledButton(
-                    onPressed: _openStore,
-                    child: Text('Open $store'),
-                  ),
+                  FilledButton(onPressed: _openStore, child: Text(openStore)),
                 ],
               ),
             ),

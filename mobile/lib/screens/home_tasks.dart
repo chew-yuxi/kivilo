@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/home_tasks.dart';
@@ -44,7 +45,7 @@ Future<void> openHomeTask(BuildContext context, Api api, HomeTask task) async {
     final screen = await notificationScreen(task.href, api);
     if (screen == null) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Open this on the Kivilo website.')),
+        SnackBar(content: Text(t.openThisOnTheKiviloWebsite)),
       );
       return;
     }
@@ -125,6 +126,7 @@ class HomeTaskSection extends StatelessWidget {
   final bool truncated;
   final ValueChanged<HomeTask> onOpen;
   final VoidCallback onViewAll;
+
   /// Already shown in Home's inspection shortcut; keep it in the total and View all.
   final String? excludedTaskId;
   final int limit;
@@ -160,10 +162,7 @@ class HomeTaskSection extends StatelessWidget {
         ),
         if (tasks.length > limit || truncated) ...[
           const SizedBox(height: 8),
-          TextButton(
-            onPressed: onViewAll,
-            child: Text('View all $count'),
-          ),
+          TextButton(onPressed: onViewAll, child: Text('View all $count')),
         ],
       ],
     );
@@ -213,7 +212,7 @@ class _HomeTaskListScreenState extends State<HomeTaskListScreen> {
             if (snapshot.hasError) {
               return KiviloMessage(
                 icon: Icons.cloud_off_outlined,
-                title: 'Could not load your tasks',
+                title: t.couldNotLoadYourTasks,
                 body: plainError(snapshot.error!),
                 actionLabel: 'Try again',
                 onAction: _refresh,
@@ -225,9 +224,9 @@ class _HomeTaskListScreenState extends State<HomeTaskListScreen> {
             final data = snapshot.data!;
             final tasks = data.group(widget.group);
             if (tasks.isEmpty) {
-              return const KiviloMessage(
+              return KiviloMessage(
                 icon: Icons.check_circle_outline,
-                title: 'Nothing here now',
+                title: t.nothingHereNow,
                 body: 'Everything in this list has been dealt with.',
               );
             }
@@ -236,27 +235,24 @@ class _HomeTaskListScreenState extends State<HomeTaskListScreen> {
               padding: kiviloScreenPadding,
               children: [
                 Card(
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < tasks.length; i++) ...[
-                          if (i > 0) const Divider(height: 1),
-                          HomeTaskRow(
-                            task: tasks[i],
-                            onTap: () => _open(tasks[i]),
-                          ),
-                        ],
+                  clipBehavior: Clip.antiAlias,
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < tasks.length; i++) ...[
+                        if (i > 0) const Divider(height: 1),
+                        HomeTaskRow(
+                          task: tasks[i],
+                          onTap: () => _open(tasks[i]),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
+                ),
                 if (data.truncated) ...[
                   const SizedBox(height: 12),
-                  const KiviloNotice(
+                  KiviloNotice(
                     tone: KiviloTone.info,
-                    child: Text(
-                      'There is more than one screen of work. Finish some of '
-                      'these, or open Properties to see every record.',
-                    ),
+                    child: Text(t.thereIsMoreThanOneScreenOf),
                   ),
                 ],
               ],

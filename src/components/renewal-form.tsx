@@ -4,6 +4,7 @@ import { TenancyPeriodFields } from './tenancy-period-fields'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createRenewal } from '@/lib/renewal-actions'
+import { usePwa } from '@/components/locale'
 
 export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, currency, collaboratorNames }: {
   tenancyId: string; startDate: string; monthlyRent: string; deposit: string
@@ -11,6 +12,7 @@ export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, curren
   currency: string
   collaboratorNames: string[]
 }) {
+  const w = usePwa()
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -30,7 +32,7 @@ export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, curren
         })
         router.push(`/inspections/${id}`)
       } catch {
-        setError('Could not create the renewal. Check that the dates follow the current tenancy and that the amounts are valid.')
+        setError(w.renewalFailed)
       }
     })
   }
@@ -38,25 +40,25 @@ export function RenewalForm({ tenancyId, startDate, monthlyRent, deposit, curren
   return (
     <form onSubmit={submit} className="mt-6 space-y-5">
       <TenancyPeriodFields initialStart={startDate} minimumStart={startDate} field={field} />
-      <label className="block text-sm">Monthly rent ({currency})<input name="monthlyRent" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={monthlyRent} className={field} /></label>
-      <label className="block text-sm">Deposit ({currency})<input name="deposit" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={deposit} className={field} /></label>
+      <label className="block text-sm">{w.monthlyRentLabel(currency)}<input name="monthlyRent" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={monthlyRent} className={field} /></label>
+      <label className="block text-sm">{w.deposit(currency)}<input name="deposit" required inputMode="decimal" pattern="[0-9]{1,8}(\.[0-9]{1,2})?" defaultValue={deposit} className={field} /></label>
       <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
-        <p className="text-sm font-medium">Access to the new tenancy</p>
+        <p className="text-sm font-medium">{w.newTenancyAccess}</p>
         <p className="text-sm text-gray-600">
           {collaboratorNames.length > 0
-            ? 'The new tenancy is private unless you choose to keep sharing it.'
-            : 'The renewal starts private. You can share it with collaborators after creating it.'}
+            ? w.renewalPrivateUnless
+            : w.renewalStartsPrivate}
         </p>
         {collaboratorNames.length > 0 && (
           <label className="flex min-h-11 items-start gap-3 text-sm">
             <input type="checkbox" name="keepCollaborators" disabled={pending} className="mt-0.5 size-5 shrink-0 accent-brand-500" />
-            <span className="break-words">Keep sharing this renewal with {collaboratorNames.join(', ')}</span>
+            <span className="break-words">{w.keepSharing(collaboratorNames.join(w.listSeparator))}</span>
           </label>
         )}
       </div>
-      <p className="text-xs text-gray-500">Confirm these terms with both parties first. This creates a new tenancy and a draft check-in for the same property, landlord and tenant.</p>
+      <p className="text-xs text-gray-500">{w.renewalConfirm}</p>
       {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
-      <button disabled={pending} type="submit" className="action-primary">{pending ? 'Creating…' : 'Create renewal check-in'}</button>
+      <button disabled={pending} type="submit" className="action-primary">{pending ? w.creating : w.createRenewal}</button>
     </form>
   )
 }

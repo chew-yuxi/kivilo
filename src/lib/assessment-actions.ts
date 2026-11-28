@@ -11,6 +11,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { assessmentSnapshotSchema, depositStatement } from '@/lib/assessment-schema'
 import { toAnnotations } from '@/lib/annotations'
 import { assertFindingPhotoDraftsReady } from '@/lib/finding-photos'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 /// Publishing is an explicit human review step. The signed inventory remains frozen;
 /// this is a separately dated assessment that can only be superseded by a new version.
@@ -151,15 +152,17 @@ export async function publishAssessment(
     const { landlordId, tenantId, property } = inspection.tenancy
     const recipients = await activeNotificationRecipients(tx, [landlordId, tenantId])
     await tx.notification.createMany({
-      data: recipients.map((recipientId) => ({
+      data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
         recipientId,
         tenancyId: inspection.tenancyId,
         kind: 'REPORT_UPDATED' as const,
-        title: `Deposit statement for ${propertyLabel(property)}`,
-        body: `The check-out assessment proposes deductions of ${money(statement.deductions, property.country)} from the deposit of ${money(statement.deposit, property.country)}. Agree or dispute it.`,
+        words: (m: Messages) => ({
+          title: m.notification.depositTitle(propertyLabel(property)),
+          body: m.notification.depositBody(money(statement.deductions, property.country), money(statement.deposit, property.country)),
+        }),
         href: `/sign/${inspectionId}`,
         dedupeKey: `deposit-statement:${version.id}:${recipientId}`,
-      })),
+      }))),
       skipDuplicates: true,
     })
     return version

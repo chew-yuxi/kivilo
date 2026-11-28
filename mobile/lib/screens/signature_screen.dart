@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../services/api.dart';
 import '../services/capture_queue.dart';
 import '../services/saved_signature.dart';
@@ -86,7 +87,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
               .skip(1)
               .any((point) => (point - stroke.first).distanceSquared > 25),
         )) {
-      setState(() => _error = 'Draw a signature first.');
+      setState(() => _error = t.drawSignatureFirst);
       return;
     }
     setState(() {
@@ -110,11 +111,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
           await queue.close();
         }
         if (pending.captures > 0 || pending.edits > 0) {
-          throw const ApiFailure(
-            'Some photos, videos or changes have not uploaded yet. Go back to the '
-            'rooms and tap Retry uploads before either person signs.',
-            null,
-          );
+          throw ApiFailure(t.uploadBeforeSigning, null);
         }
       }
       var png = savedPng;
@@ -153,109 +150,108 @@ class _SignatureScreenState extends State<SignatureScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text('${widget.role} signature')),
-    body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: kiviloScreenPadding,
-      children: [
-        Text(widget.name, style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: 8),
-        Text(
-          widget.stakeholderId == null
-              ? 'Your signature confirms that the report you just read '
-                    'records the property as it was handed over.'
-              : 'Review the agreed inventory with this person before they sign. '
-                    'Their signature confirms the report as shown.',
-        ),
-        const SizedBox(height: 16),
-        if (_reading)
-          const SizedBox(
-            height: 180,
-            child: Center(child: CircularProgressIndicator()),
-          )
-        else if (_saved case final saved?) ...[
-          _SignatureFrame(child: Image.memory(saved, fit: BoxFit.contain)),
+    appBar: AppBar(title: Text(t.roleSignature(t.partyRole(widget.role)))),
+    body: KiviloContent(
+      maxWidth: 720,
+      child: ListView(
+        padding: kiviloScreenPadding,
+        children: [
+          Text(widget.name, style: Theme.of(context).textTheme.headlineMedium),
+          const SizedBox(height: 8),
+          Text(
+            widget.stakeholderId == null
+                ? t.ownSignatureConfirms
+                : t.partySignatureConfirms,
+          ),
           const SizedBox(height: 16),
-          if (_error != null)
-            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
-          FilledButton(
-            onPressed: _busy ? null : () => _sign(saved),
-            child: Text(_busy ? 'Saving…' : 'Use this signature'),
-          ),
-          const SizedBox(height: kiviloButtonGap),
-          TextButton(
-            onPressed: _busy
-                ? null
-                : () => setState(() {
-                    _saved = null;
-                    _error = null;
-                  }),
-            child: const Text('Draw a new one'),
-          ),
-        ] else ...[
-          _SignatureFrame(
-            child: RawGestureDetector(
-              behavior: HitTestBehavior.opaque,
-              gestures: {
-                EagerGestureRecognizer:
-                    GestureRecognizerFactoryWithHandlers<
-                      EagerGestureRecognizer
-                    >(() => EagerGestureRecognizer(), (_) {}),
-              },
-              child: Listener(
+          if (_reading)
+            const SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_saved case final saved?) ...[
+            _SignatureFrame(child: Image.memory(saved, fit: BoxFit.contain)),
+            const SizedBox(height: 16),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+            FilledButton(
+              onPressed: _busy ? null : () => _sign(saved),
+              child: Text(_busy ? t.saving : t.useThisSignature),
+            ),
+            const SizedBox(height: kiviloButtonGap),
+            TextButton(
+              onPressed: _busy
+                  ? null
+                  : () => setState(() {
+                      _saved = null;
+                      _error = null;
+                    }),
+              child: Text(t.drawNewOne),
+            ),
+          ] else ...[
+            _SignatureFrame(
+              child: RawGestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onPointerDown: (event) {
-                  if (_activePointer != null) return;
-                  _activePointer = event.pointer;
-                  setState(() => _strokes.add([event.localPosition]));
+                gestures: {
+                  EagerGestureRecognizer:
+                      GestureRecognizerFactoryWithHandlers<
+                        EagerGestureRecognizer
+                      >(() => EagerGestureRecognizer(), (_) {}),
                 },
-                onPointerMove: (event) {
-                  if (_activePointer != event.pointer) return;
-                  setState(() => _strokes.last.add(event.localPosition));
-                },
-                onPointerUp: (event) {
-                  if (_activePointer == event.pointer) _activePointer = null;
-                },
-                onPointerCancel: (event) {
-                  if (_activePointer == event.pointer) _activePointer = null;
-                },
-                child: CustomPaint(
-                  painter: _SignaturePainter(_strokes),
-                  size: const Size(320, 180),
+                child: Listener(
+                  behavior: HitTestBehavior.opaque,
+                  onPointerDown: (event) {
+                    if (_activePointer != null) return;
+                    _activePointer = event.pointer;
+                    setState(() => _strokes.add([event.localPosition]));
+                  },
+                  onPointerMove: (event) {
+                    if (_activePointer != event.pointer) return;
+                    setState(() => _strokes.last.add(event.localPosition));
+                  },
+                  onPointerUp: (event) {
+                    if (_activePointer == event.pointer) _activePointer = null;
+                  },
+                  onPointerCancel: (event) {
+                    if (_activePointer == event.pointer) _activePointer = null;
+                  },
+                  child: CustomPaint(
+                    painter: _SignaturePainter(_strokes),
+                    size: const Size(320, 180),
+                  ),
                 ),
               ),
             ),
-          ),
-          TextButton(
-            onPressed: _busy
-                ? null
-                : () => setState(() {
-                    _activePointer = null;
-                    _strokes.clear();
-                  }),
-            child: const Text('Clear signature'),
-          ),
-          if (widget.savedSignature != null)
-            CheckboxListTile(
-              value: _saveForNextTime,
-              onChanged: _busy
+            TextButton(
+              onPressed: _busy
                   ? null
-                  : (value) => setState(() => _saveForNextTime = value!),
-              title: const Text('Save for next time'),
-              subtitle: const Text(
-                'Kept only on this phone, and removed when you sign out.',
-              ),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
+                  : () => setState(() {
+                      _activePointer = null;
+                      _strokes.clear();
+                    }),
+              child: Text(t.clearSignature),
             ),
-          if (_error != null)
-            Text(_error!, style: const TextStyle(color: KiviloColors.red)),
-          FilledButton(
-            onPressed: _busy ? null : _sign,
-            child: Text(_busy ? 'Saving…' : 'Confirm signature'),
-          ),
+            if (widget.savedSignature != null)
+              CheckboxListTile(
+                value: _saveForNextTime,
+                onChanged: _busy
+                    ? null
+                    : (value) => setState(() => _saveForNextTime = value!),
+                title: Text(t.saveForNextTime),
+                subtitle: Text(t.saveForNextTimeDetail),
+                controlAffinity: ListTileControlAffinity.leading,
+                contentPadding: EdgeInsets.zero,
+              ),
+            if (_error != null)
+              Text(_error!, style: const TextStyle(color: KiviloColors.red)),
+            FilledButton(
+              onPressed: _busy ? null : _sign,
+              child: Text(_busy ? t.saving : t.confirmSignature),
+            ),
+          ],
         ],
-      ],
-    )),
+      ),
+    ),
   );
 }
 
@@ -271,7 +267,8 @@ class _SignatureFrame extends StatelessWidget {
     alignment: Alignment.center,
     child: ConstrainedBox(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.sizeOf(context).shortestSide >= kiviloTabletBreakpoint
+        maxWidth:
+            MediaQuery.sizeOf(context).shortestSide >= kiviloTabletBreakpoint
             ? 560
             : 320,
       ),

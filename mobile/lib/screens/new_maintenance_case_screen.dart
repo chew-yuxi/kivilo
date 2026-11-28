@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../models/handover.dart';
 import '../services/api.dart';
@@ -151,8 +152,8 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
       if (mounted) {
         setState(
           () => _error = saved
-              ? '${plainError(error)} Your draft is saved on this phone.'
-              : '${plainError(error)} This phone could not save your draft. Keep this screen open and try again.',
+              ? t.errorDraftSaved(plainError(error))
+              : t.errorDraftNotSaved(plainError(error)),
         );
       }
     } finally {
@@ -162,108 +163,117 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Report a problem')),
-    body: KiviloContent(maxWidth: 720, child: ListView(
-      padding: kiviloScreenPadding,
-      children: [
-        if (widget.assets.isNotEmpty)
-          KiviloSelectField<String?>(
-            label: 'Property item (optional)',
-            value: _assetId,
+    appBar: AppBar(title: Text(t.reportProblem)),
+    body: KiviloContent(
+      maxWidth: 720,
+      child: ListView(
+        padding: kiviloScreenPadding,
+        children: [
+          if (widget.assets.isNotEmpty)
+            KiviloSelectField<String?>(
+              label: t.propertyItemOptional,
+              value: _assetId,
+              enabled: !_saving,
+              options: [
+                KiviloSelectOption<String?>(
+                  value: null,
+                  label: t.noSpecificItem,
+                ),
+                ...widget.assets.map(
+                  (asset) => KiviloSelectOption<String?>(
+                    value: asset.id,
+                    label: asset.name,
+                  ),
+                ),
+                KiviloSelectOption<String?>(
+                  value: _otherItem,
+                  label: t.somethingElse,
+                ),
+              ],
+              onChanged: (value) {
+                setState(() => _assetId = value);
+                unawaited(_saveDraft());
+              },
+            ),
+          if (widget.assets.isNotEmpty && _typesItem)
+            const SizedBox(height: 12),
+          if (_typesItem)
+            TextField(
+              controller: _itemName,
+              readOnly: _saving,
+              decoration: InputDecoration(
+                labelText: widget.assets.isEmpty
+                    ? t.itemOptional
+                    : t.whichItemOptional,
+                hintText: t.forExampleToiletBowl,
+              ),
+              inputFormatters: [LengthLimitingTextInputFormatter(120)],
+              onChanged: (_) => unawaited(_saveDraft()),
+            ),
+          const SizedBox(height: 12),
+          KiviloSelectField<String>(
+            label: t.assetCategory,
+            value: _category,
             enabled: !_saving,
             options: [
-              const KiviloSelectOption<String?>(
-                value: null,
-                label: 'No specific item',
+              KiviloSelectOption(value: 'APPLIANCE', label: t.assetAppliance),
+              KiviloSelectOption(value: 'PLUMBING', label: t.categoryPlumbing),
+              KiviloSelectOption(
+                value: 'LOCKSMITH',
+                label: t.categoryLocksmith,
               ),
-              ...widget.assets.map(
-                (asset) => KiviloSelectOption<String?>(
-                  value: asset.id,
-                  label: asset.name,
-                ),
+              KiviloSelectOption(
+                value: 'ELECTRICAL',
+                label: t.categoryElectrical,
               ),
-              const KiviloSelectOption<String?>(
-                value: _otherItem,
-                label: 'Something else',
+              KiviloSelectOption(
+                value: 'AIR_CONDITIONING',
+                label: t.categoryAirCon,
               ),
+              KiviloSelectOption(
+                value: 'STRUCTURAL',
+                label: t.categoryStructural,
+              ),
+              KiviloSelectOption(value: 'PEST', label: t.categoryPest),
+              KiviloSelectOption(value: 'OTHER', label: t.basisOther),
             ],
             onChanged: (value) {
-              setState(() => _assetId = value);
+              setState(() => _category = value);
               unawaited(_saveDraft());
             },
           ),
-        if (widget.assets.isNotEmpty && _typesItem)
           const SizedBox(height: 12),
-        if (_typesItem)
-          TextField(
-            controller: _itemName,
-            readOnly: _saving,
-            decoration: InputDecoration(
-              labelText: widget.assets.isEmpty
-                  ? 'Item (optional)'
-                  : 'Which item? (optional)',
-              hintText: 'For example, toilet bowl',
-            ),
-            inputFormatters: [LengthLimitingTextInputFormatter(120)],
-            onChanged: (_) => unawaited(_saveDraft()),
+          KiviloSegmentedControl<String>(
+            options: [
+              KiviloSegmentOption(value: 'ROUTINE', label: t.priorityRoutine),
+              KiviloSegmentOption(value: 'URGENT', label: t.priorityUrgent),
+              KiviloSegmentOption(
+                value: 'SAFETY_EMERGENCY',
+                label: t.priorityDanger,
+              ),
+            ],
+            value: _priority,
+            onChanged: _saving
+                ? null
+                : (value) {
+                    setState(() => _priority = value!);
+                    unawaited(_saveDraft());
+                  },
           ),
-        const SizedBox(height: 12),
-        KiviloSelectField<String>(
-          label: 'Category',
-          value: _category,
-          enabled: !_saving,
-          options: const [
-            KiviloSelectOption(value: 'APPLIANCE', label: 'Appliance'),
-            KiviloSelectOption(value: 'PLUMBING', label: 'Plumbing'),
-            KiviloSelectOption(value: 'LOCKSMITH', label: 'Locksmith'),
-            KiviloSelectOption(value: 'ELECTRICAL', label: 'Electrical'),
-            KiviloSelectOption(
-              value: 'AIR_CONDITIONING',
-              label: 'Air conditioning',
-            ),
-            KiviloSelectOption(value: 'STRUCTURAL', label: 'Structural'),
-            KiviloSelectOption(value: 'PEST', label: 'Pest'),
-            KiviloSelectOption(value: 'OTHER', label: 'Other'),
-          ],
-          onChanged: (value) {
-            setState(() => _category = value);
-            unawaited(_saveDraft());
-          },
-        ),
-        const SizedBox(height: 12),
-        KiviloSegmentedControl<String>(
-          options: const [
-            KiviloSegmentOption(value: 'ROUTINE', label: 'Routine'),
-            KiviloSegmentOption(value: 'URGENT', label: 'Urgent'),
-            KiviloSegmentOption(value: 'SAFETY_EMERGENCY', label: 'Danger'),
-          ],
-          value: _priority,
-          onChanged: _saving
-              ? null
-              : (value) {
-                  setState(() => _priority = value!);
-                  unawaited(_saveDraft());
-                },
-        ),
-        if (_priority == 'SAFETY_EMERGENCY')
-          const Card(
-            child: ListTile(
-              leading: Icon(Icons.emergency_outlined),
-              title: Text('If someone is in immediate danger'),
-              subtitle: Text(
-                'Call Police 999 or SCDF fire/ambulance 995 before reporting here.',
+          if (_priority == 'SAFETY_EMERGENCY')
+            Card(
+              child: ListTile(
+                leading: Icon(Icons.emergency_outlined),
+                title: Text(t.immediateDanger),
+                subtitle: Text(t.immediateDangerDetail),
               ),
             ),
-          ),
           if (widget.moveInDefects?.canSubmit == true) ...[
             const SizedBox(height: 12),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
-              title: const Text('It was like this when I moved in'),
-              subtitle: const Text(
-                'After reporting, add photos and record the move-in condition. '
-                'The landlord can accept or dispute it.',
-              ),
+              title: Text(t.presentAtMoveIn),
+              subtitle: Text(t.presentAtMoveInDetail),
               value: _wasPresentAtMoveIn,
               onChanged: _saving
                   ? null
@@ -274,36 +284,36 @@ class _NewMaintenanceCaseScreenState extends State<NewMaintenanceCaseScreen> {
             ),
           ],
           const SizedBox(height: 12),
-        TextField(
-          controller: _title,
-          readOnly: _saving,
-          decoration: const InputDecoration(labelText: 'Short title'),
-          maxLength: 120,
-          onChanged: (_) => unawaited(_saveDraft()),
-        ),
-        TextField(
-          controller: _description,
-          readOnly: _saving,
-          decoration: const InputDecoration(
-            labelText: 'What happened?',
-            hintText:
-                'Include when it started and what you have already tried.',
+          TextField(
+            controller: _title,
+            readOnly: _saving,
+            decoration: InputDecoration(labelText: t.shortTitle),
+            maxLength: 120,
+            onChanged: (_) => unawaited(_saveDraft()),
           ),
-          minLines: 4,
-          maxLines: 8,
-          onChanged: (_) => unawaited(_saveDraft()),
-        ),
-        if (_error != null)
-          Text(
-            _error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          TextField(
+            controller: _description,
+            readOnly: _saving,
+            decoration: InputDecoration(
+              labelText: t.whatHappened,
+              hintText: t.whatHappenedHelper,
+            ),
+            minLines: 4,
+            maxLines: 8,
+            onChanged: (_) => unawaited(_saveDraft()),
           ),
-        const SizedBox(height: 16),
-        FilledButton(
-          onPressed: _saving ? null : _save,
-          child: Text(_saving ? 'Saving…' : 'Submit report'),
-        ),
-      ],
-    )),
+          if (_error != null)
+            Text(
+              _error!,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: _saving ? null : _save,
+            child: Text(_saving ? t.saving : t.submitReport),
+          ),
+        ],
+      ),
+    ),
   );
 }

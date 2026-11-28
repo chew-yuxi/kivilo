@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/l10n.dart';
 import 'kivilo_components.dart';
 
 DateTime tenancyEndDate(DateTime start, int years) =>
@@ -34,15 +35,15 @@ class TenancyLengthPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => KiviloSelectField<int>(
-    label: 'Tenancy length',
-    sheetTitle: 'Choose tenancy length',
+    label: t.tenancyLength,
+    sheetTitle: t.chooseTenancyLength,
     value: years,
     enabled: onChanged != null,
-    options: const [
-      KiviloSelectOption(value: 1, label: '1 year'),
-      KiviloSelectOption(value: 2, label: '2 years'),
-      KiviloSelectOption(value: 3, label: '3 years'),
-      KiviloSelectOption(value: 0, label: 'Custom dates'),
+    options: [
+      KiviloSelectOption(value: 1, label: t.oneYear),
+      KiviloSelectOption(value: 2, label: t.twoYears),
+      KiviloSelectOption(value: 3, label: t.threeYears),
+      KiviloSelectOption(value: 0, label: t.customDates),
     ],
     onChanged: (value) => onChanged?.call(value),
   );

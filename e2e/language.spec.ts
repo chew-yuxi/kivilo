@@ -1,0 +1,72 @@
+import { expect, test } from '@playwright/test'
+import { freshEmail, signIn } from './helpers'
+
+/// A landlord or tenant arriving from an email has no account language yet, so the
+/// sign-in page follows the browser's.
+test.describe('Chinese browser', () => {
+  test.use({ locale: 'zh-SG' })
+
+  test('signs in in Chinese', async ({ page }) => {
+    await page.goto('/login')
+    await expect(page.getByRole('heading', { name: '欢迎使用 Kivilo' })).toBeVisible()
+    await expect(page.getByRole('button', { name: '用电邮发送验证码' })).toBeVisible()
+    await expect(page.locator('[lang="zh"]').first()).toBeVisible()
+  })
+})
+
+test.describe('Thai browser', () => {
+  test.use({ locale: 'th-TH' })
+
+  test('signs in in Thai', async ({ page }) => {
+    await page.goto('/login')
+    await expect(page.getByRole('heading', { name: 'ยินดีต้อนรับสู่ Kivilo' })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'ส่งรหัสทางอีเมล' })).toBeVisible()
+  })
+})
+
+/// An agent's choice on Account is stored on their account, so it outlasts the browser's
+/// language: the whole app, and what Kivilo sends them, follows it.
+test('an agent chooses Chinese on Account and the app stays in it', async ({ page, browser }) => {
+  const email = freshEmail('language')
+  await signIn(page, email)
+  await page.goto('/account')
+  await page.getByLabel('Language').selectOption('zh')
+  await expect(page.getByLabel('语言')).toHaveValue('zh')
+
+  await page.goto('/inspections')
+  await expect(page.getByRole('heading', { name: '检查' })).toBeVisible()
+  await expect(page.locator('[lang="zh"]').first()).toBeAttached()
+
+  // Another browser on the same account, in English, still reads Chinese.
+  const english = await browser.newContext({ locale: 'en-SG', storageState: await page.context().storageState() })
+  const other = await english.newPage()
+  await other.goto('/inspections')
+  await expect(other.getByRole('heading', { name: '检查' })).toBeVisible()
+  await english.close()
+
+  for (const [locale, team, length, years] of [
+    ['zh', '团队', '租期长度', '2 年'],
+    ['th', 'ทีม', 'ระยะสัญญาเช่า', '2 ปี'],
+  ]) {
+    if (locale === 'th') {
+      await page.goto('/account')
+      await page.getByLabel('语言').selectOption(locale)
+      await expect(page.getByLabel('ภาษา')).toHaveValue(locale)
+    }
+    await page.setViewportSize({ width: 360, height: 800 })
+    await page.goto('/inspections/new')
+    const checkInForm = page.locator('form').filter({ has: page.locator('input[name="startDate"]') })
+    const create = checkInForm.locator('button[type="submit"].action-primary')
+    await expect(create).toHaveCount(1)
+    const button = (await create.boundingBox())!
+    const form = (await checkInForm.boundingBox())!
+    expect(button.width).toBeCloseTo(form.width, 0)
+    expect(button.height).toBeGreaterThanOrEqual(50)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360)
+    await expect(page.getByRole('combobox', { name: team, exact: true })).toBeVisible()
+    const term = page.getByRole('combobox', { name: length, exact: true })
+    await term.selectOption({ label: years })
+    await page.locator('input[name="startDate"]').fill('2026-11-19')
+    await expect(page.locator('input[name="endDate"]')).toHaveValue('2028-11-18')
+  }
+})

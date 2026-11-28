@@ -1,3 +1,4 @@
+import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
 
 import '../models/property_work.dart';
@@ -107,7 +108,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
       return _malaysia ? 'Enter the postcode' : 'Enter the postal code';
     }
     if (_malaysia && !RegExp(r'^\d{5}$').hasMatch(text)) {
-      return 'A Malaysian postcode has 5 digits';
+      return t.malaysianPostcodeLength;
     }
     return null;
   }
@@ -131,18 +132,16 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Save tenancy changes?'),
-        content: const Text(
-          'These details identify the tenancy and its signing parties. Check them carefully before saving.',
-        ),
+        title: Text(t.saveTenancyChanges),
+        content: Text(t.theseDetailsIdentifyTheTenancyAndIts),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Save changes'),
+            child: Text(t.saveChanges),
           ),
         ],
       ),
@@ -180,7 +179,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
   Widget build(BuildContext context) => PopScope<void>(
     canPop: !_busy,
     child: Scaffold(
-      appBar: AppBar(title: const Text('Tenancy details')),
+      appBar: AppBar(title: Text(t.tenancyDetails)),
       body: KiviloContent(
         maxWidth: 720,
         child: Form(
@@ -193,9 +192,9 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 24),
-              const KiviloSectionHeading(
-                title: 'Property',
-                subtitle: 'The address and type printed on the report',
+              KiviloSectionHeading(
+                title: t.newProperty,
+                subtitle: t.theAddressAndTypePrintedOnThe,
               ),
               const SizedBox(height: kiviloHeadingGap),
               if (!widget.property.canEditPropertyDetails) ...[
@@ -211,7 +210,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _line1,
                 readOnly: !widget.property.canEditPropertyDetails,
-                decoration: const InputDecoration(labelText: 'Address'),
+                decoration: InputDecoration(labelText: t.newAddress),
                 validator: (value) => (value?.trim().isEmpty ?? true)
                     ? 'Enter the property address'
                     : null,
@@ -220,14 +219,14 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _unit,
                 readOnly: !widget.property.canEditPropertyDetails,
-                decoration: const InputDecoration(labelText: 'Unit (optional)'),
+                decoration: InputDecoration(labelText: t.unitOptional),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _postalCode,
                 readOnly: !widget.property.canEditPropertyDetails,
                 decoration: InputDecoration(
-                  labelText: _malaysia ? 'Postcode' : 'Postal code',
+                  labelText: _malaysia ? t.postcode : t.newPostalCode,
                 ),
                 keyboardType: TextInputType.number,
                 validator: _postalCodeError,
@@ -236,22 +235,25 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               IgnorePointer(
                 ignoring: !widget.property.canEditPropertyDetails,
                 child: KiviloSelectField<String>(
-                  label: 'Property type',
+                  label: t.propertyType,
                   value: _propertyType,
                   options: [
                     KiviloSelectOption(
                       value: 'PRIVATE_NON_LANDED',
                       label: _malaysia
-                          ? 'Condominium or apartment'
-                          : 'Private, non-landed',
+                          ? t.condominiumOrApartment
+                          : t.propertyTypePrivate,
                     ),
                     // Public housing is Singapore's; the server refuses it in Malaysia.
                     if (!_malaysia)
                       const KiviloSelectOption(value: 'HDB', label: 'HDB'),
-                    const KiviloSelectOption(value: 'LANDED', label: 'Landed'),
-                    const KiviloSelectOption(
+                    KiviloSelectOption(
+                      value: 'LANDED',
+                      label: t.propertyTypeLanded,
+                    ),
+                    KiviloSelectOption(
                       value: 'COMMERCIAL',
-                      label: 'Commercial',
+                      label: t.propertyTypeCommercial,
                     ),
                   ],
                   onChanged: (value) => setState(() => _propertyType = value),
@@ -268,16 +270,15 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 ),
                 const SizedBox(height: 24),
               ],
-              const KiviloSectionHeading(
-                title: 'People',
-                subtitle:
-                    'Add an email so each party can receive and sign the report',
+              KiviloSectionHeading(
+                title: t.newPeople,
+                subtitle: t.addAnEmailSoEachPartyCan,
               ),
               const SizedBox(height: kiviloHeadingGap),
               TextFormField(
                 controller: _landlordName,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(labelText: 'Landlord name'),
+                decoration: InputDecoration(labelText: t.newLandlordName),
                 validator: (value) => (value?.trim().isEmpty ?? true)
                     ? 'Enter the landlord name'
                     : null,
@@ -286,9 +287,9 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _landlordEmail,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(
-                  labelText: 'Landlord email (optional)',
-                  hintText: 'Not provided',
+                decoration: InputDecoration(
+                  labelText: t.landlordEmailOptional,
+                  hintText: t.notProvided,
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: _emailError,
@@ -297,7 +298,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _tenantName,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(labelText: 'Tenant name'),
+                decoration: InputDecoration(labelText: t.newTenantName),
                 validator: (value) => (value?.trim().isEmpty ?? true)
                     ? 'Enter the tenant name'
                     : null,
@@ -306,15 +307,15 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
               TextFormField(
                 controller: _tenantEmail,
                 readOnly: !widget.term.canEditDetails,
-                decoration: const InputDecoration(
-                  labelText: 'Tenant email (optional)',
-                  hintText: 'Not provided',
+                decoration: InputDecoration(
+                  labelText: t.tenantEmailOptional,
+                  hintText: t.notProvided,
                 ),
                 keyboardType: TextInputType.emailAddress,
                 validator: _emailError,
               ),
               const SizedBox(height: 32),
-              const KiviloSectionHeading(title: 'Tenancy'),
+              KiviloSectionHeading(title: t.newTenancy),
               const SizedBox(height: kiviloHeadingGap),
               TenancyLengthPicker(
                 years: _termYears,
@@ -348,7 +349,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 controller: _monthlyRent,
                 readOnly: !widget.term.canEditDetails,
                 decoration: InputDecoration(
-                  labelText: 'Monthly rent (${widget.property.currency})',
+                  labelText: t.newMonthlyRent(widget.property.currency),
                 ),
                 keyboardType: TextInputType.number,
                 validator: _moneyError,
@@ -358,7 +359,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 controller: _deposit,
                 readOnly: !widget.term.canEditDetails,
                 decoration: InputDecoration(
-                  labelText: 'Deposit (${widget.property.currency})',
+                  labelText: t.newDeposit(widget.property.currency),
                 ),
                 keyboardType: TextInputType.number,
                 validator: _moneyError,
@@ -371,7 +372,7 @@ class _TenancyDetailsScreenState extends State<TenancyDetailsScreen> {
                 const SizedBox(height: 24),
                 FilledButton(
                   onPressed: _busy ? null : _save,
-                  child: Text(_busy ? 'Saving…' : 'Save details'),
+                  child: Text(_busy ? t.saving : t.saveDetails),
                 ),
               ],
               if (_busy) ...[

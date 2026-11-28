@@ -7,6 +7,7 @@ import type { TenancyAccess } from '@/lib/tenancy-access'
 import { LockedAction } from '@/components/locked-action'
 import type { agencyList, agencyDetail } from '@/lib/agency'
 import { manageAgencyFromWeb } from '@/lib/agency-web-actions'
+import { usePwa } from '@/components/locale'
 
 type Agency = Awaited<ReturnType<typeof agencyList>>['agencies'][number]
 
@@ -17,6 +18,7 @@ export function TenancyAssignmentPanel({
   access: TenancyAccess
   agencies: Agency[]
 }) {
+  const w = usePwa()
   const router = useRouter()
   const [agencyId, setAgencyId] = useState(access.agency?.id ?? '')
   const [members, setMembers] = useState(access.availableMembers)
@@ -52,7 +54,7 @@ export function TenancyAssignmentPanel({
         setMemberIds([])
       } catch {
         setAgencyId('')
-        setError('Could not load team members. Please try again.')
+        setError(w.loadMembersFailed)
       }
     })
   }
@@ -64,20 +66,20 @@ export function TenancyAssignmentPanel({
     >
       <summary className="flex items-center justify-between gap-3 px-4 py-3">
         <span>
-          <span className="block text-sm font-medium">Team and assignment</span>
+          <span className="block text-sm font-medium">{w.teamAndAssignment}</span>
           <span className="mt-1 block text-sm text-gray-600">
-            {access.agency?.name ?? 'Personal tenancy'} ·{' '}
-            {access.leadAgent?.name ?? 'No responsible agent'}
+            {access.agency?.name ?? w.personalTenancy} ·{' '}
+            {access.leadAgent?.name ?? w.noResponsibleAgent}
           </span>
         </span>
         <span className="action-secondary px-3 text-xs">
-          {access.canManageAssignment ? 'Manage assignment' : 'View assignment'}
+          {access.canManageAssignment ? w.manageAssignment : w.viewAssignment}
         </span>
       </summary>
       <div className="space-y-4 border-t border-gray-200 p-4">
         {access.agency && (
           <p className="text-sm text-gray-600">
-            This tenancy belongs to{' '}
+            {w.belongsToBefore}{' '}
             {access.agency.role ? (
               <Link className="text-link" href={`/team/${access.agency.id}`}>
                 {access.agency.name}
@@ -85,14 +87,12 @@ export function TenancyAssignmentPanel({
             ) : (
               <span className="font-medium">{access.agency.name}</span>
             )}
-            . Team owners and managers can oversee it. Assigned agents can work on it.
+            {w.belongsToAfter}
           </p>
         )}
         {!access.agency && (
           <p className="text-sm text-gray-600">
-            This is personal work. Moving it into a team gives its owners and managers oversight and
-            allows handover to another team member. Existing external collaborators keep their
-            access.
+            {w.personalWork}
           </p>
         )}
         {access.canManageAssignment ? (
@@ -132,16 +132,16 @@ export function TenancyAssignmentPanel({
                   }
                   router.refresh()
                   setMoving(false)
-                  setNotice('Team and assignment saved.')
+                  setNotice(w.assignmentSaved)
                 } catch {
-                  setError('Could not save the assignment. Please try again.')
+                  setError(w.saveAssignmentFailed)
                 }
               })
             }}
           >
             {!access.agency && (
               <label className="block text-sm font-medium">
-                Move to team
+                {w.moveToTeamLabel}
                 <select
                   className="field mt-1"
                   value={agencyId}
@@ -149,7 +149,7 @@ export function TenancyAssignmentPanel({
                   disabled={pending}
                   required
                 >
-                  <option value="">Choose a team</option>
+                  <option value="">{w.chooseTeam}</option>
                   {agencies.map((agency) => (
                     <option key={agency.id} value={agency.id}>
                       {agency.name}
@@ -161,7 +161,7 @@ export function TenancyAssignmentPanel({
             {agencyId && members.length > 0 && (
               <>
                 <label className="block text-sm font-medium">
-                  Responsible agent
+                  {w.responsibleAgent}
                   <select
                     className="field mt-1"
                     value={leadAgentId}
@@ -178,12 +178,11 @@ export function TenancyAssignmentPanel({
                 </label>
                 {leadAgentId !== access.leadAgent?.id && (
                   <p className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
-                    The previous responsible agent keeps access only if assigned below or if they
-                    are a team owner or manager. Their saved work and authorship stay intact.
+                    {w.previousAgentNote}
                   </p>
                 )}
                 <fieldset className="space-y-2">
-                  <legend className="mb-2 text-sm font-medium">Assign colleagues</legend>
+                  <legend className="mb-2 text-sm font-medium">{w.assignColleagues}</legend>
                   {members
                     .filter((member) => member.stakeholderId !== leadAgentId)
                     .map((member) => (
@@ -215,26 +214,24 @@ export function TenancyAssignmentPanel({
             )}
             {!agencies.length && !access.agency && (
               <Link className="action-secondary" href="/team">
-                Create or join a team
+                {w.createOrJoinTeam}
               </Link>
             )}
             {moving && (
               <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                Move this tenancy to {agencies.find((agency) => agency.id === agencyId)?.name}? It
-                becomes agency work. Team owners and managers will be able to view it and reassign
-                it. Saved reports and signatures remain unchanged.
+                {w.moveConfirm(agencies.find((agency) => agency.id === agencyId)?.name ?? '')}
               </p>
             )}
             {agencyId && (
               <div className="action-group">
                 <button className="action-primary" disabled={pending || !members.length}>
                   {pending
-                    ? 'Saving…'
+                    ? w.saving
                     : access.agency
-                      ? 'Save assignment'
+                      ? w.saveAssignment
                       : moving
-                        ? 'Confirm move to team'
-                        : 'Move to team'}
+                        ? w.confirmMove
+                        : w.moveToTeamLabel}
                 </button>
                 {moving && (
                   <button
@@ -243,7 +240,7 @@ export function TenancyAssignmentPanel({
                     disabled={pending}
                     onClick={() => setMoving(false)}
                   >
-                    Cancel
+                    {w.cancel}
                   </button>
                 )}
               </div>
@@ -252,7 +249,7 @@ export function TenancyAssignmentPanel({
         ) : (
           <LockedAction
             label={access.agency ? 'Change assignment' : 'Move to team'}
-            who="the responsible agent or a team owner or manager"
+            who={w.theResponsibleAgentOrATeamOwner}
             askNames={access.askNames}
           />
         )}

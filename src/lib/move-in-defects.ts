@@ -8,6 +8,7 @@ import { moveInDefectWindow, singaporeCalendarDate } from '@/lib/move-in-defect-
 import type { Prisma } from '@/generated/prisma'
 import { toAnnotations } from '@/lib/annotations'
 import { lockAgencyTenancy } from '@/lib/agency'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 export class MoveInDefectStaleTargetError extends Error {
   constructor() {
@@ -229,11 +230,11 @@ export async function publishMoveInDefect(caseId: string, stakeholderId: string,
     })
     const recipients = await activeNotificationRecipients(tx, [item.tenancy.landlordId])
     await tx.notification.createMany({
-      data: recipients.map((recipientId) => ({
-        recipientId, tenancyId: item.tenancyId, kind: 'REPORT_UPDATED' as const, title: addendum.title,
-        body: 'The tenant reported this condition as present at move-in. Please acknowledge or dispute the dated notice.',
+      data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
+        recipientId, tenancyId: item.tenancyId, kind: 'REPORT_UPDATED' as const,
+        words: (m: Messages) => ({ title: addendum.title, body: m.notification.moveInReported }),
         href: `/updates/${addendum.id}`, dedupeKey: `move-in-defect:${addendum.id}:${recipientId}`,
-      })),
+      }))),
       skipDuplicates: true,
     })
     return { addendumId: addendum.id, inspectionId }
@@ -274,11 +275,11 @@ export async function disputeMoveInDefect(addendumId: string, stakeholderId: str
     })
     const recipients = await activeNotificationRecipients(tx, [row.inspection.tenancy.tenantId])
     await tx.notification.createMany({
-      data: recipients.map((recipientId) => ({
-        recipientId, tenancyId: row.inspection.tenancy.id, kind: 'REPORT_UPDATED' as const, title: snapshot.title,
-        body: `The landlord disputed the move-in notice: ${input.reason}`,
+      data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
+        recipientId, tenancyId: row.inspection.tenancy.id, kind: 'REPORT_UPDATED' as const,
+        words: (m: Messages) => ({ title: snapshot.title, body: m.notification.moveInDisputed(input.reason) }),
         href: `/updates/${addendumId}`, dedupeKey: `move-in-defect-disputed:${addendumId}:${recipientId}`,
-      })),
+      }))),
       skipDuplicates: true,
     })
   })

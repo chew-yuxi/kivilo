@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../config.dart';
 import '../models/agency.dart';
+import '../l10n/l10n.dart';
 import '../models/maintenance.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -48,7 +49,8 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
+class _SettingsScreenState extends State<SettingsScreen>
+    with WidgetsBindingObserver {
   late final _api = widget.api ?? Api();
   // Each section loads from what this phone saved, then refreshes on its own; the
   // page itself never waits for any of them.
@@ -60,10 +62,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _api.branding,
     retainKey: 'branding',
   );
-  late Loading<WorkspacePlan> _plan = _api.load(
-    _loadPlan,
-    retainKey: 'plan',
-  );
+  late Loading<WorkspacePlan> _plan = _api.load(_loadPlan, retainKey: 'plan');
   late Loading<AgencyIndex> _teams = _api.load(
     _api.agencies,
     retainKey: 'agencies',
@@ -80,9 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _planChanges = _billing?.planChanges.listen(
-      (_) => _refreshPlan(),
-    );
+    _planChanges = _billing?.planChanges.listen((_) => _refreshPlan());
   }
 
   @override
@@ -115,10 +112,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     _refreshPlan();
   }
 
-  Future<WorkspacePlan> _loadPlan() => _billing != null
-      ? _api.selectedWorkspacePlan()
-      : _api.plan();
-
+  Future<WorkspacePlan> _loadPlan() =>
+      _billing != null ? _api.selectedWorkspacePlan() : _api.plan();
 
   /// What is on this phone, for support: the store build, and the Shorebird patch it is
   /// running. A build not made with `shorebird release` has no patch to report.
@@ -127,8 +122,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       PackageInfo.fromPlatform(),
       ShorebirdUpdater().readCurrentPatch(),
     ).wait;
-    final version = 'Version ${info.version} (${info.buildNumber})';
-    return patch == null ? version : '$version · Patch ${patch.number}';
+    final version = t.settingsVersion(info.version, info.buildNumber);
+    return patch == null
+        ? version
+        : t.settingsVersionPatch(version, patch.number);
   }
 
   Future<void> _openPage(String path) async {
@@ -154,15 +151,17 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   Future<void> _openTeam(String id) async {
     await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => TeamDetailScreen(id: id, api: _api)),
+      MaterialPageRoute(
+        builder: (_) => TeamDetailScreen(id: id, api: _api),
+      ),
     );
     if (mounted) await _refreshTeams();
   }
 
   Future<void> _openTeamDirectory() async {
-    await Navigator.of(context).push<void>(
-      MaterialPageRoute(builder: (_) => TeamScreen(api: _api)),
-    );
+    await Navigator.of(
+      context,
+    ).push<void>(MaterialPageRoute(builder: (_) => TeamScreen(api: _api)));
     if (mounted) await _refreshTeams();
   }
 
@@ -170,21 +169,17 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Request account deletion?'),
-        content: const Text(
-          'We will confirm your request and complete eligible deletion within '
-          '30 days. Inspection and report records may need to be retained under '
-          'the applicable tenancy record retention policy.',
-        ),
+        title: Text(t.settingsDeletionDrawerTitle),
+        content: Text(t.settingsDeletionDrawerBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: kiviloDangerFilled,
-            child: const Text('Request deletion'),
+            child: Text(t.settingsRequestDeletion),
           ),
         ],
       ),
@@ -245,7 +240,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       }
     } catch (error) {
       if (mounted) {
-        setState(() => _signOutError = 'Could not sign out. ${plainError(error)}');
+        setState(
+          () => _signOutError = t.settingsSignOutFailed(plainError(error)),
+        );
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -302,14 +299,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             vertical: 6,
           ),
           leading: const Icon(Icons.flag_outlined),
-          title: const Text('Where you work'),
+          title: Text(t.whereYouWork),
           subtitle: Text(
             snapshot.hasError
                 ? 'Could not load: ${plainError(snapshot.error!)}'
                 : !snapshot.hasData
-                ? 'Loading…'
+                ? t.loadingLabel
                 : country == null
-                ? 'Not chosen yet'
+                ? t.notChosenYet
                 : '${countryName(country)}. New properties are made here.',
           ),
           trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
@@ -334,7 +331,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       // The register is named for where the agent works.
       String details(String? country) => [
         if (branding?.agencyLicence != null)
-          'Licence ${branding!.agencyLicence}',
+          t.settingsLicence(branding!.agencyLicence!),
         if (branding?.ceaRegistration != null)
           '${registrationName(country)} ${branding!.ceaRegistration}',
       ].join(' · ');
@@ -363,9 +360,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               snapshot.hasError
                   ? 'Could not load: ${snapshot.error}'
                   : branding == null
-                  ? 'Your name and logo at the top of PDF reports'
+                  ? t.settingsBrandingEmpty
                   : details(profile.data?.country).isEmpty
-                  ? 'Shown on your PDF and shared reports'
+                  ? t.settingsBrandingSet
                   : details(profile.data?.country),
             ),
           ),
@@ -387,27 +384,38 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
           children: [
             for (var i = 0; i < teams.length; i++) ...[
               ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 leading: const Icon(Icons.person_outline),
                 title: Text(teams[i].name),
                 subtitle: Text(
-                  '${agencyRoleLabel(teams[i].role)} · ${teams[i].memberCount} ${teams[i].memberCount == 1 ? 'member' : 'members'}',
+                  '${agencyRoleLabel(teams[i].role)} · ${teams[i].memberCount} ${teams[i].memberCount == 1 ? t.member : t.members}',
                 ),
-                trailing: const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                  color: KiviloColors.subtle,
+                ),
                 onTap: () => _openTeam(teams[i].id),
               ),
               const Divider(height: 1),
             ],
             ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 6,
+              ),
               leading: const Icon(Icons.add),
-              title: Text(teams.isEmpty ? 'Create or join a team' : 'Add another team'),
+              title: Text(
+                teams.isEmpty ? t.createOrJoinTeam : t.addAnotherTeam,
+              ),
               subtitle: Text(
                 snapshot.hasError
-                    ? 'Could not load teams. Tap to try again.'
+                    ? t.couldNotLoadTeamsTapToTry
                     : index != null && index.invitations.isNotEmpty
-                        ? '${index.invitations.length} pending ${index.invitations.length == 1 ? 'invitation' : 'invitations'}'
-                        : 'Create a team or accept an invitation',
+                    ? '${index.invitations.length} pending ${index.invitations.length == 1 ? t.invitation : t.invitations}'
+                    : t.createATeamOrAcceptAnInvitation,
               ),
               trailing: snapshot.connectionState == ConnectionState.waiting
                   ? const SizedBox.square(
@@ -427,7 +435,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     stream: _plan.stream,
     builder: (context, snapshot) {
       final plan = snapshot.data;
-      final noun = plan?.limit == 1 ? 'property' : 'properties';
       return Card(
         child: ListTile(
           contentPadding: const EdgeInsets.symmetric(
@@ -448,23 +455,23 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
           ),
           title: Text(
             plan == null
-                ? 'Plan'
+                ? t.settingsPlan
                 : [
-                    plan.pro ? 'Pro' : 'Free',
-                    if (plan.team != null) plan.team!
-                    else if (_billing != null) 'Personal',
+                    plan.pro ? 'Pro' : t.planFree,
+                    if (plan.team != null)
+                      plan.team!
+                    else if (_billing != null)
+                      t.workspacePersonal,
                   ].join(' · '),
           ),
           subtitle: Text(
             snapshot.hasError
-                ? 'Could not load: ${plainError(snapshot.error!)}'
+                ? t.couldNotLoad(plainError(snapshot.error!))
                 : plan == null
-                ? 'Loading'
-                : '${plan.activeProperties} of ${plan.limit} active $noun in use',
+                ? t.loading
+                : t.settingsPlanUsage(plan.activeProperties, plan.limit),
           ),
-          trailing: _billing != null
-              ? const Icon(Icons.chevron_right)
-              : null,
+          trailing: _billing != null ? const Icon(Icons.chevron_right) : null,
           onTap: _billing != null ? _openBilling : null,
         ),
       );
@@ -476,286 +483,300 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     screen: ProductScreenName.account,
     active: widget.trackView,
     child: Scaffold(
-    // A tab under the big "Your account" title; pushed on its own it keeps a back button.
-    appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-    body: SafeArea(
-      bottom: false,
+      // A tab under the big "Your account" title; pushed on its own it keeps a back button.
+      appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
+      body: SafeArea(
+        bottom: false,
         child: KiviloContent(
           maxWidth: 720,
           child: StreamBuilder<Map<String, dynamic>>(
-      stream: _request.stream,
-      builder: (context, snapshot) {
-        // The page shows at once; only the deletion section waits for its status.
-        final checkingDeletion = !snapshot.hasData && !snapshot.hasError;
+            stream: _request.stream,
+            builder: (context, snapshot) {
+              // The page shows at once; only the deletion section waits for its status.
+              final checkingDeletion = !snapshot.hasData && !snapshot.hasError;
               final deletion =
                   snapshot.data?['request'] as Map<String, dynamic>?;
-        return ListView(
-          padding: kiviloScreenPadding,
-          children: [
-            Text(
-              'Your account',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            // Who is signed in, and the way out, together at the top.
-            Card(
-              clipBehavior: Clip.antiAlias,
-              child: Column(
+              return ListView(
+                padding: kiviloScreenPadding,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
+                  Text(
+                    t.settingsYourAccount,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                  const SizedBox(height: 16),
+                  // Who is signed in, and the way out, together at the top.
+                  Card(
+                    clipBehavior: Clip.antiAlias,
+                    child: Column(
                       children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: const BoxDecoration(
-                            color: KiviloColors.pinkSoft,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.person_outline,
-                            color: KiviloColors.pinkDark,
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
                             children: [
-                              Text(
-                                'Signed in to Kivilo',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium,
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  color: KiviloColors.pinkSoft,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.person_outline,
+                                  color: KiviloColors.pinkDark,
+                                ),
                               ),
-                              const SizedBox(height: 3),
-                              Text(
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      t.settingsSignedIn,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
+                                    ),
+                                    const SizedBox(height: 3),
+                                    Text(
                                       Supabase
                                               .instance
                                               .client
                                               .auth
                                               .currentUser
                                               ?.email ??
-                                    '',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall,
+                                          '',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 6,
-                    ),
-                    leading: const Icon(Icons.logout),
-                    title: const Text('Sign out'),
-                    subtitle: const Text(
-                      'Your saved signature is removed from this phone',
-                    ),
-                    onTap: _busy ? null : _signOut,
-                  ),
-                  if (_signOutError != null)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-                      child: Text(
-                        _signOutError!,
-                        style: const TextStyle(color: KiviloColors.red),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            if (widget.onStartCheckIn != null) ...[
-              const SizedBox(height: kiviloSectionGap),
-              const KiviloSectionHeading(title: 'For agents'),
-              const SizedBox(height: kiviloHeadingGap),
-              _linkCard(
-                icon: Icons.add_home_work_outlined,
-                title: 'Start a check-in',
-                subtitle: 'Write a room-by-room report of a property',
-                onTap: widget.onStartCheckIn!,
-              ),
-            ],
-            const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(title: 'Teams'),
-            const SizedBox(height: kiviloHeadingGap),
-            _countryCard(),
-            const SizedBox(height: kiviloButtonGap),
-            _teamsCard(),
-            const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(
-              title: 'Personal report branding',
-              subtitle: 'Used for properties outside your teams.',
-            ),
-            const SizedBox(height: kiviloHeadingGap),
-            _brandingCard(),
-            const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(
-              title: 'Plan',
-              subtitle: 'Your active property allowance.',
-            ),
-            const SizedBox(height: kiviloHeadingGap),
-            _planCard(),
-            const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(title: 'Privacy & support'),
-            const SizedBox(height: kiviloHeadingGap),
-            _linkCard(
-              icon: Icons.info_outline,
-              title: 'How a handover works',
-              subtitle: 'Capture, write the inventory, then sign',
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => Scaffold(
-                    appBar: AppBar(title: const Text('How a handover works')),
-                    body: const SingleChildScrollView(
-                      padding: kiviloScreenPadding,
-                      child: HandoverGuide(),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            _linkCard(
-              icon: Icons.privacy_tip_outlined,
-              title: 'Privacy policy',
-              subtitle: 'How Kivilo handles your data',
-              onTap: () => _openPage('/privacy'),
-            ),
-            const SizedBox(height: 10),
-            _linkCard(
-              icon: Icons.description_outlined,
-              title: 'Terms of service',
-              subtitle: 'The terms for using Kivilo',
-              onTap: () => _openPage('/terms'),
-            ),
-            const SizedBox(height: 10),
-            _linkCard(
-              icon: Icons.help_outline,
-              title: 'Help & support',
-              subtitle: 'Get help with an inspection or your account',
-              onTap: () => _openPage('/support'),
-            ),
-            const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(
-              title: 'Your data',
-              subtitle: 'Manage your account and deletion request.',
-            ),
-            const SizedBox(height: kiviloHeadingGap),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.delete_outline,
-                          color: KiviloColors.body,
+                        const Divider(height: 1),
+                        ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 6,
+                          ),
+                          leading: const Icon(Icons.logout),
+                          title: Text(t.signOut),
+                          subtitle: Text(t.settingsSignOutDetail),
+                          onTap: _busy ? null : _signOut,
                         ),
-                        const SizedBox(width: 10),
-                        Text(
-                          'Account deletion',
-                          style: Theme.of(context).textTheme.titleMedium,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'We aim to complete eligible deletion within 30 days of your request.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    if (AppleBilling.supported) ...[
-                      const SizedBox(height: kiviloHeadingGap),
-                      const Text('An Apple subscription continues until you cancel it in your Apple Account. Deleting your Kivilo account does not cancel it.'),
-                      const SizedBox(height: kiviloButtonGap),
-                      TextButton(
-                        onPressed: () => _openPage('https://apps.apple.com/account/subscriptions'),
-                        child: const Text('Manage App Store subscriptions'),
-                      ),
-                    ],
-                    if (deletion != null) ...[
-                      const SizedBox(height: 14),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: KiviloColors.canvas,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Request ${_statusLabel(deletion['status'])}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium,
+                        if (_signOutError != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+                            child: Text(
+                              _signOutError!,
+                              style: const TextStyle(color: KiviloColors.red),
                             ),
-                            const SizedBox(height: 3),
-                            Text(
-                              'Requested ${_shortDate(deletion['requestedAt'])} · Due ${_shortDate(deletion['dueAt'])}'
-                              '${deletion['completedAt'] == null ? '' : ' · Completed ${_shortDate(deletion['completedAt'])}'}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (widget.onStartCheckIn != null) ...[
+                    const SizedBox(height: kiviloSectionGap),
+                    KiviloSectionHeading(title: t.settingsForAgents),
+                    const SizedBox(height: kiviloHeadingGap),
+                    _linkCard(
+                      icon: Icons.add_home_work_outlined,
+                      title: t.settingsStartCheckIn,
+                      subtitle: t.settingsStartCheckInDetail,
+                      onTap: widget.onStartCheckIn!,
+                    ),
+                  ],
+                  const SizedBox(height: kiviloSectionGap),
+                  KiviloSectionHeading(title: t.settingsWorkspace),
+                  const SizedBox(height: kiviloHeadingGap),
+                  _countryCard(),
+                  const SizedBox(height: kiviloButtonGap),
+                  _teamsCard(),
+                  const SizedBox(height: kiviloSectionGap),
+                  KiviloSectionHeading(
+                    title: t.personalReportBranding,
+                    subtitle: t.usedForPropertiesOutsideYourTeams,
+                  ),
+                  const SizedBox(height: kiviloHeadingGap),
+                  _brandingCard(),
+                  const SizedBox(height: kiviloSectionGap),
+                  KiviloSectionHeading(
+                    title: t.settingsPlan,
+                    subtitle: t.yourActivePropertyAllowance,
+                  ),
+                  const SizedBox(height: kiviloHeadingGap),
+                  _planCard(),
+                  const SizedBox(height: kiviloSectionGap),
+                  KiviloSectionHeading(title: t.settingsPrivacySupport),
+                  const SizedBox(height: kiviloHeadingGap),
+                  _linkCard(
+                    icon: Icons.info_outline,
+                    title: t.howAHandoverWorks,
+                    subtitle: t.captureWriteTheInventoryThenSign,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => Scaffold(
+                          appBar: AppBar(title: Text(t.howAHandoverWorks)),
+                          body: const SingleChildScrollView(
+                            padding: kiviloScreenPadding,
+                            child: HandoverGuide(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _linkCard(
+                    icon: Icons.privacy_tip_outlined,
+                    title: t.settingsPrivacyPolicy,
+                    subtitle: t.settingsPrivacyPolicyDetail,
+                    onTap: () => _openPage('/privacy'),
+                  ),
+                  const SizedBox(height: 10),
+                  _linkCard(
+                    icon: Icons.description_outlined,
+                    title: t.termsOfService,
+                    subtitle: t.theTermsForUsingKivilo,
+                    onTap: () => _openPage('/terms'),
+                  ),
+                  const SizedBox(height: 10),
+                  _linkCard(
+                    icon: Icons.help_outline,
+                    title: t.settingsHelp,
+                    subtitle: t.settingsHelpDetail,
+                    onTap: () => _openPage('/support'),
+                  ),
+                  const SizedBox(height: kiviloSectionGap),
+                  KiviloSectionHeading(
+                    title: t.settingsYourData,
+                    subtitle: t.settingsYourDataDetail,
+                  ),
+                  const SizedBox(height: kiviloHeadingGap),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.delete_outline,
+                                color: KiviloColors.body,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                t.settingsAccountDeletion,
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            t.settingsDeletionAim,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          if (AppleBilling.supported) ...[
+                            const SizedBox(height: kiviloHeadingGap),
+                            Text(t.anAppleSubscriptionContinuesUntilYouCancel),
+                            const SizedBox(height: kiviloButtonGap),
+                            TextButton(
+                              onPressed: () => _openPage(
+                                'https://apps.apple.com/account/subscriptions',
+                              ),
+                              child: Text(t.manageAppStoreSubscriptions),
                             ),
                           ],
-                        ),
+                          if (deletion != null) ...[
+                            const SizedBox(height: 14),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: KiviloColors.canvas,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _statusLabel(deletion['status']),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                  const SizedBox(height: 3),
+                                  Text(
+                                    deletion['completedAt'] == null
+                                        ? t.settingsDeletionDates(
+                                            _shortDate(deletion['requestedAt']),
+                                            _shortDate(deletion['dueAt']),
+                                          )
+                                        : t.settingsDeletionDatesCompleted(
+                                            _shortDate(deletion['requestedAt']),
+                                            _shortDate(deletion['dueAt']),
+                                            _shortDate(deletion['completedAt']),
+                                          ),
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ] else if (checkingDeletion) ...[
+                            const SizedBox(height: 16),
+                            const LinearProgressIndicator(),
+                          ] else ...[
+                            const SizedBox(height: 16),
+                            FilledButton(
+                              onPressed: _busy ? null : _requestDeletion,
+                              child: Text(
+                                _busy
+                                    ? t.sending
+                                    : t.settingsRequestAccountDeletion,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
-                    ] else if (checkingDeletion) ...[
-                      const SizedBox(height: 16),
-                      const LinearProgressIndicator(),
-                    ] else ...[
-                      const SizedBox(height: 16),
-                      FilledButton(
-                        onPressed: _busy ? null : _requestDeletion,
-                        child: Text(
-                          _busy ? 'Sending…' : 'Request account deletion',
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-            if (snapshot.hasError)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
+                    ),
+                  ),
+                  if (snapshot.hasError)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
                       child: Text(
-                        'Could not load your deletion request. ${plainError(snapshot.error!)}',
+                        t.settingsDeletionLoadFailed(
+                          plainError(snapshot.error!),
+                        ),
                       ),
-              ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
+                    ),
+                  if (_error != null) ...[
+                    const SizedBox(height: 12),
                     Text(
                       _error!,
                       style: const TextStyle(color: KiviloColors.red),
                     ),
-            ],
-            const SizedBox(height: 28),
-            FutureBuilder<String>(
-              future: _version,
-              builder: (context, version) => Text(
-                version.data ?? '',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-          ],
-        );
-      },
+                  ],
+                  const SizedBox(height: 28),
+                  FutureBuilder<String>(
+                    future: _version,
+                    builder: (context, version) => Text(
+                      version.data ?? '',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
+      ),
     ),
-  ),
   );
 
   Widget _linkCard({
@@ -792,14 +813,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   String _shortDate(Object? value) {
     final date = DateTime.tryParse(value?.toString() ?? '');
-    if (date == null) return 'unknown';
+    if (date == null) return t.unknown;
     final local = date.toLocal();
     return '${local.day}/${local.month}/${local.year}';
   }
 
   String _statusLabel(Object? value) => switch (value) {
-    'COMPLETED' => 'completed',
-    'PROCESSING' => 'in progress',
-    _ => 'received',
+    'COMPLETED' => t.settingsDeletionCompleted,
+    'PROCESSING' => t.settingsDeletionInProgress,
+    _ => t.settingsDeletionReceived,
   };
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kivilo/screens/new_inspection_screen.dart';
+import 'package:kivilo/l10n/l10n.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
@@ -72,6 +73,28 @@ Future<void> _fillRequired(WidgetTester tester) async {
 }
 
 void main() {
+  for (final locale in ['zh', 'th']) {
+    testWidgets(
+      'Singapore check-in shows local language and currency at 360px: $locale',
+      (tester) async {
+        AppLanguage.resolve([Locale(locale)]);
+        addTearDown(() => AppLanguage.resolve(const [Locale('en')]));
+        final api = _Api();
+        await _open(tester, api, _MemoryCache());
+        tester.view.physicalSize = const Size(360, 800);
+        await tester.pumpAndSettle();
+        expect(find.text(t.newCheckIn), findsOneWidget);
+        final label = t.fieldOptional(t.newDeposit('SGD'));
+        expect(label, contains('SGD'));
+        expect(label, isNot(contains('Deposit')));
+        final deposit = find.widgetWithText(TextFormField, label);
+        await _reveal(tester, deposit);
+        await tester.enterText(deposit, '2000');
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('sends the rooms chosen, in walking order', (tester) async {
     final api = _Api();
     await _open(tester, api, _MemoryCache());

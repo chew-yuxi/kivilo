@@ -1,19 +1,20 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { usePwa } from '@/components/locale'
 
 /// Prints the signed report on the server and opens the file. Goes through the same
 /// /api/v1 route as the app, which accepts this browser's session cookie.
 export function DownloadPdf({ inspectionId }: { inspectionId: string }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5">
-      <h2 className="text-sm font-medium">PDF copy</h2>
+      <h2 className="text-sm font-medium">{w.pdfCopy}</h2>
       <p className="mt-1 text-sm text-gray-500">
-        The signed report as a PDF, headed with your agency if you have set it up in the
-        app. Takes a few seconds.
+        {w.pdfCopyBody}
       </p>
       <button
         type="button"
@@ -22,7 +23,7 @@ export function DownloadPdf({ inspectionId }: { inspectionId: string }) {
           setError(null)
           const response = await fetch(`/api/v1/inspections/${inspectionId}/pdf`, { method: 'POST' })
           if (!response.ok) {
-            setError('Could not make the PDF. Try again in a moment.')
+            setError(w.pdfFailed)
             return
           }
           const { url } = await response.json() as { url: string }
@@ -30,7 +31,7 @@ export function DownloadPdf({ inspectionId }: { inspectionId: string }) {
         })}
         className="action-primary mt-4"
       >
-        {pending ? 'Preparing PDF…' : 'Download PDF'}
+        {pending ? w.preparingPdf : w.downloadPdf}
       </button>
       {error && <p className="mt-2 text-sm text-red-700">{error}</p>}
     </div>

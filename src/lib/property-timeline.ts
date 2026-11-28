@@ -4,6 +4,8 @@ import { propertyLabel } from '@/lib/format'
 import { describeProposal } from '@/lib/maintenance'
 import { shortMoney } from '@/lib/country'
 import type { Country, Prisma } from '@/generated/prisma'
+import { type Messages } from '@/lib/i18n'
+import { en } from '@/lib/i18n/en'
 
 const timelineInclude = {
   tenant: { select: { name: true } },
@@ -74,7 +76,9 @@ export function timelineEvents(
   workingCopies: Set<string>,
   country: Country,
   now = new Date(),
+  m: Messages = en,
 ): TimelineEvent[] {
+  const words = m.timeline
   type Draft = Omit<TimelineEvent, 'at'> & { at: Date }
   const events: Draft[] = []
   const add = (event: Draft) => events.push(event)
@@ -84,13 +88,13 @@ export function timelineEvents(
     if (tenancy.startDate <= now) {
       add({
         id: `${tenancyId}:start`, at: tenancy.startDate, kind: 'TENANCY_STARTED',
-        title: 'Tenancy began', detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
+        title: words.tenancyBegan, detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
       })
     }
     if (tenancy.endDate <= now) {
       add({
         id: `${tenancyId}:end`, at: tenancy.endDate, kind: 'TENANCY_ENDED',
-        title: 'Tenancy ended', detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
+        title: words.tenancyEnded, detail: tenancy.tenant.name, tenancyId, link: null, reportId: null,
       })
     }
 
@@ -104,8 +108,8 @@ export function timelineEvents(
         add({
           id: `${inspection.id}:signed`, at: new Date(Math.max(...signed)),
           kind: checkIn ? 'CHECK_IN_SIGNED' : 'CHECK_OUT_SIGNED',
-          title: checkIn ? 'Check-in signed' : 'Check-out signed',
-          detail: 'Signed by both parties', tenancyId, link, reportId: inspection.id,
+          title: checkIn ? words.checkInSigned : words.checkOutSigned,
+          detail: words.signedByBoth, tenancyId, link, reportId: inspection.id,
         })
       }
       for (const assessment of inspection.assessments) {
@@ -113,16 +117,16 @@ export function timelineEvents(
           id: `${inspection.id}:assessment:${assessment.version}`, at: assessment.publishedAt,
           kind: 'ASSESSMENT_PUBLISHED',
           title: assessment.version === 1
-            ? 'Check-out assessment published'
-            : `Check-out assessment version ${assessment.version} published`,
+            ? words.assessmentPublished
+            : words.assessmentVersionPublished(assessment.version),
           detail: null, tenancyId, link, reportId: inspection.id,
         })
       }
       for (const addendum of inspection.addenda) {
         add({
           id: `${addendum.id}:acknowledged`, at: addendum.acknowledgedAt!, kind: 'REPORT_UPDATED',
-          title: `Check-in report updated: ${addendum.title}`,
-          detail: `Update ${addendum.number}, acknowledged by both parties`, tenancyId, link, reportId: inspection.id,
+          title: words.reportUpdated(addendum.title),
+          detail: words.updateAcknowledged(addendum.number!), tenancyId, link, reportId: inspection.id,
         })
       }
     }
@@ -131,12 +135,12 @@ export function timelineEvents(
       const link = { type: 'maintenance' as const, id: item.id }
       add({
         id: `${item.id}:reported`, at: item.createdAt, kind: 'PROBLEM_REPORTED',
-        title: `Reported: ${item.title}`, detail: null, tenancyId, link, reportId: null,
+        title: words.reported(item.title), detail: null, tenancyId, link, reportId: null,
       })
       for (const visit of item.visits) {
         add({
           id: `${visit.id}:repaired`, at: visit.completedAt!, kind: 'REPAIRED',
-          title: `Repaired: ${item.title}`,
+          title: words.repaired(item.title),
           detail: visit.cost ? shortMoney(visit.cost.toFixed(2), country) : null, tenancyId, link, reportId: null,
         })
         if (visit.verification) {
@@ -144,7 +148,7 @@ export function timelineEvents(
           add({
             id: `${visit.id}:verified`, at: visit.verification.createdAt,
             kind: fixed ? 'CONFIRMED_FIXED' : 'NOT_FIXED',
-            title: fixed ? `Confirmed fixed: ${item.title}` : `Not fixed: ${item.title}`,
+            title: fixed ? words.confirmedFixed(item.title) : words.notFixed(item.title),
             detail: null, tenancyId, link, reportId: null,
           })
         }
@@ -152,13 +156,13 @@ export function timelineEvents(
       for (const agreement of item.responsibilityProposals) {
         add({
           id: `${agreement.id}:agreed`, at: agreement.respondedAt!, kind: 'COST_AGREED',
-          title: `Cost agreed: ${item.title}`, detail: describeProposal(agreement, country), tenancyId, link, reportId: null,
+          title: words.costAgreed(item.title), detail: describeProposal(agreement, country, m), tenancyId, link, reportId: null,
         })
       }
       if (item.status === 'CLOSED_NO_ACTION' && item.resolvedAt) {
         add({
           id: `${item.id}:closed`, at: item.resolvedAt, kind: 'CLOSED_WITHOUT_REPAIR',
-          title: `Closed without repair: ${item.title}`, detail: null, tenancyId, link, reportId: null,
+          title: words.closedWithoutRepair(item.title), detail: null, tenancyId, link, reportId: null,
         })
       }
     }
@@ -171,7 +175,7 @@ export function timelineEvents(
 
 /// Exactly the tenancies `tenancyScope` gives the viewer, so who sees what cannot drift
 /// from maintenance. No tenancy in scope is the same 404 as no property.
-export async function propertyTimeline(propertyId: string, stakeholderId: string) {
+export async function propertyTimeline(propertyId: string, stakeholderId: string, m: Messages = en) {
   const tenancies = await db.tenancy.findMany({
     where: { AND: [{ propertyId }, tenancyScope(stakeholderId)] },
     orderBy: { startDate: 'asc' },
@@ -192,6 +196,7 @@ export async function propertyTimeline(propertyId: string, stakeholderId: string
       startDate: tenancy.startDate.toISOString(),
       endDate: tenancy.endDate.toISOString(),
     })),
-    events: timelineEvents(tenancies, new Set(workingCopies.map((inspection) => inspection.id)), tenancies[0].property.country),
+    events: timelineEvents(tenancies, new Set(workingCopies.map((inspection) => inspection.id)), tenancies[0].property.country, new Date(),
+m),
   }
 }

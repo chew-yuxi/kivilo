@@ -11,6 +11,8 @@ Google Play accepted the signed Android bundle for version 1.0.1, build 30. Its 
 
 Managed publishing is on. After Google approves build 30, verify the production version and the scope of the publish action. At submission, Play showed five older approved changes in a separate group: build 27, two English listing edits, the privacy policy URL and the Data safety form. The last public production build at submission was 25. [Play Console production](https://play.google.com/console/u/0/developers/8982183772541615481/app/4975629300074157006/tracks/production)
 
+At 14:43 SGT Google marked submission 6 **Ready to publish**. Its final approved bundle contains production build 30, the English short and full descriptions, the privacy URL and the Data safety update. Publishing overview offers **Publish 5 changes**. Build 27 is absent from the bundle. The production row’s menu offers **View change**. Publication is pending the owner’s decision on releasing these five changes together. The separate Chinese and Thai candidate is under native-speaker review.
+
 ## Handover validation and deposit statements · 27 November 2026
 
 Server `05cb1f1` runs on both production app domains. Migration `20261127010000_tenancy_amounts_entered` added two nullable flags. Legacy signed fingerprints keep their original inputs. A deposit first supplied at check-out belongs to the published assessment. The Malaysian pilot signed both inventories with a blank deposit, then published RM2,000 less RM250 and showed RM1,750 to the tenant. A repeat publication returned the same version.

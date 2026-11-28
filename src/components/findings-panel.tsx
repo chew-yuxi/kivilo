@@ -6,6 +6,7 @@ import { CHANGE_TYPES, VERDICTS } from '@/lib/inspection/schema'
 import { createFinding, deleteFinding, updateFinding } from '@/lib/actions'
 import { publishAssessment } from '@/lib/assessment-actions'
 import type { ChangeType, Country, Verdict } from '@/generated/prisma'
+import { usePwa } from '@/components/locale'
 
 export type FindingRow = {
   id: string
@@ -30,12 +31,6 @@ const CHANGE_TONE: Record<ChangeType, string> = {
   IMPROVED: 'bg-emerald-50 text-emerald-700',
 }
 
-const VERDICT_LABEL: Record<Verdict, string> = {
-  TENANT_LIABLE: 'Tenant liable',
-  FAIR_WEAR: 'Fair wear and tear',
-  DISPUTED: 'Disputed',
-  UNDECIDED: 'Undecided',
-}
 
 /// An item either report lists, as the add form offers it.
 export type ComparableItem = { id: string; label: string }
@@ -51,6 +46,7 @@ function AddFinding({
   checkOutItems: ComparableItem[]
   checkInItems: ComparableItem[]
 }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -84,25 +80,25 @@ function AddFinding({
       }}
       className="space-y-3 rounded-lg border border-gray-200 bg-white p-4"
     >
-      <h3 className="text-sm font-medium">Add a finding</h3>
+      <h3 className="text-sm font-medium">{w.addAFinding}</h3>
       <select
         name="item"
         required
         defaultValue=""
-        aria-label="Item"
+        aria-label={w.item}
         className="w-full rounded border border-gray-200 px-2 py-2 text-sm focus:border-brand-500 focus:outline-none"
       >
         <option value="" disabled>
-          Which item?
+          {w.whichItem}
         </option>
-        <optgroup label="At check-out">
+        <optgroup label={w.atCheckOut}>
           {checkOutItems.map((item) => (
             <option key={item.id} value={`out:${item.id}`}>
               {item.label}
             </option>
           ))}
         </optgroup>
-        <optgroup label="At check-in (for anything missing)">
+        <optgroup label={w.atCheckInMissing}>
           {checkInItems.map((item) => (
             <option key={item.id} value={`in:${item.id}`}>
               {item.label}
@@ -114,24 +110,24 @@ function AddFinding({
         <select
           name="changeType"
           defaultValue="DAMAGE"
-          aria-label="Change"
+          aria-label={w.change}
           className="rounded border border-gray-200 px-2 py-1 text-xs font-medium focus:border-brand-500 focus:outline-none"
         >
           {CHANGE_TYPES.map((c) => (
             <option key={c} value={c}>
-              {c.toLowerCase()}
+              {w.changeType(c)}
             </option>
           ))}
         </select>
         <select
           name="verdict"
           defaultValue="UNDECIDED"
-          aria-label="Verdict"
+          aria-label={w.verdictLabel}
           className="rounded border border-gray-200 px-2 py-1 text-xs font-medium focus:border-brand-500 focus:outline-none"
         >
           {VERDICTS.map((v) => (
             <option key={v} value={v}>
-              {VERDICT_LABEL[v]}
+              {w.verdict(v)}
             </option>
           ))}
         </select>
@@ -140,7 +136,7 @@ function AddFinding({
           type="number"
           step="0.01"
           min="0"
-          placeholder="Make-good cost"
+          placeholder={w.makeGoodCost}
           className="w-36 rounded border border-gray-200 px-2 py-1 text-xs tabular-nums focus:border-brand-500 focus:outline-none"
         />
       </div>
@@ -148,7 +144,7 @@ function AddFinding({
         name="rationale"
         required
         rows={2}
-        placeholder="What changed, and why it is or is not the tenant's to make good"
+        placeholder={w.rationaleHint}
         className="w-full rounded border border-gray-200 px-2 py-1.5 text-sm focus:border-brand-500 focus:outline-none"
       />
       {error && <p className="text-sm text-red-700">{error}</p>}
@@ -157,7 +153,7 @@ function AddFinding({
         disabled={pending}
         className="action-primary"
       >
-        {pending ? 'Adding' : 'Add finding'}
+        {pending ? w.adding : w.addFinding}
       </button>
     </form>
   )
@@ -182,6 +178,7 @@ export function FindingsPanel({
   checkOutItems: ComparableItem[]
   checkInItems: ComparableItem[]
 }) {
+  const w = usePwa()
   const [pending, startTransition] = useTransition()
   // With no findings, publishing states that no damage was found. The server refuses
   // that unless it is confirmed, so the agent has to tick it.
@@ -197,16 +194,16 @@ export function FindingsPanel({
     <div className="space-y-4">
       <div className="flex items-baseline justify-between rounded-lg border border-gray-200 bg-white px-5 py-4">
         <div>
-          <h2 className="text-sm font-medium">Deposit position</h2>
+          <h2 className="text-sm font-medium">{w.depositPosition}</h2>
           <p className="mt-0.5 text-xs text-gray-500">
             {findings.length === 0
-              ? 'No findings yet. Add one for each change since check-in.'
-              : `${liable.length} of ${findings.length} findings assessed as tenant liability`}
+              ? w.noFindingsYet
+              : w.findingsLiable(liable.length, findings.length)}
           </p>
         </div>
         <div className="text-right">
           <p className="text-xl font-semibold tabular-nums">{money(claimTotal, country)}</p>
-          <p className="text-xs text-gray-500">{depositAmount === null ? 'Deposit not recorded' : `of ${money(depositAmount, country)} held`}</p>
+          <p className="text-xs text-gray-500">{depositAmount === null ? w.depositNotRecorded : `of ${money(depositAmount, country)} held`}</p>
         </div>
       </div>
 
@@ -217,12 +214,11 @@ export function FindingsPanel({
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm font-medium">
-                    {finding.itemLabel ?? finding.baselineLabel ?? 'Unmatched item'}
+                    {finding.itemLabel ?? finding.baselineLabel ?? w.unmatchedItem}
                   </p>
                   {finding.baselineCondition && (
                     <p className="mt-0.5 text-xs text-gray-500">
-                      {finding.baselineCondition} at check-in ·{' '}
-                      {finding.currentCondition ?? 'not found'} at check-out
+                      {w.conditionCompare(w.condition(finding.baselineCondition), finding.currentCondition && w.condition(finding.currentCondition))}
                     </p>
                   )}
                 </div>
@@ -235,12 +231,12 @@ export function FindingsPanel({
                       }),
                     )
                   }
-                  aria-label="Change"
+                  aria-label={w.change}
                   className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium focus:outline-none ${CHANGE_TONE[finding.changeType]}`}
                 >
                   {CHANGE_TYPES.map((c) => (
                     <option key={c} value={c}>
-                      {c.toLowerCase()}
+                      {w.changeType(c)}
                     </option>
                   ))}
                 </select>
@@ -249,7 +245,7 @@ export function FindingsPanel({
               <textarea
                 defaultValue={finding.rationale}
                 rows={2}
-                aria-label="Rationale"
+                aria-label={w.rationale}
                 onBlur={(e) =>
                   e.target.value.trim() &&
                   e.target.value.trim() !== finding.rationale &&
@@ -271,7 +267,7 @@ export function FindingsPanel({
                     )}
                     className="action-secondary px-3 text-xs"
                   >
-                    Mark reviewed
+                    {w.markReviewed}
                   </button>
                 )}
                 <select
@@ -287,7 +283,7 @@ export function FindingsPanel({
                 >
                   {VERDICTS.map((v) => (
                     <option key={v} value={v}>
-                      {VERDICT_LABEL[v]}
+                      {w.verdict(v)}
                     </option>
                   ))}
                 </select>
@@ -296,7 +292,7 @@ export function FindingsPanel({
                   type="number"
                   step="0.01"
                   defaultValue={finding.estimatedCost ?? ''}
-                  placeholder="Make-good cost"
+                  placeholder={w.makeGoodCost}
                   onBlur={(e) =>
                     startTransition(() =>
                       void updateFinding(finding.id, inspectionId, {
@@ -317,12 +313,12 @@ export function FindingsPanel({
                     )
                   }
                   className="max-w-64 rounded border border-gray-200 px-2 py-1 text-xs focus:border-brand-500 focus:outline-none"
-                  aria-label="Linked maintenance record"
+                  aria-label={w.linkedMaintenance}
                 >
-                  <option value="">No maintenance evidence</option>
+                  <option value="">{w.noMaintenanceEvidence}</option>
                   {maintenanceCases.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.title} · {item.status.toLowerCase().replaceAll('_', ' ')}
+                      {item.title} · {w.maintenanceStatus(item.status)}
                     </option>
                   ))}
                 </select>
@@ -333,7 +329,7 @@ export function FindingsPanel({
                   onClick={() => startTransition(() => void deleteFinding(finding.id, inspectionId))}
                   className="action-danger ml-auto px-3 text-xs"
                 >
-                  Remove
+                  {w.remove}
                 </button>
               </div>
             </li>
@@ -349,14 +345,13 @@ export function FindingsPanel({
 
       <div className="rounded-lg border border-gray-200 bg-white p-4 text-sm">
         <p className="text-gray-600">
-          Check every finding against the signed inventory and evidence. Publishing makes
-          a dated assessment available in the shared report; later edits require a new version.
+          {w.publishCheck}
         </p>
         {findings.some((finding) => !finding.editedByHuman) && (
-          <p className="mt-2 text-amber-800">Review each finding before publishing.</p>
+          <p className="mt-2 text-amber-800">{w.reviewEachFinding}</p>
         )}
         {publishedVersion && (
-          <p className="mt-2 text-xs text-gray-500">Published version {publishedVersion}</p>
+          <p className="mt-2 text-xs text-gray-500">{w.publishedVersion(publishedVersion)}</p>
         )}
         {empty && (
           <label className="mt-3 flex items-start gap-2 text-gray-800">
@@ -367,16 +362,14 @@ export function FindingsPanel({
               className="mt-0.5"
             />
             <span>
-              No damage was found. Both parties will see a no-damage assessment in the
-              shared report.
+              {w.noDamageConfirm}
             </span>
           </label>
         )}
-        {depositAmount === null && <label className="mt-3 block text-sm">
-          Deposit ({country === 'MY' ? 'MYR' : 'SGD'})
+        {depositAmount === null && <label className="mt-3 block text-sm">{w.deposit(country === 'MY' ? 'MYR' : 'SGD')}
           <input className="ml-2 rounded border p-2" inputMode="decimal" value={depositInput}
             onChange={event => setDepositInput(event.target.value)} aria-describedby="deposit-help" />
-          <span id="deposit-help" className="mt-1 block">Enter the amount paid, or 0 if there was no deposit.</span>
+          <span id="deposit-help" className="mt-1 block">{w.enterTheAmountPaidOr0If}</span>
         </label>}
         {publishError && <p role="alert">{publishError}</p>}
         <button
@@ -389,12 +382,12 @@ export function FindingsPanel({
             try {
               await publishAssessment(inspectionId, { noFindings: empty, confirmedDeposit: depositAmount === null ? depositInput.trim() : undefined })
             } catch (error) {
-              setPublishError(error instanceof Error ? error.message : 'Could not publish the assessment.')
+              setPublishError(error instanceof Error ? error.message : w.couldNotPublishTheAssessment)
             }
           })}
           className="action-primary mt-3"
         >
-          {pending ? 'Publishing…' : empty ? 'Publish: no damage found' : 'Publish assessment'}
+          {pending ? w.publishing : empty ? w.publishNoDamage : w.publishAssessment}
         </button>
       </div>
     </div>

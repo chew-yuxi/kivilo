@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../l10n/l10n.dart';
 import '../models/inspection.dart';
 import '../services/api.dart';
 import '../services/product_events.dart';
@@ -156,9 +157,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
 
   void _queueError(Object error) {
     if (mounted) {
-      setState(
-        () => _error = 'Could not check saved media. ${plainError(error)}',
-      );
+      setState(() => _error = t.captureCheckFailed(plainError(error)));
     }
   }
 
@@ -242,12 +241,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
     try {
       if ((widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id) !=
           _ownerId) {
-        throw const ApiFailure('Account changed. Open this room again.', 401);
+        throw ApiFailure(t.captureAccountChanged, 401);
       }
       final detail = await _api.room(widget.inspectionId, widget.roomId);
       if ((widget.ownerId ?? Supabase.instance.client.auth.currentUser?.id) !=
           _ownerId) {
-        throw const ApiFailure('Account changed. Open this room again.', 401);
+        throw ApiFailure(t.captureAccountChanged, 401);
       }
       if (mounted && !_reloadRoom) {
         setState(() {
@@ -273,15 +272,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
           if (error.statusCode != null) _handingOver.clear();
           _offline = false;
           _error = error.statusCode == null
-              ? 'Room has not been loaded on this phone. Connect once to open it.'
+              ? t.captureRoomNotLoaded
               : error.message;
         });
       }
     } catch (error) {
       if (mounted && !_reloadRoom) {
-        setState(
-          () => _error = 'Could not open this room. ${plainError(error)}',
-        );
+        setState(() => _error = t.roomOpenFailed(plainError(error)));
       }
     }
   }
@@ -566,7 +563,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       await future;
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Upload paused. ${plainError(error)}');
+        setState(() => _error = t.uploadPausedError(plainError(error)));
       }
     } finally {
       _uploading = null;
@@ -590,29 +587,29 @@ class _CaptureScreenState extends State<CaptureScreen> {
     return showKiviloDrawer<String>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: const Text('Media actions'),
+        title: Text(t.mediaActions),
         content: Column(
           children: [
             if (!photo)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.play_circle_outline),
-                title: const Text('Play video'),
+                title: Text(t.playVideo),
                 onTap: () => Navigator.pop(context, 'play'),
               ),
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.notes_outlined),
-              title: const Text('Edit note'),
-              subtitle: const Text('Describe what this shows'),
+              title: Text(t.editNote),
+              subtitle: Text(t.noteHint),
               onTap: () => Navigator.pop(context, 'note'),
             ),
             if (photo)
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.gesture_outlined),
-                title: const Text('Mark photo'),
-                subtitle: const Text('Circle or point to a detail'),
+                title: Text(t.markPhoto),
+                subtitle: Text(t.markPhotoDetailShort),
                 onTap: () => Navigator.pop(context, 'mark'),
               ),
             const Divider(),
@@ -622,8 +619,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                 Icons.delete_outline,
                 color: KiviloColors.red,
               ),
-              title: const Text(
-                'Delete media',
+              title: Text(
+                t.deleteMedia,
                 style: TextStyle(color: KiviloColors.red),
               ),
               onTap: () => Navigator.pop(context, 'delete'),
@@ -633,7 +630,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: Text(t.close),
           ),
         ],
       ),
@@ -712,10 +709,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       final serverId = await _idForQueuedCapture(capture);
       if (serverId == null) {
         if (mounted) {
-          setState(
-            () => _error =
-                'Could not find this photo. Please try the note again.',
-          );
+          setState(() => _error = t.capturePhotoNotFoundNote);
         }
         return false;
       }
@@ -746,10 +740,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       final server = _serverFor(capture.clientId);
       if (server == null) {
         if (mounted) {
-          setState(
-            () => _error =
-                'Could not open this photo. Please retry when connected.',
-          );
+          setState(() => _error = t.capturePhotoOpenFailed);
         }
         return;
       }
@@ -762,7 +753,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
         builder: (_) => PhotoMarkScreen(
           image: image,
           annotations: previous,
-          saveLabel: capture.awaitingMarkup ? 'Save photo' : 'Save',
+          saveLabel: capture.awaitingMarkup ? t.savePhoto : t.save,
           onChanged: capture.awaitingMarkup
               ? (annotations) => _queue.setAnnotations(
                   capture.id,
@@ -789,10 +780,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       final serverId = await _idForQueuedCapture(capture);
       if (serverId == null) {
         if (mounted) {
-          setState(
-            () => _error =
-                'Could not find this photo. Please try the marks again.',
-          );
+          setState(() => _error = t.capturePhotoNotFoundMarks);
         }
         return;
       }
@@ -918,7 +906,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       if (mounted) Navigator.pop(context);
     } catch (error) {
       if (mounted) {
-        setState(() => _error = 'Could not open review. ${plainError(error)}');
+        setState(() => _error = t.captureReviewFailed(plainError(error)));
       }
     } finally {
       if (mounted) setState(() => _finishing = false);
@@ -989,21 +977,21 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   builder: (context) => KiviloDrawer(
                     title: Text(
                       checkIn.conductedAt == null
-                          ? 'At check-in'
-                          : 'At check-in · ${shortDate(checkIn.conductedAt!)}',
+                          ? t.atCheckIn
+                          : t.atCheckInDate(shortDate(checkIn.conductedAt!)),
                     ),
                     content: CheckInReferenceView(reference: checkIn),
                   ),
                 ),
               ),
-              child: const Text('Check-in'),
+              child: Text(t.checkIn),
             ),
           IconButton(
             onPressed: () {
               unawaited(_drain());
             },
             icon: const Icon(Icons.sync),
-            tooltip: 'Retry uploads',
+            tooltip: t.retryUploads,
           ),
           if (widget.itemId != null)
             Padding(
@@ -1011,7 +999,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               child: FilledButton(
                 style: FilledButton.styleFrom(minimumSize: const Size(0, 40)),
                 onPressed: _busy || _leaving ? null : _leaveAfterSaving,
-                child: const Text('Done'),
+                child: Text(t.done),
               ),
             ),
         ],
@@ -1035,27 +1023,30 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${item.category} · ${item.condition} · Qty ${item.quantity}',
+                          '${itemCategoryLabels[item.category] ?? item.category} · ${itemConditionLabels[item.condition] ?? item.condition} · ${t.quantityShort(item.quantity)}',
                         ),
                         if (baseline != null) ...[
                           const SizedBox(height: 8),
                           Text(
-                            'At check-in: ${baseline.name} · ${baseline.condition} · Qty ${baseline.quantity}',
+                            t.atCheckInLine(
+                              baseline.name,
+                              itemConditionLabels[baseline.condition] ??
+                                  baseline.condition,
+                              baseline.quantity,
+                            ),
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           if (baseline.identifier?.isNotEmpty == true)
-                            Text(
-                              'Serial / model at check-in: ${baseline.identifier}',
-                            ),
+                            Text(t.serialAtCheckIn(baseline.identifier!)),
                           if (baseline.meterReading?.isNotEmpty == true)
-                            Text('Meter at check-in: ${baseline.meterReading}'),
+                            Text(t.meterAtCheckIn(baseline.meterReading!)),
                           if (baseline.notes?.isNotEmpty == true)
-                            Text('Check-in notes: ${baseline.notes}'),
+                            Text(t.checkInNotes(baseline.notes!)),
                         ],
                         if (item.identifier?.isNotEmpty == true)
-                          Text('Serial / model: ${item.identifier}'),
+                          Text(t.serialModel(item.identifier!)),
                         if (item.meterReading?.isNotEmpty == true)
-                          Text('Meter reading: ${item.meterReading}'),
+                          Text(t.meterReadingValue(item.meterReading!)),
                         if (item.notes?.isNotEmpty == true) ...[
                           const SizedBox(height: 8),
                           Text(item.notes!),
@@ -1088,7 +1079,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                                       }
                                     },
                               icon: const Icon(Icons.edit_outlined),
-                              label: const Text('Edit details'),
+                              label: Text(t.editDetails),
                             ),
                           ),
                         ],
@@ -1100,12 +1091,12 @@ class _CaptureScreenState extends State<CaptureScreen> {
               ],
               if (widget.itemId == null) ...[
                 Text(
-                  'Room photos',
+                  t.roomPhotos,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Take room-wide photos or manage existing ones.',
+                  t.takeRoomWidePhotosOrManageExisting,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 20),
@@ -1135,7 +1126,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
               if (roomEdits.isNotEmpty)
                 _notice(
                   Icons.sync,
-                  '${roomEdits.length == 1 ? 'A change is' : '${roomEdits.length} changes are'} waiting to upload. Tap to try again.',
+                  t.editsWaiting(roomEdits.length),
                   KiviloColors.amberSoft,
                   KiviloColors.amber,
                   onTap: () => unawaited(_drain()),
@@ -1167,8 +1158,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                   icon: const Icon(Icons.camera_alt_outlined),
                   label: Text(
                     widget.picker != null
-                        ? (hasMedia ? 'Take another photo' : 'Take a photo')
-                        : (hasMedia ? 'Take more photos' : 'Take photos'),
+                        ? (hasMedia ? t.takeAnotherPhoto : t.takePhoto)
+                        : (hasMedia ? t.takeMorePhotos : t.takePhotos),
                   ),
                 ),
                 const SizedBox(height: kiviloButtonGap),
@@ -1182,7 +1173,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                       ? null
                       : _chooseFromLibrary,
                   icon: const Icon(Icons.image),
-                  label: const Text('Choose photos'),
+                  label: Text(t.choosePhotos),
                 ),
               ],
             ];
@@ -1237,13 +1228,13 @@ class _CaptureScreenState extends State<CaptureScreen> {
 
             final media = <Widget>[
               KiviloSectionHeading(
-                title: widget.itemId == null ? 'Media' : 'Photos',
-                subtitle: 'Saved on your phone first, then added to the report',
+                title: widget.itemId == null ? t.media : t.photos,
+                subtitle: t.captureSavedFirst,
               ),
               const SizedBox(height: kiviloHeadingGap),
               if (widget.itemId != null && keys.isEmpty)
                 Text(
-                  'No photos of this item yet.',
+                  t.noPhotosOfThisItemYet,
                   style: Theme.of(
                     context,
                   ).textTheme.bodyMedium?.copyWith(color: KiviloColors.muted),
@@ -1315,8 +1306,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (widget.itemId == null && waiting) ...[
-                  const Text(
-                    'Review opens once this room’s photos and changes have uploaded. Your media stays saved on this phone while you wait for signal.',
+                  Text(
+                    t.reviewOpensOnceThisRoomsPhotosAnd,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
@@ -1336,8 +1327,8 @@ class _CaptureScreenState extends State<CaptureScreen> {
                     icon: const Icon(Icons.camera_alt_outlined),
                     label: Text(
                       widget.picker != null
-                          ? (hasMedia ? 'Take another photo' : 'Take a photo')
-                          : (hasMedia ? 'Take more photos' : 'Take photos'),
+                          ? (hasMedia ? t.takeAnotherPhoto : t.takePhoto)
+                          : (hasMedia ? t.takeMorePhotos : t.takePhotos),
                     ),
                   ),
                   TextButton.icon(
@@ -1351,7 +1342,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         ? null
                         : _chooseFromLibrary,
                     icon: const Icon(Icons.image),
-                    label: const Text('Choose photos'),
+                    label: Text(t.choosePhotos),
                   ),
                 ] else
                   OutlinedButton.icon(
@@ -1364,7 +1355,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                         ? null
                         : _finishRoom,
                     icon: const Icon(Icons.check_rounded),
-                    label: const Text('Review room'),
+                    label: Text(t.reviewRoom),
                   ),
               ],
             ),
@@ -1458,7 +1449,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
       key: ValueKey(identity),
       button: open != null,
       label: [
-        '${kind == 'PHOTO' ? 'Photo' : 'Video'} $number',
+        '${kind == 'PHOTO' ? t.photo : t.video} $number',
         if (hasNote) note!,
         status?.text ?? 'In the report',
       ].join(', '),
@@ -1535,7 +1526,7 @@ class _CaptureScreenState extends State<CaptureScreen> {
                               : _openServerActions(saved!),
                         ),
                   icon: badge(Icons.more_horiz),
-                  tooltip: 'Media actions',
+                  tooltip: t.mediaActions,
                 ),
               ),
               if (hasNote)
@@ -1655,27 +1646,25 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
                   Navigator.pop(context, const _PhotoNoteResult.back()),
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              tooltip: 'Back to media actions',
+              tooltip: t.backToMediaActions,
               icon: const Icon(Icons.arrow_back),
             ),
             const SizedBox(width: 8),
           ],
-          const Text('Photo note'),
+          Text(t.photoNote),
         ],
       ),
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Describe what the viewer should notice in this photo.'),
+          Text(t.photoNoteDetail),
           const SizedBox(height: 18),
           TextField(
             controller: _controller,
             autofocus: true,
             minLines: 3,
             maxLines: 6,
-            decoration: const InputDecoration(
-              hintText: 'For example: chip beside the sink',
-            ),
+            decoration: InputDecoration(hintText: t.photoNoteHint),
           ),
         ],
       ),
@@ -1683,7 +1672,7 @@ class _PhotoNoteDrawerState extends State<_PhotoNoteDrawer> {
         FilledButton(
           onPressed: () =>
               Navigator.pop(context, _PhotoNoteResult.save(_controller.text)),
-          child: const Text('Save note'),
+          child: Text(t.saveNote),
         ),
       ],
     );

@@ -303,7 +303,7 @@ describe('signing by email link', () => {
     expect(rows[0].sentAt).not.toBeNull()
     const [to, request] = vi.mocked(sendSignatureRequest).mock.calls.at(-1)!
     expect(to).toBe(deal.landlord.email)
-    expect(request).toMatchObject({ id: rows[0].id, role: 'landlord', reportKind: 'Check-in' })
+    expect(request).toMatchObject({ id: rows[0].id, role: 'landlord', reportKind: 'CHECK_IN' })
     expect(new URL(request.link).pathname).toBe(`/sign/${deal.inspection.id}`)
     expect(new URL(request.link).searchParams.get('email')).toBe(deal.landlord.email)
     expect((await signingParties(deal.inspection.id))[0].signingEmail).toMatchObject({ state: 'SENT' })
@@ -317,7 +317,7 @@ describe('signing by email link', () => {
       [deal.landlord.email, deal.tenant.email, deal.agent.email].sort(),
     )
     expect(copies[0][2]).toMatchObject({ filename: 'Check-in report.pdf' })
-    expect(copies[0][1].signatures.map((signature) => signature.role)).toEqual(['Tenant', 'Landlord'])
+    expect(copies[0][1].signatures.map((signature) => signature.role)).toEqual(['TENANT', 'LANDLORD'])
     expect((await emails(deal.inspection.id)).every((row) => row.sentAt)).toBe(true)
   })
 

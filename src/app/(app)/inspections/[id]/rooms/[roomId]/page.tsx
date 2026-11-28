@@ -7,6 +7,8 @@ import { roomHref } from '@/lib/routes'
 import { toAnnotations } from '@/lib/annotations'
 import { checkInReference } from '@/lib/check-in-reference'
 import { ReviewEditor, type EvidenceCapture } from '@/components/review-editor'
+import { messages } from '@/lib/i18n'
+import { requestLocale } from '@/lib/i18n/request'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +18,7 @@ export default async function RoomReviewPage({
   const { id, roomId } = await params
 
   const agent = await requireAgent()
+  const w = messages(await requestLocale(agent)).pwa
 
   const room = await db.room.findFirst({
     where: { id: roomId, inspection: inspectionScope(agent.id) },
@@ -55,13 +58,13 @@ export default async function RoomReviewPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between text-sm">
         <Link href={`/inspections/${id}`} className="text-link inline-flex min-h-11 items-center">
-          ← All rooms
+          {w.allRooms}
         </Link>
         <Link
           href={`/inspections/${id}/rooms/${room.id}/capture`}
           className="action-secondary"
         >
-          Add captures
+          {w.addCaptures}
         </Link>
       </div>
 

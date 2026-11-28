@@ -12,6 +12,7 @@ import { activeNotificationRecipients } from '@/lib/notification-recipients'
 import { propertyLabel } from '@/lib/format'
 import { assertCanAddProperty, subscriptionCanResume, subscriptionIsLive } from '@/lib/plan'
 import type { AgencyMembership, Prisma, Stakeholder } from '@/generated/prisma'
+import { inRecipientLanguage, type Messages } from '@/lib/i18n'
 
 const agencyName = z.string().trim().min(1).max(100)
 const roleSchema = z.enum(['OWNER', 'MANAGER', 'AGENT'])
@@ -39,12 +40,16 @@ async function requireManager(agencyId: string, actorId: string, tx: Prisma.Tran
 async function queueInvitation(tx: Prisma.TransactionClient, membership: AgencyMembership, agency: { name: string }, actor: Stakeholder) {
   await tx.notification.deleteMany({ where: { agencyMembershipId: membership.id } })
   if (!(await activeNotificationRecipients(tx, [membership.stakeholderId])).length) return
-  await tx.notification.create({ data: {
+  const [notification] = await inRecipientLanguage(tx, [{
     recipientId: membership.stakeholderId, agencyMembershipId: membership.id,
-    kind: 'AGENCY_INVITATION', title: `Join ${agency.name} on Kivilo`,
-    body: `${actor.name} invited you to join ${agency.name}. Review and accept this invitation within 7 days.`,
+    kind: 'AGENCY_INVITATION' as const,
+    words: (m: Messages) => ({
+      title: m.notification.agencyInvitationTitle(agency.name),
+      body: m.notification.agencyInvitationBody(actor.name, agency.name),
+    }),
     href: '/team',
-  } })
+  }])
+  await tx.notification.create({ data: notification })
 }
 
 export async function createAgency(rawName: string) {
@@ -267,12 +272,14 @@ export async function assignTenancy(tenancyId: string, raw: z.input<typeof assig
     const recipients = await activeNotificationRecipients(tx, newlyAssigned)
     if (recipients.length) {
       const inspection = await tx.inspection.findFirst({ where: { tenancyId }, orderBy: { createdAt: 'desc' }, select: { id: true } })
-      await tx.notification.createMany({ data: recipients.map((recipientId) => ({
+      await tx.notification.createMany({ data: await inRecipientLanguage(tx, recipients.map((recipientId) => ({
         recipientId, tenancyId, kind: 'PROPERTY_SHARED' as const,
-        title: `${actor.name} assigned a property to you`,
-        body: `${actor.name} assigned you to ${propertyLabel(property)}.`,
+        words: (m: Messages) => ({
+          title: m.notification.propertyAssignedTitle(actor.name),
+          body: m.notification.propertyAssignedBody(actor.name, propertyLabel(property)),
+        }),
         href: inspection ? `/inspections/${inspection.id}` : '/inspections',
-      })) })
+      }))) })
     }
     await audit(tx, agencyId, actor, tenancy.agencyId ? 'Changed property assignments' : 'Added property to team', { id: tenancyId, name: property.line1 })
     const lead = leadAgentId !== tenancy.agentId

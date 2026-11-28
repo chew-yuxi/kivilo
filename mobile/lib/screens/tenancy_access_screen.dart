@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../models/tenancy_access.dart';
 import '../models/agency.dart';
 import '../services/api.dart';
@@ -104,23 +105,19 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
     final confirmed = await showKiviloDrawer<bool>(
       context: context,
       builder: (context) => KiviloDrawer(
-        title: Text('Remove $name?'),
+        title: Text(t.accessRemoveTitle(name)),
         content: Text(
-          reportsOnly
-              ? 'They will lose access to their previous reports for this tenancy. '
-                    'Work they have already saved stays on the property.'
-              : 'They will lose access to this tenancy and its inspections, updates '
-                    'and repairs. Work they have already saved stays on the property.',
+          reportsOnly ? t.accessRemoveReportsBody : t.accessRemoveBody,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
             style: kiviloDangerFilled,
-            child: const Text('Remove access'),
+            child: Text(t.accessRemove),
           ),
         ],
       ),
@@ -169,8 +166,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
     context,
     action: action,
     who: access.agency == null
-        ? 'the lead agent'
-        : 'the responsible agent or a team owner or manager',
+        ? t.theLeadAgent
+        : t.theResponsibleAgentOrATeamOwner,
     askNames: access.askNames,
   );
 
@@ -208,8 +205,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
         appBar: AppBar(
           title: Text(
             access?.scope == 'INSPECTION'
-                ? 'Access to previous reports'
-                : 'Property access',
+                ? t.accessPreviousReports
+                : t.tenancyPropertyAccess,
           ),
           leading: Navigator.canPop(context)
               ? IconButton(
@@ -235,12 +232,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                       const SizedBox(height: 12),
                       Text(
                         access?.scope == 'INSPECTION'
-                            ? 'Your access covers previous reports you worked on. '
-                                  'The lead agent can add you as a collaborator to '
-                                  'work on this tenancy.'
-                            : 'Collaborators can capture photos, edit inventory and '
-                                  'manage repairs for this tenancy. This grants no access '
-                                  'to other tenancies or properties.',
+                            ? t.accessReportsOnlyIntro
+                            : t.accessIntro,
                       ),
                       if (_error != null) ...[
                         const SizedBox(height: 16),
@@ -252,7 +245,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                           const SizedBox(height: kiviloButtonGap),
                           OutlinedButton(
                             onPressed: disabled ? null : _load,
-                            child: const Text('Try again'),
+                            child: Text(t.tryAgain),
                           ),
                         ],
                       ],
@@ -269,7 +262,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                 children: [
                                   Text(
                                     access.agency?['name'] as String? ??
-                                        'Personal tenancy',
+                                        t.propertyPersonalTenancy,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.titleMedium,
@@ -277,8 +270,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                   const SizedBox(height: 8),
                                   Text(
                                     access.agency == null
-                                        ? 'This work belongs to the lead agent. Moving it into a team gives its owners and managers access.'
-                                        : 'Team owners and managers oversee this tenancy. Assigned agents and external collaborators can work on it.',
+                                        ? t.accessPersonalDetail
+                                        : t.accessTeamDetail,
                                   ),
                                   if (access.canManageAssignment ||
                                       access.scope == 'TENANCY') ...[
@@ -290,16 +283,16 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                           ? () => _locked(
                                               access,
                                               access.agency == null
-                                                  ? 'Move to team'
-                                                  : 'Assign team members',
+                                                  ? t.accessMoveToTeam
+                                                  : t.accessAssignMembers,
                                             )
                                           : access.agency == null
                                           ? _moveToTeam
                                           : () => _assignment(access),
                                       child: Text(
                                         access.agency == null
-                                            ? 'Move to team'
-                                            : 'Assign team members',
+                                            ? t.accessMoveToTeam
+                                            : t.accessAssignMembers,
                                       ),
                                     ),
                                   ],
@@ -313,11 +306,10 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                           access.label,
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
-                        if (access.visibility == 'PRIVATE' && access.agency == null) ...[
+                        if (access.visibility == 'PRIVATE' &&
+                            access.agency == null) ...[
                           const SizedBox(height: 6),
-                          const Text(
-                            'Only the lead agent can work on this tenancy.',
-                          ),
+                          Text(t.accessLeadOnly),
                         ],
                         const SizedBox(height: 12),
                         if (access.leadAgent case final lead?)
@@ -327,7 +319,9 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                               title: Text(lead.name),
                               subtitle: Text(
                                 [
-                                  access.agency == null ? 'Lead agent' : 'Responsible agent',
+                                  access.agency == null
+                                      ? t.accessLeadAgent
+                                      : t.inspectionsResponsibleAgent,
                                   if (lead.email != null) lead.email!,
                                 ].join(' · '),
                               ),
@@ -352,7 +346,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                     Text(person.email!),
                                   ],
                                   const SizedBox(height: 4),
-                                  const Text('Can work on this tenancy'),
+                                  Text(t.accessCanWork),
                                   if (access.canManageAccess ||
                                       access.scope == 'TENANCY') ...[
                                     const SizedBox(height: kiviloButtonGap),
@@ -371,7 +365,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                                 person.name,
                                               ),
                                         style: kiviloDangerOutlined,
-                                        child: const Text('Remove access'),
+                                        child: Text(t.accessRemove),
                                       ),
                                     ),
                                   ],
@@ -383,14 +377,11 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                         if (access.inspectionOnly.isNotEmpty) ...[
                           const SizedBox(height: 24),
                           Text(
-                            'Previous reports only',
+                            t.accessPreviousReportsOnly,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'These agents keep access to reports they previously '
-                            'worked on. They cannot work on the rest of this tenancy.',
-                          ),
+                          Text(t.accessPreviousReportsDetail),
                           for (final person in access.inspectionOnly) ...[
                             const SizedBox(height: kiviloButtonGap),
                             Card(
@@ -409,8 +400,9 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                     if (person.email != null)
                                       Text(person.email!),
                                     Text(
-                                      '${person.inspectionIds.length} previous '
-                                      '${person.inspectionIds.length == 1 ? 'report' : 'reports'}',
+                                      t.accessPreviousReportCount(
+                                        person.inspectionIds.length,
+                                      ),
                                     ),
                                     if (access.canManageAccess ||
                                         access.scope == 'TENANCY') ...[
@@ -431,7 +423,7 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                                   reportsOnly: true,
                                                 ),
                                           style: kiviloDangerOutlined,
-                                          child: const Text('Remove access'),
+                                          child: Text(t.accessRemove),
                                         ),
                                       ),
                                     ],
@@ -444,14 +436,11 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                         const SizedBox(height: 24),
                         if (access.canManageAccess) ...[
                           Text(
-                            'Add a collaborator',
+                            t.accessAddCollaboratorTitle,
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const SizedBox(height: 8),
-                          const Text(
-                            'They can open the property after signing in to '
-                            'Kivilo with this email address.',
-                          ),
+                          Text(t.accessAddCollaboratorDetail),
                           const SizedBox(height: 16),
                           TextField(
                             controller: _email,
@@ -459,8 +448,8 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                             keyboardType: TextInputType.emailAddress,
                             textCapitalization: TextCapitalization.none,
                             autocorrect: false,
-                            decoration: const InputDecoration(
-                              labelText: 'Email address',
+                            decoration: InputDecoration(
+                              labelText: t.teamEmailAddress,
                             ),
                             onChanged: (_) => setState(() {}),
                           ),
@@ -475,14 +464,19 @@ class _TenancyAccessScreenState extends State<TenancyAccessScreen> {
                                     ),
                                     clearEmail: true,
                                   ),
-                            child: Text(_busy ? 'Saving…' : 'Add collaborator'),
+                            child: Text(
+                              _busy ? t.saving : t.accessAddCollaborator,
+                            ),
                           ),
                         ] else if (access.scope == 'TENANCY')
                           OutlinedButton(
                             onPressed: disabled
                                 ? null
-                                : () => _locked(access, 'Add a collaborator'),
-                            child: const Text('Add a collaborator'),
+                                : () => _locked(
+                                    access,
+                                    t.accessAddCollaboratorTitle,
+                                  ),
+                            child: Text(t.accessAddCollaboratorTitle),
                           ),
                         if (_loading || _busy) ...[
                           const SizedBox(height: 16),
@@ -522,36 +516,31 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
 
   @override
   Widget build(BuildContext context) => KiviloDrawer(
-    title: const Text('Assign team members'),
+    title: Text(t.accessAssignMembers),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         KiviloSelectField<String?>(
-          label: 'Responsible agent',
+          label: t.inspectionsResponsibleAgent,
           value:
               widget.access.availableMembers.any((person) => person.id == _lead)
               ? _lead
               : null,
           options: [
-            const KiviloSelectOption<String?>(
-              value: null,
-              label: 'Choose a member',
-            ),
+            KiviloSelectOption<String?>(value: null, label: t.teamChooseMember),
             for (final person in widget.access.availableMembers)
               KiviloSelectOption<String?>(value: person.id, label: person.name),
           ],
           onChanged: (value) => setState(() => _lead = value),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Changing the responsible agent hands over management without changing authorship or signed reports. External collaborators keep their existing access.',
-        ),
+        Text(t.accessHandoverDetail),
         const SizedBox(height: 16),
         TextField(
           controller: _search,
           onChanged: (_) => setState(() {}),
-          decoration: const InputDecoration(labelText: 'Find a team member'),
+          decoration: InputDecoration(labelText: t.accessFindMember),
         ),
         for (final person in widget.access.availableMembers.where(
           (person) => '${person.name} ${person.email ?? ''}'
@@ -563,8 +552,8 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
             title: Text(person.name),
             subtitle: Text(
               person.id == _lead
-                  ? 'Responsible agent'
-                  : person.email ?? 'Team member',
+                  ? t.inspectionsResponsibleAgent
+                  : person.email ?? t.accessTeamMember,
             ),
             value: person.id == _lead || _members.contains(person.id),
             onChanged: person.id == _lead
@@ -582,7 +571,7 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _lead == null
@@ -591,7 +580,7 @@ class _AssignmentDrawerState extends State<_AssignmentDrawer> {
                 'leadAgentId': _lead,
                 'memberIds': _members.where((id) => id != _lead).toList(),
               }),
-        child: const Text('Save assignment'),
+        child: Text(t.accessSaveAssignment),
       ),
     ],
   );
@@ -608,25 +597,23 @@ class _MoveToTeamDrawerState extends State<_MoveToTeamDrawer> {
   String? _agencyId;
   @override
   Widget build(BuildContext context) => KiviloDrawer(
-    title: const Text('Move tenancy to team?'),
+    title: Text(t.accessMoveTitle),
     content: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          'This tenancy becomes team work. Owners and managers gain access and can reassign it. Existing collaborators, signed reports and authorship are preserved. Other personal tenancies stay personal.',
-        ),
+        Text(t.accessMoveBody),
         const SizedBox(height: 16),
         if (widget.agencies.isEmpty)
-          const Text('Create or join a team first in Account → Team.')
+          Text(t.accessCreateTeamFirst)
         else
           KiviloSelectField<String?>(
-            label: 'Team',
+            label: t.settingsTeam,
             value: _agencyId,
             options: [
-              const KiviloSelectOption<String?>(
+              KiviloSelectOption<String?>(
                 value: null,
-                label: 'Choose a team',
+                label: t.accessChooseTeam,
               ),
               for (final agency in widget.agencies)
                 KiviloSelectOption<String?>(
@@ -641,13 +628,13 @@ class _MoveToTeamDrawerState extends State<_MoveToTeamDrawer> {
     actions: [
       TextButton(
         onPressed: () => Navigator.pop(context),
-        child: const Text('Cancel'),
+        child: Text(t.cancel),
       ),
       FilledButton(
         onPressed: _agencyId == null
             ? null
             : () => Navigator.pop(context, _agencyId),
-        child: const Text('Move to team'),
+        child: Text(t.accessMoveToTeam),
       ),
     ],
   );
