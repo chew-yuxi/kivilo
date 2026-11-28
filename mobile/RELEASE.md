@@ -5,6 +5,23 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Dismissible Home reminders · 28 November 2026 Singapore time
+
+Agents can tap × on a check-in or check-out reminder and use Undo to restore it. Dismissals are saved per account on that phone, including offline. The inspection stays in Properties. The older public Android Home screen offers the same control on its Continue inspection card. [Matched Home screens](../docs/ux/dismiss-home-reminder.png) · [Public Android comparison](../docs/ux/dismiss-home-reminder-android25.png)
+
+| Distribution | Release | Stable patch | Shorebird ID | Compiled source |
+| --- | --- | --- | --- | --- |
+| Public iPhone App Store | 1.0.0+26 | 10 | 853016 | [672f1fe](https://github.com/chew-yuxi/kivilo/commit/672f1fe) |
+| Public Google Play | 1.0.0+25 | 62 | 853014 | [0194fe8](https://github.com/chew-yuxi/kivilo/commit/0194fe8) |
+| TestFlight | 1.0.0+25 | 63 | 853017 | [e7f1c8e](https://github.com/chew-yuxi/kivilo/commit/e7f1c8e) |
+| Android internal | 1.0.0+29 | 33 | 853005 | [e7f1c8e](https://github.com/chew-yuxi/kivilo/commit/e7f1c8e) |
+| Android 30 | 1.0.1+30 | 3 | 853008 | [2f5677e](https://github.com/chew-yuxi/kivilo/commit/2f5677e) |
+| Prepared iPhone 30 | 1.0.1+30 | 4 | 853015 | [672f1fe](https://github.com/chew-yuxi/kivilo/commit/672f1fe) |
+
+PR 8 merged to main at `5836a70`. The main app passed 582 Flutter tests, the TestFlight and internal Android compatibility source passed 570, and public Android 25 passed 399. Flutter analysis passed on all three. Every patched Material icon is present in the corresponding store font, including the dismiss glyph.
+
+All six patches passed a device update check from the preceding stable patch, first on the verification track and then on stable. All 12 platform and architecture combinations downloaded the expected artifact and advertised the SHA-256 of the locally built code. Physical handset installation and runtime performance were unmeasured. Shorebird reported 54.1% code sharing for public iPhone 26, 41.1% for TestFlight 25 and 56.9% for prepared iPhone 30, with possible slower execution.
+
 ## Standalone check-out · 28 November 2026 Singapore time
 
 Agents can start with an address, use a paper check-in, and record damage, missing items or a clear visit. They can resume on the same phone and enter party and deposit details at review. The audit fixed missing issue classifications and offscreen validation. Both native platforms completed the signed S$2,000 example with one S$60 deduction. The combined source passed all 579 Flutter tests. [Audit and screenshots](../docs/ux/checkout-walkthrough-audit.md)
