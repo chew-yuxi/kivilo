@@ -291,6 +291,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
     ValueChanged<String> changed, {
     bool required = true,
     int? max,
+    int lines = 1,
     TextInputType? keyboard,
   }) {
     return TextFormField(
@@ -298,6 +299,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
       initialValue: value,
       onChanged: (v) => _change(() => changed(v)),
       maxLength: max,
+      maxLines: lines,
       keyboardType: keyboard,
       decoration: InputDecoration(labelText: label),
       validator: (v) =>
@@ -338,6 +340,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                 '${widget.agency?.name ?? 'Personal'} · Check-out',
                 style: Theme.of(context).textTheme.bodySmall,
               ),
+              const SizedBox(height: 12),
               if (error != null)
                 Text(
                   error!,
@@ -442,6 +445,7 @@ class _MoveOutScreenState extends State<MoveOutScreen> {
                             (v) => issue['note'] = v,
                             required: false,
                             max: 1000,
+                            lines: 3,
                           ),
                           Wrap(
                             spacing: 8,
