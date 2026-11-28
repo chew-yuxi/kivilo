@@ -160,7 +160,7 @@ void main() {
       await tester.tap(find.text('8 Jalan Kayu #04-11, 799487'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Workspace: Harbour Homes'), findsOneWidget);
+      expect(find.text('Team: Harbour Homes'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Address (required)'), findsNothing);
       await _reveal(tester, find.text('Start with the rooms from the last check-in'));
       expect(find.text('3 rooms to set up'), findsOneWidget);

@@ -257,7 +257,7 @@ export async function createInspection(input: {
       })
       if (!managed) throw new Error('Property not found')
       if (managed.tenancies[0].agencyId !== (input.agencyId ?? null)) {
-        throw new Error('A new tenancy stays in the property’s workspace')
+        throw new Error('A new tenancy keeps the same team or stays Personal')
       }
       if (input.sameLandlord) {
         if (tenantEmail && tenantEmail === managed.tenancies[0].landlord.email) {

@@ -26,8 +26,8 @@ class WorkspacePicker extends StatelessWidget {
     final homes = contexts.landlord || contexts.tenant;
     final work = homes && workspace.hasWork ? 'My work' : null;
     return KiviloSelectField<String>(
-      label: homes ? 'Showing' : 'Workspace',
-      sheetTitle: homes ? 'Choose what to show' : 'Choose workspace',
+      label: homes ? 'Showing' : 'Teams',
+      sheetTitle: homes ? 'Choose what to show' : 'Choose a team',
       value: workspace.value,
       options: [
         if (workspace.hasWork) ...[

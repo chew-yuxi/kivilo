@@ -443,7 +443,7 @@ void main() {
     await _pump(tester, api);
     expect(api.requests, ['tenant']);
     expect(find.text('Showing'), findsNothing);
-    expect(find.text('Workspace'), findsNothing);
+    expect(find.text('Teams'), findsNothing);
     expect(find.text('New check-in'), findsNothing);
     expect(find.byType(HandoverGuide), findsNothing);
     expect(find.text('You’re all caught up'), findsOneWidget);

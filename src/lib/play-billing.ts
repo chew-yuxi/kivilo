@@ -95,7 +95,7 @@ export async function preparePlayPurchase(productId: string, agencyId?: string |
       throw new PlayBillingError('billing_conflict', 'Choose enough seats for the current team members.')
     }
     if (current && subscriptionCanResume(current) && !current.googlePlayPurchaseId) {
-      throw new PlayBillingError('billing_conflict', 'This workspace already has a subscription. Manage that plan before buying another.')
+      throw new PlayBillingError('billing_conflict', 'You already have a subscription here. Manage your current plan before buying another.')
     }
     const replacement = current?.googlePlayPurchase && subscriptionCanResume(current) ? current.googlePlayPurchase : null
     if (replacement && (!subscriptionIsLive(current!) || replacement.productId === productId)) {

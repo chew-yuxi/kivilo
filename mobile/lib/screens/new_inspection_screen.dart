@@ -574,13 +574,13 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           OutlinedButton(
             onPressed: _busy || _existing != null ? null : _chooseWorkspace,
             child: Text(
-              'Workspace: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
+              'Team: ${_existing != null ? _existing!.agencyName ?? 'Personal' : _agency?.name ?? 'Personal'}',
             ),
           ),
           const SizedBox(height: 8),
           Text(
             _existing != null
-                ? 'A new tenancy stays in the property’s workspace.'
+                ? 'A new tenancy keeps the same team or stays Personal.'
                 : _agency == null
                 ? 'Private to you until you share it.'
                 : 'You are the responsible agent. Assigned colleagues can work with you; owners and managers oversee all team properties.',

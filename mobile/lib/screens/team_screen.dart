@@ -112,7 +112,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'Create or join a team, invite colleagues, then add properties in its workspace. Agents work on assignments; owners and managers oversee the team. Choose Personal for your own properties.',
+                  'Create or join a team to manage properties with your colleagues. Agents see their assigned properties. Owners and managers see all team properties. Choose Personal for your own properties.',
                 ),
                 if (_error != null || snapshot.hasError) ...[
                   const SizedBox(height: 16),
@@ -479,7 +479,7 @@ class _TeamDetailScreenState extends State<TeamDetailScreen> {
                     const SizedBox(height: kiviloHeadingGap),
                     if (agency.tenancies.isEmpty)
                       const Text(
-                        'No team properties yet. Open this team’s workspace and start a check-in. You can also move an existing personal tenancy from Property access.',
+                        'No team properties yet. Choose this team when you start a check-in. You can also move an existing personal tenancy from Property access.',
                       ),
                     for (final tenancy in agency.tenancies) ...[
                       Card(
