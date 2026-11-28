@@ -220,10 +220,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     active: widget.trackView,
     child: Scaffold(
     appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-    bottomNavigationBar: DecoratedBox(
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: KiviloColors.subtle)),
-      ),
+    // Use the same Material surface and default elevation as BottomNavigationBar.
+    bottomNavigationBar: Material(
+      color: BottomNavigationBarTheme.of(context).backgroundColor,
+      elevation: BottomNavigationBarTheme.of(context).elevation ?? 8.0,
       child: SafeArea(
         minimum: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         child: LayoutBuilder(
