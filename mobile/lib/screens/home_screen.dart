@@ -36,6 +36,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final _api = widget.api ?? Api();
   late final _workspace = Workspace(_api)..addListener(_contextChanged);
+  final _dismissed = ValueNotifier<Set<String>>({});
+  late final _reminderOwner = _api.currentOwnerId;
+  late final _remindersReady = _api.dismissedInspectionReminders(_reminderOwner).then((ids) {
+    if (mounted) _dismissed.value = ids;
+  });
+  Future<void> _reminderWrites = Future.value();
   late Loading<HomeTasks> _loading = _api.load(_load);
 
   /// Bumped when the context changes, so one context's work never shows while
@@ -49,10 +55,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _workspace.removeListener(_contextChanged);
+    _dismissed.dispose();
     super.dispose();
   }
 
   Future<HomeTasks> _load() async {
+    await _remindersReady;
     await _workspace.refresh();
     // Only a profile that was read, fresh or saved, can say the question is unanswered;
     // one that could not be read at all leaves Home as it always was.
@@ -211,12 +219,61 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) await _refresh();
   }
 
+  // Save rapid dismissals and Undo in tap order, including from the full task list.
+  void _setDismissed(HomeTask task, bool hidden) {
+    _reminderWrites = _reminderWrites.then((_) async {
+      if (!mounted || _dismissed.value.contains(task.id) == hidden) return;
+      final ids = {..._dismissed.value};
+      if (hidden) {
+        ids.add(task.id);
+      } else {
+        ids.remove(task.id);
+      }
+      try {
+        await _api.saveDismissedInspectionReminders(_reminderOwner, ids);
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+            ..removeCurrentSnackBar()
+            ..showSnackBar(SnackBar(
+              content: Text(plainError(error)),
+              action: SnackBarAction(
+                label: t.retry,
+                onPressed: () => _setDismissed(task, hidden),
+              ),
+            ));
+        }
+        return;
+      }
+      if (!mounted) return;
+      setState(() => _dismissed.value = ids);
+      if (hidden) {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(
+            content: Text(t.homeReminderDismissed),
+            duration: const Duration(seconds: 6),
+            persist: MediaQuery.accessibleNavigationOf(context),
+            action: SnackBarAction(
+              label: t.undo,
+              onPressed: () => _setDismissed(task, false),
+            ),
+          ));
+      }
+    });
+  }
+
   Future<void> _viewAll(String group) async {
     final fetch = _fetch;
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
-        builder: (_) =>
-            HomeTaskListScreen(api: _api, group: group, fetch: fetch),
+        builder: (_) => HomeTaskListScreen(
+          api: _api,
+          group: group,
+          fetch: fetch,
+          dismissed: _dismissed,
+          onDismiss: (task) => _setDismissed(task, true),
+        ),
       ),
     );
     if (mounted) await _refresh();
@@ -427,7 +484,8 @@ class _HomeScreenState extends State<HomeScreen> {
           final work = _workspace.party == null;
           final firstUse = work && !_workspace.contexts.work;
           final open = data.tasks.where(
-            (task) => work && !firstUse && task.kind == 'CONTINUE_INSPECTION',
+            (task) => work && !firstUse &&
+                task.isInspectionReminder && !_dismissed.value.contains(task.id),
           );
           final latest = open.isEmpty
               ? null
@@ -444,7 +502,8 @@ class _HomeScreenState extends State<HomeScreen> {
               : t.homeGoodEvening;
           final groups = [
             for (final group in homeTaskGroups.keys)
-              if (data.group(group).any((task) => task.id != latest?.id)) group,
+              if (data.group(group, dismissed: _dismissed.value)
+                  .any((task) => task.id != latest?.id)) group,
           ];
           return ListView(
             physics: const AlwaysScrollableScrollPhysics(),
@@ -495,17 +554,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: kiviloSectionGap),
                 HomeTaskSection(
                   group: group,
-                  tasks: data.group(group),
+                  tasks: data.group(group, dismissed: _dismissed.value),
                   excludedTaskId: latest?.id,
                   truncated: data.truncated,
                   onOpen: _open,
                   onViewAll: () => _viewAll(group),
+                  onDismiss: (task) => _setDismissed(task, true),
                 ),
               ],
-              if (groups.isEmpty && latest == null && !firstUse) ...[
+              if (data.tasks.isEmpty && !firstUse) ...[
                 const SizedBox(height: kiviloSectionGap),
                 _allClear(),
-              ] else if (!groups.contains('ACTION') &&
+              ] else if (groups.isNotEmpty && !groups.contains('ACTION') &&
                   latest == null &&
                   !firstUse) ...[
                 const SizedBox(height: kiviloSectionGap),
@@ -542,18 +602,34 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  KiviloEyebrow(t.continueWhereYouLeftOff),
-                  const SizedBox(height: 8),
-                  Text(
-                    latest.property,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.titleMedium,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            KiviloEyebrow(t.continueWhereYouLeftOff),
+                            const SizedBox(height: 8),
+                            Text(
+                              latest.property,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: text.titleMedium,
+                            ),
+                            if (latest.person != null) ...[
+                              const SizedBox(height: 2),
+                              Text(latest.person!, style: text.bodySmall),
+                            ],
+                          ],
+                        ),
+                      ),
+                      DismissReminderButton(
+                        property: latest.property,
+                        onPressed: () => _setDismissed(latest, true),
+                      ),
+                    ],
                   ),
-                  if (latest.person != null) ...[
-                    const SizedBox(height: 2),
-                    Text(latest.person!, style: text.bodySmall),
-                  ],
                   const SizedBox(height: 12),
                   FilledButton.icon(
                     onPressed: () => _open(latest),

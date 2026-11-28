@@ -3018,6 +3018,17 @@
   "offlineShowingTasksAsTheyWereLast": "Offline. Showing tasks as they were last loaded; some may already be done.",
   "checkingForUpdates": "Checking for updates…",
   "nothingNeedsYourActionRightNow": "Nothing needs your action right now.",
+  "homeDismissReminder": "Dismiss reminder for {property}",
+  "homeReminderDismissed": "Reminder dismissed",
+  "homeReminderSaveFailed": "Couldn’t save this reminder change.",
+  "homeDismissedRemindersHint": "You can continue your inspections in Properties.",
+  "@homeDismissReminder": {
+    "placeholders": {
+      "property": {
+        "type": "String"
+      }
+    }
+  },
   "continueWhereYouLeftOff": "Continue where you left off",
   "clientChecksKycCdd": "Client checks (KYC/CDD)",
   "verifyClientsKycCdd": "Verify clients (KYC/CDD)",

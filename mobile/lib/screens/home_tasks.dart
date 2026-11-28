@@ -1,5 +1,6 @@
 import '../l10n/l10n.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 
 import '../models/home_tasks.dart';
 import '../services/api.dart';
@@ -55,10 +56,35 @@ Future<void> openHomeTask(BuildContext context, Api api, HomeTask task) async {
   }
 }
 
+class DismissReminderButton extends StatelessWidget {
+  const DismissReminderButton({
+    super.key,
+    required this.property,
+    required this.onPressed,
+  });
+
+  final String property;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: t.homeDismissReminder(property),
+    constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+    onPressed: onPressed,
+    icon: const Icon(Icons.close, size: 20, color: KiviloColors.muted),
+  );
+}
+
 class HomeTaskRow extends StatelessWidget {
-  const HomeTaskRow({super.key, required this.task, required this.onTap});
+  const HomeTaskRow({
+    super.key,
+    required this.task,
+    required this.onTap,
+    this.onDismiss,
+  });
   final HomeTask task;
   final VoidCallback onTap;
+  final VoidCallback? onDismiss;
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +126,13 @@ class HomeTaskRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, color: KiviloColors.subtle),
+            if (task.isInspectionReminder && onDismiss != null)
+              DismissReminderButton(
+                property: task.property,
+                onPressed: onDismiss!,
+              )
+            else
+              const Icon(Icons.chevron_right, color: KiviloColors.subtle),
           ],
         ),
       ),
@@ -118,6 +150,7 @@ class HomeTaskSection extends StatelessWidget {
     required this.truncated,
     required this.onOpen,
     required this.onViewAll,
+    required this.onDismiss,
     this.excludedTaskId,
     this.limit = 5,
   });
@@ -126,6 +159,7 @@ class HomeTaskSection extends StatelessWidget {
   final bool truncated;
   final ValueChanged<HomeTask> onOpen;
   final VoidCallback onViewAll;
+  final ValueChanged<HomeTask> onDismiss;
 
   /// Already shown in Home's inspection shortcut; keep it in the total and View all.
   final String? excludedTaskId;
@@ -155,7 +189,11 @@ class HomeTaskSection extends StatelessWidget {
             children: [
               for (var i = 0; i < shown.length; i++) ...[
                 if (i > 0) const Divider(height: 1),
-                HomeTaskRow(task: shown[i], onTap: () => onOpen(shown[i])),
+                HomeTaskRow(
+                  task: shown[i],
+                  onTap: () => onOpen(shown[i]),
+                  onDismiss: () => onDismiss(shown[i]),
+                ),
               ],
             ],
           ),
@@ -176,10 +214,14 @@ class HomeTaskListScreen extends StatefulWidget {
     required this.api,
     required this.group,
     required this.fetch,
+    required this.dismissed,
+    required this.onDismiss,
   });
   final Api api;
   final String group;
   final Future<HomeTasks> Function() fetch;
+  final ValueListenable<Set<String>> dismissed;
+  final ValueChanged<HomeTask> onDismiss;
 
   @override
   State<HomeTaskListScreen> createState() => _HomeTaskListScreenState();
@@ -222,40 +264,48 @@ class _HomeTaskListScreenState extends State<HomeTaskListScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             final data = snapshot.data!;
-            final tasks = data.group(widget.group);
-            if (tasks.isEmpty) {
-              return KiviloMessage(
-                icon: Icons.check_circle_outline,
-                title: t.nothingHereNow,
-                body: 'Everything in this list has been dealt with.',
-              );
-            }
-            return ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: kiviloScreenPadding,
-              children: [
-                Card(
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      for (var i = 0; i < tasks.length; i++) ...[
-                        if (i > 0) const Divider(height: 1),
-                        HomeTaskRow(
-                          task: tasks[i],
-                          onTap: () => _open(tasks[i]),
-                        ),
-                      ],
+            return ValueListenableBuilder<Set<String>>(
+              valueListenable: widget.dismissed,
+              builder: (context, dismissed, _) {
+                final tasks = data.group(widget.group, dismissed: dismissed);
+                if (tasks.isEmpty) {
+                  return KiviloMessage(
+                    icon: Icons.check_circle_outline,
+                    title: t.nothingHereNow,
+                    body: data.group(widget.group).isEmpty
+                        ? 'Everything in this list has been dealt with.'
+                        : t.homeDismissedRemindersHint,
+                  );
+                }
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: kiviloScreenPadding,
+                  children: [
+                    Card(
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < tasks.length; i++) ...[
+                            if (i > 0) const Divider(height: 1),
+                            HomeTaskRow(
+                              task: tasks[i],
+                              onTap: () => _open(tasks[i]),
+                              onDismiss: () => widget.onDismiss(tasks[i]),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    if (data.truncated) ...[
+                      const SizedBox(height: 12),
+                      KiviloNotice(
+                        tone: KiviloTone.info,
+                        child: Text(t.thereIsMoreThanOneScreenOf),
+                      ),
                     ],
-                  ),
-                ),
-                if (data.truncated) ...[
-                  const SizedBox(height: 12),
-                  KiviloNotice(
-                    tone: KiviloTone.info,
-                    child: Text(t.thereIsMoreThanOneScreenOf),
-                  ),
-                ],
-              ],
+                  ],
+                );
+              },
             );
           },
         ),
