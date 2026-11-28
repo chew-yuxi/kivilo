@@ -12,6 +12,7 @@ import 'package:kivilo/screens/home_screen.dart';
 import 'package:kivilo/models/property_work.dart';
 import 'package:kivilo/screens/properties_screen.dart';
 import 'package:kivilo/screens/new_inspection_screen.dart';
+import 'package:kivilo/screens/move_out_screen.dart';
 import 'package:kivilo/services/api.dart';
 import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/services/workspace.dart';
@@ -275,6 +276,18 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('an empty team portfolio opens check-out directly', (tester) async {
+    final api = _WorkspaceApi()..preference = _team.id;
+    await _open(tester, PropertiesScreen(api: api));
+    await tester.tap(find.text('Start check-out').hitTestable());
+    await tester.pumpAndSettle();
+    final checkout = tester.widget<MoveOutScreen>(find.byType(MoveOutScreen));
+    expect(checkout.agency?.id, _team.id);
+    expect(find.byType(NewInspectionScreen), findsNothing);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+  });
 
   testWidgets(
     'starting a check-in while workspace loads waits for the team default',

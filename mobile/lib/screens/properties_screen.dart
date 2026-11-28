@@ -259,13 +259,38 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     active: widget.trackView,
     child: Scaffold(
       appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-      bottomNavigationBar: KiviloActionFooter(
-        child: Row(
-          children: [
-            Expanded(child: OutlinedButton(onPressed: _creating ? null : _create, child: Text(t.newCheckIn))),
-            const SizedBox(width: kiviloButtonGap),
-            Expanded(child: OutlinedButton(onPressed: _creating ? null : () => _create(moveOut: true), child: Text(t.startCheckOut))),
-          ],
+      // Use the same Material surface and default elevation as BottomNavigationBar.
+      bottomNavigationBar: Material(
+        color: BottomNavigationBarTheme.of(context).backgroundColor,
+        elevation: BottomNavigationBarTheme.of(context).elevation ?? 8.0,
+        child: KiviloActionFooter(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final width = constraints.maxWidth;
+              final scale = MediaQuery.textScalerOf(context).scale(15) / 15;
+              final buttonWidth = width < 270 * scale ? width : (width - kiviloButtonGap) / 2;
+              return Wrap(
+                spacing: kiviloButtonGap,
+                runSpacing: kiviloButtonGap,
+                children: [
+                  SizedBox(
+                    width: buttonWidth,
+                    child: OutlinedButton(
+                      onPressed: _creating ? null : _create,
+                      child: Text(t.newCheckIn, textAlign: TextAlign.center),
+                    ),
+                  ),
+                  SizedBox(
+                    width: buttonWidth,
+                    child: OutlinedButton(
+                      onPressed: _creating ? null : () => _create(moveOut: true),
+                      child: Text(t.startCheckOut, textAlign: TextAlign.center),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
       body: SafeArea(
