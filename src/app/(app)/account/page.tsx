@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ViewTabs } from '@/components/view-tabs'
 import { requireAgent } from '@/lib/auth'
 import { agencyList } from '@/lib/agency'
 import { syncCheckoutSession, syncSubscription } from '@/lib/billing'
@@ -66,14 +67,14 @@ export default async function AccountPage({ searchParams }: PageProps<'/account'
       </div>
 
       {agencies.length > 0 && (
-        <nav aria-label={w.billingWorkspace} className="mt-8 flex flex-wrap gap-2">
-          <Link href="/account" aria-current={!agencyId ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${!agencyId ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>{w.personal}</Link>
+        <ViewTabs label={w.billingWorkspace} className="mt-8">
+          <Link href="/account" aria-current={!agencyId ? 'page' : undefined}>{w.personal}</Link>
           {agencies.map((agency) => (
-            <Link key={agency.id} href={`/account?agencyId=${encodeURIComponent(agency.id)}`} aria-current={agencyId === agency.id ? 'page' : undefined} className={`rounded-full border px-3 py-1.5 text-sm ${agencyId === agency.id ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-gray-300'}`}>
+            <Link key={agency.id} href={`/account?agencyId=${encodeURIComponent(agency.id)}`} aria-current={agencyId === agency.id ? 'page' : undefined}>
               {agency.name}
             </Link>
           ))}
-        </nav>
+        </ViewTabs>
       )}
 
       <section className="mt-8 rounded-lg border border-gray-200 bg-white p-5">

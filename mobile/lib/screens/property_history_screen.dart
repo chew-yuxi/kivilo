@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../models/property_history.dart';
 import '../services/api.dart';
-import '../ui/kivilo_components.dart';
 import '../ui/kivilo_format.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_view_tabs.dart';
 import '../ui/page_context_title.dart';
 
 /// Every change and deletion at one address, with who made it. Deleted rooms, lines,
@@ -99,15 +99,12 @@ class _PropertyHistoryScreenState extends State<PropertyHistoryScreen> {
                   style: text.bodyMedium,
                 ),
                 const SizedBox(height: 16),
-                KiviloSegmentedControl<bool>(
-                  value: _deletions,
-                  options: [
-                    KiviloSegmentOption(value: false, label: t.allChanges),
-                    KiviloSegmentOption(value: true, label: t.deletions),
-                  ],
+                KiviloViewTabs(
+                  selected: _deletions ? 1 : 0,
+                  labels: [t.allChanges, t.deletions],
                   onChanged: (value) {
                     setState(() {
-                      _deletions = value!;
+                      _deletions = value == 1;
                       _scope++;
                       _loading = _api.load(
                         _load,

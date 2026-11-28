@@ -5,7 +5,7 @@ import 'package:kivilo/ui/kivilo_theme.dart';
 void main() {
   test('handovers use legible brand pink actions in every enabled state', () {
     final style = buildKiviloTheme().filledButtonTheme.style!;
-    expect(style.backgroundColor!.resolve({}), KiviloColors.pink);
+    expect(style.backgroundColor!.resolve({}), KiviloColors.actionPink);
     for (final states in <Set<WidgetState>>[
       {},
       {WidgetState.hovered},
@@ -17,8 +17,9 @@ void main() {
         style.backgroundColor!.resolve(states)!,
       );
       final ink = style.foregroundColor!.resolve(states)!;
+      expect(ink, Colors.white);
       expect(
-        (fill.computeLuminance() + 0.05) / (ink.computeLuminance() + 0.05),
+        (ink.computeLuminance() + 0.05) / (fill.computeLuminance() + 0.05),
         greaterThanOrEqualTo(4.5),
         reason: states.toString(),
       );

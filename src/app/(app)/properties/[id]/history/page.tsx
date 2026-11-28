@@ -1,6 +1,7 @@
 import { messages } from '@/lib/i18n'
 import { requestLocale } from '@/lib/i18n/request'
 import Link from 'next/link'
+import { ViewTabs } from '@/components/view-tabs'
 import { notFound } from 'next/navigation'
 import { requireAgent } from '@/lib/auth'
 import { propertyHistory } from '@/lib/property-history'
@@ -36,18 +37,17 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
         <p className="mt-2 break-words text-gray-700">{history.property.address}</p>
         <p className="mt-2 text-sm text-gray-600">{w.everyChangeAndDeletionWithWhoMade}</p>
       </div>
-      <nav aria-label={w.filterHistory} className="flex flex-wrap gap-2">
+      <ViewTabs label={w.filterHistory}>
         {(['all', 'deletions'] as const).map((value) => (
           <Link
             key={value}
             href={value === 'all' ? `/properties/${id}/history` : `/properties/${id}/history?filter=deletions`}
             aria-current={filter === value ? 'page' : undefined}
-            className="action-filter"
           >
             {value === 'all' ? w.allChanges : w.deletions}
           </Link>
         ))}
-      </nav>
+      </ViewTabs>
       {history.events.length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-600">
           {filter === 'deletions' ? w.nothingHasBeenDeleted : w.noChangesRecordedYet}

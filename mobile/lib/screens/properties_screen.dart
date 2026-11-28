@@ -11,6 +11,7 @@ import '../ui/kivilo_components.dart';
 import '../ui/kivilo_layout.dart';
 import '../ui/kivilo_illustration.dart';
 import '../ui/kivilo_theme.dart';
+import '../ui/kivilo_view_tabs.dart';
 import '../models/property_work.dart';
 import 'inspection_screen.dart';
 import 'property_card.dart';
@@ -400,9 +401,8 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                           ),
                         ],
                         const SizedBox(height: 16),
-                        if (properties.isEmpty && _filter.state == 'active')
-                          _messageCard()
-                        else ...[
+                        if (properties.isNotEmpty ||
+                            _filter.state != 'active') ...[
                           TextField(
                             controller: _search,
                             onChanged: (_) => setState(() {}),
@@ -422,43 +422,24 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          // One scrolling row, so the filters never take a second line.
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              spacing: 8,
-                              children: [
-                                for (final filter in _PropertyFilter.values)
-                                  ChoiceChip(
-                                    label: Text(
-                                      // Counts describe the list on screen; Archived and
-                                      // Recently deleted are fetched when chosen.
-                                      filter.state != 'active' ||
-                                              _filter.state != 'active'
-                                          ? filter.label
-                                          : '${filter.label} · ${properties.where(filter.includes).length}',
-                                    ),
-                                    selected: _filter == filter,
-                                    onSelected: (_) => _selectFilter(filter),
-                                    selectedColor: KiviloColors.pinkSoft,
-                                    backgroundColor: Colors.white,
-                                    checkmarkColor: KiviloColors.pinkDark,
-                                    labelStyle: TextStyle(
-                                      color: _filter == filter
-                                          ? KiviloColors.pinkDark
-                                          : KiviloColors.body,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    side: BorderSide(
-                                      color: _filter == filter
-                                          ? KiviloColors.pinkDark
-                                          : KiviloColors.border,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                        ],
+                        KiviloViewTabs(
+                          labels: [
+                            for (final filter in _PropertyFilter.values)
+                              filter.state != 'active' ||
+                                      _filter.state != 'active'
+                                  ? filter.label
+                                  : '${filter.label} · ${properties.where(filter.includes).length}',
+                          ],
+                          selected: _filter.index,
+                          onChanged: (index) =>
+                              _selectFilter(_PropertyFilter.values[index]),
+                        ),
+                        const SizedBox(height: 16),
+                        if (properties.isEmpty &&
+                            _filter == _PropertyFilter.all)
+                          _messageCard()
+                        else ...[
                           Text(
                             '${visible.length} ${visible.length == 1 ? t.property : t.properties}'
                             '${query.isNotEmpty || _filter != _PropertyFilter.all ? t.found : ''}',

@@ -83,8 +83,8 @@ test('the selected tenancy length fills the last day and preserves custom dates'
   await expect(page.getByRole('navigation', { name: 'Main menu' }).getByRole('link', { name: 'My work' }))
     .toHaveAttribute('aria-current', 'location')
   const submit = page.getByRole('button', { name: 'Create and start capturing' })
-  await expect(submit).toHaveCSS('background-color', 'rgb(236, 72, 153)')
-  await expect(submit).toHaveCSS('color', 'rgb(17, 24, 39)')
+  await expect(submit).toHaveCSS('background-color', 'rgb(219, 39, 119)')
+  await expect(submit).toHaveCSS('color', 'rgb(255, 255, 255)')
   const form = (await page.locator('form').filter({ has: submit }).boundingBox())!
   const action = (await submit.boundingBox())!
   expect(action.width).toBeCloseTo(form.width, 0)

@@ -1,6 +1,7 @@
 import { messages } from '@/lib/i18n'
 import { requestLocale } from '@/lib/i18n/request'
 import Link from 'next/link'
+import { ViewTabs } from '@/components/view-tabs'
 import { requireAgent } from '@/lib/auth'
 import { propertyWork, type PropertyStage } from '@/lib/property-work'
 import { dueRenewals } from '@/lib/renewals'
@@ -70,18 +71,17 @@ export default async function PropertiesPage({ searchParams }: PageProps<'/prope
         <input id="property-search" name="q" defaultValue={search} placeholder={w.addressTenantOrAgent} className="field min-w-0 flex-1" />
         <button type="submit" className="action-secondary">{w.search}</button>
       </form>
-      <nav aria-label={w.propertyStage} className="-mx-4 mb-6 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+      <ViewTabs label={w.propertyStage} className="mb-6">
         {filters.map((option) => (
           <Link
             key={option.key}
             href={href(option.key)}
             aria-current={filter.key === option.key ? 'page' : undefined}
-            className="action-filter"
           >
             {w.propertyStageLabels[option.key]}
           </Link>
         ))}
-      </nav>
+      </ViewTabs>
       {filter.key === 'trash' && (
         <p className="mb-6 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           {w. trashNote}

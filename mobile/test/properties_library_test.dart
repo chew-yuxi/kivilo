@@ -680,11 +680,13 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('an empty list explains the first check-in', (tester) async {
+  testWidgets('an empty list offers the first check-in and keeps archived properties reachable', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
     expect(find.text('New check-in'), findsOneWidget);
     expect(find.byType(TextField), findsNothing);
+    await _chip(tester, 'Archived');
+    expect(find.text('1 Archive Walk'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

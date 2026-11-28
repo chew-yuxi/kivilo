@@ -5,6 +5,7 @@ class KiviloColors {
   KiviloColors._();
 
   static const pink = Color(0xFFEC4899);
+  static const actionPink = Color(0xFFDB2777);
   static const pinkDark = Color(0xFFBE185D);
   static const pinkSoft = Color(0xFFFDF2F8);
   static const ink = Color(0xFF111827);
@@ -55,8 +56,8 @@ final kiviloDangerFilled = FilledButton.styleFrom(
 ThemeData buildKiviloTheme() {
   final colors = ColorScheme.fromSeed(
     seedColor: KiviloColors.pink,
-    primary: KiviloColors.pink,
-    onPrimary: KiviloColors.ink,
+    primary: KiviloColors.actionPink,
+    onPrimary: Colors.white,
     surface: Colors.white,
     onSurface: KiviloColors.ink,
     surfaceTint: Colors.transparent,
@@ -165,9 +166,9 @@ ThemeData buildKiviloTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: KiviloColors.pink,
-        foregroundColor: KiviloColors.ink,
-        overlayColor: Colors.white,
+        backgroundColor: KiviloColors.actionPink,
+        foregroundColor: Colors.white,
+        overlayColor: Colors.black,
         disabledBackgroundColor: KiviloColors.disabled,
         disabledForegroundColor: KiviloColors.muted,
         minimumSize: const Size(0, 50),
@@ -197,6 +198,20 @@ ThemeData buildKiviloTheme() {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: _buttonShape,
         textStyle: _buttonText,
+      ),
+    ),
+    chipTheme: const ChipThemeData(
+      backgroundColor: Colors.white,
+      secondarySelectedColor: KiviloColors.border,
+      showCheckmark: true,
+      checkmarkColor: KiviloColors.ink,
+      side: BorderSide(color: KiviloColors.field),
+      shape: StadiumBorder(),
+      labelStyle: TextStyle(fontSize: 14, color: KiviloColors.body),
+      secondaryLabelStyle: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: KiviloColors.ink,
       ),
     ),
     dividerTheme: const DividerThemeData(color: KiviloColors.border),
