@@ -594,80 +594,88 @@ class _HomeScreenState extends State<HomeScreen> {
           )
         : null;
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (compactArt)
-              Row(
-                children: [
-                  Expanded(child: eyebrow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(20, dismiss == null ? 20 : 0, dismiss == null ? 20 : 0, 0),
+            child: Row(
+              children: [
+                Expanded(child: eyebrow),
+                if (compactArt) ...[
                   const SizedBox(width: 12),
-                  KiviloIllustration(scene: scene, width: 96, height: 64),
-                  ?dismiss,
+                  KiviloIllustration(scene: scene, width: 96, height: dismiss == null ? 64 : 48),
                 ],
-              )
-            else ...[
-              Row(children: [Expanded(child: eyebrow), ?dismiss]),
-              const SizedBox(height: 8),
-              KiviloIllustration(scene: scene, height: 124),
-            ],
-            const SizedBox(height: 8),
-            Text(
-              current == null
-                  ? 'Great handovers start\nwith a clear record.'
-                  : awaiting
-                  ? 'Bring everyone onto\nthe same page.'
-                  : firstRoom
-                  ? 'Start with the first room.'
-                  : 'One room at a time.',
-              style: Theme.of(context).textTheme.headlineLarge,
+                ?dismiss,
+              ],
             ),
-            const SizedBox(height: 12),
-            if (current != null) ...[
-              Text(
-                current.property,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${current.kindLabel} · ${current.tenant}',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 12),
-            ],
-            Text(
-              current == null
-                  ? 'Check in at move-in, or check out at move-out. You can start with either visit.'
-                  : awaiting
-                  ? 'The inventory is frozen. Check who still needs to sign, or send their signing email again.'
-                  : firstRoom
-                  ? 'Add a room, take photos, then write down what you find.'
-                  : 'Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.',
-              style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!compactArt) ...[
+                  const SizedBox(height: 8),
+                  KiviloIllustration(scene: scene, height: 124),
+                ],
+                const SizedBox(height: 8),
+                Text(
+                  current == null
+                      ? 'Great handovers start\nwith a clear record.'
+                      : awaiting
+                      ? 'Bring everyone onto\nthe same page.'
+                      : firstRoom
+                      ? 'Start with the first room.'
+                      : 'One room at a time.',
+                  style: Theme.of(context).textTheme.headlineLarge,
+                ),
+                const SizedBox(height: 12),
+                if (current != null) ...[
+                  Text(
+                    current.property,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${current.kindLabel} · ${current.tenant}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                Text(
+                  current == null
+                      ? 'Check in at move-in, or check out at move-out. You can start with either visit.'
+                      : awaiting
+                      ? 'The inventory is frozen. Check who still needs to sign, or send their signing email again.'
+                      : firstRoom
+                      ? 'Add a room, take photos, then write down what you find.'
+                      : 'Open a room, choose an inventory item, then add photos and check its condition before reviewing the room.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: current == null
+                      ? _create
+                      : () => _openInspection(current.id),
+                  icon: const Icon(Icons.chevron_right, size: 20),
+                  iconAlignment: IconAlignment.end,
+                  label: Text(
+                    current == null
+                        ? 'Start check-in'
+                        : awaiting
+                        ? 'Check signatures'
+                        : firstRoom
+                        ? 'Add your first room'
+                        : 'Continue inspection',
+                  ),
+                ),
+                const SizedBox(height: kiviloButtonGap),
+                OutlinedButton(onPressed: () => _create(moveOut: true), child: const Text('Start check-out')),
+              ],
             ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: current == null
-                  ? _create
-                  : () => _openInspection(current.id),
-              icon: const Icon(Icons.chevron_right, size: 20),
-              iconAlignment: IconAlignment.end,
-              label: Text(
-                current == null
-                    ? 'Start check-in'
-                    : awaiting
-                    ? 'Check signatures'
-                    : firstRoom
-                    ? 'Add your first room'
-                    : 'Continue inspection',
-              ),
-            ),
-            const SizedBox(height: kiviloButtonGap),
-            OutlinedButton(onPressed: () => _create(moveOut: true), child: const Text('Start check-out')),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

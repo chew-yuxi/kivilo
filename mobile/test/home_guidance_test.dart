@@ -144,6 +144,20 @@ Future<void> _reveal(WidgetTester tester, Finder target) async {
 }
 
 void main() {
+  for (final size in const [Size(320, 568), Size(800, 1024)]) {
+    testWidgets('reminder close aligns with its heading and trailing edge at $size', (tester) async {
+      await _pumpHome(tester, _HomeApi(statuses: ['DRAFT']), size: size);
+      final close = find.byTooltip('Dismiss reminder for Property 0');
+      await _reveal(tester, close);
+      final card = find.ancestor(of: close, matching: find.byType(Card)).first;
+      final bounds = tester.getRect(close);
+      expect(bounds.size, const Size.square(48));
+      expect(bounds.right, closeTo(tester.getRect(card).right, 0.5));
+      expect(bounds.center.dy, closeTo(tester.getCenter(find.text('YOUR NEXT STEP')).dy, 0.5));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('editable inspection reminders can be dismissed and undone per account', (tester) async {
     final cache = _ReminderCache();
     final api = _HomeApi(statuses: ['DRAFT', 'AWAITING_SIGNATURE'], cache: cache);
