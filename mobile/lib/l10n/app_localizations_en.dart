@@ -5462,6 +5462,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Nothing needs your action right now.';
 
   @override
+  String homeDismissReminder(String property) {
+    return 'Dismiss reminder for $property';
+  }
+
+  @override
+  String get homeReminderDismissed => 'Reminder dismissed';
+
+  @override
+  String get homeReminderSaveFailed => 'Couldn’t save this reminder change.';
+
+  @override
+  String get homeDismissedRemindersHint =>
+      'You can continue your inspections in Properties.';
+
+  @override
   String get continueWhereYouLeftOff => 'Continue where you left off';
 
   @override

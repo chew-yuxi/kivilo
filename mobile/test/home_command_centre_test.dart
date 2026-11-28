@@ -14,6 +14,7 @@ import 'package:kivilo/screens/maintenance_case_screen.dart';
 import 'package:kivilo/screens/party_homes_screen.dart';
 import 'package:kivilo/screens/report_screen.dart';
 import 'package:kivilo/services/api.dart';
+import 'package:kivilo/services/read_cache.dart';
 import 'package:kivilo/ui/handover_guide.dart';
 import 'package:kivilo/ui/kivilo_format.dart';
 import 'package:kivilo/ui/kivilo_theme.dart';
@@ -45,10 +46,28 @@ HomeTask task(
   href: href ?? '/inspections/$id',
 );
 
+class _ReminderCache extends ReadCache {
+  @override
+  String ownerId = 'first-account';
+  final files = <(String, String), Object?>{};
+  bool failWrites = false;
+
+  @override
+  Future<Object?> readForOwner(String owner, String key) async => files[(owner, key)];
+
+  @override
+  Future<bool> writeForOwner(String owner, String key, Object? value) async {
+    if (failWrites) return false;
+    files[(owner, key)] = value;
+    return true;
+  }
+}
+
 class _HomeApi extends Api {
   _HomeApi({
     this.contexts = const UserContexts(work: true, landlord: false, tenant: false),
     Map<String, HomeTasks>? byContext,
+    super.cache,
   }) : byContext = byContext ?? {},
        super(attachAuth: false);
 
@@ -244,6 +263,99 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('dismiss and undo the newest inspection without changing other work', (tester) async {
+    final cache = _ReminderCache();
+    final api = _HomeApi(cache: cache, byContext: {'work': _work});
+    await _pump(tester, api);
+    final close = find.byTooltip('Dismiss reminder for 3 Newer Walk, Singapore 100003');
+    final checkout = find.widgetWithText(FilledButton, 'Continue the check-out');
+    final checkin = find.widgetWithText(FilledButton, 'Continue the check-in');
+
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+    expect(checkout, findsNothing);
+    expect(checkin, findsOneWidget);
+    expect(find.text('Needs your action · 1'), findsOneWidget);
+    expect(find.text('Acknowledge the repair: Leaking tap'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(checkout, findsOneWidget);
+    expect(find.text('Needs your action · 2'), findsOneWidget);
+
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const SizedBox());
+    await _pump(tester, _HomeApi(cache: cache, byContext: {'work': _work})..offlineCopy = true);
+    expect(checkout, findsNothing);
+    expect(checkin, findsOneWidget);
+
+    await tester.pumpWidget(const SizedBox());
+    cache.ownerId = 'second-account';
+    await _pump(tester, _HomeApi(cache: cache, byContext: {'work': _work}));
+    expect(checkout, findsOneWidget);
+  });
+
+  testWidgets('dismissing a reminder hides only that inspection in that stage', (tester) async {
+    final cache = _ReminderCache()..failWrites = true;
+    final api = _HomeApi(cache: cache, byContext: {'work': HomeTasks(tasks: [task('one')])});
+    await _pump(tester, api, size: const Size(320, 568), scale: 2);
+    final close = find.byTooltip('Dismiss reminder for 12 Cairnhill Rise, Singapore 229700');
+    await _reveal(tester, close);
+    expect(tester.getSize(close).shortestSide, greaterThanOrEqualTo(48));
+    await tester.tap(close);
+    await tester.pumpAndSettle();
+    expect(find.text('Couldn’t save this reminder change.'), findsOneWidget);
+    expect(close, findsOneWidget);
+    cache.failWrites = false;
+    await tester.tap(find.text('Retry'));
+    await tester.pumpAndSettle();
+    expect(close, findsNothing);
+    expect(find.text('You’re all caught up'), findsNothing);
+
+    await tester.pumpWidget(const SizedBox());
+    api.byContext['work'] = HomeTasks(tasks: [
+      task('one', group: 'WAITING', kind: 'SIGNATURES', title: 'Awaiting both signatures'),
+      task('two', title: 'Continue the new check-out'),
+    ]);
+    await _pump(tester, api);
+    expect(find.widgetWithText(FilledButton, 'Continue the new check-out'), findsOneWidget);
+    await _reveal(tester, find.text('Awaiting both signatures'));
+    final signature = find.widgetWithText(HomeTaskRow, 'Awaiting both signatures');
+    expect(find.descendant(of: signature, matching: find.byType(IconButton)), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('View all dismisses individual rows and updates Home on return', (tester) async {
+    final api = _HomeApi(cache: _ReminderCache(), byContext: {
+      'work': HomeTasks(tasks: [
+        for (var i = 0; i < 7; i++) task('i$i', property: 'Flat $i'),
+      ]),
+    });
+    await _pump(tester, api);
+    await _reveal(tester, find.text('View all 7'));
+    await tester.tap(find.text('View all 7'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Dismiss reminder for Flat 0'));
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeTaskListScreen), findsOneWidget);
+    expect(find.text('Flat 0'), findsNothing);
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(find.text('Flat 0'), findsOneWidget);
+    await tester.tap(find.byTooltip('Dismiss reminder for Flat 1'));
+    await tester.pumpAndSettle();
+    expect(find.text('Flat 1'), findsNothing);
+    await tester.pump(const Duration(seconds: 7));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsNothing);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeTaskListScreen), findsNothing);
+    await _reveal(tester, find.text('View all 6'));
+    expect(find.text('Flat 1'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final waiting in [false, true]) {
     testWidgets('one inspection shortcut is still actionable with waiting=$waiting', (

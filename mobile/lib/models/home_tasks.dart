@@ -38,6 +38,11 @@ class HomeTask {
   /// The same paths notifications carry; `notificationScreen` opens them.
   final String href;
 
+  bool get isInspectionReminder => kind == 'CONTINUE_INSPECTION';
+
+  bool isDismissedBy(Set<String> ids) =>
+      isInspectionReminder && ids.contains(id);
+
   factory HomeTask.fromJson(Map<String, dynamic> json) => HomeTask(
     id: json['id'] as String,
     group: json['group'] as String,
@@ -74,8 +79,12 @@ class HomeTasks {
   /// A source reached the server's bound: counts are "at least", never the whole.
   final bool truncated;
 
-  List<HomeTask> group(String group) =>
-      tasks.where((task) => task.group == group).toList();
+  List<HomeTask> group(String group, {Set<String> dismissed = const {}}) =>
+      tasks
+          .where(
+            (task) => task.group == group && !task.isDismissedBy(dismissed),
+          )
+          .toList();
 
   factory HomeTasks.fromJson(Map<String, dynamic> json) => HomeTasks(
     tasks: (json['tasks'] as List<dynamic>)

@@ -696,6 +696,25 @@ class Api {
         .toList();
   }
 
+  static const _reminderCacheKey = 'dismissed-inspection-reminders';
+
+  Future<Set<String>> dismissedInspectionReminders(String? owner) async {
+    _checkOwner(owner);
+    if (owner == null) return {};
+    final saved = await _cache.readForOwner(owner, _reminderCacheKey);
+    _checkOwner(owner);
+    return saved is List ? saved.whereType<String>().toSet() : <String>{};
+  }
+
+  Future<void> saveDismissedInspectionReminders(String? owner, Set<String> ids) async {
+    _checkOwner(owner);
+    if (owner == null ||
+        !await _cache.writeForOwner(owner, _reminderCacheKey, ids.toList())) {
+      throw ApiFailure(t.homeReminderSaveFailed, null);
+    }
+    _checkOwner(owner);
+  }
+
   /// Home's tasks for one context: `work` (narrowed by team or personal), `landlord`
   /// or `tenant`. Saved per route, so one context's copy never shows for another.
   Future<HomeTasks> homeTasks({
