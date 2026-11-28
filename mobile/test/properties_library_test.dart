@@ -683,8 +683,18 @@ void main() {
   testWidgets('both inspection starts stay in reach while browsing properties', (
     tester,
   ) async {
-    await _open(tester, _LibraryApi());
+    tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final theme = buildKiviloTheme();
+    final navigationTheme = theme.bottomNavigationBarTheme.copyWith(
+      elevation: 4,
+      backgroundColor: const Color(0xFFFAFAFA),
+    );
+    await tester.pumpWidget(MaterialApp(
+      theme: theme.copyWith(bottomNavigationBarTheme: navigationTheme),
+      home: PropertiesScreen(api: _LibraryApi()),
+    ));
     await tester.pumpAndSettle();
     final checkIn = find.widgetWithText(OutlinedButton, 'New check-in');
     final checkOut = find.widgetWithText(OutlinedButton, 'Start check-out');
@@ -699,10 +709,9 @@ void main() {
     expect(footerRect.bottom, 844);
     expect(footerRect.top, greaterThan(tester.getBottomLeft(find.text('Teams')).dy));
     expect(first.top, greaterThan(footerRect.top));
-    final decoration = (footer as DecoratedBox).decoration as BoxDecoration;
-    final top = (decoration.border! as Border).top;
-    expect(top.color, KiviloColors.subtle);
-    expect(top.width, greaterThanOrEqualTo(1));
+    final surface = footer as Material;
+    expect(surface.elevation, navigationTheme.elevation);
+    expect(surface.color, navigationTheme.backgroundColor);
 
     await tester.drag(find.byType(ListView), const Offset(0, -480));
     await tester.pumpAndSettle();
