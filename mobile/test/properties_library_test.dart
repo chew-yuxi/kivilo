@@ -680,6 +680,70 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('both inspection starts stay in reach while browsing properties', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(390, 844);
+    addTearDown(tester.view.reset);
+    final theme = buildKiviloTheme();
+    final navigationTheme = theme.bottomNavigationBarTheme.copyWith(
+      elevation: 4,
+      backgroundColor: const Color(0xFFFAFAFA),
+    );
+    await tester.pumpWidget(MaterialApp(
+      theme: theme.copyWith(bottomNavigationBarTheme: navigationTheme),
+      home: PropertiesScreen(api: _LibraryApi()),
+    ));
+    await tester.pumpAndSettle();
+    final checkIn = find.widgetWithText(OutlinedButton, 'New check-in');
+    final checkOut = find.widgetWithText(OutlinedButton, 'Start check-out');
+    final first = tester.getRect(checkIn);
+    final second = tester.getRect(checkOut);
+    expect(first.center.dy, second.center.dy);
+    expect(first.height, greaterThanOrEqualTo(48));
+    expect(second.height, greaterThanOrEqualTo(48));
+    final footer = tester.widget<Scaffold>(find.byType(Scaffold)).bottomNavigationBar!;
+    final footerRect = tester.getRect(find.byWidget(footer));
+    expect(footerRect.width, 390);
+    expect(footerRect.bottom, 844);
+    expect(footerRect.top, greaterThan(tester.getBottomLeft(find.text('Teams')).dy));
+    expect(first.top, greaterThan(footerRect.top));
+    final surface = footer as Material;
+    expect(surface.elevation, navigationTheme.elevation);
+    expect(surface.color, navigationTheme.backgroundColor);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -480));
+    await tester.pumpAndSettle();
+    expect(checkIn.hitTestable(), findsOneWidget);
+    expect(checkOut.hitTestable(), findsOneWidget);
+    expect(tester.getRect(checkIn), first);
+    expect(tester.getRect(checkOut), second);
+  });
+
+  testWidgets('narrow phones with large text show both starts at full width', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(320, 568);
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(MaterialApp(
+      theme: buildKiviloTheme(),
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(2)),
+        child: child!,
+      ),
+      home: PropertiesScreen(api: _LibraryApi(active: [])),
+    ));
+    await tester.pumpAndSettle();
+    final first = tester.getRect(find.text('New check-in').hitTestable());
+    final second = tester.getRect(find.text('Start check-out').hitTestable());
+    expect(first.bottom, lessThan(second.top));
+    expect(tester.getSize(find.widgetWithText(OutlinedButton, 'New check-in')).width, 288);
+    expect(tester.getSize(find.widgetWithText(OutlinedButton, 'Start check-out')).width, 288);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('an empty list offers the first check-in and keeps archived properties reachable', (tester) async {
     await _open(tester, _LibraryApi(active: []));
     expect(find.text('No properties yet'), findsOneWidget);
