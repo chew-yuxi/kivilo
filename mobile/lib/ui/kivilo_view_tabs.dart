@@ -63,33 +63,37 @@ class _KiviloViewTabsState extends State<KiviloViewTabs>
 
   @override
   Widget build(BuildContext context) {
-    return TabBar(
-      controller: _controller,
-      onTap: (index) {
-        if (index != widget.selected) widget.onChanged(index);
-      },
-      isScrollable: true,
-      tabAlignment: TabAlignment.start,
-      labelColor: KiviloColors.ink,
-      unselectedLabelColor: KiviloColors.muted,
-      labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      unselectedLabelStyle: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
+    return KiviloTapFeedback(
+      child: TabBar(
+        // Let ink resolve the ripple and pressed surface colours independently.
+        overlayColor: const WidgetStatePropertyAll<Color?>(null),
+        controller: _controller,
+        onTap: (index) {
+          if (index != widget.selected) widget.onChanged(index);
+        },
+        isScrollable: true,
+        tabAlignment: TabAlignment.start,
+        labelColor: KiviloColors.ink,
+        unselectedLabelColor: KiviloColors.muted,
+        labelStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+        ),
+        labelPadding: const EdgeInsets.symmetric(horizontal: 8),
+        dividerHeight: _dividerHeight,
+        dividerColor: KiviloColors.border,
+        indicator: const _ViewMark(),
+        indicatorSize: TabBarIndicatorSize.tab,
+        indicatorAnimation: TabIndicatorAnimation.linear,
+        tabs: [
+          for (final label in widget.labels)
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
+              child: Center(child: Text(label, softWrap: false)),
+            ),
+        ],
       ),
-      labelPadding: const EdgeInsets.symmetric(horizontal: 8),
-      dividerHeight: _dividerHeight,
-      dividerColor: KiviloColors.border,
-      indicator: const _ViewMark(),
-      indicatorSize: TabBarIndicatorSize.tab,
-      indicatorAnimation: TabIndicatorAnimation.linear,
-      tabs: [
-        for (final label in widget.labels)
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 48),
-            child: Center(child: Text(label, softWrap: false)),
-          ),
-      ],
     );
   }
 }
