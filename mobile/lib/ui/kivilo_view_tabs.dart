@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import 'kivilo_theme.dart';
@@ -63,8 +65,15 @@ class _KiviloViewTabsState extends State<KiviloViewTabs>
 
   @override
   Widget build(BuildContext context) {
-    return KiviloTapFeedback(
+    return Theme(
+      data: Theme.of(context).copyWith(
+        highlightColor: Colors.transparent,
+        splashColor: KiviloColors.ink.withValues(alpha: 0.18),
+      ),
       child: TabBar(
+        splashFactory: MediaQuery.disableAnimationsOf(context)
+            ? const _TabRippleFactory(reduceMotion: true)
+            : const _TabRippleFactory(reduceMotion: false),
         // Let ink resolve the ripple and pressed surface colours independently.
         overlayColor: const WidgetStatePropertyAll<Color?>(null),
         controller: _controller,
@@ -94,6 +103,108 @@ class _KiviloViewTabsState extends State<KiviloViewTabs>
             ),
         ],
       ),
+    );
+  }
+}
+
+// A Material tab normally sizes its splash to reach the farthest corner.
+// Keep a visible circular edge throughout a quick tap and a long press.
+class _TabRippleFactory extends InteractiveInkFeatureFactory {
+  const _TabRippleFactory({required this.reduceMotion});
+
+  final bool reduceMotion;
+
+  @override
+  InteractiveInkFeature create({
+    required MaterialInkController controller,
+    required RenderBox referenceBox,
+    required Offset position,
+    required Color color,
+    required TextDirection textDirection,
+    bool containedInkWell = false,
+    RectCallback? rectCallback,
+    BorderRadius? borderRadius,
+    ShapeBorder? customBorder,
+    double? radius,
+    VoidCallback? onRemoved,
+  }) => _TabRipple(
+    controller: controller,
+    referenceBox: referenceBox,
+    position: position,
+    color: color,
+    textDirection: textDirection,
+    reduceMotion: reduceMotion,
+    onRemoved: onRemoved,
+  );
+}
+
+class _TabRipple extends InteractiveInkFeature {
+  _TabRipple({
+    required super.controller,
+    required super.referenceBox,
+    required this.position,
+    required super.color,
+    required this.textDirection,
+    required bool reduceMotion,
+    super.onRemoved,
+  }) {
+    _growth = AnimationController(
+      vsync: controller.vsync,
+      duration: const Duration(milliseconds: 150),
+      value: reduceMotion ? 1 : 0,
+    )..addListener(controller.markNeedsPaint);
+    _fade =
+        AnimationController(
+            vsync: controller.vsync,
+            duration: const Duration(milliseconds: 240),
+          )
+          ..addListener(controller.markNeedsPaint)
+          ..addStatusListener((status) {
+            if (status == AnimationStatus.completed) dispose();
+          });
+    controller.addInkFeature(this);
+    if (!reduceMotion) _growth.forward();
+  }
+
+  final Offset position;
+  final TextDirection textDirection;
+  late final AnimationController _growth;
+  late final AnimationController _fade;
+
+  @override
+  void confirm() => _fade.forward();
+
+  @override
+  void cancel() => confirm();
+
+  @override
+  void dispose() {
+    _growth.dispose();
+    _fade.dispose();
+    super.dispose();
+  }
+
+  @override
+  void paintFeature(Canvas canvas, Matrix4 transform) {
+    final size = referenceBox.size;
+    final limit = math.min(22.0, size.shortestSide / 2);
+    final radius =
+        limit * (0.2 + 0.8 * Curves.easeOut.transform(_growth.value));
+    // Move only as far as needed to keep the circle inside an edge tap.
+    final center = Offset(
+      position.dx.clamp(radius, size.width - radius).toDouble(),
+      position.dy.clamp(radius, size.height - radius).toDouble(),
+    );
+    paintInkCircle(
+      canvas: canvas,
+      transform: transform,
+      paint: Paint()
+        ..color = color.withValues(
+          alpha: color.a * (1 - const Interval(0.35, 1).transform(_fade.value)),
+        ),
+      center: center,
+      radius: radius,
+      textDirection: textDirection,
     );
   }
 }
