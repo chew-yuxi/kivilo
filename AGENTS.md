@@ -23,7 +23,7 @@ when someone is ready to re-migrate and re-seed.
 
 ## Product language
 
-Use the [Kivilo design system](plans/design-system.md) for the mobile and browser apps. Primary actions have brand-pink fill and dark ink. A standalone action fills the form. The [handover evaluation](plans/ux-design-evaluation-20261127.md) shows matched examples and what to check before shipping.
+Use the [Kivilo design system](plans/design-system.md) for the mobile and browser apps. Primary actions use white labels on action pink. Use the short, centred Teasa mark for view tabs. A standalone action fills the form. The [handover evaluation](plans/ux-design-evaluation-20261127.md) shows matched examples and what to check before shipping.
 
 Write for real estate agents doing a handover. Use the words they use with landlords, tenants and colleagues. Call the shared group a team. Use “Teams” and “Choose a team” in the picker, with “Personal” for the agent’s own properties. Prefer plain instructions about the next action over technical or design terminology.
 

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ViewTabs } from '@/components/view-tabs'
 import { notFound } from 'next/navigation'
 import { requireAgent } from '@/lib/auth'
 import { propertyHistory } from '@/lib/property-history'
@@ -37,18 +38,17 @@ export default async function PropertyHistoryPage({ params, searchParams }: Page
           restored for 30 days. History is recorded from 23 October 2026.
         </p>
       </div>
-      <nav aria-label="Filter history" className="flex flex-wrap gap-2">
+      <ViewTabs label="Filter history">
         {(['all', 'deletions'] as const).map((value) => (
           <Link
             key={value}
             href={value === 'all' ? `/properties/${id}/history` : `/properties/${id}/history?filter=deletions`}
             aria-current={filter === value ? 'page' : undefined}
-            className="action-filter"
           >
             {value === 'all' ? 'All changes' : 'Deletions'}
           </Link>
         ))}
-      </nav>
+      </ViewTabs>
       {history.events.length === 0 ? (
         <p className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-600">
           {filter === 'deletions' ? 'Nothing has been deleted.' : 'No changes recorded yet.'}
