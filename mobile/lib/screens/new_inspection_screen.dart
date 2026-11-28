@@ -233,7 +233,7 @@ class _NewInspectionScreenState extends State<NewInspectionScreen> {
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: _busy ? null : _chooseWorkspace,
-            child: Text('Workspace: ${_agency?.name ?? 'Personal'}'),
+            child: Text('Team: ${_agency?.name ?? 'Personal'}'),
           ),
           const SizedBox(height: 8),
           Text(

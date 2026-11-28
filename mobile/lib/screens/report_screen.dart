@@ -470,6 +470,7 @@ class _ReportScreenState extends State<ReportScreen> {
       padding: kiviloScreenPadding,
       children: [
         Text(report.property, style: text.headlineMedium),
+        if (report.standaloneMoveOut) const Text('Move-out observations. No Kivilo check-in was used for this tenancy.'),
         const SizedBox(height: 10),
         Align(
           alignment: Alignment.centerLeft,

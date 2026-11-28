@@ -8,6 +8,8 @@ import 'capture_queue.dart';
 /// Saves the camera's temporary file into app support storage before a capture is
 /// acknowledged in the UI. A small journal covers a crash between the file rename and
 /// SQLite insert; reconcile() imports that file on the next launch.
+const evidencePhotoEdge = 2048.0;
+
 class CaptureStore {
   CaptureStore({required this.queue, required this.root});
 

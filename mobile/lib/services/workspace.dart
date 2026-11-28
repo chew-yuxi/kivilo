@@ -6,6 +6,7 @@ import 'api.dart';
 class Workspace {
   Workspace(this.api);
   final Api api;
+  String country = 'SG';
   AgencyIndex index = const AgencyIndex(agencies: [], invitations: []);
   String? _choice;
 

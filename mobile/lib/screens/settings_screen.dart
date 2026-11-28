@@ -439,7 +439,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
             const SizedBox(height: kiviloSectionGap),
-            const KiviloSectionHeading(title: 'Workspace'),
+            const KiviloSectionHeading(title: 'Teams'),
             const SizedBox(height: kiviloHeadingGap),
             _teamsCard(),
             const SizedBox(height: kiviloSectionGap),

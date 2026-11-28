@@ -13,6 +13,7 @@ import '../models/property_work.dart';
 import 'inspection_screen.dart';
 import 'property_screen.dart';
 import 'new_inspection_screen.dart';
+import 'move_out_screen.dart';
 import 'renewal_reminders.dart';
 import 'team_screen.dart';
 
@@ -165,7 +166,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     }
   }
 
-  Future<void> _create() async {
+  Future<void> _create({bool moveOut = false}) async {
     if (_creating) return;
     setState(() => _creating = true);
     try {
@@ -176,7 +177,9 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           : _agency;
       final id = await Navigator.of(context).push<String>(
         MaterialPageRoute(
-          builder: (_) => NewInspectionScreen(api: _api, initialAgency: agency),
+          builder: (_) => moveOut
+              ? MoveOutScreen(api: _api, agency: agency, country: _workspace.country)
+              : NewInspectionScreen(api: _api, initialAgency: agency),
         ),
       );
       if (!mounted || id == null) return;
@@ -217,12 +220,13 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
     active: widget.trackView,
     child: Scaffold(
     appBar: ModalRoute.of(context)?.canPop == true ? AppBar() : null,
-    floatingActionButton: FloatingActionButton.extended(
-      onPressed: _creating ? null : _create,
-      backgroundColor: KiviloColors.pink,
-      foregroundColor: Colors.white,
-      icon: const Icon(Icons.add),
-      label: const Text('New check-in'),
+    bottomNavigationBar: SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: Row(children: [
+        Expanded(child: OutlinedButton(onPressed: _creating ? null : _create, child: const Text('New check-in'))),
+        const SizedBox(width: 8),
+        Expanded(child: OutlinedButton(onPressed: _creating ? null : () => _create(moveOut: true), child: const Text('Start check-out'))),
+      ]),
     ),
     body: SafeArea(
       bottom: false,
@@ -296,6 +300,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
                       onChanged: _selectWorkspace,
                       onTeams: _teams,
                     ),
+
                     if (_teamDetail?.canManage == true) ...[
                       const SizedBox(height: 12),
                       KiviloSelectField<String?>(
@@ -562,21 +567,10 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            _api.offlineCopy ? 'Connect to create a new check-in.' : 'Start a check-in for your next handover. Your inventory, photos and signed report will live here.',
+            _api.offlineCopy ? 'Connect to create a new check-in.' : 'Choose check-in at move-in or check-out at move-out. Your signed reports will live here.',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
-          if (!_api.offlineCopy) ...[
-            const SizedBox(height: 18),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: _create,
-                icon: const Icon(Icons.add),
-                label: const Text('Start check-in'),
-              ),
-            ),
-          ],
         ],
       ),
     ),

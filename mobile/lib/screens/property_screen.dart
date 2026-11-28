@@ -282,6 +282,17 @@ class _PropertyScreenState extends State<PropertyScreen> {
       rows.add(row);
     }
 
+    if (term.startCheckOutFrom case final baseline?) {
+      addRow(ListTile(title: const Text('Start check-out'), subtitle: const Text('Use the signed check-in for this tenancy'),
+        onTap: () async {
+          try {
+            final id = await _api.startCheckOut(baseline);
+            if (mounted) await _open(InspectionScreen(id: id, api: _api));
+          } catch (error) {
+            if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plainError(error))));
+          }
+        }));
+    }
     for (final report in reports) {
       addRow(
         ListTile(

@@ -7,13 +7,16 @@ class UserProfile {
     required this.id,
     required this.name,
     required this.roles,
+    this.country = 'SG',
   });
   final String id;
   final String name;
   final List<String> roles;
+  final String country;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
     id: json['id'] as String,
+    country: json['country'] as String? ?? 'SG',
     name: json['name'] as String,
     roles: (json['roles'] as List<dynamic>).cast<String>(),
   );

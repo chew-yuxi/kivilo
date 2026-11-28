@@ -15,6 +15,7 @@ import 'inspection_screen.dart';
 import 'properties_screen.dart';
 import 'property_screen.dart';
 import 'new_inspection_screen.dart';
+import 'move_out_screen.dart';
 import 'notifications_screen.dart';
 import 'report_screen.dart';
 import 'service_directory_screen.dart';
@@ -53,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<(UserProfile, List<TenancySummary>, List<InspectionSummary>)>
   _load() async {
     final profile = await _api.me();
+    _workspace.country = profile.country;
     final allInspections = profile.roles.contains('AGENT')
         ? null
         : await _api.inspections();
@@ -144,10 +146,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _create() async {
+  Future<void> _create({bool moveOut = false}) async {
     final id = await Navigator.of(context).push<String>(
       MaterialPageRoute(
-        builder: (_) => NewInspectionScreen(
+        builder: (_) => moveOut ? MoveOutScreen(api: _api, agency: _workspace.all
+            ? _workspace.index.agencies.firstOrNull : _workspace.agency, country: _workspace.country) : NewInspectionScreen(
           api: _api,
           initialAgency: _workspace.all
               ? _workspace.index.agencies.firstOrNull
@@ -343,7 +346,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (snapshot.hasError) {
                 return KiviloMessage(
                   icon: Icons.cloud_off_outlined,
-                  title: 'Could not load your workspace',
+                  title: 'Could not load your teams',
                   body: plainError(snapshot.error!),
                   actionLabel: 'Try again',
                   onAction: _refresh,
@@ -563,7 +566,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
             Text(
               current == null
-                  ? 'Add the property and tenancy. We’ll guide you from the first photo to the signed report.'
+                  ? 'Check in at move-in, or check out at move-out. You can start with either visit.'
                   : awaiting
                   ? 'The inventory is frozen. Check who still needs to sign, or send their signing email again.'
                   : firstRoom
@@ -588,6 +591,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     : 'Continue inspection',
               ),
             ),
+            const SizedBox(height: kiviloButtonGap),
+            OutlinedButton(onPressed: () => _create(moveOut: true), child: const Text('Start check-out')),
           ],
         ),
       ),
