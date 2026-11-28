@@ -5,6 +5,23 @@ and application ID is `one.kivilo.kivilo`. The web inspector remains available w
 the native app is piloted. Build only against the production API and Supabase project;
 `KIVILO_FAKE_EXTRACTION` must never be set there.
 
+## Circular press on Properties tabs · 28 November 2026 Singapore time
+
+On the preceding release a quick tap could fill the entire In progress tab before fading. The updated press stays circular through release and when held, including at the edges of the tab. Reduce Motion shows a fixed-size circle. [Matched app captures](../plans/design-system/native-tab-press.png) · [Offline replay](../plans/design-system/kivilo-design-preview.html)
+
+| Distribution | Release | Stable patch | Shorebird ID | Compiled source |
+| --- | --- | --- | --- | --- |
+| Public iPhone App Store | 1.0.0+26 | 14 | 853509 | [1d12254](https://github.com/chew-yuxi/kivilo/commit/1d12254) |
+| Public Google Play | 1.0.0+25 | 70 | 853485 | [4bfb8da](https://github.com/chew-yuxi/kivilo/commit/4bfb8da) |
+| TestFlight | 1.0.0+25 | 71 | 853511 | [45fc9f3](https://github.com/chew-yuxi/kivilo/commit/45fc9f3) |
+| Android internal | 1.0.0+29 | 37 | 853495 | [45fc9f3](https://github.com/chew-yuxi/kivilo/commit/45fc9f3) |
+| Android 30 | 1.0.1+30 | 11 | 853494 | [ae83ee5](https://github.com/chew-yuxi/kivilo/commit/ae83ee5) |
+| Prepared iPhone 30 | 1.0.1+30 | 12 | 853510 | [1d12254](https://github.com/chew-yuxi/kivilo/commit/1d12254) |
+
+The app, test-client and public Android compatibility suites passed 594, 582 and 411 Flutter tests respectively. Frame checks covered centre and edge taps on the released tab, with normal and reduced motion. All 12 stable downloads succeeded and the offered code hashes matched the compiled artifacts. Installation on a physical phone remains unverified.
+
+Shorebird reported partial iOS code sharing (ios26 at 52.0%, ios25 at 41.1%, ios30 at 56.8%). Handset performance is unmeasured.
+
 ## Properties bottom action bar · 28 November 2026 Singapore time
 
 New check-in and Start check-out sit above the app navigation. The fixed footer uses the same soft gray edge as the tab bar. On narrow phones with large text, the actions stack at full width. [Matched phone screenshots](../docs/ux/properties-start-actions.png) · [PR 11](https://github.com/chew-yuxi/kivilo/pull/11)

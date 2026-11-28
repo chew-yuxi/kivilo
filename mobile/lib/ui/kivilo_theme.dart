@@ -29,7 +29,7 @@ class KiviloColors {
   static const disabled = Color(0xFFF3F4F6);
 }
 
-/// Shared press feedback for tabs and segmented choices.
+/// Press feedback for segmented form choices.
 class KiviloTapFeedback extends StatelessWidget {
   const KiviloTapFeedback({super.key, required this.child});
 
